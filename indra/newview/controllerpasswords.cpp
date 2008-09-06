@@ -25,7 +25,7 @@ PasswordsController::PasswordsController(PasswordsPrefPanel *panel)
 
 PasswordsController::~PasswordsController()
 {
-	delete mModel;
+	mModel->unsubscribe(mModelConnection);
 	mModel = NULL;
 }
 
