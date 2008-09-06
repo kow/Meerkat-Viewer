@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<llsd>
+<map>
+    <key>installables</key>
+    <map>
+      <key>ogg-vorbis</key>
+      <map>
+        <key>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ogg-vorbis-1.03-1.1.2-linux-20080613.tar.bz2</key>
+        <map>
+          <key>files</key>
+          <array>
+            <string>libraries/i686-linux/lib_release_client/libvorbis.a</string>
+            <string>libraries/i686-linux/lib_release_client/libogg.a</string>
+            <string>libraries/i686-linux/lib_release_client/libvorbisfile.a</string>
+            <string>libraries/i686-linux/lib_release_client/libvorbisenc.a</string>
+            <string>libraries/include/vorbis/vorbisenc.h</string>
+            <string>libraries/include/vorbis/codec.h</string>
+            <string>libraries/include/vorbis/vorbisfile.h</string>
+            <string>libraries/include/ogg/config_types.h</string>
+            <string>libraries/include/ogg/ogg.h</string>
+            <string>libraries/include/ogg/os_types.h</string>
+            <string>LICENSES/ogg-vorbis.txt</string>
+          </array>
+          <key>md5sum</key>
+          <string>1e912aef160c1d8f46f4194942922654</string>
+        </map>
+      </map>
+    </map>
+  </map>
+</llsd>

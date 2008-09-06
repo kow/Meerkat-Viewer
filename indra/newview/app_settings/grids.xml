@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- LLSD grid definition list -->
+<llsd>
+	<map>
+		<key>grids</key>
+		<array>
+			<!-- the first map in the array is the default grid -->
+			<map>
+				<key>name</key>
+					<string>util.agni.lindenlab.com</string>
+				<key>label</key>
+					<string>Second Life Main (Agni)</string>
+				<key>login_uri</key>
+					<string>https://login.agni.lindenlab.com/cgi-bin/login.cgi</string>
+				<key>helper_uri</key>
+					<string>https://secondlife.com/helpers/</string>
+			</map>
+			
+			<map>
+				<key>name</key>
+					<string>util.aditi.lindenlab.com</string>
+				<key>label</key>
+					<string>Second Life Testing (Aditi)</string>
+				<key>login_uri</key>
+					<string>https://login.aditi.lindenlab.com/cgi-bin/login.cgi</string>
+				<key>helper_uri</key>
+					<string>http://aditi-secondlife.webdev.lindenlab.com/helpers/</string>
+			</map>
+			
+			<map>
+				<key>name</key>
+					<string>util.siva.lindenlab.com</string>
+				<key>label</key>
+					<string>Second Life Testing (Siva)</string>
+				<key>login_uri</key>
+					<string>https://login.siva.lindenlab.com/cgi-bin/login.cgi</string>
+				<key>helper_uri</key>
+					<string>http://siva-secondlife.webdev.lindenlab.com/helpers/</string>
+			</map>
+			
+			<!-- non-linden grids begin here -->
+			<map>
+				<key>name</key>
+					<string>openlife</string>
+				<key>label</key>
+					<string>Openlife Grid</string>
+				<key>login_uri</key>
+					<string>http://logingrid.net:8002</string>
+				<key>helper_uri</key>
+					<string>http://openlifegrid.com/</string>
+			</map>
+			
+			<map>
+				<key>name</key>
+					<string>osgrid</string>
+				<key>label</key>
+					<string>OSGrid</string>
+				<key>login_uri</key>
+					<string>http://osgrid.org:8002</string>
+				<key>helper_uri</key>
+					<string>http://osgrid.org/</string>
+			</map>
+			
+			<map>
+				<key>name</key>
+					<string>pleiades</string>
+				<key>label</key>
+					<string>Pleiades OpenSim</string>
+				<key>login_uri</key>
+					<string>http://opensim.pleiades.ca:8002</string>
+				<key>helper_uri</key>
+					<string>http://opensim.pleiades.ca:8002/?method=login</string>
+			</map>
+			
+			<map>
+				<key>name</key>
+					<string>local</string>
+				<key>label</key>
+					<string>Local Grid</string>
+				<key>login_uri</key>
+					<string>http://localhost:9000</string>
+				<key>helper_uri</key>
+					<string>http://localhost:9000/?method=login</string>
+				<key>menu_color</key>
+					<array>
+						<integer>155</integer>	<!-- red -->
+						<integer>155</integer>	<!-- green -->
+						<integer>0</integer>	<!-- blue -->
+						<integer>255</integer>	<!-- alpha -->
+					</array>
+			</map>
+		</array>
+	</map>
+</llsd>

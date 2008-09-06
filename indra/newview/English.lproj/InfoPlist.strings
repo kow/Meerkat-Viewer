@@ -1,0 +1,5 @@
+/* Localized versions of Info.plist keys */
+
+CFBundleName = "Meerkat";
+CFBundleShortVersionString = "Meerkat version 8.8.0";
+CFBundleGetInfoString = "Meerkat version 8.8.0, Copyright 2004-2008 Linden Research, Inc. Copyright 2008 Open Metaverse Foundation.";

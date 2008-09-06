@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater can_close="true" can_drag_on_left="false" can_minimize="false"
+	can_resize="false" can_tear_off="true" default_tab_group="1" enabled="true"
+	height="175" min_height="100" min_width="100" mouse_opaue="true"
+	name="Authentication" title="Authentication Required for [TARGET_GRID]" width="400">
+	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="true"
+		drop_shadow_visible="true" follows="left|top" font="SansSerif" h_pad="0" vpad="0"
+		halign="left" height="16" width="350" left="10" bottom="140" mouse_opaque="true"
+		name="Intro_text">
+		Enter username and password for [TARGET_GRID]
+	</text>
+	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	     bottom="124" drop_shadow_visible="true" follows="left|top"
+	     font="SansSerif" h_pad="0" halign="left" height="16"
+	     left="21" mouse_opaque="true" name="User_text" v_pad="0" width="120">
+		 User:
+	</text>
+	<line_editor bevel_style="in" border_style="line" border_thickness="1"
+	     follows="left|top" font="SansSerif" handle_edit_keys_directly="true"
+	     height="20" bottom="103" left="20" max_length="64" mouse_opaque="true"
+	     name="User_edit" select_all_on_focus_received="true" width="360" />
+	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	     bottom="78" drop_shadow_visible="true" follows="left|top"
+	     font="SansSerif" h_pad="0" halign="left" height="16"
+	     left="21" mouse_opaque="true" name="Password_text" v_pad="0" width="120">
+		 Password:
+	</text>
+	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom="57"
+	     follows="left|top" font="SansSerif" handle_edit_keys_directly="true"
+	     height="20" left="20" max_length="16" mouse_opaque="true"
+	     name="Password_edit" select_all_on_focus_received="true" width="360" />
+	<check_box bottom="32" follows="left|bottom" font="SansSerifSmall" height="16"
+		left="10" initial_value="false" label="Store the password for this grid."
+		mouse_opaque="true" name="Remember_check" width="138" />
+	<button bottom="5" enabled="true" follows="right|bottom" font="SansSerif"
+	     halign="center" height="20" label="OK" label_selected="OK" left="210"
+	     mouse_opaque="true" name="OK" scale_image="true" width="90" />
+	<button bottom="5" enabled="true" follows="right|bottom" font="SansSerif"
+	     halign="center" height="20" label="Cancel" label_selected="Cancel"
+	     left_delta="93" mouse_opaque="true" name="Cancel" scale_image="true"
+	     width="90" />
+	<button bottom="5" enabled="true" follows="left|bottom" font="SansSerif"
+	     halign="center" height="20" label="Register..." label_selected="About" left="5"
+	     mouse_opaque="true" name="Register" scale_image="true" width="90" />
+</floater>
