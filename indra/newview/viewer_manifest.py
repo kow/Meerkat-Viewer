@@ -235,14 +235,11 @@ class WindowsManifest(ViewerManifest):
 
         # Vivox runtimes
         if self.prefix(src="vivox-runtime/i686-win32", dst=""):
-            self.path("SLVoice.exe")
-            self.path("SLVoiceAgent.exe")
             self.path("libeay32.dll")
             self.path("srtp.dll")
             self.path("ssleay32.dll")
             self.path("tntk.dll")
             self.path("alut.dll")
-            self.path("vivoxsdk.dll")
             self.path("ortp.dll")
             self.path("wrap_oal.dll")
             self.end_prefix()
