@@ -235,11 +235,14 @@ class WindowsManifest(ViewerManifest):
 
         # Vivox runtimes
         if self.prefix(src="vivox-runtime/i686-win32", dst=""):
+#            self.path("SLVoice.exe")
+#            self.path("SLVoiceAgent.exe")
             self.path("libeay32.dll")
             self.path("srtp.dll")
             self.path("ssleay32.dll")
             self.path("tntk.dll")
             self.path("alut.dll")
+#            self.path("vivoxsdk.dll")
             self.path("ortp.dll")
             self.path("wrap_oal.dll")
             self.end_prefix()
@@ -609,13 +612,13 @@ class Linux_i686Manifest(LinuxManifest):
             self.end_prefix("lib")
 
             # Vivox runtimes
-            if self.prefix(src="vivox-runtime/i686-linux", dst="bin"):
-                    self.path("SLVoice")
-                    self.end_prefix()
+#            if self.prefix(src="vivox-runtime/i686-linux", dst="bin"):
+#                    self.path("SLVoice")
+#                    self.end_prefix()
             if self.prefix(src="vivox-runtime/i686-linux", dst="lib"):
                     self.path("libopenal.so.1")
                     self.path("libortp.so")
-                    self.path("libvivoxsdk.so")
+#                    self.path("libvivoxsdk.so")
                     self.path("libalut.so")
                     self.end_prefix("lib")
 
