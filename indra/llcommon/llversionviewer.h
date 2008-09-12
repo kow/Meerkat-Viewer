@@ -32,10 +32,10 @@
 #ifndef LL_LLVERSIONVIEWER_H
 #define LL_LLVERSIONVIEWER_H
 
-const S32 LL_VERSION_MAJOR = 8;
-const S32 LL_VERSION_MINOR = 9;
+const S32 LL_VERSION_MAJOR = 0;
+const S32 LL_VERSION_MINOR = 0;
 const S32 LL_VERSION_PATCH = 0;
-const S32 LL_VERSION_BUILD = 4;
+const S32 LL_VERSION_BUILD = 6;
 
 const char * const LL_CHANNEL = "Meerkat Release";
 
