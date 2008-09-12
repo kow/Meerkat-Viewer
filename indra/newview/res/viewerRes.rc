@@ -231,8 +231,8 @@ TOOLMEDIAOPEN           CURSOR                  "toolmediaopen.cur"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,0,16
- PRODUCTVERSION 0,0,0,16
+ FILEVERSION 0,0,0,17
+ PRODUCTVERSION 0,0,0,17
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -249,12 +249,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Open Metaverse Foundation"
             VALUE "FileDescription", "Meerkat"
-            VALUE "FileVersion", "0.0.0.16"
+            VALUE "FileVersion", "0.0.0.17"
             VALUE "InternalName", "Meerkat"
             VALUE "LegalCopyright", "Copyright © 2001-2008, Linden Research, Inc."
             VALUE "OriginalFilename", "Meerkat.exe"
             VALUE "ProductName", "Meerkat"
-            VALUE "ProductVersion", "0.0.0.16"
+            VALUE "ProductVersion", "0.0.0.17"
         END
     END
     BLOCK "VarFileInfo"
