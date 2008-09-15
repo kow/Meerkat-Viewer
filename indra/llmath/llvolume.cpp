@@ -2002,8 +2002,14 @@ void LLVolume::sculptGeneratePlaceholder()
 	}
 }
 
+//ZWAGOTH
 // create the vertices from the map
-void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, U8 sculpt_type)
+void LLVolume::sculptGenerateMapVertices(U16 sculpt_width,
+										 U16 sculpt_height,
+										 S8 sculpt_components,
+										 const U8* sculpt_data,
+										 U8 sculpt_type,
+										 BOOL is_flexible)
 {
 	U8 sculpt_stitching = sculpt_type & LL_SCULPT_TYPE_MASK;
 	BOOL sculpt_invert = sculpt_type & LL_SCULPT_FLAG_INVERT;
@@ -2082,6 +2088,13 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8
 
 			pt.mPos = sculpt_xy_to_vector(x, y, sculpt_width, sculpt_height, sculpt_components, sculpt_data);
 
+			//ZWAGOTH
+            if(is_flexible)
+            {
+                pt.mPos = pt.mPos * mPathp->mPath[s].mRot;
+                pt.mPos += mPathp->mPath[s].mPos;
+            }
+
 			if (sculpt_mirror)
 			{
 				pt.mPos.mV[VX] *= -1.f;
@@ -2144,8 +2157,14 @@ void sculpt_calc_mesh_resolution(U16 width, U16 height, U8 type, F32 detail, S32
 	s = vertices * vertices / t;
 }
 
+//ZWAGOTH
 // sculpt replaces generate() for sculpted surfaces
-void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level)
+void LLVolume::sculpt(U16 sculpt_width,
+					  U16 sculpt_height,
+					  S8 sculpt_components,
+					  const U8* sculpt_data,
+					  S32 sculpt_level,
+					  BOOL is_flexible)
 {
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
     U8 sculpt_type = mParams.getSculptType();
@@ -2189,7 +2208,8 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 	}	
 	else
 	{
-		sculptGenerateMapVertices(sculpt_width, sculpt_height, sculpt_components, sculpt_data, sculpt_type);
+		//ZWAGOTH
+		sculptGenerateMapVertices(sculpt_width, sculpt_height, sculpt_components, sculpt_data, sculpt_type, is_flexible);
 	}
 
 	for (S32 i = 0; i < (S32)mProfilep->mFaces.size(); i++)

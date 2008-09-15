@@ -581,11 +581,13 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	mSection[i].mdPosition = (mSection[i].mPosition - mSection[i-1].mPosition) * inv_section_length;
 
 	// Create points
+	// ZWAGOTH
+	S32 path_jump = isSculptedFlex() ? 2 : 1;
 	S32 num_render_sections = 1<<mRenderRes;
-	if (path->getPathLength() != num_render_sections+1)
+	if (path->getPathLength() != num_render_sections*path_jump+1)
 	{
 		((LLVOVolume*) mVO)->mVolumeChanged = TRUE;
-		volume->resizePath(num_render_sections+1);
+		volume->resizePath(num_render_sections*path_jump+1);
 	}
 
 	LLPath::PathPt *new_point;
@@ -611,10 +613,11 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 								LLVector4(y_axis, 0.f),
 								LLVector4(z_axis, 0.f),
 								LLVector4(delta_pos, 1.f));
-			
+
+	//ZWAGOTH	
 	for (i=0; i<=num_render_sections; ++i)
 	{
-		new_point = &path->mPath[i];
+		new_point = &path->mPath[i*path_jump];
 		LLVector3 pos = newSection[i].mPosition * rel_xform;
 		LLQuaternion rot = mSection[i].mAxisRotation * newSection[i].mRotation * delta_rot;
 		
@@ -626,8 +629,26 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 
 		new_point->mRot = rot;
 		new_point->mScale = newSection[i].mScale;
-		new_point->mTexT = ((F32)i)/(num_render_sections);
+		new_point->mTexT = ((F32)i*path_jump)/(num_render_sections*path_jump);
 	}
+
+	//ZWAGOTH
+	if(isSculptedFlex())
+	{
+		LLPath::PathPt *prev_point, *next_point;
+		for(i=1; i<=(num_render_sections*path_jump); i+=path_jump)
+		{
+			new_point = &path->mPath[i];
+			prev_point = &path->mPath[i-1];
+			next_point = &path->mPath[i+1];
+
+			new_point->mPos = lerp(prev_point->mPos,next_point->mPos,0.5f);
+			new_point->mRot = lerp(0.5f,prev_point->mRot,next_point->mRot);
+			new_point->mScale = lerp(prev_point->mScale,next_point->mScale,0.5);
+			new_point->mTexT = ((F32)i)/(num_render_sections*path_jump);
+		}
+	}
+
 
 	mLastSegmentRotation = parentSegmentRotation;
 }
@@ -642,8 +663,17 @@ void LLVolumeImplFlexible::preRebuild()
 
 void LLVolumeImplFlexible::doFlexibleRebuild()
 {
-	LLVolume* volume = mVO->getVolume();
-	volume->regen();
+    //ZWAGOTH
+    if(((LLVOVolume*)mVO)->isSculpted())
+    {
+        LLVOVolume* vovol = (LLVOVolume*)mVO;
+        vovol->sculpt();
+    }
+    else
+    {
+        LLVolume* volume = mVO->getVolume();
+        volume->regen();
+    }
 	
 	mUpdated = TRUE;
 }

@@ -761,7 +761,7 @@ void LLVOVolume::sculpt()
 			return;
 		}
 
-		if (current_discard == discard_level)  // no work to do here
+		if (current_discard == discard_level && !isFlexible())  // no work to do here
 			return;
 		
 		LLPointer<LLImageRaw> raw_image = new LLImageRaw();
@@ -789,7 +789,7 @@ void LLVOVolume::sculpt()
 					   
 			sculpt_data = raw_image->getData();
 		}
-		getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level);
+		getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level, isFlexible());
 	}
 }
 
@@ -1635,8 +1635,9 @@ BOOL LLVOVolume::setIsFlexible(BOOL is_flexible)
 			U8 profile_and_hole = volume_params.getProfileParams().getCurveType();
 			volume_params.setType(profile_and_hole, LL_PCODE_PATH_FLEXIBLE);
 			res = TRUE;
-			setFlags(FLAGS_USE_PHYSICS, FALSE);
-			setFlags(FLAGS_PHANTOM, TRUE);
+			//ZWAGOTH
+			//setFlags(FLAGS_USE_PHYSICS, FALSE);
+			//setFlags(FLAGS_PHANTOM, TRUE);
 			setParameterEntryInUse(LLNetworkData::PARAMS_FLEXIBLE, TRUE, true);
 			if (mDrawable)
 			{
@@ -1652,7 +1653,8 @@ BOOL LLVOVolume::setIsFlexible(BOOL is_flexible)
 			U8 profile_and_hole = volume_params.getProfileParams().getCurveType();
 			volume_params.setType(profile_and_hole, LL_PCODE_PATH_LINE);
 			res = TRUE;
-			setFlags(FLAGS_PHANTOM, FALSE);
+			//ZWAGOTH
+			//setFlags(FLAGS_PHANTOM, FALSE);
 			setParameterEntryInUse(LLNetworkData::PARAMS_FLEXIBLE, FALSE, true);
 		}
 	}

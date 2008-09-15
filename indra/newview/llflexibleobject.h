@@ -99,6 +99,9 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 		void doFlexibleUpdate(); // Called to update the simulation
 		void doFlexibleRebuild(); // Called to rebuild the geometry
 		void preRebuild();
+		//ZWAGOTH
+		BOOL isSculptedFlex()	{ return (((LLVOVolume*)mVO)->isSculpted() && ((LLVOVolume*)mVO)->isFlexible()); }
+//		S32 getMaxFlexSections() { return (FLEXIBLE_OBJECT_MAX_SECTIONS * (isSculptedFlex() ? 2 : 1)); }
 
 		//void				setAttributes( LLFlexibleObjectData );
 		void				setParentPositionAndRotationDirectly( LLVector3 p, LLQuaternion r );
