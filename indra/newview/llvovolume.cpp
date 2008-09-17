@@ -1618,6 +1618,9 @@ BOOL LLVOVolume::isVolumeGlobal() const
 
 BOOL LLVOVolume::canBeFlexible() const
 {
+	if (isSculpted())
+		return true;
+
 	U8 path = getVolume()->getParams().getPathParams().getCurveType();
 	return (path == LL_PCODE_PATH_FLEXIBLE || path == LL_PCODE_PATH_LINE);
 }

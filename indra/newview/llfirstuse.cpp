@@ -246,12 +246,13 @@ void LLFirstUse::useFlexible()
 // static
 void LLFirstUse::useDebugMenus()
 {
-	if (gSavedSettings.getWarning("FirstDebugMenus"))
-	{
-		gSavedSettings.setWarning("FirstDebugMenus", FALSE);
+//  We are enabling this always anyway
+//	if (gSavedSettings.getWarning("FirstDebugMenus"))
+//	{
+//		gSavedSettings.setWarning("FirstDebugMenus", FALSE);
 
-		LLNotifyBox::showXml("FirstDebugMenus");
-	}
+//		LLNotifyBox::showXml("FirstDebugMenus");
+//	}
 }
 
 // static
