@@ -669,6 +669,8 @@ void LLRender::vertex3fv(const GLfloat* v)
 
 void LLRender::texCoord2f(const GLfloat& x, const GLfloat& y)
 { 
+	if (mCount >= 4096)
+		return;
 	mTexcoordsp[mCount] = LLVector2(x,y);
 }
 
@@ -684,6 +686,8 @@ void LLRender::texCoord2fv(const GLfloat* tc)
 
 void LLRender::color4ub(const GLubyte& r, const GLubyte& g, const GLubyte& b, const GLubyte& a)
 {
+	if (mCount >= 4096)
+		return;
 	mColorsp[mCount] = LLColor4U(r,g,b,a);
 }
 void LLRender::color4ubv(const GLubyte* c)
