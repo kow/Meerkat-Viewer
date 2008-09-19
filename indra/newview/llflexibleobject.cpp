@@ -202,8 +202,9 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
 	if (mVO->getVolume())
 	{
 		const LLPathParams &params = mVO->getVolume()->getParams().getPathParams();
-		bottom_scale = params.getBeginScale();
-		top_scale = params.getEndScale();
+		// Fix for odd taper that is applied to sculpts. Force to 1,1. ~Zwa0908
+		bottom_scale = isSculptedFlex() ? LLVector2(1.f, 1.f) : params.getBeginScale();
+		top_scale = isSculptedFlex() ? LLVector2(1.f, 1.f) : params.getEndScale();
 		begin_rot = F_PI * params.getTwistBegin();
 		end_rot = F_PI * params.getTwist();
 	}

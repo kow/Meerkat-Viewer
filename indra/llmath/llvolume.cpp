@@ -2079,7 +2079,6 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width,
 				{
 					x = 0;
 				}
-					
 				else
 				{
 					x = sculpt_width - 1;
@@ -2091,6 +2090,9 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width,
 			//ZWAGOTH
             if(is_flexible)
             {
+				pt.mPos[0] = pt.mPos[0] * mPathp->mPath[s].mScale.mV[0];
+				pt.mPos[1] = pt.mPos[1] * mPathp->mPath[s].mScale.mV[1];
+				//pt.mPos[2] -= mPathp->mPath[s].mPos[2];
                 pt.mPos = pt.mPos * mPathp->mPath[s].mRot;
                 pt.mPos += mPathp->mPath[s].mPos;
             }
