@@ -1229,14 +1229,6 @@ BOOL LLPanelAvatar::postBuild(void)
 	childSetAction("OK", onClickOK, this);
 	childSetAction("Cancel", onClickCancel, this);
 
-	if(mTab)
-	{
-		LLPanel* panel = mTab->getPanelByName("1st Life");
-		if (panel) mTab->removeTabPanel(panel);
-
-		panel = mTab->getPanelByName("WebProfile");
-		if (panel) mTab->removeTabPanel(panel);
-	}
 	childSetVisible("Kick",FALSE);
 	childSetEnabled("Kick",FALSE);
 	childSetVisible("Freeze",FALSE);
