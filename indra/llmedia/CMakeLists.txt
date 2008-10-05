@@ -79,17 +79,17 @@ if (MOZLIB)
 endif (MOZLIB)
 
 
-  # We use a bunch of deprecated system APIs.
-  if (DARWIN)
-    if (QUICKTIME)
-      list(APPEND llmedia_SOURCE_FILES llmediaimplquicktime.cpp)
-      list(APPEND llmedia_HEADER_FILES llmediaimplquicktime.h)
-    set_source_files_properties(
-        llmediaimplquicktime.cpp PROPERTIES
-        COMPILE_FLAGS -Wno-deprecated-declarations
-        )
-  endif (DARWIN)
-endif (QUICKTIME)
+# We use a bunch of deprecated system APIs.
+if (DARWIN)
+	if (QUICKTIME)
+		list(APPEND llmedia_SOURCE_FILES llmediaimplquicktime.cpp)
+		list(APPEND llmedia_HEADER_FILES llmediaimplquicktime.h)
+	endif (QUICKTIME)
+	set_source_files_properties(
+	llmediaimplquicktime.cpp PROPERTIES
+	COMPILE_FLAGS -Wno-deprecated-declarations
+	)
+endif (DARWIN)
 
 set_source_files_properties(${llmedia_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
