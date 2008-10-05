@@ -11,6 +11,7 @@ include(LLMedia)
 include(LLMessage)
 include(LLWindow)
 include(Mozlib)
+#include(QuickTime)
 
 include_directories(
     ${GSTREAMER_INCLUDE_DIRS}
@@ -77,12 +78,12 @@ if (MOZLIB)
   list(APPEND llmedia_HEADER_FILES llmediaimplllmozlib.h)
 endif (MOZLIB)
 
-if (QUICKTIME)
-  list(APPEND llmedia_SOURCE_FILES llmediaimplquicktime.cpp)
-  list(APPEND llmedia_HEADER_FILES llmediaimplquicktime.h)
 
   # We use a bunch of deprecated system APIs.
   if (DARWIN)
+    if (QUICKTIME)
+      list(APPEND llmedia_SOURCE_FILES llmediaimplquicktime.cpp)
+      list(APPEND llmedia_HEADER_FILES llmediaimplquicktime.h)
     set_source_files_properties(
         llmediaimplquicktime.cpp PROPERTIES
         COMPILE_FLAGS -Wno-deprecated-declarations
@@ -96,3 +97,9 @@ set_source_files_properties(${llmedia_HEADER_FILES}
 list(APPEND llmedia_SOURCE_FILES ${llmedia_HEADER_FILES})
 
 add_library (llmedia ${llmedia_SOURCE_FILES})
+target_link_libraries(
+    llmedia
+    ${GSTREAMER_LIBRARIES}
+    ${GSTREAMER_PLUGINS_BASE_LIBRARIES}
+    #${QUICKTIME_LIBRARY}
+    )

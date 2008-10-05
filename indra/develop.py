@@ -63,8 +63,8 @@ class PlatformSetup(object):
         build_types[t.lower()] = t
 
     build_type = build_types['relwithdebinfo']
-    standalone = 'FALSE'
-    unattended = 'FALSE'
+    standalone = 'OFF'
+    unattended = 'OFF'
     distcc = True
     cmake_opts = []
 
@@ -231,10 +231,12 @@ class LinuxSetup(UnixSetup):
     def build_dirs(self):
         # Only build the server code if (a) we have it and (b) we're
         # on 32-bit x86.
+        platform_build = '%s-%s' % (self.platform(), self.build_type.lower())
+
         if self.arch() == 'i686' and self.is_internal_tree():
-            return ['viewer-' + self.platform(), 'server-' + self.platform()]
+            return ['viewer-' + platform_build, 'server-' + platform_build]
         else:
-            return ['viewer-' + self.platform()]
+            return ['viewer-' + platform_build]
 
     def find_in_path(self, name, defval=None, basename=False):
         for p in os.getenv('PATH', '/usr/bin').split(':'):
@@ -255,7 +257,7 @@ class LinuxSetup(UnixSetup):
             type=self.build_type.upper()
             )
         if not self.is_internal_tree():
-            args.update({'cxx':'g++', 'server':'FALSE', 'viewer':'TRUE'})
+            args.update({'cxx':'g++', 'server':'OFF', 'viewer':'ON'})
         else:
             if self.distcc:
                 distcc = self.find_in_path('distcc')
@@ -265,12 +267,12 @@ class LinuxSetup(UnixSetup):
                 baseonly = False
             if 'server' in build_dir:
                 gcc33 = distcc + self.find_in_path('g++-3.3', 'g++', baseonly)
-                args.update({'cxx':' '.join(gcc33), 'server':'TRUE',
-                             'viewer':'FALSE'})
+                args.update({'cxx':' '.join(gcc33), 'server':'ON',
+                             'viewer':'OFF'})
             else:
                 gcc41 = distcc + self.find_in_path('g++-4.1', 'g++', baseonly)
-                args.update({'cxx': ' '.join(gcc41), 'server':'FALSE',
-                             'viewer':'TRUE'})
+                args.update({'cxx': ' '.join(gcc41), 'server':'OFF',
+                             'viewer':'ON'})
         #if simple:
         #    return (('cmake %(opts)s '
         #             '-DSERVER:BOOL=%(server)s ' 
@@ -371,7 +373,7 @@ class DarwinSetup(UnixSetup):
         return 'darwin'
 
     def arch(self):
-        if self.unattended == 'TRUE':
+        if self.unattended == 'ON':
             return 'universal'
         else:
             return UnixSetup.arch(self)
@@ -386,7 +388,7 @@ class DarwinSetup(UnixSetup):
             universal='',
             type=self.build_type.upper()
             )
-        if self.unattended == 'TRUE':
+        if self.unattended == 'ON':
             args['universal'] = '-DCMAKE_OSX_ARCHITECTURES:STRING=\'i386;ppc\''
         #if simple:
         #    return 'cmake %(opts)s %(dir)r' % args
@@ -527,7 +529,7 @@ class WindowsSetup(PlatformSetup):
     def run_cmake(self, args=[]):
         '''Override to add the vstool.exe call after running cmake.'''
         PlatformSetup.run_cmake(self, args)
-        if self.unattended == 'FALSE':
+        if self.unattended == 'OFF':
             for build_dir in self.build_dirs():
                 vstool_cmd = os.path.join('tools','vstool','VSTool.exe') \
                              + ' --solution ' \
@@ -606,6 +608,13 @@ Commands:
   configure   configure project by running cmake
 
 If you do not specify a command, the default is "configure".
+
+Examples:
+  Set up a viewer-only project for your system:
+    develop.py configure -DSERVER:BOOL=OFF
+  
+  Set up a Visual Studio 2005 project with package target (to build installer):
+    develop.py -G vc80 configure -DPACKAGE:BOOL=ON
 '''
 
 def main(arguments):
@@ -617,6 +626,9 @@ def main(arguments):
             ['help', 'standalone', 'no-distcc', 'unattended', 'type=', 'incredibuild', 'generator='])
     except getopt.GetoptError, err:
         print >> sys.stderr, 'Error:', err
+        print >> sys.stderr, """
+Note: You must pass -D options to cmake after the "configure" command
+For example: develop.py configure -DSERVER:BOOL=OFF"""
         sys.exit(1)
 
     for o, a in opts:
@@ -624,9 +636,9 @@ def main(arguments):
             print usage_msg.strip()
             sys.exit(0)
         elif o in ('--standalone',):
-            setup.standalone = 'TRUE'
+            setup.standalone = 'ON'
         elif o in ('--unattended',):
-            setup.unattended = 'TRUE'
+            setup.unattended = 'ON'
         elif o in ('-t', '--type'):
             try:
                 setup.build_type = setup.build_types[a.lower()]

@@ -31,6 +31,12 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#if defined(_DEBUG)
+# if _MSC_VER >= 1400 // Visual C++ 2005 or later
+#	define WINDOWS_CRT_MEM_CHECKS 1
+# endif
+#endif
+
 #include "llappviewerwin32.h"
 
 #include "llmemtype.h"
@@ -58,7 +64,7 @@
 
 #include "llcommandlineparser.h"
 
-//*FIX:Mani - This hack is to fix a linker issue with libndofdev.lib
+// *FIX:Mani - This hack is to fix a linker issue with libndofdev.lib
 // The lib was compiled under VS2005 - in VS2003 we need to remap assert
 #ifdef LL_DEBUG
 #ifdef LL_MSVC7 
@@ -70,6 +76,8 @@ extern "C" {
 }
 #endif
 #endif
+
+const std::string LLAppViewerWin32::sWindowClass = "Second Life";
 
 LONG WINAPI viewer_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop)
 {
@@ -127,6 +135,10 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 {
 	LLMemType mt1(LLMemType::MTYPE_STARTUP);
 	
+#if WINDOWS_CRT_MEM_CHECKS && !INCLUDE_VLD
+	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF ); // dump memory leaks on exit
+#endif
+	
 	// *FIX: global
 	gIconResource = MAKEINTRESOURCE(IDI_LL_ICON);
 
@@ -156,7 +168,32 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		// the assumption is that the error handler is responsible for doing
 		// app cleanup if there was a problem.
 		//
-		viewer_app_ptr->cleanup();
+#if WINDOWS_CRT_MEM_CHECKS
+    llinfos << "CRT Checking memory:" << llendflush;
+	if (!_CrtCheckMemory())
+	{
+		llwarns << "_CrtCheckMemory() failed at prior to cleanup!" << llendflush;
+	}
+	else
+	{
+		llinfos << " No corruption detected." << llendflush;
+	}
+#endif
+	
+	viewer_app_ptr->cleanup();
+	
+#if WINDOWS_CRT_MEM_CHECKS
+    llinfos << "CRT Checking memory:" << llendflush;
+	if (!_CrtCheckMemory())
+	{
+		llwarns << "_CrtCheckMemory() failed after cleanup!" << llendflush;
+	}
+	else
+	{
+		llinfos << " No corruption detected." << llendflush;
+	}
+#endif
+	 
 	}
 	delete viewer_app_ptr;
 	viewer_app_ptr = NULL;
@@ -442,6 +479,33 @@ void LLAppViewerWin32::handleCrashReporting()
 		break;
 	}
 }
+
+//virtual
+bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
+{
+	wchar_t window_class[256]; /* Flawfinder: ignore */   // Assume max length < 255 chars.
+	mbstowcs(window_class, sWindowClass.c_str(), 255);
+	window_class[255] = 0;
+	// Use the class instead of the window name.
+	HWND other_window = FindWindow(window_class, NULL);
+
+	if (other_window != NULL)
+	{
+		lldebugs << "Found other window with the name '" << getWindowTitle() << "'" << llendl;
+		COPYDATASTRUCT cds;
+		const S32 SLURL_MESSAGE_TYPE = 0;
+		cds.dwData = SLURL_MESSAGE_TYPE;
+		cds.cbData = url.length() + 1;
+		cds.lpData = (void*)url.c_str();
+
+		LRESULT msg_result = SendMessage(other_window, WM_COPYDATA, NULL, (LPARAM)&cds);
+		lldebugs << "SendMessage(WM_COPYDATA) to other window '" 
+				 << getWindowTitle() << "' returned " << msg_result << llendl;
+		return true;
+	}
+	return false;
+}
+
 
 std::string LLAppViewerWin32::generateSerialNumber()
 {

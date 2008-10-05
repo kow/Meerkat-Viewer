@@ -1,3 +1,4 @@
+
 /** 
  * @file llviewermessage.cpp
  * @brief Dumping ground for viewer-side message system callbacks.
@@ -48,7 +49,6 @@
 #include "llfilepicker.h"
 #include "llfocusmgr.h"
 #include "llfollowcamparams.h"
-#include "llfloaterreleasemsg.h"
 #include "llinstantmessage.h"
 #include "llquantize.h"
 #include "llregionflags.h"
@@ -85,7 +85,6 @@
 #include "llfloatermute.h"
 #include "llfloaterpostcard.h"
 #include "llfloaterpreference.h"
-#include "llfloaterreleasemsg.h"
 #include "llfollowcam.h"
 #include "llgroupnotify.h"
 #include "llhudeffect.h"
@@ -541,9 +540,9 @@ void process_places_reply(LLMessageSystem* msg, void** data)
 
 void send_sound_trigger(const LLUUID& sound_id, F32 gain)
 {
-	if (sound_id.isNull())
+	if (sound_id.isNull() || gAgent.getRegion() == NULL)
 	{
-		// zero guids don't get sent (no sound)
+		// disconnected agent or zero guids don't get sent (no sound)
 		return;
 	}
 
@@ -863,7 +862,8 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 		}
 
 		if(gSavedSettings.getBOOL("ShowInInventory") &&
-			asset_type != LLAssetType::AT_CALLINGCARD)
+		   asset_type != LLAssetType::AT_CALLINGCARD &&
+		   item->getInventoryType() != LLInventoryType::IT_ATTACHMENT)
 		{
 			LLInventoryView::showAgentInventory(TRUE);
 		}
@@ -1439,7 +1439,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			// now store incoming IM in chat history
 
-			buffer = name + separator_string + message.substr(message_offset);
+			buffer = separator_string + message.substr(message_offset);
 	
 			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
@@ -2652,11 +2652,9 @@ void process_avatar_init_complete(LLMessageSystem* msg, void**)
 }
 */
 
-static void display_release_message(S32, void* data)
+static void display_release_notes(S32, void* data)
 {
-	std::string* msg = (std::string*)data;
-	LLFloaterReleaseMsg::displayMessage(*msg);
-	delete msg;
+	gAgent.getRegion()->showReleaseNotes();
 }
 
 void process_agent_movement_complete(LLMessageSystem* msg, void**)
@@ -2821,10 +2819,20 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	// send walk-vs-run status
 	gAgent.sendWalkRun(gAgent.getRunning() || gAgent.getAlwaysRun());
 
-	if (LLFloaterReleaseMsg::checkVersion(version_channel))
+	// If the server version has changed, display an info box and offer
+	// to display the release notes, unless this is the initial log in.
+	if (gLastVersionChannel == version_channel)
 	{
-		LLNotifyBox::showXml("ServerVersionChanged", display_release_message, new std::string(version_channel) );
+		return;
 	}
+
+	if (!gLastVersionChannel.empty())
+	{
+		LLNotifyBox::showXml(
+			"ServerVersionChanged",	display_release_notes, NULL);
+	}
+
+	gLastVersionChannel = version_channel;
 }
 
 void process_crossed_region(LLMessageSystem* msg, void**)
@@ -3300,8 +3308,7 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 		return;
 	}
 
-	F32 volume = gSavedSettings.getBOOL("MuteSounds") ? 0.f : (gain * gSavedSettings.getF32("AudioLevelSFX"));
-	gAudiop->triggerSound(sound_id, owner_id, volume, pos_global);
+	gAudiop->triggerSound(sound_id, owner_id, gain, LLAudioEngine::AUDIO_TYPE_SFX, pos_global);
 }
 
 void process_preload_sound(LLMessageSystem *msg, void **user_data)

@@ -119,6 +119,11 @@ public:
 	virtual void handleDataCopy(LLWindow *window, S32 data_type, void *data);
 	virtual BOOL handleTimerEvent(LLWindow *window);
 	virtual BOOL handleDeviceChange(LLWindow *window);
+
+	virtual void handlePingWatchdog(LLWindow *window, const char * msg);
+	virtual void handlePauseWatchdog(LLWindow *window);
+	virtual void handleResumeWatchdog(LLWindow *window);
+
 };
 
 // Refer to llwindow_test in test/common/llwindow for usage example
@@ -189,6 +194,7 @@ public:
 	virtual U32	 getFSAASamples() = 0;
 	virtual BOOL restoreGamma() = 0;			// Restore original gamma table (before updating gamma)
 	virtual ESwapMethod getSwapMethod() { return mSwapMethod; }
+	virtual void processMiscNativeEvents();
 	virtual void gatherInput() = 0;
 	virtual void delayInputProcessing() = 0;
 	virtual void swapBuffers() = 0;

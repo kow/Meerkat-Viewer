@@ -7,7 +7,7 @@
 		[FIRST] [LAST]はオフラインです。
 	</text>
 	<string name="muted_message">
-		住人はミュートされています。
+		あなたはこの住人をミュートしています。 メッセージを送信すると、ミュートは自動的に解除されます。
 	</string>
 	<text name="generic_request_error">
 		要求中にエラーが発生しました。後でもう一度試してください。
@@ -26,21 +26,6 @@
 	</string>
 	<string name="not_a_mod_error">
 		あなたはセッション・モデレータではありません。
-	</string>
-	<string name="muted_error">
-		あなたはミュートされています。
-	</string>
-	<text name="add_session_event">
-		...とのチャット・セッションにエージェントを追加中...
-	</text>
-	<text name="message_session_event">
-		IMチャット・セッションの相手
-	</text>
-	<text name="teleport_session_event">
-		のクリエーターにテレポート
-	</text>
-	<string name="mute_agent_event">
-		次の地域にいるエージェントをミュートしています
 	</string>
 	<text name="removed_from_group">
 		あなたはグループから削除されました。

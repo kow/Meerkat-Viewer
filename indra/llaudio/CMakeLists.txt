@@ -51,3 +51,21 @@ set_source_files_properties(${llaudio_HEADER_FILES}
 list(APPEND llaudio_SOURCE_FILES ${llaudio_HEADER_FILES})
 
 add_library (llaudio ${llaudio_SOURCE_FILES})
+
+if (DARWIN)
+	include(CMakeFindFrameworks)
+	find_library(OPENAL_LIBRARY OpenAL)
+	mark_as_advanced(QUICKTIME_LIBRARY)
+else (DARWIN)
+	set(OPENAL_LIBRARY openal)
+endif (DARWIN)
+
+target_link_libraries(
+    llaudio
+    ${VORBISENC_LIBRARIES}
+    ${VORBISFILE_LIBRARIES}
+    ${VORBIS_LIBRARIES}
+    ${OGG_LIBRARIES}
+	alut
+	${OPENAL_LIBRARY}
+    )

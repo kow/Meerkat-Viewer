@@ -50,7 +50,6 @@
 #include "lldir.h"
 #include "lleventpoll.h"
 #include "llfloatergodtools.h"
-#include "llfloaterreleasemsg.h"
 #include "llfloaterreporter.h"
 #include "llfloaterregioninfo.h"
 #include "llhttpnode.h"
@@ -121,10 +120,9 @@ public:
 				<< iter->first << LL_ENDL;
 
 			/* HACK we're waiting for the ServerReleaseNotes */
-			if ((iter->first == "ServerReleaseNotes") && (LLFloaterReleaseMsg::sDisplayMessage))
+			if (iter->first == "ServerReleaseNotes" && mRegion->getReleaseNotesRequested())
 			{
-				LLFloaterReleaseMsg::show();
-				LLFloaterReleaseMsg::sDisplayMessage = false;
+				mRegion->showReleaseNotes();
 			}
 		}
 		
@@ -167,7 +165,8 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mCacheLoaded(FALSE),
 	mCacheEntriesCount(0),
 	mCacheID(),
-	mEventPoll(NULL)
+	mEventPoll(NULL),
+	mReleaseNotesRequested(FALSE)
 {
 	mWidth = region_width_meters;
 	mOriginGlobal = from_region_handle(handle); 
@@ -1388,8 +1387,12 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("DispatchRegionInfo");
 	capabilityNames.append("EstateChangeInfo");
 	capabilityNames.append("EventQueueGet");
-	capabilityNames.append("FetchInventoryDescendents");
+	capabilityNames.append("FetchInventory");
+	capabilityNames.append("WebFetchInventoryDescendents");
+	capabilityNames.append("FetchLib");
+	capabilityNames.append("FetchLibDescendents");
 	capabilityNames.append("GroupProposalBallot");
+	capabilityNames.append("HomeLocation");
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
 	capabilityNames.append("NewFileAgentInventory");
@@ -1480,3 +1483,17 @@ LLSpatialPartition* LLViewerRegion::getSpatialPartition(U32 type)
 	return NULL;
 }
 
+void LLViewerRegion::showReleaseNotes()
+{
+	std::string url = this->getCapability("ServerReleaseNotes");
+
+	if (url.empty()) {
+		// HACK haven't received the capability yet, we'll wait until
+		// it arives.
+		mReleaseNotesRequested = TRUE;
+		return;
+	}
+
+	LLWeb::loadURL(url);
+	mReleaseNotesRequested = FALSE;
+}

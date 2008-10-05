@@ -139,6 +139,24 @@ const LLMatrix4* gGLLastMatrix = NULL;
 
 //----------------------------------------
 
+std::string gPoolNames[] = 
+{
+	// Correspond to LLDrawpool enum render type
+	"NONE",
+	"POOL_SIMPLE",
+	"POOL_TERRAIN",	
+	"POOL_TREE",
+	"POOL_SKY",
+	"POOL_WL_SKY",
+	"POOL_GROUND",
+	"POOL_BUMP",
+	"POOL_INVISIBLE",
+	"POOL_AVATAR",
+	"POOL_WATER",
+	"POOL_GLOW",
+	"POOL_ALPHA",
+};
+
 U32 nhpo2(U32 v) 
 {
 	U32 r = 1;
@@ -553,7 +571,6 @@ void LLPipeline::createGLBuffers()
 #endif
 	}
 
-
 	stop_glerror();
 
 	if (LLPipeline::sRenderGlow)
@@ -565,12 +582,12 @@ void LLPipeline::createGLBuffers()
 		{
 			mGlow[i].allocate(512,glow_res,GL_RGBA,FALSE);
 		}
+		
+		GLuint resX = gViewerWindow->getWindowDisplayWidth();
+		GLuint resY = gViewerWindow->getWindowDisplayHeight();
+		
+		mScreen.allocate(resX, resY, GL_RGBA, TRUE, GL_TEXTURE_RECTANGLE_ARB);
 	}
-
-	GLuint resX = gViewerWindow->getWindowDisplayWidth();
-	GLuint resY = gViewerWindow->getWindowDisplayHeight();
-	
-	mScreen.allocate(resX, resY, GL_RGBA, TRUE, GL_TEXTURE_RECTANGLE_ARB);
 }
 
 void LLPipeline::restoreGL() 
@@ -2434,9 +2451,10 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 						{
 							llerrs << "GL matrix stack corrupted!" << llendl;
 						}
-						LLGLState::checkStates();
-						LLGLState::checkTextureChannels();
-						LLGLState::checkClientArrays();
+						std::string msg = llformat("%s pass %d", gPoolNames[cur_type].c_str(), i);
+						LLGLState::checkStates(msg);
+						LLGLState::checkTextureChannels(msg);
+						LLGLState::checkClientArrays(msg);
 					}
 				}
 			}
@@ -2647,6 +2665,18 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 	LLGLState::checkClientArrays();
 	U32 last_type = 0;
 	
+	// If we don't do this, we crash something on changing graphics settings
+	// from Medium -> Low, because we unload all the shaders and the 
+	// draw pools aren't aware.  I don't know if this has to be a separate
+	// loop before actual rendering. JC
+	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
+	{
+		LLDrawPool *poolp = *iter;
+		if (poolp->isFacePool() && hasRenderType(poolp->getType()))
+		{
+			poolp->prerender();
+		}
+	}
 	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
 	{
 		LLDrawPool *poolp = *iter;
@@ -3071,7 +3101,7 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 		camera_rot.invert();
 		LLVector4 light_pos = light_pos_cam * camera_rot;
 		
-		light_pos.normVec();
+		light_pos.normalize();
 
 		mHWLightColors[1] = diffuse;
 		glLightfv(GL_LIGHT1, GL_DIFFUSE,  diffuse.mV);
@@ -3089,7 +3119,7 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 		LLVector3 opposite_pos = -1.f * mSunDir;
 		LLVector3 orthog_light_pos = mSunDir % LLVector3::z_axis;
 		LLVector4 backlight_pos = LLVector4(lerp(opposite_pos, orthog_light_pos, 0.3f), 0.0f);
-		backlight_pos.normVec();
+		backlight_pos.normalize();
 			
 		LLColor4 light_diffuse = mSunDiffuse;
 		LLColor4 backlight_diffuse(1.f - light_diffuse.mV[VRED], 1.f - light_diffuse.mV[VGREEN], 1.f - light_diffuse.mV[VBLUE], 1.f);
@@ -4502,6 +4532,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 		return;
 	}
 
+	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 
@@ -5154,11 +5185,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	LLVector3 left = camera.getLeftAxis();
 	left *= left;
-	left.normVec();
+	left.normalize();
 
 	LLVector3 up = camera.getUpAxis();
 	up *= up;
-	up.normVec();
+	up.normalize();
 
 	tdim.mV[0] = fabsf(half_height * left);
 	tdim.mV[1] = fabsf(half_height * up);

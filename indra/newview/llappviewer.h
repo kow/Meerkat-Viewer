@@ -124,7 +124,8 @@ public:
 	static const std::string sPerAccountSettingsName; 
 	static const std::string sCrashSettingsName; 
 
-	void loadSettingsFromDirectory(ELLPath path_index, bool set_defaults = false);
+	// returns false if loading a *required* settings file fails.
+	bool loadSettingsFromDirectory(ELLPath path_index, bool set_defaults = false);
 
 	std::string getSettingsFileName(const std::string& file);
 
@@ -137,15 +138,18 @@ public:
 	void resumeMainloopTimeout(const std::string& state = "", F32 secs = -1.0f);
 	void pingMainloopTimeout(const std::string& state, F32 secs = -1.0f);
 
+
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual bool initLogging(); // Initialize log files, logging system, return false on failure.
 	virtual void initConsole() {}; // Initialize OS level debugging console.
 	virtual bool initHardwareTest() { return true; } // A false result indicates the app should quit.
+	virtual bool initSLURLHandler();
+	virtual bool sendURLToOtherInstance(const std::string& url);
 
-    virtual bool initParseCommandLine(LLCommandLineParser& clp) 
+	virtual bool initParseCommandLine(LLCommandLineParser& clp) 
         { return true; } // Allow platforms to specify the command line args.
-	
+
 	virtual std::string generateSerialNumber() = 0; // Platforms specific classes generate this.
 
 
@@ -260,9 +264,10 @@ extern BOOL gPacificDaylightTime;
 extern U64      gFrameTime;					// The timestamp of the most-recently-processed frame
 extern F32		gFrameTimeSeconds;			// Loses msec precision after ~4.5 hours...
 extern F32		gFrameIntervalSeconds;		// Elapsed time between current and previous gFrameTimeSeconds
-extern F32		gFPSClamped;						// Frames per second, smoothed, weighted toward last frame
+extern F32		gFPSClamped;				// Frames per second, smoothed, weighted toward last frame
 extern F32		gFrameDTClamped;
 extern U64		gStartTime;
+extern U32 		gFrameStalls;
 
 extern LLTimer gRenderStartTime;
 extern LLFrameTimer gForegroundTime;

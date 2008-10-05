@@ -69,6 +69,7 @@ public:
 	};
 	virtual ~LLInventoryObserver() {};
 	virtual void changed(U32 mask) = 0;
+	std::string mMessageName; // used by Agent Inventory Service only. [DEV-20328]
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -110,20 +111,17 @@ public:
 	LLInventoryModel();
 	~LLInventoryModel();
 
-	class fetchDescendentsResponder: public LLHTTPClient::Responder
+	class fetchInventoryResponder: public LLHTTPClient::Responder
 	{
-		public:
-			fetchDescendentsResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};
-			void result(const LLSD& content);			
-			void error(U32 status, const std::string& reason);
-			static void onClickRetry(S32 option, void* userdata);
-			static void appendRetryList(LLSD retry_sd);
-		public:
-			typedef std::vector<LLViewerInventoryCategory*> folder_ref_t;
-		protected:
-			LLSD mRequestSD;
-			static LLSD sRetrySD;
-			static LLAlertDialog		*sRetryDialog;
+	public:
+		fetchInventoryResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};
+		void result(const LLSD& content);			
+		void error(U32 status, const std::string& reason);
+
+	public:
+		typedef std::vector<LLViewerInventoryCategory*> folder_ref_t;
+	protected:
+		LLSD mRequestSD;
 	};
 
 	//
@@ -162,7 +160,13 @@ public:
 	void getDirectDescendentsOf(const LLUUID& cat_id,
 								cat_array_t*& categories,
 								item_array_t*& items) const;
-
+	
+	// SJB: Added version to lock the arrays to catch potential logic bugs
+	void lockDirectDescendentArrays(const LLUUID& cat_id,
+									cat_array_t*& categories,
+									item_array_t*& items);
+	void unlockDirectDescendentArrays(const LLUUID& cat_id);
+	
 	// Starting with the object specified, add it's descendents to the
 	// array provided, but do not add the inventory object specified
 	// by id. There is no guaranteed order. Neither array will be
@@ -262,7 +266,8 @@ public:
 	// Call this method when it's time to update everyone on a new
 	// state, by default, the inventory model will not update
 	// observers automatically.
-	void notifyObservers();
+	// The optional argument 'service_name' is used by Agent Inventory Service [DEV-20328]
+	void notifyObservers(const std::string service_name="");
 
 	// This allows outsiders to tell the inventory if something has
 	// been changed 'under the hood', but outside the control of the
@@ -367,7 +372,7 @@ public:
 	// start and stop background breadth-first fetching of inventory contents
 	// this gets triggered when performing a filter-search
 	static void startBackgroundFetch(const LLUUID& cat_id = LLUUID::null); // start fetch process
-	static void stopBackgroundFetch(); // stop fetch process
+    static void findLostItems();
 	static BOOL backgroundFetchActive();
 	static bool isEverythingFetched();
 	static void backgroundFetch(void*); // background fetch idle function
@@ -414,10 +419,13 @@ protected:
 	static void processInventoryDescendents(LLMessageSystem* msg, void**);
 	static void processMoveInventoryItem(LLMessageSystem* msg, void**);
 	static void processFetchInventoryReply(LLMessageSystem* msg, void**);
-	static bool isBulkFetchProcessingComplete();
 	
 	bool messageUpdateCore(LLMessageSystem* msg, bool do_accounting);
 
+protected:
+	cat_array_t* getUnlockedCatArray(const LLUUID& id);
+	item_array_t* getUnlockedItemArray(const LLUUID& id);
+	
 protected:
 	// Varaibles used to track what has changed since the last notify.
 	U32 mModifyMask;
@@ -435,6 +443,9 @@ protected:
 	cat_map_t mCategoryMap;
 	item_map_t mItemMap;
 
+	std::map<LLUUID, bool> mCategoryLock;
+	std::map<LLUUID, bool> mItemLock;
+	
 	// cache recent lookups
 	mutable LLPointer<LLViewerInventoryItem> mLastItem;
 
@@ -448,11 +459,8 @@ protected:
 	observer_list_t mObservers;
 
 	// completing the fetch once per session should be sufficient
-	static cat_map_t sBulkFetchMap;
 	static BOOL sBackgroundFetchActive;
 	static BOOL sTimelyFetchPending;
-	static BOOL sAllFoldersFetched; 
-	static BOOL sFullFetchStarted;
 	static S32  sNumFetchRetries;
 	static LLFrameTimer sFetchTimer;
 	static F32 sMinTimeBetweenFetches;
@@ -465,6 +473,11 @@ protected:
 public:
 	// *NOTE: DEBUG functionality
 	void dumpInventory();
+	static bool isBulkFetchProcessingComplete();
+	static void stopBackgroundFetch(); // stop fetch process
+
+	static BOOL sFullFetchStarted;
+	static BOOL sAllFoldersFetched; 
 };
 
 // a special inventory model for the agent

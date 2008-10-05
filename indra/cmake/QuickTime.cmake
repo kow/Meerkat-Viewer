@@ -9,7 +9,7 @@ if (DARWIN)
   include(CMakeFindFrameworks)
   find_library(QUICKTIME_LIBRARY QuickTime)
 elseif (WINDOWS)
-  set(QUICKTIME_SDK_DIR "C:\\Program Files\\QuickTime SDK"
+  set(QUICKTIME_SDK_DIR "$ENV{PROGRAMFILES}/QuickTime SDK"
       CACHE PATH "Location of the QuickTime SDK.")
   find_library(QUICKTIME_LIBRARY qtmlclient
                PATHS

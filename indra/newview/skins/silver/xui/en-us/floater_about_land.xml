@@ -824,7 +824,7 @@ Options:
 			     tool_tip="Ban residents who have not verified their age. See support.secondlife.com for more information."
 			     width="278" />
 			<string name="estate_override">
-				One ore more of these options is set at the estate level
+				One or more of these options is set at the estate level
 			</string>
 			<check_box bottom_delta="-20" enabled="true" follows="left|top" font="SansSerifSmall"
 			     height="16" initial_value="false" label="Allow Group Access: [GROUP]"

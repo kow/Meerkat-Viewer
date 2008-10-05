@@ -850,7 +850,7 @@ Apply those changes and quit?
 	</alert>
 	<alert modal="true" name="ResetShowNextTimeDialogs">
 		<message name="message">
-			Reset all &apos;Show next time&apos; dialogs?
+			Would you like to re-enable all these popups, which you previously indicated &apos;Don&apos;t show me again&apos;?
 		</message>
 		<option name="OK">
 			OK
@@ -861,7 +861,7 @@ Apply those changes and quit?
 	</alert>
 	<alert modal="true" name="SkipShowNextTimeDialogs">
 		<message name="message">
-			Disable all &apos;Show next time&apos; dialogs?
+			Would you like to disable all popups which can be skipped?
 		</message>
 		<option name="OK">
 			OK
@@ -1039,7 +1039,7 @@ MINSPECS
 Do you wish to visit [_URL] for more information?
 		</message>
 		<ignore name="ignore">
-			Ignore unsupported hardware
+			When detecting unsupported hardware
 		</ignore>
 		<option name="Yes">
 			Yes
@@ -1086,7 +1086,7 @@ adjust your graphics settings to something more appropriate.
 (Edit menu > Preferences > Graphics).
 		</message>
 		<ignore name="ignore">
-			Ignore unknown graphics card
+			When detecting an unknown graphics card
 		</ignore>
 	</alert>
 
@@ -2099,12 +2099,12 @@ You do not have permission to buy land for your active group.
 	</alert>
 	<alert modal="true" name="AddFriend" title="Add Friend">
 		<message name="message">
-			Friends can give permissions to track each 
-other on the map and receive online status updates. 
+Friends can give permissions to track each
+other on the map and receive online status updates.
 
 Offer friendship to [NAME]?
 		</message>
-		<editline>
+		<editline name="editline">
 			Would you be my friend?
 		</editline>
 		<option name="Offer">
@@ -2996,20 +2996,6 @@ objects will be returned to their previous owners.
 			When returning objects to their owners
 		</ignore>
 		<option name="Return">
-			OK
-		</option>
-		<option name="Cancel">
-			Cancel
-		</option>
-	</alert>
-	<alert modal="true" name="ViewReleaseNotes">
-		<message name="message">
-			View the release notes?
-		</message>
-		<ignore name="ignore">
-			When viewing the release notes
-		</ignore>
-		<option name="Gotopage">
 			OK
 		</option>
 		<option name="Cancel">
@@ -4856,16 +4842,7 @@ with the the D slider.
 	</alert>
 	<alert modal="true" name="ChatterBoxSessionStartError">
 		<message name="message">
-			Error starting a new chat session with [RECIPIENT].
-[REASON]
-		</message>
-		<option default="true" name="OK">
-			OK
-		</option>
-	</alert>
-	<alert modal="true" name="ChatterBoxSessionStartNotVerified">
-		<message name="message">
-			Error starting a new chat session with [RECIPIENT].
+			Unable to start a new chat session with [RECIPIENT].
 [REASON]
 		</message>
 		<option default="true" name="OK">
@@ -4874,7 +4851,7 @@ with the the D slider.
 	</alert>
 	<alert modal="true" name="ChatterBoxSessionEventError">
 		<message name="message">
-			Error [EVENT] [RECIPIENT].
+			[EVENT]
 [REASON]
 		</message>
 		<option default="true" name="OK">

@@ -116,20 +116,20 @@
 	     increment="0.05" initial_val="1" label="Opacity" left="148" max_val="1"
 	     min_val="0" mouse_opaque="true" name="console_opacity" show_text="true"
 	     value="0.4" width="200" />
+	<check_box bottom="-262" control_name="ChatFullWidth" enabled="true"
+	     follows="left|top" font="SansSerifSmall" height="16" initial_value="false"
+	     label="Use full screen width  (Requires restart)" left="148"
+	     mouse_opaque="true" name="chat_full_width_check" radio_style="false"
+	     width="239" />
 	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="-260" drop_shadow_visible="true" enabled="true" follows="left|top"
+	     bottom="-278" drop_shadow_visible="true" enabled="true" follows="left|top"
 	     font="SansSerifSmall" h_pad="0" halign="left" height="10" left="12"
 	     mouse_opaque="false" name="text_box6" v_pad="0" width="135">
 		Chat Options:
 	</text>
-	<check_box bottom_delta="-6" control_name="ChatFullWidth" enabled="true"
+	<check_box bottom_delta="-10" control_name="CloseChatOnReturn" enabled="true"
 	     follows="left|top" font="SansSerifSmall" height="16" initial_value="false"
-	     label="Chat uses full screen width (after restart)" left="148"
-	     mouse_opaque="true" name="chat_full_width_check" radio_style="false"
-	     width="239" />
-	<check_box bottom_delta="-20" control_name="CloseChatOnReturn" enabled="true"
-	     follows="left|top" font="SansSerifSmall" height="16" initial_value="false"
-	     label="Close chat after hitting return" left="148" mouse_opaque="true"
+	     label="Close chat bar after hitting return" left="148" mouse_opaque="true"
 	     name="close_chat_on_return_check" radio_style="false" width="237" />
 	<check_box bottom_delta="-20" control_name="ArrowKeysMoveAvatar" enabled="true"
 	     follows="left|top" font="SansSerifSmall" height="16" initial_value="false"
@@ -138,11 +138,11 @@
 	     width="237" />
 	<check_box bottom_delta="-20" control_name="ChatShowTimestamps" enabled="true"
 	     follows="left|top" font="SansSerifSmall" height="16" initial_value="false"
-	     label="Show timestamps in chat" left="148" mouse_opaque="true"
+	     label="Show timestamps in Local Chat" left="148" mouse_opaque="true"
 	     name="show_timestamps_check" radio_style="false" width="237" />
 	<check_box bottom_delta="-20" control_name="PlayTypingAnim" enabled="true"
 	     follows="left|top" font="SansSerifSmall" height="16" initial_value="true"
-	     label="Play typing animation" left="148" mouse_opaque="true"
+	     label="Play typing animation when chatting" left="148" mouse_opaque="true"
 	     name="play_typing_animation" radio_style="false" width="237" />
 	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 	     bottom="-369" drop_shadow_visible="true" enabled="true" follows="left|top"

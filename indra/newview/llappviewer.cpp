@@ -37,6 +37,7 @@
 #include "llversionviewer.h"
 #include "llfeaturemanager.h"
 #include "lluictrlfactory.h"
+#include "lltexteditor.h"
 #include "llalertdialog.h"
 #include "llerrorcontrol.h"
 #include "llviewerimagelist.h"
@@ -57,6 +58,7 @@
 #include "llfloatersnapshot.h"
 #include "llviewerwindow.h"
 #include "llviewerdisplay.h"
+#include "llviewermedia.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
 #include "llworldmap.h"
@@ -80,8 +82,6 @@
 #else
 #   include <sys/file.h> // For initMarkerFile support
 #endif
-
-
 
 #include "llnotify.h"
 #include "llviewerkeyboard.h"
@@ -200,7 +200,6 @@ extern void init_apple_menu(const char* product);
 extern OSErr AEGURLHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn);
 extern OSErr AEQuitHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn);
 extern OSStatus simpleDialogHandler(EventHandlerCallRef handler, EventRef event, void *userdata);
-extern OSStatus DisplayReleaseNotes(void);
 #include <boost/tokenizer.hpp>
 #endif // LL_DARWIN
 
@@ -222,9 +221,9 @@ std::string gDisabledMessage; // Set in LLAppViewer::initConfiguration used in i
 
 BOOL gHideLinks = FALSE; // Set in LLAppViewer::initConfiguration, used externally
 
-BOOL				gAllowIdleAFK = TRUE;
-BOOL				gAllowTapTapHoldRun = TRUE;
-BOOL				gShowObjectUpdates = FALSE;
+BOOL gAllowIdleAFK = TRUE;
+BOOL gAllowTapTapHoldRun = TRUE;
+BOOL gShowObjectUpdates = FALSE;
 BOOL gUseQuickTime = TRUE;
 
 BOOL gAcceptTOS = FALSE;
@@ -236,22 +235,24 @@ LLSD gDebugInfo;
 
 U32	gFrameCount = 0;
 U32 gForegroundFrameCount = 0; // number of frames that app window was in foreground
-LLPumpIO*			gServicePump = NULL;
+LLPumpIO* gServicePump = NULL;
 
 BOOL gPacificDaylightTime = FALSE;
 
 U64 gFrameTime = 0;
 F32 gFrameTimeSeconds = 0.f;
 F32 gFrameIntervalSeconds = 0.f;
-F32		gFPSClamped = 10.f;						// Pretend we start at target rate.
-F32		gFrameDTClamped = 0.f;					// Time between adjacent checks to network for packets
+F32 gFPSClamped = 10.f;						// Pretend we start at target rate.
+F32 gFrameDTClamped = 0.f;					// Time between adjacent checks to network for packets
 U64	gStartTime = 0; // gStartTime is "private", used only to calculate gFrameTimeSeconds
+U32 gFrameStalls = 0;
+const F64 FRAME_STALL_THRESHOLD = 5.0;
 
 LLTimer gRenderStartTime;
 LLFrameTimer gForegroundTime;
-LLTimer				gLogoutTimer;
-static const F32			LOGOUT_REQUEST_TIME = 6.f;  // this will be cut short by the LogoutReply msg.
-F32					gLogoutMaxTime = LOGOUT_REQUEST_TIME;
+LLTimer gLogoutTimer;
+static const F32 LOGOUT_REQUEST_TIME = 6.f;  // this will be cut short by the LogoutReply msg.
+F32 gLogoutMaxTime = LOGOUT_REQUEST_TIME;
 
 LLUUID gInventoryLibraryOwner;
 LLUUID gInventoryLibraryRoot;
@@ -307,9 +308,6 @@ const char *VFS_INDEX_FILE_BASE = "index.db2.x.";
 
 static std::string gSecondLife;
 static std::string gWindowTitle;
-#ifdef LL_WINDOWS
-	static char sWindowClass[] = "Meerkat";
-#endif
 
 std::string gLoginPage;
 std::vector<std::string> gLoginURIs;
@@ -329,8 +327,7 @@ static void ui_audio_callback(const LLUUID& uuid)
 {
 	if (gAudiop)
 	{
-		F32 volume = gSavedSettings.getBOOL("MuteUI") ? 0.f : gSavedSettings.getF32("AudioLevelUI");
-		gAudiop->triggerSound(uuid, gAgent.getID(), volume);
+		gAudiop->triggerSound(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
 	}
 }
 
@@ -465,9 +462,6 @@ static void settings_modify()
 	gSavedSettings.setU32("VectorizeProcessor", 0 );
 	gSavedSettings.setBOOL("VectorizeSkin", FALSE);
 #endif
-
-	// propagate push to talk preference to current status
-	gSavedSettings.setBOOL("PTTCurrentlyEnabled", TRUE); //gSavedSettings.getBOOL("EnablePushToTalk"));
 }
 
 void LLAppViewer::initGridChoice()
@@ -499,30 +493,17 @@ void LLAppViewer::initGridChoice()
 	}
 }
 
-bool send_url_to_other_instance(const std::string& url)
+//virtual
+bool LLAppViewer::initSLURLHandler()
 {
-#if LL_WINDOWS
-	wchar_t window_class[256]; /* Flawfinder: ignore */   // Assume max length < 255 chars.
-	mbstowcs(window_class, sWindowClass, 255);
-	window_class[255] = 0;
-	// Use the class instead of the window name.
-	HWND other_window = FindWindow(window_class, NULL);
+	// does nothing unless subclassed
+	return false;
+}
 
-	if (other_window != NULL)
-	{
-		lldebugs << "Found other window with the name '" << gWindowTitle << "'" << llendl;
-		COPYDATASTRUCT cds;
-		const S32 SLURL_MESSAGE_TYPE = 0;
-		cds.dwData = SLURL_MESSAGE_TYPE;
-		cds.cbData = url.length() + 1;
-		cds.lpData = (void*)url.c_str();
-
-		LRESULT msg_result = SendMessage(other_window, WM_COPYDATA, NULL, (LPARAM)&cds);
-		lldebugs << "SendMessage(WM_COPYDATA) to other window '" 
-				 << gWindowTitle << "' returned " << msg_result << llendl;
-		return true;
-	}
-#endif
+//virtual
+bool LLAppViewer::sendURLToOtherInstance(const std::string& url)
+{
+	// does nothing unless subclassed
 	return false;
 }
 
@@ -581,7 +562,7 @@ bool LLAppViewer::init()
 	// into the log files during normal startup until AFTER
 	// we run the "program crashed last time" error handler below.
 	//
-
+	
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
 	gDirUtilp->initAppDirs("Meerkat");
@@ -686,8 +667,11 @@ bool LLAppViewer::init()
 					LLUIImageList::getInstance(),
 					ui_audio_callback,
 					&LLUI::sGLScaleFactor);
-
 	LLWeb::initClass();			  // do this after LLUI
+	LLTextEditor::setURLCallbacks(&LLWeb::loadURL,
+				&LLURLDispatcher::dispatchFromTextEditor,
+				&LLURLDispatcher::dispatchFromTextEditor);
+	
 	LLUICtrlFactory::getInstance()->setupPaths(); // update paths with correct language set
 	
 	/////////////////////////////////////////////////
@@ -714,6 +698,9 @@ bool LLAppViewer::init()
 
 	// Find partition serial number (Windows) or hardware serial (Mac)
 	mSerialNumber = generateSerialNumber();
+
+	// do any necessary set-up for accepting incoming SLURLs from apps
+	initSLURLHandler();
 
 	if(false == initHardwareTest())
 	{
@@ -767,6 +754,8 @@ bool LLAppViewer::init()
 		CreateLCDDebugWindows();
 #endif
 
+	LLFolderViewItem::initClass(); // SJB: Needs to happen after initWindow(), not sure why but related to fonts
+		
 	gGLManager.getGLInfo(gDebugInfo);
 	gGLManager.printGLInfoString();
 
@@ -888,6 +877,13 @@ bool LLAppViewer::mainLoop()
 		{
 			LLFastTimer t(LLFastTimer::FTM_FRAME);
 			
+			pingMainloopTimeout("Main:MiscNativeWindowEvents");
+			
+			{
+				LLFastTimer t2(LLFastTimer::FTM_MESSAGES);
+				gViewerWindow->mWindow->processMiscNativeEvents();
+			}
+			
 			pingMainloopTimeout("Main:GatherInput");
 			
 			{
@@ -934,20 +930,24 @@ bool LLAppViewer::mainLoop()
 					gKeyboard->scanKeyboard();
 				}
 
-				pingMainloopTimeout("Main:Messages");
-				
 				// Update state based on messages, user input, object idle.
 				{
+					pauseMainloopTimeout(); // *TODO: Remove. Messages shouldn't be stalling for 20+ seconds!
+					
 					LLFastTimer t3(LLFastTimer::FTM_IDLE);
 					idle();
 
+					if (gAres != NULL && gAres->isInitialized())
 					{
+						pingMainloopTimeout("Main:ServicePump");				
 						LLFastTimer t4(LLFastTimer::FTM_PUMP);
 						gAres->process();
 						// this pump is necessary to make the login screen show up
 						gServicePump->pump();
 						gServicePump->callback();
 					}
+					
+					resumeMainloopTimeout();
 				}
 
 				if (gDoDisconnect && (LLStartUp::getStartupState() == STATE_STARTED))
@@ -1049,6 +1049,11 @@ bool LLAppViewer::mainLoop()
 						break;
 					}
 				}
+				if ((LLStartUp::getStartupState() >= STATE_CLEANUP) &&
+					(frameTimer.getElapsedTimeF64() > FRAME_STALL_THRESHOLD))
+				{
+					gFrameStalls++;
+				}
 				frameTimer.reset();
 
 				 // Prevent the worker threads from running while rendering.
@@ -1069,14 +1074,17 @@ bool LLAppViewer::mainLoop()
 						
 		}
 		catch(std::bad_alloc)
-		{
-			llwarns << "Bad memory allocation in LLAppViewer::mainLoop()!" << llendl ;
-
+		{			
 			//stop memory leaking simulation
 			if(LLFloaterMemLeak::getInstance())
 			{
 				LLFloaterMemLeak::getInstance()->stop() ;				
-			}	
+				llwarns << "Bad memory allocation in LLAppViewer::mainLoop()!" << llendl ;
+			}
+			else
+			{
+				llerrs << "Bad memory allocation in LLAppViewer::mainLoop()!" << llendl ;
+			}
 		}
 	}
 
@@ -1227,8 +1235,18 @@ bool LLAppViewer::cleanup()
 		ms_sleep(100);
 	}
 	llinfos << "Shutting down." << llendflush;
+
+	// Destroy the UI
+	gViewerWindow->shutdownViews();
+
+	// Clean up selection managers after UI is destroyed, as UI may be observing them.
+	// Clean up before GL is shut down because we might be holding on to objects with texture references
+	LLSelectMgr::cleanupGlobals();
+
+	// Shut down OpenGL
+	gViewerWindow->shutdownGL();
 	
-	// Destroy Windows(R) window, and make sure we're not fullscreen
+	// Destroy window, and make sure we're not fullscreen
 	// This may generate window reshape and activation events.
 	// Therefore must do this before destroying the message system.
 	delete gViewerWindow;
@@ -1281,8 +1299,7 @@ bool LLAppViewer::cleanup()
 	//LLVolumeMgr::cleanupClass();
 	LLPrimitive::cleanupVolumeManager();
 	LLWorldMapView::cleanupClass();
-
-
+	LLFolderViewItem::cleanupClass();
 	LLUI::cleanupClass();
 	
 	//
@@ -1365,10 +1382,10 @@ bool LLAppViewer::cleanup()
     sImageDecodeThread = NULL;
 
 	gImageList.shutdown(); // shutdown again in case a callback added something
+	LLUIImageList::getInstance()->cleanUp();
 	
 	// This should eventually be done in LLAppViewer
-	LLImageJ2C::closeDSO();
-	LLImageFormatted::cleanupClass();
+	LLImage::cleanupClass();
 	LLVFSThread::cleanupClass();
 	LLLFSThread::cleanupClass();
 
@@ -1407,9 +1424,11 @@ bool LLAppViewer::cleanup()
 
 		LLWeb::loadURLExternal( gLaunchFileOnQuit );
 	}
-
+	
+	LLViewerMedia::cleanupClass();
 
     llinfos << "Goodbye" << llendflush;
+
 	// return 0;
 	return true;
 }
@@ -1436,8 +1455,7 @@ bool LLAppViewer::initThreads()
 	LLAppViewer::sImageDecodeThread = new LLWorkerThread("ImageDecode", enable_threads && true);
 	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
 	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), enable_threads && false);
-	LLImageWorker::initClass(LLAppViewer::getImageDecodeThread());
-	LLImageJ2C::openDSO();
+	LLImage::initClass(LLAppViewer::getImageDecodeThread());
 
 	// *FIX: no error handling here!
 	return true;
@@ -1482,7 +1500,7 @@ bool LLAppViewer::initLogging()
 	return true;
 }
 
-void LLAppViewer::loadSettingsFromDirectory(ELLPath path_index, bool set_defaults)
+bool LLAppViewer::loadSettingsFromDirectory(ELLPath path_index, bool set_defaults)
 {	
 	for(LLSD::map_iterator itr = mSettingsFileList.beginMap(); itr != mSettingsFileList.endMap(); ++itr)
 	{
@@ -1517,13 +1535,24 @@ void LLAppViewer::loadSettingsFromDirectory(ELLPath path_index, bool set_default
 		}
 		if(!gSettings[settings_name]->loadFromFile(full_settings_path, set_defaults))
 		{
-			llwarns << "Cannot load " << full_settings_path << " - No settings found." << llendl;
+			// If attempting to load the default global settings (app_settings/settings.xml) 
+			// fails, the app should error and quit.
+			if(path_index == LL_PATH_APP_SETTINGS && settings_name == sGlobalSettingsName)
+			{
+				llwarns << "Error: Cannot load default settings from: " << full_settings_path << llendl;
+				return false;
+			}
+			else
+			{
+				llwarns << "Cannot load " << full_settings_path << " - No settings found." << llendl;
+			}
 		}
 		else
 		{
 			llinfos << "Loaded settings file " << full_settings_path << llendl;
 		}
 	}
+	return true;
 }
 
 std::string LLAppViewer::getSettingsFileName(const std::string& file)
@@ -1565,7 +1594,19 @@ bool LLAppViewer::initConfiguration()
 	
 	// - load defaults
 	bool set_defaults = true;
-	loadSettingsFromDirectory(LL_PATH_APP_SETTINGS, set_defaults);
+	if(!loadSettingsFromDirectory(LL_PATH_APP_SETTINGS, set_defaults))
+	{
+		std::ostringstream msg;
+		msg << "Second Life could not load its default settings file. \n" 
+			<< "The installation may be corrupted. \n";
+
+		OSMessageBox(
+			msg.str(),
+			LLStringUtil::null,
+			OSMB_OK);
+
+		return false;
+	}
 
 	// - set procedural settings 
 	gSavedSettings.setString("ClientSettingsFile", 
@@ -1918,7 +1959,7 @@ bool LLAppViewer::initConfiguration()
 #endif
 	LLStringUtil::truncate(gWindowTitle, 255);
 
-	//RN: if we received a URL, hand it off to the existing instance
+	//RN: if we received a URL, hand it off to the existing instance.
 	// don't call anotherInstanceRunning() when doing URL handoff, as
 	// it relies on checking a marker file which will not work when running
 	// out of different directories
@@ -1933,7 +1974,7 @@ bool LLAppViewer::initConfiguration()
 	}
 	if (!slurl.empty())
 	{
-		if (send_url_to_other_instance(slurl))
+		if (sendURLToOtherInstance(slurl))
 		{
 			// successfully handed off URL to existing instance, exit
 			return false;
@@ -2332,6 +2373,11 @@ void LLAppViewer::handleViewerCrash()
 	{
 		gDebugInfo["CurrentSimHost"] = gAgent.getRegionHost().getHostName();
 		gDebugInfo["CurrentRegion"] = gAgent.getRegion()->getName();
+		
+		const LLVector3& loc = gAgent.getPositionAgent();
+		gDebugInfo["CurrentLocationX"] = loc.mV[0];
+		gDebugInfo["CurrentLocationY"] = loc.mV[1];
+		gDebugInfo["CurrentLocationZ"] = loc.mV[2];
 	}
 
 	if(LLAppViewer::instance()->mMainloopTimeout)
@@ -2422,24 +2468,23 @@ bool LLAppViewer::anotherInstanceRunning()
 		{
 			// Another instance is running. Skip the rest of these operations.
 			LL_INFOS("MarkerFile") << "Marker file is locked." << LL_ENDL;
-			return TRUE;
+			return true;
 		}
 		if (apr_file_lock(fMarker, APR_FLOCK_NONBLOCK | APR_FLOCK_EXCLUSIVE) != APR_SUCCESS) //flock(fileno(fMarker), LOCK_EX | LOCK_NB) == -1)
 		{
 			apr_file_close(fMarker);
 			LL_INFOS("MarkerFile") << "Marker file is locked." << LL_ENDL;
-			return TRUE;
+			return true;
 		}
 		// No other instances; we'll lock this file now & delete on quit.
 		apr_file_close(fMarker);
 	}
 	LL_DEBUGS("MarkerFile") << "Marker file isn't locked." << LL_ENDL;
-	return FALSE;
+	return false;
 }
 
 void LLAppViewer::initMarkerFile()
 {
-
 	//First, check for the existence of other files.
 	//There are marker files for two different types of crashes
 	
@@ -2725,7 +2770,7 @@ bool LLAppViewer::initCache()
 	
 	// Init the texture cache
 	// Allocate 80% of the cache size for textures
-	BOOL read_only = mSecondInstance ? true : false;
+	BOOL read_only = mSecondInstance ? TRUE : FALSE;
 	const S32 MB = 1024*1024;
 	S64 cache_size = (S64)(gSavedSettings.getU32("CacheSize")) * MB;
 	const S64 MAX_CACHE_SIZE = 1024*MB;
@@ -3063,6 +3108,8 @@ public:
 ///////////////////////////////////////////////////////
 void LLAppViewer::idle()
 {
+	pingMainloopTimeout("Main:Idle");
+	
 	// Update frame timers
 	static LLTimer idle_timer;
 

@@ -1,9 +1,10 @@
 /** 
- * @file LLFloaterReleaseMsg.h
+ * @file llmodularmath.h
+ * @brief Useful modular math functions.
  *
- * $LicenseInfo:firstyear=2005&license=viewergpl$
+ * $LicenseInfo:firstyear=2008&license=viewergpl$
  * 
- * Copyright (c) 2005-2008, Linden Research, Inc.
+ * Copyright (c) 2008, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -28,32 +29,29 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERRELMSG_H
-#define LL_LLFLOATERRELMSG_H
+#ifndef LLMODULARMATH_H
+#define LLMODULARMATH_H
 
-#include "llwebbrowserctrl.h"
-#include "llfloater.h"
-
-class LLFloaterReleaseMsg :
-	public LLFloater,
-	public LLWebBrowserCtrlObserver
+namespace LLModularMath
 {
-	public:
-		static LLFloaterReleaseMsg* getInstance();
-		virtual ~LLFloaterReleaseMsg();
-				
-		static void show();
-		static void onClickClose( void* data );
-		static bool checkVersion(const std::string& version_channel);
-		static void displayMessage(const std::string& version_channel);
-
-		static bool sDisplayMessage;
-		static LLFloaterReleaseMsg* sInstance;
-		std::string mTitleBase;
-	private:
-		LLFloaterReleaseMsg();
-		LLWebBrowserCtrl* mWebBrowser;
-		LLButton* mCloseButton;
-};
+    // Return difference between lhs and rhs
+    // treating the U32 operands and result
+    // as unsigned values of given width.
+	template<int width>
+	inline U32 subtract(U32 lhs, U32 rhs)
+	{
+		// Generate a bit mask which will truncate
+		// unsigned values to given width at compile time.
+		const U32 mask = (1 << width) - 1;
+		
+		// Operands are unsigned, so modular
+		// arithmetic applies. If lhs < rhs,
+		// difference will wrap in to lower
+		// bits of result, which is then masked
+		// to give a value that can be represented
+		// by an unsigned value of width bits.
+		return mask & (lhs - rhs);
+	}	
+}
 
 #endif

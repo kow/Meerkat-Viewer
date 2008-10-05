@@ -203,6 +203,22 @@ BOOL LLWindowCallbacks::handleDeviceChange(LLWindow *window)
 	return FALSE;
 }
 
+void LLWindowCallbacks::handlePingWatchdog(LLWindow *window, const char * msg)
+{
+
+}
+
+void LLWindowCallbacks::handlePauseWatchdog(LLWindow *window)
+{
+
+}
+
+void LLWindowCallbacks::handleResumeWatchdog(LLWindow *window)
+{
+
+}
+
+
 S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
 {
 	// Properly hide the splash screen when displaying the message box
@@ -303,6 +319,12 @@ std::string LLWindow::getFontListSans()
 #else
 	return "";
 #endif
+}
+
+//virtual
+void LLWindow::processMiscNativeEvents()
+{
+	// do nothing unless subclassed
 }
 
 #define UTF16_IS_HIGH_SURROGATE(U) ((U16)((U) - 0xD800) < 0x0400)

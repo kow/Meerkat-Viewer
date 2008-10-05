@@ -111,16 +111,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>0a49a6ec1f2db3693d81f4a32e0bdc2c</string>
+            <string>d9ce3ace9235249b7edf6f564de83395</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.3.0-darwin-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.4.0-darwin-20080731b.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>29dc8946944acd44459bdff03359314c</string>
+            <string>aa111fae0ac550bba5e280275eb25904</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.3.0-linux-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.4.0-linux-20080729.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -203,6 +203,25 @@
             <string>fb42c5b40e34b043cee236aa216b141e</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.0-windows-20080613.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>dbusglib</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (C) 2002, 2003 CodeFactory AB / Copyright (C) 2003, 2004 Red Hat, Inc.</string>
+        <key>description</key>
+        <string>dbus/dbus-glib: headers only</string>
+        <key>license</key>
+        <string>AFL2.1</string>
+        <key>packages</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>eb25444142d4102b0ce1b7ffaadb071e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbusglib-linux-20080707.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -527,16 +546,16 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>c70a91224ac2faab2dfbae69ea1ea39c</string>
+            <string>9a91ecd80203a24fb347b1436155b013</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-5.2.1-darwin-20080812.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-5.2.1-darwin-20080716.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>6bc5023cfd791a73a8d860015bd99868</string>
+            <string>daadd8c268e16f8c5f6145be8596b8b8</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-5.2.1-linux-20080812.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/kdu-5.2.1-linux-20080716.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
@@ -601,16 +620,16 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>df73b95b0980e631ba1ecd930120699f</string>
+            <string>9bc0f8b7d5e0ff194b6d5635daf9ae3a</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-linux-20080722.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-1.2.6-linux-20080816a.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>7293312a6c76e5a38ec1b58ff87828d9</string>
+            <string>6712a09311a914752f47d5d62562a239</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-windows-20080723.tar.bz2</uri>
+            <uri>https://s3.amazonaws.com/viewer-source-downloads/install_pkgs/libmono-1.2.6-windows-20080903.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -716,16 +735,16 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>0295c64c29d9898b4437b3a692fee0ad</string>
+            <string>344bfdb8448bbc4158a99300cf4e2b4b</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-linux-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-linux-20080922.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>4bf828c670fb9848c7d2a91bf4eccafc</string>
+            <string>8c1b8881285631eb32ba541e10d07b07</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-windows-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-windows-20080922.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1109,6 +1128,11 @@ anguage Infrstructure (CLI) international standard</string>
     </map>
     <key>licenses</key>
     <map>
+      <key>AFL2.1</key>
+      <map>
+        <key>url</key>
+        <string>http://opensource-definition.org/licenses/afl-2.1.html</string>
+      </map>
       <key>GL</key>
       <map>
         <key>url</key>

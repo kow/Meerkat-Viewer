@@ -236,8 +236,6 @@ const F32 FAST_FRAME_INCREMENT = 0.1f;
 
 const F32 MIN_DISPLAY_SCALE = 0.75f;
 
-const S32 CONSOLE_BOTTOM_PAD = 40;
-
 std::string	LLViewerWindow::sSnapshotBaseName;
 std::string	LLViewerWindow::sSnapshotDir;
 
@@ -1035,6 +1033,7 @@ BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK 
 	return TRUE;
 }
 
+// WARNING: this is potentially called multiple times per frame
 void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	S32 x = pos.mX;
@@ -1258,6 +1257,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 
 BOOL LLViewerWindow::handleActivateApp(LLWindow *window, BOOL activating)
 {
+	if (!activating) gAgent.changeCameraToDefault();
 	LLViewerJoystick::getInstance()->setNeedsReset(true);
 	return FALSE;
 }
@@ -1368,6 +1368,23 @@ BOOL LLViewerWindow::handleDeviceChange(LLWindow *window)
 	return FALSE;
 }
 
+void LLViewerWindow::handlePingWatchdog(LLWindow *window, const char * msg)
+{
+	LLAppViewer::instance()->pingMainloopTimeout(msg);
+}
+
+
+void LLViewerWindow::handleResumeWatchdog(LLWindow *window)
+{
+	LLAppViewer::instance()->resumeMainloopTimeout();
+}
+
+void LLViewerWindow::handlePauseWatchdog(LLWindow *window)
+{
+	LLAppViewer::instance()->pauseMainloopTimeout();
+}
+
+
 //
 // Classes
 //
@@ -1391,6 +1408,7 @@ LLViewerWindow::LLViewerWindow(
 	mToolStored( NULL ),
 	mSuppressToolbox( FALSE ),
 	mHideCursorPermanent( FALSE ),
+	mCursorHidden(FALSE),
 	mIgnoreActivate( FALSE ),
 	mHoverPick()
 {
@@ -1575,6 +1593,8 @@ void LLViewerWindow::initBase()
 	LLRect floater_view_rect = full_window;
 	// make space for menu bar if we have one
 	floater_view_rect.mTop -= MENU_BAR_HEIGHT;
+
+	// TODO: Eliminate magic constants - please used named constants if changing this
 	floater_view_rect.mBottom += STATUS_BAR_HEIGHT + 12 + 16 + 2;
 
 	// Check for non-first startup
@@ -1593,7 +1613,10 @@ void LLViewerWindow::initBase()
 	llassert( !gConsole );
 	LLRect console_rect = full_window;
 	console_rect.mTop    -= 24;
-	console_rect.mBottom += STATUS_BAR_HEIGHT + 12 + 16 + 12;
+
+	console_rect.mBottom += getChatConsoleBottomPad();
+
+	// TODO: Eliminate magic constants - please used named constants if changing this - don't be a programmer hater
 	console_rect.mLeft   += 24; //gSavedSettings.getS32("StatusBarButtonWidth") + gSavedSettings.getS32("StatusBarPad");
 
 	if (gSavedSettings.getBOOL("ChatFullWidth"))
@@ -1771,12 +1794,15 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 
 	// slightly off center to be left of the avatar.
 	r = gSavedSettings.getRect("FloaterHUDRect2");
-	r.setOriginAndSize(
-		window.getWidth()/3 - r.getWidth()/2,
-		window.getHeight()/2 - r.getHeight()/2,
-		r.getWidth(),
-		r.getHeight());
-	gSavedSettings.setRect("FloaterHUDRect2", r);
+	if (r.mLeft == 0 && r.mBottom == 0)
+	{
+		r.setOriginAndSize(
+			window.getWidth()/4 - r.getWidth()/2,
+			2*window.getHeight()/3 - r.getHeight()/2,
+			r.getWidth(),
+			r.getHeight());
+		gSavedSettings.setRect("FloaterHUDRect2", r);
+	}
 }
 
 //Rectangles need to be adjusted after the window is constructed
@@ -1892,10 +1918,11 @@ void LLViewerWindow::initWorldUI()
 	mRootView->sendChildToFront(gMenuHolder);
 }
 
-
-LLViewerWindow::~LLViewerWindow()
+// Destroy the UI
+void LLViewerWindow::shutdownViews()
 {
 	delete mDebugText;
+	mDebugText = NULL;
 	
 	gSavedSettings.setS32("FloaterViewBottom", gFloaterView->getRect().mBottom);
 
@@ -1925,7 +1952,10 @@ LLViewerWindow::~LLViewerWindow()
 
 	delete mToolTip;
 	mToolTip = NULL;
-	
+}
+
+void LLViewerWindow::shutdownGL()
+{
 	//--------------------------------------------------------
 	// Shutdown GL cleanly.  Order is very important here.
 	//--------------------------------------------------------
@@ -1962,7 +1992,12 @@ LLViewerWindow::~LLViewerWindow()
 		stop_glerror();
 	}
 
+	gGL.shutdown();
+}
 
+// shutdownViews() and shutdownGL() need to be called first
+LLViewerWindow::~LLViewerWindow()
+{
 	llinfos << "Destroying Window" << llendl;
 	destroyWindow();
 }
@@ -1976,6 +2011,8 @@ void LLViewerWindow::setCursor( ECursorType c )
 void LLViewerWindow::showCursor()
 {
 	mWindow->showCursor();
+	
+	mCursorHidden = FALSE;
 }
 
 void LLViewerWindow::hideCursor()
@@ -1988,6 +2025,8 @@ void LLViewerWindow::hideCursor()
 
 	// And hide the cursor
 	mWindow->hideCursor();
+
+	mCursorHidden = TRUE;
 }
 
 void LLViewerWindow::sendShapeToSim()
@@ -2965,7 +3004,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 
 		// Always update console
 		LLRect console_rect = gConsole->getRect();
-		console_rect.mBottom = gHUDView->getRect().mBottom + CONSOLE_BOTTOM_PAD;
+		console_rect.mBottom = gHUDView->getRect().mBottom + getChatConsoleBottomPad();
 		gConsole->reshape(console_rect.getWidth(), console_rect.getHeight());
 		gConsole->setRect(console_rect);
 	}
@@ -3033,17 +3072,41 @@ BOOL LLViewerWindow::handlePerFrameHover()
 											  &gDebugRaycastBinormal);
 	}
 
-	static U16 frame_counter = 0;
+
+	// per frame picking - for tooltips and changing cursor over interactive objects
 	static S32 previous_x = -1;
 	static S32 previous_y = -1;
-	
-	if (((previous_x != x) || (previous_y != y)) ||
-		((gSavedSettings.getBOOL("PerFrameHoverPick"))
-		 && ((frame_counter % gSavedSettings.getS32("PerFrameHoverPickCount")) == 0)))
-		{
-			pickAsync(getCurrentMouseX(), getCurrentMouseY(), mask, hoverPickCallback, TRUE);
-		}
-	frame_counter++;
+	static BOOL mouse_moved_since_pick = FALSE;
+
+	if ((previous_x != x) || (previous_y != y))
+		mouse_moved_since_pick = TRUE;
+
+	BOOL do_pick = FALSE;
+
+	F32 picks_moving = gSavedSettings.getF32("PicksPerSecondMouseMoving");
+	if ((mouse_moved_since_pick) && (picks_moving > 0.0) && (mPickTimer.getElapsedTimeF32() > 1.0f / picks_moving))
+	{
+		do_pick = TRUE;
+	}
+
+	F32 picks_stationary = gSavedSettings.getF32("PicksPerSecondMouseStationary");
+	if ((!mouse_moved_since_pick) && (picks_stationary > 0.0) && (mPickTimer.getElapsedTimeF32() > 1.0f / picks_stationary))
+	{
+		do_pick = TRUE;
+	}
+
+	if (getCursorHidden())
+	{
+		do_pick = FALSE;
+	}
+
+	if (do_pick)
+	{
+		mouse_moved_since_pick = FALSE;
+		mPickTimer.reset();
+		pickAsync(getCurrentMouseX(), getCurrentMouseY(), mask, hoverPickCallback, TRUE);
+	}
+
 	previous_x = x;
 	previous_y = y;
 	
@@ -3346,13 +3409,14 @@ void LLViewerWindow::schedulePick(LLPickInfo& pick_info)
 {
 	if (mPicks.size() >= 1024 || mWindow->getMinimized())
 	{ //something went wrong, picks are being scheduled but not processed
+		
 		if (pick_info.mPickCallback)
 		{
 			pick_info.mPickCallback(pick_info);
 		}
+	
 		return;
 	}
-
 	llassert_always(pick_info.mScreenRegion.notNull());
 	mPicks.push_back(pick_info);
 	
@@ -3411,7 +3475,8 @@ void LLViewerWindow::schedulePick(LLPickInfo& pick_info)
 	// Draw the objects so the user can select them.
 	// The starting ID is 1, since land is zero.
 	LLRect pick_region;
-	pick_region.setOriginAndSize(scaled_x - PICK_HALF_WIDTH, scaled_y - PICK_HALF_WIDTH, PICK_DIAMETER, PICK_DIAMETER);
+	pick_region.setOriginAndSize(pick_info.mMousePt.mX - PICK_HALF_WIDTH,
+								 pick_info.mMousePt.mY - PICK_HALF_WIDTH, PICK_DIAMETER, PICK_DIAMETER);
 	gObjectList.renderObjectsForSelect(pick_camera, pick_region, FALSE, pick_info.mPickTransparent);
 
 	stop_glerror();
@@ -4114,7 +4179,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 					window_width = snapshot_width;
 					window_height = snapshot_height;
 					scale_factor = 1.f;
-					mWindowRect.set(0, 0, snapshot_width, snapshot_height);
+					mWindowRect.set(0, snapshot_height, snapshot_width, 0);
 					target.bindTarget();			
 				}
 			}
@@ -4205,6 +4270,13 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 							- output_buffer_offset_x // ...minus buffer padding x...
 							- (output_buffer_offset_y * (raw->getWidth()))  // ...minus buffer padding y...
 						) * raw->getComponents();
+				
+				// Ping the wathdog thread every 100 lines to keep us alive (arbitrary number, feel free to change)
+				if (out_y % 100 == 0)
+				{
+					LLAppViewer::instance()->pingMainloopTimeout("LLViewerWindow::rawSnapshot");
+				}
+				
 				if (type == SNAPSHOT_TYPE_OBJECT_ID || type == SNAPSHOT_TYPE_COLOR)
 				{
 					glReadPixels(
@@ -4844,6 +4916,15 @@ void LLViewerWindow::calcDisplayScale()
 		// Init default fonts
 		initFonts();
 	}
+}
+
+S32 LLViewerWindow::getChatConsoleBottomPad()
+{
+	S32 offset = 0;
+	if( gToolBar && gToolBar->getVisible() )
+		offset += TOOL_BAR_HEIGHT;
+
+	return offset;
 }
 
 //----------------------------------------------------------------------------

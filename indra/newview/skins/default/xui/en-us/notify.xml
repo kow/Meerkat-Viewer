@@ -646,14 +646,20 @@ From object: [OBJECTNAME], owner: [NAME]?
 	</notify>
 	<notify name="FailedToLoadWearableUnnamed" tip="false">
 		<message name="message">
-			Failed to load [TYPE].
-Please notify the vendor from whom you purchased this item.
+			Oops!
+You tried to wear a [TYPE] and it did not load.
+
+Don't panic.
+Try again in a minute to give things a chance to settle down.
 		</message>
 	</notify>
 	<notify name="FailedToLoadWearable" tip="false">
 		<message name="message">
-			Failed to load [TYPE] named [DESC].
-Please notify the vendor from whom you purchased this item.
+			Oops!
+You tried to wear [TYPE] named [DESC] and it did not load.
+
+Don't panic.
+Try again in a minute to give things a chance to settle down.
 		</message>
 	</notify>
 	<notify name="FailedToFindWearableUnnamed" tip="false">
@@ -991,7 +997,7 @@ Click Accept to join the chat or Decline to decline the invitation. Click Mute t
 	</notify>
 	<notify name="ProximalVoiceChannelFull" tip="true" unique="true">
 		<message name="message">
-			We&apos;re sorry.  This area has has reached maximum capacity for voice conversations.  Please try to use voice in another area.
+			We&apos;re sorry.  This area has reached maximum capacity for voice conversations.  Please try to use voice in another area.
 		</message>
 	</notify>
 	<notify name="VoiceChannelDisconnected" tip="true" unique="true">

@@ -56,7 +56,11 @@ protected:
 	virtual void handleCrashReporting(); 
 	virtual void handleSyncCrashTrace();
 
+	virtual bool sendURLToOtherInstance(const std::string& url);
+
 	std::string generateSerialNumber();
+
+	static const std::string sWindowClass;
 
 private:
 	void disableWinErrorReporting();

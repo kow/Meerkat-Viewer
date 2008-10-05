@@ -462,7 +462,8 @@ public:
 	// internal (pseudo-private) functions
 	//--------------------------------------------------------------------
 	F32 getPelvisToFoot() { return mPelvisToFoot; }
-
+	
+	void startDefaultMotions();
 	void buildCharacter();
 	void releaseMeshData();
 	void restoreMeshData();
@@ -692,6 +693,7 @@ public:
 	typedef std::multimap<std::string, LLPolyMesh*> mesh_map_t;
 	mesh_map_t				mMeshes;
 
+	S32                 mNumInitFaces ; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 	//--------------------------------------------------------------------
 	// true if this avatar is for this viewers agent
 	//--------------------------------------------------------------------

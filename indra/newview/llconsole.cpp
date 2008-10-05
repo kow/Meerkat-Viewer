@@ -55,8 +55,13 @@ extern void AddNewDebugConsoleToLCD(const LLWString &newLine);
 LLConsole* gConsole = NULL;  // Created and destroyed in LLViewerWindow.
 
 const F32 FADE_DURATION = 2.f;
-const S32 MIN_CONSOLE_WIDTH = 200;
- 
+const S32 MIN_CONSOLE_WIDTH = 50;
+
+// Why don't these match?
+const S32 CONSOLE_GUTTER_LEFT = 14;
+const S32 CONSOLE_GUTTER_RIGHT = 15;
+
+
 LLConsole::LLConsole(const std::string& name, const U32 max_lines, const LLRect &rect, 
 					 S32 font_size_index, F32 persist_time ) 
 	: 
@@ -78,7 +83,7 @@ void LLConsole::setLinePersistTime(F32 seconds)
 
 void LLConsole::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	S32 new_width = llmax(50, llmin(getRect().getWidth(), gViewerWindow->getWindowWidth()));
+	S32 new_width = llmax(MIN_CONSOLE_WIDTH, llmin(getRect().getWidth(), gViewerWindow->getWindowWidth()));
 	S32 new_height = llmax(llfloor(mFont->getLineHeight()) + 15, llmin(getRect().getHeight(), gViewerWindow->getWindowHeight()));
 
 	if (   mConsoleWidth == new_width
@@ -185,13 +190,39 @@ void LLConsole::draw()
 
 	F32 line_height = mFont->getLineHeight();
 
+	S32 message_spacing=4;
+	
+//080813 Spatters:  This section makes a single huge black box behind all the text.
+	S32 bkg_height=4;
+	S32 bkg_width=0;
 	for(paragraph_it = mParagraphs.rbegin(); paragraph_it != mParagraphs.rend(); paragraph_it++)
 	{
-		S32 target_height = llfloor( (*paragraph_it).mLines.size() * line_height + 8);
-		S32 target_width =  llfloor( (*paragraph_it).mMaxWidth +15);
+		S32 target_height = llfloor( (*paragraph_it).mLines.size() * line_height + message_spacing);
+		S32 target_width =  llfloor( (*paragraph_it).mMaxWidth + CONSOLE_GUTTER_RIGHT);
+		
+		bkg_height+= target_height;
+		if (target_width > bkg_width)
+		{
+			bkg_width=target_width;
+		}
+
+		// Why is this not using llfloor as above?
+		y_pos += ((*paragraph_it).mLines.size()) * line_height;
+		y_pos += message_spacing;  //Extra spacing between messages.
+	}
+	imagep->drawSolid(-CONSOLE_GUTTER_LEFT, (S32)(y_pos + line_height - bkg_height - message_spacing), bkg_width, bkg_height, color);
+	y_pos = 0.f;
+//End screen-eating black void
+
+	for(paragraph_it = mParagraphs.rbegin(); paragraph_it != mParagraphs.rend(); paragraph_it++)
+	{
+//080813 Spatters:  Dainty per-message block boxes
+//		S32 target_height = llfloor( (*paragraph_it).mLines.size() * line_height + 8);
+		S32 target_width =  llfloor( (*paragraph_it).mMaxWidth + CONSOLE_GUTTER_RIGHT);
 
 		y_pos += ((*paragraph_it).mLines.size()) * line_height;
-		imagep->drawSolid(-14, (S32)(y_pos + line_height - target_height), target_width, target_height, color);
+//080813 Spatters:  Dainty per-message block boxes
+//		imagep->drawSolid(-14, (S32)(y_pos + line_height - target_height), target_width, target_height, color);
 
 		F32 y_off=0;
 
@@ -232,7 +263,7 @@ void LLConsole::draw()
 				y_off += line_height;
 			}
 		}
-		y_pos  += 8;
+		y_pos  += message_spacing;  //Extra spacing between messages.
 	}
 }
 
@@ -311,17 +342,17 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, LLFontGL* font, bool fo
 	// Wrap lines that are longer than the view is wide.
 	while( paragraph_offset < (S32)mParagraphText.length() )
 	{
-		S32 skip_chars; // skip '\n'
+		S32 skip_newline_chars; // skip '\n'
 		// Figure out if a word-wrapped line fits here.
 		LLWString::size_type line_end = mParagraphText.find_first_of(llwchar('\n'), paragraph_offset);
 		if (line_end != LLWString::npos)
 		{
-			skip_chars = 1; // skip '\n'
+			skip_newline_chars = 1; // skip '\n'
 		}
 		else
 		{
 			line_end = mParagraphText.size();
-			skip_chars = 0;
+			skip_newline_chars = 0;
 		}
 
 		U32 drawable = font->maxDrawableChars(mParagraphText.c_str()+paragraph_offset, screen_width, line_end - paragraph_offset, TRUE);
@@ -369,7 +400,12 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, LLFontGL* font, bool fo
 			}
 			mLines.push_back(line);								//Append line to paragraph line list.
 		}
-		paragraph_offset += (drawable + skip_chars);
+		else
+		{
+			if( !skip_newline_chars )
+				break; // Nothing more to print
+		}
+		paragraph_offset += (drawable + skip_newline_chars);
 	}
 }
 

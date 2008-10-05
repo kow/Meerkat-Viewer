@@ -60,6 +60,8 @@ BOOL gClothRipple = FALSE;
 BOOL gNoRender = FALSE;
 LLMatrix4 gGLObliqueProjectionInverse;
 
+#define LL_GL_NAME_POOLING 0
+
 LLGLNamePool::pool_list_t LLGLNamePool::sInstances;
 
 #if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
@@ -1004,6 +1006,9 @@ void LLGLState::initClass()
 	//make sure multisample defaults to disabled
 	sStateMap[GL_MULTISAMPLE_ARB] = GL_FALSE;
 	glDisable(GL_MULTISAMPLE_ARB);
+
+	//default vertex arrays to enabled.
+	glEnableClientState(GL_VERTEX_ARRAY);
 }
 
 //static
@@ -1039,7 +1044,7 @@ void LLGLState::dumpStates()
 	}
 }
 
-void LLGLState::checkStates()  
+void LLGLState::checkStates(const std::string& msg)  
 {
 	if (!gDebugGL)
 	{
@@ -1063,7 +1068,7 @@ void LLGLState::checkStates()
 	
 	if (src != GL_SRC_ALPHA || dst != GL_ONE_MINUS_SRC_ALPHA)
 	{
-		LL_GL_ERRS << "Blend function corrupted: " << std::hex << src << " " << std::hex << dst << LL_ENDL;
+		LL_GL_ERRS << "Blend function corrupted: " << std::hex << src << " " << std::hex << dst << "  " << msg << LL_ENDL;
 	}
 	
 	for (std::map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
@@ -1082,7 +1087,7 @@ void LLGLState::checkStates()
 	stop_glerror();
 }
 
-void LLGLState::checkTextureChannels()
+void LLGLState::checkTextureChannels(const std::string& msg)
 {
 	if (!gDebugGL)
 	{
@@ -1183,11 +1188,11 @@ void LLGLState::checkTextureChannels()
 
 	if (error)
 	{
-		LL_GL_ERRS << "GL texture state corruption detected." << LL_ENDL;
+		LL_GL_ERRS << "GL texture state corruption detected.  " << msg << LL_ENDL;
 	}
 }
 
-void LLGLState::checkClientArrays(U32 data_mask)
+void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 {
 	if (!gDebugGL)
 	{
@@ -1299,7 +1304,7 @@ void LLGLState::checkClientArrays(U32 data_mask)
 
 	if (error)
 	{
-		LL_GL_ERRS << "GL client array corruption detected." << LL_ENDL;
+		LL_GL_ERRS << "GL client array corruption detected.  " << msg << LL_ENDL;
 	}
 }
 
@@ -1624,6 +1629,7 @@ void LLGLNamePool::cleanup()
 
 GLuint LLGLNamePool::allocate()
 {
+#if LL_GL_NAME_POOLING
 	for (name_list_t::iterator iter = mNameList.begin(); iter != mNameList.end(); ++iter)
 	{
 		if (!iter->used)
@@ -1639,18 +1645,33 @@ GLuint LLGLNamePool::allocate()
 	mNameList.push_back(entry);
 
 	return entry.name;
+#else
+	return allocateName();
+#endif
 }
 
 void LLGLNamePool::release(GLuint name)
 {
+#if LL_GL_NAME_POOLING
 	for (name_list_t::iterator iter = mNameList.begin(); iter != mNameList.end(); ++iter)
 	{
 		if (iter->name == name)
 		{
-			iter->used = FALSE;
-			return;
+			if (iter->used)
+			{
+				iter->used = FALSE;
+				return;
+			}
+			else
+			{
+				llerrs << "Attempted to release a pooled name that is not in use!" << llendl;
+			}
 		}
 	}
+	llerrs << "Attempted to release a non pooled name!" << llendl;
+#else
+	releaseName(name);
+#endif
 }
 
 //static

@@ -12,11 +12,13 @@ set(LLCOMMON_INCLUDE_DIRS
     ${Boost_INCLUDE_DIRS}
     )
 
-set(LLCOMMON_LIBRARIES
-    llcommon
-    ${APRUTIL_LIBRARIES}
-    ${APR_LIBRARIES}
-    ${EXPAT_LIBRARIES}
-    ${ZLIB_LIBRARIES}
-	${Boost_LIBRARY_DIRS}
-    )
+#set(LLCOMMON_LIBRARIES
+#    llcommon
+#    ${APRUTIL_LIBRARIES}
+#    ${APR_LIBRARIES}
+#    ${EXPAT_LIBRARIES}
+#    ${ZLIB_LIBRARIES}
+#	${Boost_LIBRARY_DIRS}
+#    )
+
+set(LLCOMMON_LIBRARIES llcommon)

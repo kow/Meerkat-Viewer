@@ -157,8 +157,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 	msg->getU32Fast(_PREHASH_RequestData, _PREHASH_TotalObjectCount, total_count);
 	msg->getU32Fast(_PREHASH_RequestData, _PREHASH_ReportType, mCurrentMode);
 
-	LLCtrlListInterface *list = childGetListInterface("objects_list");
-	if (!list) return;
+	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("objects_list");
 	
 	S32 block_count = msg->getNumberOfBlocks("ReportData");
 	for (S32 block = 0; block < block_count; ++block)
@@ -171,6 +170,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		std::string name_buf;
 		std::string owner_buf;
 		F32 mono_score = 0.f;
+		bool have_extended_data = false;
 
 		msg->getU32Fast(_PREHASH_ReportData, _PREHASH_TaskLocalID, task_local_id, block);
 		msg->getUUIDFast(_PREHASH_ReportData, _PREHASH_TaskID, task_id, block);
@@ -182,7 +182,9 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		msg->getStringFast(_PREHASH_ReportData, _PREHASH_OwnerName, owner_buf, block);
 		if(msg->getNumberOfBlocks("DataExtended"))
 		{
+			have_extended_data = true;
 			msg->getU32("DataExtended", "TimeStamp", time_stamp, block);
+			msg->getF32(_PREHASH_ReportData, "MonoScore", mono_score, block);
 		}
 
 		LLSD element;
@@ -203,17 +205,16 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		element["columns"][3]["column"] = "location";
 		element["columns"][3]["value"] = llformat("<%0.1f,%0.1f,%0.1f>", location_x, location_y, location_z);
 		element["columns"][3]["font"] = "SANSSERIF";
-		element["columns"][3]["column"] = "time";
-		element["columns"][3]["value"] = formatted_time((time_t)time_stamp);
-		element["columns"][3]["font"] = "SANSSERIF";
+		element["columns"][4]["column"] = "time";
+		element["columns"][4]["value"] = formatted_time((time_t)time_stamp);
+		element["columns"][4]["font"] = "SANSSERIF";
 
-		if (mCurrentMode == STAT_REPORT_TOP_SCRIPTS)
+		if (mCurrentMode == STAT_REPORT_TOP_SCRIPTS
+			&& have_extended_data)
 		{
-			// Not in the message template, needs to be checked against number of blocks
-			//msg->getF32Fast(_PREHASH_ReportData, "MonoScore", mono_score, block);
-			element["columns"][4]["column"] = "Mono Time";
-			element["columns"][4]["value"] = llformat("%0.3f", mono_score);
-			element["columns"][4]["font"] = "SANSSERIF";
+			element["columns"][5]["column"] = "Mono Time";
+			element["columns"][5]["value"] = llformat("%0.3f", mono_score);
+			element["columns"][5]["font"] = "SANSSERIF";
 		}
 		
 		list->addElement(element);
@@ -226,13 +227,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 
 	if (total_count == 0 && list->getItemCount() == 0)
 	{
-		LLSD element;
-		element["id"] = LLUUID::null;
-		element["columns"][0]["column"] = "name";
-		element["columns"][0]["value"] = getString("none_descriptor");
-		element["columns"][0]["font"] = "SANSSERIF";
-
-		list->addElement(element);
+		list->addCommentText(getString("none_descriptor"));
 	}
 	else
 	{

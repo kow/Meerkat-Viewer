@@ -254,6 +254,7 @@ void dialog_choose_gender_first_start();
 void callback_choose_gender(S32 option, void* userdata);
 void init_start_screen(S32 location_id);
 void release_start_screen();
+void apply_udp_blacklist(const std::string& csv);
 
 void callback_cache_name(const LLUUID& id, const std::string& firstname, const std::string& lastname, BOOL is_group, void* data)
 {
@@ -442,9 +443,11 @@ bool idle_startup()
 		// Load the throttle settings
 		gViewerThrottle.load();
 
-		if (ll_init_ares() == NULL)
+		if (ll_init_ares() == NULL || !gAres->isInitialized())
 		{
-			LL_ERRS("AppInit") << "Could not start address resolution system" << LL_ENDL;
+			LL_WARNS("AppInit") << "Could not start address resolution system" << LL_ENDL;
+			std::string msg = LLTrans::getString("LoginFailedNoNetwork");
+			LLAppViewer::instance()->earlyExit(msg);
 		}
 		
 		//
@@ -490,7 +493,8 @@ bool idle_startup()
 				   FALSE,
 				   std::string()))
 			{
-				std::string msg = llformat("Unable to start networking, error %d", gMessageSystem->getErrorCode());
+				std::string msg = LLTrans::getString("LoginFailedNoNetwork");
+				msg.append(llformat(" Error: %d", gMessageSystem->getErrorCode()));
 				LLAppViewer::instance()->earlyExit(msg);
 			}
 
@@ -578,6 +582,8 @@ bool idle_startup()
 			}
 		}
 
+		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
+		
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
 		// or audio cues in connection UI.
@@ -598,6 +604,7 @@ bool idle_startup()
 				else
 				{
 					gAudiop->setMuted(TRUE);
+					LL_INFOS("AppInit") << "Audio Engine Initialized." << LL_ENDL;
 				}
 			}
 		}
@@ -606,6 +613,8 @@ bool idle_startup()
 			gAudiop = NULL;
 		}
 
+		
+		
 		if (LLTimer::knownBadTimer())
 		{
 			LL_WARNS("AppInit") << "Unreliable timers detected (may be bad PCI chipset)!!" << LL_ENDL;
@@ -756,6 +765,12 @@ bool idle_startup()
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
 
+		// DEV-16927.  The following code removes errant keystrokes that happen while the window is being 
+		// first made visible.
+#ifdef _WIN32
+		MSG msg;
+		while( PeekMessage( &msg, /*All hWnds owned by this thread */ NULL, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE ) );
+#endif
 		timeout.reset();
 		return FALSE;
 	}
@@ -868,9 +883,6 @@ bool idle_startup()
 		
 		//For HTML parsing in text boxes.
 		LLTextEditor::setLinkColor( gSavedSettings.getColor4("HTMLLinkColor") );
-		LLTextEditor::setURLCallbacks ( &LLWeb::loadURL,
-				&LLURLDispatcher::dispatchFromTextEditor,
-				&LLURLDispatcher::dispatchFromTextEditor   );
 
 		// Load URL History File
 		LLURLHistory::loadFile("url_history.xml");
@@ -1265,8 +1277,14 @@ bool idle_startup()
 
 		if(successful_login)
 		{
-			// unpack login data needed by the application
 			std::string text;
+			text = LLUserAuth::getInstance()->getResponse("udp_blacklist");
+			if(!text.empty())
+			{
+				apply_udp_blacklist(text);
+			}
+
+			// unpack login data needed by the application
 			text = LLUserAuth::getInstance()->getResponse("agent_id");
 			if(!text.empty()) gAgentID.set(text);
 			gDebugInfo["AgentID"] = text;
@@ -1981,6 +1999,7 @@ bool idle_startup()
  		}
 		*/
 		options.clear();
+		bool show_hud = false;
 		if(LLUserAuth::getInstance()->getOptions("tutorial_setting", options))
 		{
 			LLUserAuth::options_t::iterator it = options.begin();
@@ -1999,10 +2018,18 @@ bool idle_startup()
 				{
 					if (option_it->second == "true")
 					{
-						LLFloaterHUD::showHUD();
+						show_hud = true;
 					}
 				}
 			}
+		}
+		// Either we want to show tutorial because this is the first login
+		// to a Linden Help Island or the user quit with the tutorial
+		// visible.  JC
+		if (show_hud
+			|| gSavedSettings.getBOOL("ShowTutorial"))
+		{
+			LLFloaterHUD::showHUD();
 		}
 
 		options.clear();
@@ -2255,6 +2282,9 @@ bool idle_startup()
 				}
 			}
 		}
+
+        //DEV-17797.  get null folder.  Any items found here moved to Lost and Found
+        LLInventoryModel::findLostItems();
 
 		LLStartUp::setStartupState( STATE_PRECACHE );
 		timeout.reset();
@@ -3884,3 +3914,29 @@ void login_alert_done(S32 option, void* user_data)
 {
 	LLPanelLogin::giveFocus();
 }
+
+
+void apply_udp_blacklist(const std::string& csv)
+{
+
+	std::string::size_type start = 0;
+	std::string::size_type comma = 0;
+	do 
+	{
+		comma = csv.find(",", start);
+		if (comma == std::string::npos)
+		{
+			comma = csv.length();
+		}
+		std::string item(csv, start, comma-start);
+
+		lldebugs << "udp_blacklist " << item << llendl;
+		gMessageSystem->banUdpMessage(item);
+		
+		start = comma + 1;
+
+	}
+	while(comma < csv.length());
+	
+}
+

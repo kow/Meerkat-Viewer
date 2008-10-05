@@ -114,6 +114,7 @@ set(llcommon_HEADER_FILES
     llframetimer.h
     llhash.h
     llheartbeat.h
+    llhttpstatuscodes.h
     llindexedqueue.h
     llindraconfigfile.h
     llkeythrottle.h
@@ -186,3 +187,13 @@ set_source_files_properties(${llcommon_HEADER_FILES}
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
 add_library (llcommon ${llcommon_SOURCE_FILES})
+target_link_libraries(
+    llcommon
+    ${APRUTIL_LIBRARIES}
+    ${APR_LIBRARIES}
+    ${EXPAT_LIBRARIES}
+    ${ZLIB_LIBRARIES}
+	${BOOST_PROGRAM_OPTIONS_LIBRARY}
+	${BOOST_REGEX_LIBRARY}
+	${BOOST_SIGNALS_LIBRARY}
+    )

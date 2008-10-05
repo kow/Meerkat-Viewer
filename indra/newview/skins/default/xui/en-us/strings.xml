@@ -23,6 +23,7 @@
 	<string name="LoginWaitingForRegionHandshake">Waiting for region handshake...</string>
 	<string name="LoginConnectingToRegion">Connecting to region...</string>
 	<string name="LoginDownloadingClothing">Downloading clothing...</string>
+  <string name="LoginFailedNoNetwork">Network Error: Could not establish connection, please check your network connection.</string>
 
 
 	<!-- Disconnection -->
@@ -59,7 +60,9 @@
 	
 	<!-- Indicates that an avatar's name or other similar datum is being retrieved. General usage. -->
 	<string name="RetrievingData">Retrieving...</string>
-	
+
+	<string name="ReleaseNotes">Release Notes</string>
+
 	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
 	<string name="LoadingData">Loading...</string>
 	

@@ -135,36 +135,56 @@ struct char_traits<U16>
 class LLStringOps
 {
 public:
-	static char toUpper(char elem) { return toupper(elem); }
+	static char toUpper(char elem) { return toupper((unsigned char)elem); }
 	static llwchar toUpper(llwchar elem) { return towupper(elem); }
 	
-	static char toLower(char elem) { return tolower(elem); }
+	static char toLower(char elem) { return tolower((unsigned char)elem); }
 	static llwchar toLower(llwchar elem) { return towlower(elem); }
 
-	static BOOL isSpace(char elem) { return isspace(elem) != 0; }
-	static BOOL isSpace(llwchar elem) { return iswspace(elem) != 0; }
+	static bool isSpace(char elem) { return isspace((unsigned char)elem) != 0; }
+	static bool isSpace(llwchar elem) { return iswspace(elem) != 0; }
 
-	static BOOL isUpper(char elem) { return isupper(elem) != 0; }
-	static BOOL isUpper(llwchar elem) { return iswupper(elem) != 0; }
+	static bool isUpper(char elem) { return isupper((unsigned char)elem) != 0; }
+	static bool isUpper(llwchar elem) { return iswupper(elem) != 0; }
 
-	static BOOL isLower(char elem) { return islower(elem) != 0; }
-	static BOOL isLower(llwchar elem) { return iswlower(elem) != 0; }
+	static bool isLower(char elem) { return islower((unsigned char)elem) != 0; }
+	static bool isLower(llwchar elem) { return iswlower(elem) != 0; }
+
+	static bool isDigit(char a) { return isdigit((unsigned char)a) != 0; }
+	static bool isDigit(llwchar a) { return iswdigit(a) != 0; }
+
+	static bool isPunct(char a) { return ispunct((unsigned char)a) != 0; }
+	static bool isPunct(llwchar a) { return iswpunct(a) != 0; }
+
+	static bool isAlnum(char a) { return isalnum((unsigned char)a) != 0; }
+	static bool isAlnum(llwchar a) { return iswalnum(a) != 0; }
 
 	static S32	collate(const char* a, const char* b) { return strcoll(a, b); }
 	static S32	collate(const llwchar* a, const llwchar* b);
-
-	static BOOL isDigit(char a) { return isdigit(a) != 0; }
-	static BOOL isDigit(llwchar a) { return iswdigit(a) != 0; }
 };
+
+/**
+ * @brief Return a string constructed from in without crashing if the
+ * pointer is NULL.
+ */
+std::string ll_safe_string(const char* in);
+std::string ll_safe_string(const char* in, S32 maxlen);
+
 
 // Allowing assignments from non-strings into format_map_t is apparently
 // *really* error-prone, so subclass std::string with just basic c'tors.
-class FormatMapString : public std::string
+class LLFormatMapString
 {
 public:
-	FormatMapString() : std::string() {};
-	FormatMapString(const char* s) : std::string(s) {};
-	FormatMapString(const std::string& s) : std::string(s) {};
+	LLFormatMapString() {};
+	LLFormatMapString(const char* s) : mString(ll_safe_string(s)) {};
+	LLFormatMapString(const std::string& s) : mString(s) {};
+	operator std::string() const { return mString; }
+	bool operator<(const LLFormatMapString& rhs) const { return mString < rhs.mString; }
+	std::size_t length() const { return mString.length(); }
+	
+private:
+	std::string mString;
 };
 
 template <class T>
@@ -179,10 +199,10 @@ public:
 
 	static std::basic_string<T> null;
 	
-	typedef std::map<FormatMapString, FormatMapString> format_map_t;
+	typedef std::map<LLFormatMapString, LLFormatMapString> format_map_t;
 	static S32 format(std::basic_string<T>& s, const format_map_t& fmt_map);
 	
-	static BOOL	isValidIndex(const std::basic_string<T>& string, size_type i)
+	static bool isValidIndex(const std::basic_string<T>& string, size_type i)
 	{
 		return !string.empty() && (0 <= i) && (i <= string.size());
 	}
@@ -312,13 +332,6 @@ inline std::string chop_tail_copy(
 {
 	return std::string(in, 0, in.length() - count);
 }
-
-/**
- * @brief Return a string constructed from in without crashing if the
- * pointer is NULL.
- */
-std::string ll_safe_string(const char* in);
-std::string ll_safe_string(const char* in, S32 maxlen);
 
 /**
  * @brief This translates a nybble stored as a hex value from 0-f back

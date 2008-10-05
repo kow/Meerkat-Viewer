@@ -1330,6 +1330,16 @@ LLView* LLInventoryPanel::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 	return panel;
 }
 
+void LLInventoryPanel::draw()
+{
+	// select the desired item (in case it wasn't loaded when the selection was requested)
+	if (mSelectThisID.notNull())
+	{
+		setSelection(mSelectThisID, false);
+	}
+	LLPanel::draw();
+}
+
 void LLInventoryPanel::setFilterTypes(U32 filter_types)
 {
 	mFolders->getFilter()->setFilterTypes(filter_types);
@@ -1507,8 +1517,6 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 {
 	LLFolderViewItem* itemp = NULL;
 	LLInventoryObject* objectp = gInventory.getObject(id);
-	S32 i;
-	S32 count;
 
 	if (objectp)
 	{		
@@ -1578,11 +1586,11 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 		LLViewerInventoryCategory::cat_array_t* categories;
 		LLViewerInventoryItem::item_array_t* items;
 
-		mInventory->getDirectDescendentsOf(id, categories, items);
+		mInventory->lockDirectDescendentArrays(id, categories, items);
 		if(categories)
 		{
-			count = categories->count();
-			for(i = 0; i < count; ++i)
+			S32 count = categories->count();
+			for(S32 i = 0; i < count; ++i)
 			{
 				LLInventoryCategory* cat = categories->get(i);
 				buildNewViews(cat->getUUID());
@@ -1590,13 +1598,14 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 		}
 		if(items)
 		{
-			count = items->count();
-			for(i = 0; i < count; ++i)
+			S32 count = items->count();
+			for(S32 i = 0; i < count; ++i)
 			{
 				LLInventoryItem* item = items->get(i);
 				buildNewViews(item->getUUID());
 			}
 		}
+		mInventory->unlockDirectDescendentArrays(id);
 	}
 }
 
@@ -1703,15 +1712,21 @@ void LLInventoryPanel::setSelection(const LLUUID& obj_id, BOOL take_keyboard_foc
 	LLFolderViewItem* itemp = mFolders->getItemByID(obj_id);
 	if(itemp && itemp->getListener())
 	{
-		itemp->getListener()->arrangeAndSet(itemp,
-											  TRUE,
-											  take_keyboard_focus);
+		itemp->getListener()->arrangeAndSet(itemp, TRUE, take_keyboard_focus);
+		mSelectThisID.setNull();
+		return;
+	}
+	else
+	{
+		// save the desired item to be selected later (if/when ready)
+		mSelectThisID = obj_id;
 	}
 }
 
 void LLInventoryPanel::clearSelection()
 {
 	mFolders->clearSelection();
+	mSelectThisID.setNull();
 }
 
 void LLInventoryPanel::createNewItem(const std::string& name,

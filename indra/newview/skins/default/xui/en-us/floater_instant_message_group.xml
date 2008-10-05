@@ -29,16 +29,16 @@
 		[NAME] is typing...
 	</string>
 	<string name="session_start_string">
-		Starting session with [NAME] please wait.
+		Starting session with [NAME], please wait.
 	</string>
 	<string name="moderated_chat_label">
-		(Moderated)
+		(Moderated: Voices off by default)
 	</string>
 	<string name="default_text_label">
 		Click here to instant message.
 	</string>
 	<string name="muted_text_label">
-		Text chat has been disabled by a Group Moderator.
+		Your text chat has been disabled by a Group Moderator.
 	</string>
 	<layout_stack border="false" bottom="0" follows="left|top|right|bottom" height="276" left="0"
 	     orientation="horizontal" tab_group="1" width="495" name="panels">
@@ -57,7 +57,7 @@
 			<button bottom_delta="0" follows="right|top" height="20" label="&lt; &lt;"
 			     label_selected="&gt; &gt;" left="143" name="toggle_active_speakers_btn"
 			     right="176"
-			     tool_tip="Click here to toggle list of active partipants in this IM session."
+			     tool_tip="Click here to toggle a list of active participants in this IM session."
 			     visible="true" width="30" />
 			<text_editor type="string" length="1" bg_readonly_color="ChatHistoryBgColor" bg_writeable_color="ChatHistoryBgColor"
 			     bottom="30" embedded_items="false" enabled="false"

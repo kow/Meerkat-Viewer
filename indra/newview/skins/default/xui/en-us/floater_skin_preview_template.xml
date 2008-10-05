@@ -2,7 +2,7 @@
 <multi_floater bottom="256" can_close="true" can_drag_on_left="false" can_minimize="true"
      can_resize="false" height="148" left="256" name="floater_chatterbox" title="" title_bar="true" width="300" rect_control="ChatterboxRect">
     <icon image_name="checkerboard_transparency_bg.png" follows="left|right|top|bottom" bottom="0" left="0" height="128" width="300" />
-    <panel width="300" height="28" left="0" bottom="0" background_opaque="true" background_visible="true">
+    <panel name="panel_littletoolbar" width="300" height="28" left="0" bottom="0" background_opaque="true" background_visible="true">
         <panel bottom="0" filename="panel_bg_toolbar.xml" height="26" left="0" width="300" follows="left|right|top|bottom"/>
         <button bottom="0" font="SansSerif" height="24"
             image_selected="btn_chatbar_selected.tga" scale_image="true"
@@ -64,7 +64,7 @@
 	     label_width="36" left="5" max_val="1" min_val="0" name="SliderTestName"
 	     show_text="false" volume="true" width="140" />
             <check_box name="check_box_test_1" label="True" bottom_delta="56" initial_value="true" left="0" />
-        <check_box name="check_box_test_1" label="False" bottom_delta="0" left_delta="50" initial_value="false" />
+        <check_box name="check_box_test_2" label="False" bottom_delta="0" left_delta="50" initial_value="false" />
             <text_editor type="string" length="1" bg_readonly_color="ChatHistoryBgColor" bg_writeable_color="ChatHistoryBgColor"
 			     bottom="8" embedded_items="false" enabled="false"
 			      font="SansSerif" height="22" left="2"

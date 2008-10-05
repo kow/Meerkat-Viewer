@@ -68,7 +68,8 @@
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
-const S32 SCULPT_REZ = 64;
+// sadly - we can't lower sculptie rez below b/c residents have a LOT of content that depends on the 128
+const S32 SCULPT_REZ = 128;
 
 BOOL gAnimateTextures = TRUE;
 extern BOOL gHideSelectedObjects;
@@ -89,7 +90,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mLOD = MIN_LOD;
 	mSculptLevel = -2;
 	mTextureAnimp = NULL;
-	mVObjRadius = LLVector3(1,1,0.5f).magVec();
+	mVObjRadius = LLVector3(1,1,0.5f).length();
 	mNumFaces = 0;
 	mLODChanged = FALSE;
 	mSculptChanged = FALSE;
@@ -530,7 +531,13 @@ void LLVOVolume::updateTextures()
 			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
 			mSculptChanged = TRUE;
 		}
-		
+
+		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SCULPTED))
+			{
+				setDebugText(llformat("T%d C%d V%d\n%dx%d",
+									  texture_discard, current_discard, getVolume()->getSculptLevel(),
+									  mSculptTexture->getHeight(), mSculptTexture->getWidth()));
+			}
 	}
 
 
@@ -570,7 +577,7 @@ F32 LLVOVolume::getTextureVirtualSize(LLFace* face)
 
 	//get area of circle in texture space
 	LLVector2 tdim = face->mTexExtents[1] - face->mTexExtents[0];
-	F32 texel_area = (tdim * 0.5f).magVecSquared()*3.14159f;
+	F32 texel_area = (tdim * 0.5f).lengthSquared()*3.14159f;
 	if (texel_area <= 0)
 	{
 		// Probably animated, use default
@@ -821,7 +828,7 @@ BOOL LLVOVolume::calcLOD()
 
 	S32 cur_detail = 0;
 	
-	F32 radius = getVolume()->mLODScaleBias.scaledVec(getScale()).magVec();
+	F32 radius = getVolume()->mLODScaleBias.scaledVec(getScale()).length();
 	F32 distance = mDrawable->mDistanceWRTCamera;
 	distance *= sDistanceFactor;
 			
@@ -1685,7 +1692,7 @@ void LLVOVolume::generateSilhouette(LLSelectNode* nodep, const LLVector3& view_p
 
 		//transform view vector into volume space
 		view_vector -= getRenderPosition();
-		mDrawable->mDistanceWRTCamera = view_vector.magVec();
+		mDrawable->mDistanceWRTCamera = view_vector.length();
 		LLQuaternion worldRot = getRenderRotation();
 		view_vector = view_vector * ~worldRot;
 		if (!isVolumeGlobal())
@@ -1726,7 +1733,7 @@ void LLVOVolume::updateRadius()
 		return;
 	}
 	
-	mVObjRadius = getScale().magVec();
+	mVObjRadius = getScale().length();
 	mDrawable->setRadius(mVObjRadius);
 }
 
@@ -1839,7 +1846,7 @@ F32 LLVOVolume::getBinRadius()
 	}
 	else if (shrink_wrap)
 	{
-		radius = (ext[1]-ext[0]).magVec()*0.5f;
+		radius = (ext[1]-ext[0]).length()*0.5f;
 	}
 	else if (mDrawable->isStatic())
 	{
@@ -1961,13 +1968,13 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 			if (normal != NULL)
 			{
 				*normal = volumeDirectionToAgent(*normal);
-				(*normal).normVec();
+				(*normal).normalize();
 			}
 
 			if (bi_normal != NULL)
 			{
 				*bi_normal = volumeDirectionToAgent(*bi_normal);
-				(*bi_normal).normVec();
+				(*bi_normal).normalize();
 			}
 
 			
@@ -2234,6 +2241,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		}
 
 		LLVOVolume* vobj = drawablep->getVOVolume();
+		llassert_always(vobj);
 		vobj->updateTextures();
 		vobj->preRebuild();
 

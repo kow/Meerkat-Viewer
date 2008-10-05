@@ -262,13 +262,11 @@
 		</menu_item_check>
 		<menu_item_check bottom="-132" enabled="true" height="19" label="Local Chat" left="0"
 		     mouse_opaque="true" name="Chat History" shortcut="control|H" width="211">
-			<on_click function="ShowFloater" userdata="chat history" />
-			<on_check function="FloaterVisible" userdata="chat history" />
+                     <on_click function="View.Communicate"/>
 		</menu_item_check>
 		<menu_item_check bottom="-151" enabled="true" height="19" label="Communicate" left="0"
 		     mouse_opaque="true" name="Instant Message" shortcut="control|T" width="211">
-			<on_click function="ShowFloater" userdata="im" />
-			<on_check function="FloaterVisible" userdata="im" />
+			<on_click function="View.Communicate"/>
 		</menu_item_check>
 		<menu_item_call bottom="-170" enabled="true" height="19" label="Inventory" left="0"
 		     mouse_opaque="true" name="Inventory" shortcut="control|I" width="211">
@@ -855,14 +853,6 @@
 				     userdata="WebLaunchPublicIssue,http://jira.secondlife.com" />
 			</menu_item_call>
 		</menu>
-		<menu_item_separator bottom="-221" enabled="true" height="8" label="-----------" left="0"
-		     mouse_opaque="true" name="separator5" width="166" />
-		<menu_item_call bottom="-121" enabled="true" height="19" label="Release Notes..." left="0"
-		     mouse_opaque="true" name="Release Notes..." width="166">
-			<on_click function="PromptShowFile" userdata="WebLaunchReleaseNotes,releasenotes.txt" />
-		</menu_item_call>
-		<menu_item_separator bottom="-294" enabled="true" height="8" label="-----------" left="0"
-		     mouse_opaque="true" name="separator6" width="166" />
 		<menu_item_call bottom="-313" enabled="true" height="19" label="About..." left="0"
 		     mouse_opaque="true" name="About..." width="166">
 			<on_click function="ShowFloater" userdata="about" />

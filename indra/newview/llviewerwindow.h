@@ -134,6 +134,9 @@ public:
 	LLViewerWindow(const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height, BOOL fullscreen, BOOL ignore_pixel_depth);
 	virtual ~LLViewerWindow();
 
+	void			shutdownViews();
+	void			shutdownGL();
+	
 	void			initGLDefaults();
 	void			initBase();
 	void			adjustRectanglesForFirstUse(const LLRect& window);
@@ -172,6 +175,9 @@ public:
 	/*virtual*/ BOOL handleTimerEvent(LLWindow *window);
 	/*virtual*/ BOOL handleDeviceChange(LLWindow *window);
 
+	/*virtual*/ void handlePingWatchdog(LLWindow *window, const char * msg);
+	/*virtual*/ void handlePauseWatchdog(LLWindow *window);
+	/*virtual*/ void handleResumeWatchdog(LLWindow *window);
 
 
 	//
@@ -237,6 +243,7 @@ public:
 	void			setCursor( ECursorType c );
 	void			showCursor();
 	void			hideCursor();
+	BOOL            getCursorHidden() { return mCursorHidden; }
 	void			moveCursorToCenter();								// move to center of window
 													
 	void			setShowProgress(const BOOL show);
@@ -364,7 +371,8 @@ private:
 	void			restoreGL(const std::string& progress_message = LLStringUtil::null);
 	void			initFonts(F32 zoom_factor = 1.f);
 	void			schedulePick(LLPickInfo& pick_info);
-	
+	S32				getChatConsoleBottomPad(); // Vertical padding for child console rect, varied by bottom clutter
+
 public:
 	LLWindow*		mWindow;						// graphical window object
 
@@ -399,10 +407,12 @@ protected:
 	BOOL			mSuppressToolbox;	// sometimes hide the toolbox, despite
 										// having a camera tool selected
 	BOOL			mHideCursorPermanent;	// true during drags, mouselook
+	BOOL            mCursorHidden;
 	LLPickInfo		mLastPick;
 	LLPickInfo		mHoverPick;
 	std::vector<LLPickInfo> mPicks;
 	LLRect			mPickScreenRegion; // area of frame buffer for rendering pick frames (generally follows mouse to avoid going offscreen)
+	LLTimer         mPickTimer;        // timer for scheduling n picks per second
 
 	std::string		mOverlayTitle;		// Used for special titles such as "Second Life - Special E3 2003 Beta"
 
