@@ -1307,6 +1307,7 @@ void LLPanelRegionTerrainInfo::onClickDownloadRaw(void* data)
 		return;
 	}
 	std::string filepath = picker.getFirstFile();
+    gXferManager->expectFileForRequest(filepath);
 
 	LLPanelRegionTerrainInfo* self = (LLPanelRegionTerrainInfo*)data;
 	strings_t strings;
@@ -1326,6 +1327,7 @@ void LLPanelRegionTerrainInfo::onClickUploadRaw(void* data)
 		return;
 	}
 	std::string filepath = picker.getFirstFile();
+    gXferManager->expectFileForTransfer(filepath);
 
 	LLPanelRegionTerrainInfo* self = (LLPanelRegionTerrainInfo*)data;
 	strings_t strings;
