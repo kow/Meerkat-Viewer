@@ -961,7 +961,7 @@ void init_client_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemCallGL("Leave Admin Status", 
 		&handle_leave_god_mode, NULL, NULL, 'G', MASK_ALT | MASK_SHIFT | MASK_CONTROL));
 
-	menu->append(new LLMenuItemCallGL("Log Out", LLAppViewer::userLogout, NULL,NULL));
+	//menu->append(new LLMenuItemCallGL("Log Out", LLAppViewer::userLogout, NULL,NULL));
 	menu->append(new LLMenuItemCallGL("Login Floater Test...", LoginFloater::testShow, NULL, NULL));
 
 	menu->createJumpKeys();

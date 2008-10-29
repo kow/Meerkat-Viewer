@@ -62,6 +62,10 @@
 		</menu_item_call>
 		<menu_item_separator bottom="-194" enabled="true" height="8" label="-----------" left="0"
 		     mouse_opaque="true" name="separator4" width="243" />
+		<menu_item_call bottom="-213" enabled="true" height="19" label="Logout" left="0"
+			 mouse_opaque="true" name="Logout" shortcut="control|alt|Q" width="243">
+			 <on_click function="File.Logout" userdata="" />
+		</menu_item_call>
 		<menu_item_call bottom="-259" enabled="true" height="19" label="Quit" left="0"
 		     mouse_opaque="true" name="Quit" shortcut="control|Q" width="243">
 			<on_click function="File.Quit" userdata="" />

@@ -2669,7 +2669,10 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 	// from Medium -> Low, because we unload all the shaders and the 
 	// draw pools aren't aware.  I don't know if this has to be a separate
 	// loop before actual rendering. JC
-	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
+	
+	// TODO: this is a useful fix, find out why it breaks logout -- RMS
+	
+/*	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
 	{
 		LLDrawPool *poolp = *iter;
 		if (poolp->isFacePool() && hasRenderType(poolp->getType()))
@@ -2677,6 +2680,7 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 			poolp->prerender();
 		}
 	}
+*/
 	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
 	{
 		LLDrawPool *poolp = *iter;
