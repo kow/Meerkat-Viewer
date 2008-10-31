@@ -78,7 +78,7 @@ class LLAudioBuffer;
 class LLAudioEngine 
 {
 public:
-	typedef enum LLAudioType
+	enum LLAudioType
 	{
 		AUDIO_TYPE_NONE    = 0,
 		AUDIO_TYPE_SFX     = 1,
