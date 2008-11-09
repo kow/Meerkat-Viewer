@@ -41,6 +41,18 @@
 			<!-- non-linden grids begin here -->
 			<map>
 				<key>name</key>
+					<string>litesim</string>
+				<key>label</key>
+					<string>Litesim supergrid</string>
+				<key>login_uri</key>
+					<string>https://www.litesim.com/viewer_login</string>
+				<key>helper_uri</key>
+					<string>https://www.litesim.com/money_service</string>
+			</map>
+
+
+			<map>
+				<key>name</key>
 					<string>openlife</string>
 				<key>label</key>
 					<string>Openlife Grid</string>

@@ -17,7 +17,7 @@
 std::string AuthenticationController::target_grid;
 std::string AuthenticationController::username;
 std::string AuthenticationController::password;
-BOOL AuthenticationController::store_pw = NULL;
+BOOL AuthenticationController::store_pw = FALSE;
 
 AuthenticationController::AuthenticationController(const std::string& tg, void (*cb)(void*))
 {
