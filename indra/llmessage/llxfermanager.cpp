@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -804,11 +804,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 	llinfos << "xfer request id: " << U64_to_str(id, U64_BUF, sizeof(U64_BUF))
 		   << " to " << mesgsys->getSender() << llendl;
 
-	{
-		char buffer[MAX_STRING];		/* Flawfinder : ignore */
-		mesgsys->getStringFast(_PREHASH_XferID, _PREHASH_Filename, MAX_STRING, buffer);
-		local_filename = buffer;
-	}
+	mesgsys->getStringFast(_PREHASH_XferID, _PREHASH_Filename, local_filename);
 	
 	{
 		U8 local_path_u8;
@@ -853,42 +849,42 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 	}
 	else if (!local_filename.empty())
 	{
- 		// See DEV-21775 for detailed security issues
- 
- 		if (local_path == LL_PATH_NONE)
-  		{
- 			// this handles legacy simulators that are passing objects
- 			// by giving a filename that explicitly names the cache directory
- 			static const std::string legacy_cache_prefix = "data/";
- 			if (remove_prefix(local_filename, legacy_cache_prefix))
- 			{
- 				local_path = LL_PATH_CACHE;
- 			}
-  		}
- 
- 		switch (local_path)
- 		{
- 			case LL_PATH_NONE:
- 				if(!validateFileForTransfer(local_filename))
- 				{
- 					llwarns << "SECURITY: Unapproved filename '" << local_filename << llendl;
- 					return;
- 				}
- 				break;
- 
- 			case LL_PATH_CACHE:
- 				if(!verify_cache_filename(local_filename))
- 				{
- 					llwarns << "SECURITY: Illegal cache filename '" << local_filename << llendl;
- 					return;
- 				}
- 				break;
- 
- 			default:
- 				llwarns << "SECURITY: Restricted file dir enum: " << (U32)local_path << llendl;
- 				return;
- 		}
- 
+		// See DEV-21775 for detailed security issues
+
+		if (local_path == LL_PATH_NONE)
+		{
+			// this handles legacy simulators that are passing objects
+			// by giving a filename that explicitly names the cache directory
+			static const std::string legacy_cache_prefix = "data/";
+			if (remove_prefix(local_filename, legacy_cache_prefix))
+			{
+				local_path = LL_PATH_CACHE;
+			}
+		}
+
+		switch (local_path)
+		{
+			case LL_PATH_NONE:
+				if(!validateFileForTransfer(local_filename))
+				{
+					llwarns << "SECURITY: Unapproved filename '" << local_filename << llendl;
+					return;
+				}
+				break;
+
+			case LL_PATH_CACHE:
+				if(!verify_cache_filename(local_filename))
+				{
+					llwarns << "SECURITY: Illegal cache filename '" << local_filename << llendl;
+					return;
+				}
+				break;
+
+			default:
+				llwarns << "SECURITY: Restricted file dir enum: " << (U32)local_path << llendl;
+				return;
+		}
+
 
 		std::string expanded_filename = gDirUtilp->getExpandedFilename( local_path, local_filename );
 		llinfos << "starting file transfer: " <<  expanded_filename << " to " << mesgsys->getSender() << llendl;
@@ -1252,7 +1248,6 @@ void process_abort_xfer(LLMessageSystem *mesgsys, void **user_data)
 {
 	gXferManager->processAbort(mesgsys,user_data);
 }
-
 
 
 
