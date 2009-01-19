@@ -6460,6 +6460,8 @@ BOOL LLVOAvatar::isWearingAttachment( const LLUUID& inv_item_id )
 //-----------------------------------------------------------------------------
 // getWornAttachment()
 //-----------------------------------------------------------------------------
+// IMPORTANT: if we can serialize the object output from this method in a
+//meaningful way it will make our job easier
 LLViewerObject* LLVOAvatar::getWornAttachment( const LLUUID& inv_item_id )
 {
 	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
@@ -6756,7 +6758,8 @@ void LLVOAvatar::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 	}
 }
 
-
+// IMPORTANT: this can probably be used to read a texture from a file
+// but I don't know if the texture is updated on the server
 BOOL LLVOAvatar::getLocalTextureRaw(S32 index, LLImageRaw* image_raw)
 {
     BOOL success = FALSE;
