@@ -3373,6 +3373,8 @@ void LLVOAvatar::slamPosition()
 // updateCharacter()
 // called on both your avatar and other avatars
 //------------------------------------------------------------------------
+// IMPORTANT: we may have to modify this method to make the transition
+// look smooth, if we aren't doing the logout in between
 BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
@@ -6461,7 +6463,7 @@ BOOL LLVOAvatar::isWearingAttachment( const LLUUID& inv_item_id )
 // getWornAttachment()
 //-----------------------------------------------------------------------------
 // IMPORTANT: if we can serialize the object output from this method in a
-//meaningful way it will make our job easier
+// meaningful way it will make our job easier
 LLViewerObject* LLVOAvatar::getWornAttachment( const LLUUID& inv_item_id )
 {
 	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
@@ -7127,6 +7129,7 @@ void LLVOAvatar::setupComposites()
 // updateMeshTextures()
 // Uses the current TE values to set the meshes' and layersets' textures.
 //-----------------------------------------------------------------------------
+// IMPORTANT: this may be useful after avatar deserialization
 void LLVOAvatar::updateMeshTextures()
 {
 //	llinfos << "updateMeshTextures" << llendl;
@@ -7809,6 +7812,8 @@ LLVOAvatar::ETextureIndex LLVOAvatar::getBakedTE( LLTexLayerSet* layerset )
 // setNewBakedTexture()
 // A new baked texture has been successfully uploaded and we can start using it now.
 //-----------------------------------------------------------------------------
+// IMPORTANT: this or something like it will probably need to be called when
+// the avatar is deserialized
 void LLVOAvatar::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 {
 	// Baked textures live on other sims.
