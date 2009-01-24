@@ -443,6 +443,13 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id, std::vector<std::str
 		}
 	}
 
+	items.push_back(std::string("Save Asset"));
+	if ( (! ( isItemPermissive() || gAgent.isGodlike() ) ) 
+		|| (flags & FIRST_SELECTED_ITEM) == 0) //FIX check perms better
+	{
+		disabled_items.push_back(std::string("Save Asset"));
+	}
+
 	items.push_back(std::string("Copy Separator"));
 
 	items.push_back(std::string("Copy"));
@@ -770,6 +777,10 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 
 		gViewerWindow->mWindow->copyTextToClipboard(utf8str_to_wstring(buffer));
 		return;
+	}
+	else if ("save_asset" == action)
+	{
+		//do stuff here
 	}
 	else if ("copy" == action)
 	{
@@ -1901,6 +1912,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		mItems.push_back(std::string("New Gesture"));
 		mItems.push_back(std::string("New Clothes"));
 		mItems.push_back(std::string("New Body Parts"));
+		mItems.push_back(std::string("Save Folder"));
 
 		getClipboardEntries(false, mItems, mDisabledItems, flags);
 

@@ -964,6 +964,12 @@ void init_client_menu(LLMenuGL* menu)
 	//menu->append(new LLMenuItemCallGL("Log Out", LLAppViewer::userLogout, NULL,NULL));
 	menu->append(new LLMenuItemCallGL("Login Floater Test...", LoginFloater::testShow, NULL, NULL));
 
+	menu->append(new LLMenuItemCheckGL( "Keep Appearance Across Grids", 
+									&menu_toggle_control,
+									NULL, 
+									&menu_check_control,
+									(void*)"KeepAppearance"));
+
 	menu->createJumpKeys();
 }
 
