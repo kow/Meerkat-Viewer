@@ -969,6 +969,7 @@ void init_client_menu(LLMenuGL* menu)
 									NULL, 
 									&menu_check_control,
 									(void*)"KeepAppearance"));
+	menu->append(new LLMenuItemCallGL("Load Asset From Disk...", NULL, NULL, NULL));
 
 	menu->createJumpKeys();
 }

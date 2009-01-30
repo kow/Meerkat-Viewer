@@ -245,6 +245,7 @@ public:
 	virtual BOOL removeItem();
 	virtual BOOL isItemCopyable() const;
 	virtual BOOL copyToClipboard() const;
+	virtual BOOL saveAsset(LLUUID *asset_id) const;
 	virtual BOOL hasChildren() const { return FALSE; }
 	virtual BOOL isUpToDate() const { return TRUE; }
 

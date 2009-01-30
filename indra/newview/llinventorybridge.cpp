@@ -780,7 +780,13 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 	}
 	else if ("save_asset" == action)
 	{
-		//do stuff here
+		// Single item only
+		LLInventoryItem* item = model->getItem(mUUID);
+		if(!item) return;
+		LLUUID asset_id = item->getAssetUUID();
+		
+		saveAsset(&asset_id);
+		return;
 	}
 	else if ("copy" == action)
 	{
@@ -988,6 +994,11 @@ BOOL LLItemBridge::copyToClipboard() const
 		LLInventoryClipboard::instance().add(mUUID);
 		return TRUE;
 	}
+	return FALSE;
+}
+
+BOOL LLItemBridge::saveAsset(LLUUID *asset_id) const
+{
 	return FALSE;
 }
 
