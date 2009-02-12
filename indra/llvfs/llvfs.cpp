@@ -1172,6 +1172,18 @@ S32 LLVFS::storeData(const LLUUID &file_id, const LLAssetType::EType file_type, 
 	}
 }
  
+//BDW Does nothing as of yet.
+BOOL exportFile(const LLUUID &file_id, const LLAssetType::EType file_type, std::string filename)
+{
+  return false;
+}
+
+//BDW  Does nothing as of yet.
+BOOL importFile(const LLUUID &file_id, const LLAssetType::EType file_type, std::string filename)
+{
+  return false;
+}
+
 void LLVFS::incLock(const LLUUID &file_id, const LLAssetType::EType file_type, EVFSLock lock)
 {
 	lockData();

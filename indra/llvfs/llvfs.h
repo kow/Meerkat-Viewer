@@ -98,6 +98,9 @@ public:
 
 	S32  getData(const LLUUID &file_id, const LLAssetType::EType file_type, U8 *buffer, S32 location, S32 length);
 	S32  storeData(const LLUUID &file_id, const LLAssetType::EType file_type, const U8 *buffer, S32 location, S32 length);
+	BOOL exportFile(const LLUUID &file_id, const LLAssetType::EType file_type, std::string filename);
+	BOOL importFile(const LLUUID &file_id, const LLAssetType::EType file_type, std::string filename);
+
 
 	void incLock(const LLUUID &file_id, const LLAssetType::EType file_type, EVFSLock lock);
 	void decLock(const LLUUID &file_id, const LLAssetType::EType file_type, EVFSLock lock);
