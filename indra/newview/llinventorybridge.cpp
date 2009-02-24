@@ -47,6 +47,7 @@
 #include "llui.h"
 
 #include "llviewercontrol.h"
+#include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llfloateravatarinfo.h"
 #include "llfloaterchat.h"
@@ -997,8 +998,26 @@ BOOL LLItemBridge::copyToClipboard() const
 	return FALSE;
 }
 
-BOOL LLItemBridge::saveAsset(LLUUID *asset_id) const
+BOOL LLItemBridge::saveAsset(LLUUID *asset_id)
 {
+	std::string default_name = ""; // TODO: begin the saved asset default filename with its inventory type
+	default_name += asset_id->asString();
+	default_name += ".inv";
+	
+	LLStringUtil::toLower(default_name);
+	LLStringUtil::replaceChar(default_name, ' ', '_');
+	LLStringUtil::replaceChar(default_name, '/', '_');
+	LLStringUtil::replaceChar(default_name, ':', '_');
+	LLStringUtil::replaceChar(default_name, '"', '_');
+	
+	LLFilePicker& picker = LLFilePicker::instance();
+	if (picker.getSaveFile(LLFilePicker::FFSAVE_XML, default_name)) // TODO: define a new FFSAVE for this
+	{
+		std::string filename = picker.getFirstFile();
+		// TODO: call brian's code here
+		return TRUE;
+	}
+	
 	return FALSE;
 }
 
