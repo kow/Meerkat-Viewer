@@ -1011,7 +1011,7 @@ BOOL LLItemBridge::saveAsset(LLUUID *asset_id)
 	LLStringUtil::replaceChar(default_name, '"', '_');
 	
 	LLFilePicker& picker = LLFilePicker::instance();
-	if (picker.getSaveFile(LLFilePicker::FFSAVE_XML, default_name)) // TODO: define a new FFSAVE for this
+	if (picker.getSaveFile(LLFilePicker::FFSAVE_INV, default_name))
 	{
 		std::string filename = picker.getFirstFile();
 		// TODO: call brian's code here

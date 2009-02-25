@@ -449,6 +449,17 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 			L"Compressed Images (*.j2c)\0*.j2c\0" \
 			L"\0";
 		break;
+	case FFSAVE_INV:
+		if (filename.empty())
+		{
+			wcsncpy( mFilesW,L"untitled.inv", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
+		}
+		
+		mOFN.lpstrDefExt = L"inv";
+		mOFN.lpstrFilter =
+		L"Saved Inventory (*.inv)\0*.inv\0" \
+		L"\0";
+		break;
 	default:
 		return FALSE;
 	}
