@@ -1,54 +1,112 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater can_close="false" can_drag_on_left="false" can_minimize="false"
-     can_resize="false" height="75" min_height="75" min_width="800"
-     name="floater_login" title="" width="950">
+     can_resize="true" height="275" min_height="275" min_width="560"
+     name="floater_login" title="" width="560">
 	<string name="real_url">
 		http://secondlife.com/app/login/
 	</string>
 	<string name="forgot_password_url">
 		http://secondlife.com/account/request.php
 	</string>
-	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="54" drop_shadow_visible="true" follows="left|bottom"
+
+  <scroll_list background_visible="true" bottom_delta="-220" draw_border="true"
+	     draw_stripes="false"
+	     follows="top|left|bottom" height="200" right="155" multi_select="false"
+	     name="search_results" width="150">
+    <column label="" name="grid" width="200" />
+  </scroll_list>
+
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+     bottom="235" drop_shadow_visible="true" follows="left|top"
+     font="SansSerif" h_pad="0" halign="left" height="16"
+     left="160" mouse_opaque="true" name="grid_name_text" v_pad="0" width="120">
+    Grid Name:
+  </text>
+  <line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+	     follows="left|top" font="SansSerif" handle_edit_keys_directly="true"
+	     height="20" left="250" max_length="16" mouse_opaque="true"
+	     name="grid_name" select_all_on_focus_received="true" width="260" />
+
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+     bottom="210" drop_shadow_visible="true" follows="left|top"
+     font="SansSerif" h_pad="0" halign="left" height="16"
+     left="160" mouse_opaque="true" name="password_text" v_pad="0" width="120">
+    Grid URI:
+  </text>
+  <line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+	     follows="left|top" font="SansSerif" handle_edit_keys_directly="true"
+	     height="20" left="250" max_length="16" mouse_opaque="true"
+	     name="grid_name" select_all_on_focus_received="true" width="260" />
+
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+     bottom="185" drop_shadow_visible="true" follows="left|top"
+     font="SansSerif" h_pad="0" halign="left" height="16"
+     left="160" mouse_opaque="true" name="password_text" v_pad="0" width="120">
+    Login Page:
+  </text>
+  <line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+	     follows="left|top" font="SansSerif" handle_edit_keys_directly="true"
+	     height="20" left="250" max_length="16" mouse_opaque="true"
+	     name="grid_name" select_all_on_focus_received="true" width="260" />
+  
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	     bottom="160" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerif" h_pad="0" halign="left" height="16"
-	     left="32" mouse_opaque="true" name="name_text" v_pad="0" width="120">
-		Login Name:
+	     left="200" mouse_opaque="true" name="name_text" v_pad="0" width="100">
+		Default Avatar:
 	</text>
 	<combo_box allow_text_entry="true" bevel_style="in" border_style="line" border_thickness="1"
-		bottom_delta="-24" follows="left|bottom" font="SansSerif" handle_edit_keys_directly="true"
-		height="20" left="32" max_length="31" mouse_opaque="true"
-		name="name_combo" select_all_on_focus_received="true" width="240" />
-	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="54" drop_shadow_visible="true" follows="left|bottom"
+		bottom_delta="0" follows="left|top" font="SansSerif" handle_edit_keys_directly="true"
+		height="20" left="290" max_length="45" mouse_opaque="true"
+		name="name_combo" select_all_on_focus_received="true" width="185" />
+  
+  <button bottom="159" follows="left|top" font="SansSerif" halign="center"
+	     height="20" label="New" label_selected="New"
+	     left="480" mouse_opaque="true" name="new_btn" scale_image="TRUE"
+	     width="70" />
+  
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	     bottom="135" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerif" h_pad="0" halign="left" height="16"
-	     left="296" mouse_opaque="true" name="password_text" v_pad="0" width="120">
+	     left="200" mouse_opaque="true" name="password_text" v_pad="0" width="120">
 		Password:
 	</text>
-	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="-24"
-	     follows="left|bottom" font="SansSerif" handle_edit_keys_directly="true"
-	     height="20" left="296" max_length="16" mouse_opaque="true"
-	     name="password_edit" select_all_on_focus_received="true" width="120" />
-	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="10" drop_shadow_visible="true" follows="left|bottom"
+	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+	     follows="left|top" font="SansSerif" handle_edit_keys_directly="true"
+	     height="20" left="290" max_length="16" mouse_opaque="true"
+	     name="password_edit" select_all_on_focus_received="true" width="185" />
+
+  <button bottom="134" follows="left|top" font="SansSerif" halign="center"
+	     height="20" label="Remove" label_selected="Remove"
+	     left="480" mouse_opaque="true" name="remove_btn" scale_image="TRUE"
+	     width="70" />
+
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	     bottom="110" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerif" h_pad="0" halign="left" height="16"
-	     left="32" mouse_opaque="true" name="start_location_text" v_pad="0"
+	     left="200" mouse_opaque="true" name="start_location_text" v_pad="0"
 	     width="95">
-		Start Location:
-	</text>
-	<combo_box allow_text_entry="true" bottom="8" follows="left|bottom" height="18"
-	     left_delta="97" max_chars="128" mouse_opaque="true"
+    Start Location:
+  </text>
+  <combo_box allow_text_entry="true" bottom="110" follows="left|top" height="18"
+	     left_delta="90" max_chars="128" mouse_opaque="true"
 	     name="start_location_combo" width="155">
-		<combo_item name="MyHome" value="My Home">
-			My Home
-		</combo_item>
-		<combo_item name="MyLastLocation" value="My Last Location">
-			My Last Location
-		</combo_item>
-		<combo_item name="Typeregionname" value="&lt;Type region name&gt;">
-			&lt;Type region name&gt;
-		</combo_item>
-	</combo_box>
-	<check_box bottom="10" follows="left|bottom" font="SansSerifSmall" height="16"
+    <combo_item name="MyHome" value="My Home">
+      My Home
+    </combo_item>
+    <combo_item name="MyLastLocation" value="My Last Location">
+      My Last Location
+    </combo_item>
+    <combo_item name="Typeregionname" value="&lt;Type region name&gt;">
+      &lt;Type region name&gt;
+    </combo_item>
+  </combo_box>
+
+  <check_box bottom="85" follows="left|top" font="SansSerifSmall" height="16"
+	     initial_value="false" label="Global Avatar"
+	     left_delta="0" mouse_opaque="true" name="global_check" width="138" />
+
+  <check_box bottom="10" follows="left|bottom" font="SansSerifSmall" height="16"
 	     initial_value="false" label="Remember password"
 	     left_delta="165" mouse_opaque="true" name="remember_check" width="138" />
 	<button bottom="28" follows="left|bottom" font="SansSerif" halign="center"
@@ -60,25 +118,5 @@
 	     mouse_opaque="true" name="quit_btn" scale_image="TRUE" width="120" />
 	<combo_box allow_text_entry="true" bottom="32" follows="left|bottom" height="18"
 	     left_delta="135" max_chars="40" mouse_opaque="true"
-	     name="server_combo" width="180" />
-	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="42" drop_shadow_visible="true" follows="right|bottom"
-	     font="SansSerifSmall" h_pad="0" halign="right" height="12"
-	     left="-210" mouse_opaque="true" name="channel_text" v_pad="0" width="200"
-	     hover="true">
-		[Viewer Channel Name]
-	</text>
-	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="30" drop_shadow_visible="true" follows="right|bottom"
-	     font="SansSerifSmall" h_pad="0" halign="right" height="12"
-	     left="-110" mouse_opaque="true" name="version_text" v_pad="0" width="100"
-	     hover="true">
-		1.23.4 (5)
-	</text>
-	<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="7" drop_shadow_visible="true" follows="left|bottom"
-	     font="SansSerifSmall" font-style="SHADOW" h_pad="0" halign="right" height="16"
-	     left="440" mouse_opaque="true" name="forgot_password_text" v_pad="0" width="170"
-	     hover="true" hover_color="50 115 185">Forgot your name or password?
-	</text>
+	     name="server_combo" width="200" />
 </floater>

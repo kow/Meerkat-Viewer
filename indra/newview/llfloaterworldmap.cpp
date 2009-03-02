@@ -68,6 +68,7 @@
 #include "llappviewer.h"
 #include "llmapimagetype.h"
 #include "llweb.h"
+#include "floaterlogin.h"
 
 #include "llglheaders.h"
 
@@ -236,6 +237,8 @@ BOOL LLFloaterWorldMap::postBuild()
 		landmark_combo->setPrearrangeCallback( onLandmarkComboPrearrange );
 		landmark_combo->setTextEntryCallback( onComboTextEntry );
 	}
+
+	childSetAction("Grid Manager", onGridManager, this);
 
 	childSetAction("Go Home", onGoHome, this);
 
@@ -1047,6 +1050,14 @@ void LLFloaterWorldMap::onPanBtn( void* userdata )
 	LLWorldMapView* map_panel;
 	map_panel = (LLWorldMapView*)gFloaterWorldMap->mTabs->getCurrentPanel();
 	map_panel->translatePan( pan_x, pan_y );
+}
+
+// static
+void LLFloaterWorldMap::onGridManager(void*)
+{
+	LoginFloater::testShow(NULL);
+	//gAgent.teleportHome();
+	//gFloaterWorldMap->close();
 }
 
 // static

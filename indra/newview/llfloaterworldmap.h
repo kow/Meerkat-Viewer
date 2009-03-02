@@ -113,6 +113,8 @@ public:
 
 protected:
 	static void		onPanBtn( void* userdata );
+	
+	static void		onGridManager(void* data);
 
 	static void		onGoHome(void* data);
 
