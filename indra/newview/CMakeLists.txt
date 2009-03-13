@@ -431,6 +431,7 @@ set(viewer_SOURCE_FILES
     llworldmap.cpp
     llworldmapview.cpp
     llxmlrpctransaction.cpp
+	LocalInventory.cpp
     noise.cpp
     pipeline.cpp
 	prefpanelpasswords.cpp
@@ -836,6 +837,7 @@ set(viewer_HEADER_FILES
     llworldmap.h
     llworldmapview.h
     llxmlrpctransaction.h
+	LocalInventory.h
     macmain.h
     noise.h
     pipeline.h
