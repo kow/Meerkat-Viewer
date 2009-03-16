@@ -40,7 +40,7 @@ bool HippoUpdate::checkUpdate()
 		"platform=%s&mac=%s",
 		LL_PRODUCT, LL_CHANNEL_CSTR,
 		LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VERSION_BASE,
-		LL_PLATFORM*/"", macAddress);
+		LL_PLATFORM*/"%s", macAddress);
 
 	// query update server
 	std::string escaped_url = LLWeb::escapeURL(url);
