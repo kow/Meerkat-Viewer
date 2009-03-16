@@ -100,6 +100,7 @@ public:
 	void setSiteIsAlive( bool alive );
 
 	static void loadLoginPage();	
+	static void refreshLoginPage();
 	static void giveFocus();
 	static void setAlwaysRefresh(bool refresh); 
 	static void mungePassword(LLUICtrl* caller, void* user_data);

@@ -64,6 +64,10 @@ set(viewer_SOURCE_FILES
 	controllerlogin.cpp
 	controllerpasswords.cpp
 	floaterlogin.cpp
+	hippoGridManager.cpp
+	hippoLimits.cpp
+	hippoRestRequest.cpp
+	hippoUpdate.cpp
     llagent.cpp
     llagentdata.cpp
     llagentlanguage.cpp
@@ -464,6 +468,10 @@ set(viewer_HEADER_FILES
 	controllerlogin.h
 	controllerpasswords.h
 	floaterlogin.h
+	hippoGridManager.h
+	hippoLimits.h
+	hippoRestRequest.h
+	hippoUpdate.h
     llagent.h
     llagentdata.h
     llagentlanguage.h

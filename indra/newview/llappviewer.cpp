@@ -164,6 +164,10 @@
 
 #include "llcommandlineparser.h"
 
+#include "hippoGridManager.h"
+#include "hippoLimits.h"
+#include "hippoUpdate.h"
+
 // annoying detail to determine whether font prefs are over-ridden
 #if LL_LINUX
 # define LL_DYNAMIC_FONT_DISCOVERY 1
@@ -1816,6 +1820,13 @@ bool LLAppViewer::initConfiguration()
             }
         }
     }
+
+	//init Hippo grid manager
+	if (!gHippoGridManager) {
+		gHippoGridManager = new HippoGridManager();
+		gHippoGridManager->init();
+	}
+
 
     initGridChoice();
 

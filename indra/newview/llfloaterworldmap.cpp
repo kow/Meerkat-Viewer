@@ -1055,7 +1055,7 @@ void LLFloaterWorldMap::onPanBtn( void* userdata )
 // static
 void LLFloaterWorldMap::onGridManager(void*)
 {
-	LoginFloater::testShow(NULL);
+	LoginFloater::newShow(std::string("Test"), false, LoginFloater::testCallback, NULL);
 	//gAgent.teleportHome();
 	//gFloaterWorldMap->close();
 }

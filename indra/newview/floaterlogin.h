@@ -23,6 +23,12 @@ public:
 				 void *callback_data);
 	virtual ~LoginFloater();
 	
+	virtual BOOL postBuild();
+
+	static void refresh_grids();
+	void apply();
+	void cancel();
+
 	// new-style login methods
 	static void newShow(const std::string &grid, bool initialLogin,
 					 void (*callback)(S32 option, void *user_data), 
@@ -55,14 +61,27 @@ public:
 	static BOOL isGridComboDirty();
 	static void addServer(const std::string& server, S32 domain_name);
 	static void accept();
-	static void cancel();
+	static void cancel_old();
 protected:
 	static bool sIsInitialLogin;
 	static std::string sGrid;
 private:
+	enum State { NORMAL, ADD_NEW, ADD_COPY };
+	State mState;
+	std::string mCurGrid;
+
 	std::string mIncomingPassword;
 	std::string mMungedPassword;
 	
+	void applyChanges();
+	bool createNewGrid();
+	void update();
+
+	static void onSelectGrid(LLUICtrl *ctrl, void *data);
+	static void onClickDelete(void *data);
+	static void onClickAdd(void *data);
+	static void onClickCopy(void *data);
+
 	static LoginFloater *sInstance;
 	static LoginController *sController;
 	static AuthenticationModel *sModel;

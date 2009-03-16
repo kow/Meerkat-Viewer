@@ -34,6 +34,8 @@
 #include "llpanellogin.h"
 #include "llpanelgeneral.h"
 
+#include "hippoGridManager.h"
+
 #include "indra_constants.h"		// for key and mask constants
 #include "llfontgl.h"
 #include "llmd5.h"
@@ -804,6 +806,26 @@ void LLPanelLogin::setAlwaysRefresh(bool refresh)
 	}
 }
 
+
+// static
+void LLPanelLogin::refreshLoginPage()
+{
+    if (!sInstance) return;
+
+    sInstance->childSetVisible("create_new_account_text",
+        !gHippoGridManager->getConnectedGrid()->getRegisterUrl().empty());
+    sInstance->childSetVisible("forgot_password_text",
+        !gHippoGridManager->getConnectedGrid()->getPasswordUrl().empty());
+
+    // kick off a request to grab the url manually
+	gResponsePtr = LLIamHereLogin::build(sInstance);
+	std::string login_page = gHippoGridManager->getConnectedGrid()->getLoginPage();
+	if (!login_page.empty()) {
+		LLHTTPClient::head(login_page, gResponsePtr);
+	} else {
+		sInstance->setSiteIsAlive(false);
+	}
+}
 
 
 void LLPanelLogin::loadLoginPage()

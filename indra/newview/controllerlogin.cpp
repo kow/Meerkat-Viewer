@@ -138,5 +138,5 @@ void LoginController::onAccept(void* userdata)
 void LoginController::onCancel(void* userdata)
 {
 	// if the user backs out of the dialog we tell it to clean up and such
-	LoginFloater::cancel();
+	LoginFloater::cancel_old();
 }
