@@ -142,7 +142,7 @@ BOOL LoginFloater::postBuild()
 	childSetAction("btn_delete", onClickDelete, this);
 	childSetAction("btn_add", onClickAdd, this);
 	childSetAction("btn_copy", onClickCopy, this);
-//KOW	childSetAction("btn_apply", &LoginFloater::apply, this);
+	childSetAction("btn_apply", onClickApply, this);
 //KOW	childSetAction("btn_cancel", cancel, this);
 //KOW	childSetAction("btn_default", onClickDefault, this);
 //KOW	childSetAction("btn_gridinfo", onClickGridInfo, this);
@@ -431,6 +431,12 @@ void LoginFloater::onClickCopy(void *data)
 	LoginFloater* self = (LoginFloater*)data;
 	self->mState = ADD_COPY;
 	self->refresh_grids();
+}
+
+//static
+void LoginFloater::onClickApply(void *data)
+{
+	sInstance->apply();
 }
 
 void LoginFloater::setAlwaysRefresh(bool refresh)
