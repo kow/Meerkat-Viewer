@@ -20,6 +20,8 @@
 #include "authentication_model.h"
 #include "floaterlogin.h"
 #include "hippoGridManager.h"
+#include "llviewernetwork.h"
+#include "llpanellogin.h"
 
 LoginFloater* LoginFloater::sInstance = NULL;
 LoginController* LoginFloater::sController = NULL;
@@ -49,7 +51,7 @@ LoginFloater::LoginFloater(void (*callback)(S32 option, void* user_data),
 	{
 		LLButton* quit_btn = getChild<LLButton>("quit_btn");
 		quit_btn->setLabel(std::string("Cancel"));
-		setTitle(sGrid + std::string(" authentication"));
+		setTitle(std::string("Grid Manager"));
 	}
 	
 	center();
@@ -143,7 +145,7 @@ BOOL LoginFloater::postBuild()
 	childSetAction("btn_add", onClickAdd, this);
 	childSetAction("btn_copy", onClickCopy, this);
 	childSetAction("btn_apply", onClickApply, this);
-//KOW	childSetAction("btn_cancel", cancel, this);
+	childSetAction("btn_cancel", onClickCancel, this);
 //KOW	childSetAction("btn_default", onClickDefault, this);
 //KOW	childSetAction("btn_gridinfo", onClickGridInfo, this);
 //KOW	childSetAction("btn_help_render_compat", onClickHelpRenderCompat, this);
@@ -292,6 +294,8 @@ void LoginFloater::applyChanges()
 			gridInfo->setGridName(childGetValue("gridname"));
 			gridInfo->setLoginUri(childGetValue("loginuri"));
 			gridInfo->setLoginPage(childGetValue("loginpage"));
+			//HACK KOW I've hijacked a few of these values for avatar name and password.
+			//This functionality needs to put into hippo grid manager and passwords MD5ed.
 			gridInfo->setHelperUri(childGetValue("helperuri"));
 			gridInfo->setWebSite(childGetValue("website"));
 			gridInfo->setSupportUrl(childGetValue("support"));
@@ -363,9 +367,11 @@ void LoginFloater::apply()
 		return;
 	}
 	gHippoGridManager->setCurrentGrid(mCurGrid);
-	//KOW LLPanelLogin::refreshLoginPage();
+	gHippoGridManager->setDefaultGrid(mCurGrid);
+	LLPanelLogin::refreshLoginPage();
 	gHippoGridManager->saveFile();
 	update();
+	LLPanelLogin::addServer(LLViewerLogin::getInstance()->getGridLabel());
 }
 
 
@@ -437,6 +443,12 @@ void LoginFloater::onClickCopy(void *data)
 void LoginFloater::onClickApply(void *data)
 {
 	sInstance->apply();
+}
+
+//static
+void LoginFloater::onClickCancel(void *data)
+{
+	sInstance->cancel();
 }
 
 void LoginFloater::setAlwaysRefresh(bool refresh)

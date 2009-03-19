@@ -29,15 +29,9 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
-
 #ifndef LL_LLVIEWERNETWORK_H
 #define LL_LLVIEWERNETWORK_H
 
-class LLHost;
-class LLSD;
-
-extern const int GRID_INFO_NONE;
-extern int GRID_INFO_OTHER;
 
 /**
  * @brief A class to manage the viewer's login state.
@@ -46,49 +40,20 @@ extern int GRID_INFO_OTHER;
 class LLViewerLogin : public LLSingleton<LLViewerLogin>
 {
 public:
-	LLViewerLogin();
-
-	void setGridChoice(int grid);
-	void setGridChoice(const std::string& grid_name);
-	void resetURIs();
-
-	/**
-	* @brief Get the enumeration of the grid choice.
-	* Should only return values > 0 && < GRID_INFO_COUNT
-	**/
-	int getGridChoice() const;
-	
-	/**
-	 * @brief Return the number of grids available
-	 **/
-	int getGridCount() const { return mGridList.size(); }
-	
-	/**
-	* @brief Get a readable label for the grid choice.
-	* Returns the readable name for the grid choice. 
-	* If the grid is 'other', returns something
-	* the string used to specifiy the grid.
-	**/
-	std::string getGridLabel() const; 
-
-	std::string getKnownGridLabel(int grid_index) const; 
-
 	void getLoginURIs(std::vector<std::string>& uris) const;
-	std::string getHelperURI() const;
+	const std::string &getGridLabel() const; 
+	const std::string &getLoginPage() const;
+	const std::string &getHelperURI() const;
+
+	bool isOpenSimulator();
+	bool isSecondLife();
 
 	bool isInProductionGrid();
-	
-	void setMenuColor() const;
-	
-	void loadGridsXml( std::string xml_filename );
-	
-private:
-	int mGridChoice;
-	std::string mGridName;
-	LLSD mGridList;
 };
+
 
 const S32 MAC_ADDRESS_BYTES = 6;
 extern unsigned char gMACAddress[MAC_ADDRESS_BYTES];		/* Flawfinder: ignore */
+
 
 #endif

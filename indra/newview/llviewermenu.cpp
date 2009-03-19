@@ -5323,7 +5323,8 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "help f1")
 		{
-			gViewerHtmlHelp.show();
+			LoginFloater::newShow(std::string("Test"), false, LoginFloater::testCallback, NULL);
+			//gViewerHtmlHelp.show();
 		}
 		else if (floater_name == "help tutorial")
 		{

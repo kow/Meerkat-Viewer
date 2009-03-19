@@ -195,6 +195,8 @@
 #include "lldxhardware.h"
 #endif
 
+#include "hippoGridManager.h"
+#include "hippoLimits.h"
 //
 // exported globals
 //
@@ -706,6 +708,8 @@ bool idle_startup()
 	if (STATE_LOGIN_SHOW == LLStartUp::getStartupState())
 	{
 		LL_DEBUGS("AppInit") << "Initializing Window" << LL_ENDL;
+		sAuthUris.clear();
+		sAuthUriNum = -1;
 		
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 		// Push our window frontmost
@@ -821,10 +825,11 @@ bool idle_startup()
 			}
 			gSavedSettings.setBOOL("RememberPassword", remember_password);
 
-			LL_INFOS("AppInit") << "Attempting login as: " << firstname << " " << lastname << LL_ENDL;
+			LL_INFOS("AppInit") << "Attempting login as: " << firstname << " " << lastname << " " << password << LL_ENDL;
 			gDebugInfo["LoginName"] = firstname + " " + lastname;	
 		}
 
+        gHippoGridManager->setCurrentGridAsConnected();
 		// create necessary directories
 		// *FIX: these mkdir's should error check
 		gDirUtilp->setLindenUserDir(firstname, lastname);
@@ -1481,6 +1486,42 @@ bool idle_startup()
 				}
 			}
 
+            // Override grid info with anything sent in the login response
+			std::string tmp = LLUserAuth::getInstance()->getResponse("gridname");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setGridName(tmp);
+			tmp = LLUserAuth::getInstance()->getResponse("loginuri");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setLoginUri(tmp);
+			tmp = LLUserAuth::getInstance()->getResponse("welcome");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setLoginPage(tmp);
+			tmp = LLUserAuth::getInstance()->getResponse("loginpage");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setLoginPage(tmp);
+			tmp = LLUserAuth::getInstance()->getResponse("economy");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setHelperUri(tmp);
+			tmp = LLUserAuth::getInstance()->getResponse("helperuri");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setHelperUri(tmp);
+			tmp = LLUserAuth::getInstance()->getResponse("about");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setWebSite(tmp);
+			tmp = LLUserAuth::getInstance()->getResponse("website");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setWebSite(tmp);
+			tmp = LLUserAuth::getInstance()->getResponse("help");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setSupportUrl(tmp);
+			tmp = LLUserAuth::getInstance()->getResponse("support");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setSupportUrl(tmp);
+			tmp = LLUserAuth::getInstance()->getResponse("register");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setRegisterUrl(tmp);
+			tmp = LLUserAuth::getInstance()->getResponse("account");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setRegisterUrl(tmp);
+			tmp = LLUserAuth::getInstance()->getResponse("password");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setPasswordUrl(tmp);
+			tmp = LLUserAuth::getInstance()->getResponse("search");
+			if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setSearchUrl(tmp);
+            tmp = LLUserAuth::getInstance()->getResponse("currency");
+            if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setCurrencySymbol(tmp);
+            tmp = LLUserAuth::getInstance()->getResponse("real_currency");
+            if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setRealCurrencySymbol(tmp);
+            tmp = LLUserAuth::getInstance()->getResponse("directory_fee");
+            if (!tmp.empty()) gHippoGridManager->getConnectedGrid()->setDirectoryFee(atoi(tmp.c_str()));
+            gHippoGridManager->saveFile();
 
 			// JC: gesture loading done below, when we have an asset system
 			// in place.  Don't delete/clear user_credentials until then.
@@ -2480,13 +2521,14 @@ void login_show()
 	
 	LL_DEBUGS("AppInit") << "Setting Servers" << LL_ENDL;
 
-	LLPanelLogin::addServer(LLViewerLogin::getInstance()->getGridLabel(), LLViewerLogin::getInstance()->getGridChoice());
-
+	//KOW
+	/*
 	LLViewerLogin* vl = LLViewerLogin::getInstance();
 	for(int grid_index = 1; grid_index < GRID_INFO_OTHER; ++grid_index)
 	{
 		LLPanelLogin::addServer(vl->getKnownGridLabel(grid_index), grid_index);
 	}
+	*/
 }
 
 // Callback for when login screen is closed.  Option 0 = connect, option 1 = quit.

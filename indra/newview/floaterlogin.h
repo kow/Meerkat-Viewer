@@ -82,6 +82,7 @@ private:
 	static void onClickAdd(void *data);
 	static void onClickCopy(void *data);
 	static void onClickApply(void *data);
+	static void onClickCancel(void *data);
 
 	static LoginFloater *sInstance;
 	static LoginController *sController;

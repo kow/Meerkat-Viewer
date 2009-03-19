@@ -467,7 +467,7 @@ static void settings_modify()
 	gSavedSettings.setBOOL("VectorizeSkin", FALSE);
 #endif
 }
-
+/*
 void LLAppViewer::initGridChoice()
 {
 	// Load	up the initial grid	choice from:
@@ -492,11 +492,12 @@ void LLAppViewer::initGridChoice()
 		}
 		else if(server != (S32)GRID_INFO_NONE)
 		{
+			llwarns << "setgridchoice = " << server << llendl;
 			LLViewerLogin::getInstance()->setGridChoice(server);
 		}
 	}
 }
-
+*/
 //virtual
 bool LLAppViewer::initSLURLHandler()
 {
@@ -1828,7 +1829,7 @@ bool LLAppViewer::initConfiguration()
 	}
 
 
-    initGridChoice();
+    //initGridChoice();
 
 	// If we have specified crash on startup, set the global so we'll trigger the crash at the right time
 	if(clp.hasOption("crashonstartup"))
