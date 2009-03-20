@@ -240,6 +240,8 @@ BOOL LLFloaterWorldMap::postBuild()
 		landmark_combo->setTextEntryCallback( onComboTextEntry );
 	}
 
+	childSetCommitCallback("grid_combo", onSelectServer, this);
+
 	childSetAction("Grid Manager", onGridManager, this);
 
 	childSetAction("Go Home", onGoHome, this);
@@ -332,6 +334,8 @@ void LLFloaterWorldMap::show(void*, BOOL center_on_target)
 
 		// If nothing is being tracked, set flag so the user position will be found
 		gFloaterWorldMap->mSetToUserPosition = ( LLTracker::getTrackingStatus() == LLTracker::TRACKING_NOTHING );
+
+		LLFloaterWorldMap::addServer(gHippoGridManager->getDefaultGridNick());
 	}
 	
 	if (center_on_target)
@@ -375,6 +379,34 @@ void LLFloaterWorldMap::hide(void*)
 	gFloaterWorldMap->close();
 }
 
+
+// static
+void LLFloaterWorldMap::addServer(const std::string& server)
+{
+	const std::string &defaultGrid = gHippoGridManager->getDefaultGridNick();
+
+	LLComboBox *grids = gFloaterWorldMap->getChild<LLComboBox>("grid_combo");
+	S32 selectIndex = -1, i = 0;
+	grids->removeall();
+	if (defaultGrid != "") {
+		grids->add(defaultGrid);
+		selectIndex = i++;
+	}
+	HippoGridManager::GridIterator it, end = gHippoGridManager->endGrid();
+	for (it = gHippoGridManager->beginGrid(); it != end; ++it) {
+		const std::string &grid = it->second->getGridNick();
+		if (grid != defaultGrid) {
+			grids->add(grid);
+			//if (grid == mCurGrid) selectIndex = i;
+			i++;
+		}
+	}
+	//grids->setCurrentByIndex(0);
+
+	//LLComboBox* combo = sInstance->getChild<LLComboBox>("server_combo");
+	//combo->add(server, LLSD(domain_name) );
+	//combo->setCurrentByIndex(0);
+}
 
 // virtual
 void LLFloaterWorldMap::setVisible( BOOL visible )
@@ -1390,7 +1422,7 @@ void LLFloaterWorldMap::fly()
 // protected
 void LLFloaterWorldMap::teleport()
 {
-	LLComboBox *grid_combo = getChild<LLComboBox>("grid combo");
+	LLComboBox *grid_combo = getChild<LLComboBox>("grid_combo");
 	std::string current_grid = gHippoGridManager->getConnectedGrid()->getGridNick();
 	
 	if(grid_combo && grid_combo->getSelectedValue().asString() != current_grid)
@@ -1691,3 +1723,44 @@ void LLFloaterWorldMap::onCommitSearchResult(LLUICtrl*, void* userdata)
 
 	onShowTargetBtn(self);
 }
+
+// static
+void LLFloaterWorldMap::onSelectServer(LLUICtrl* ctrl, void* userdata)
+{
+	llwarns << "onSelectServer called" << llendl;
+	LLFloaterWorldMap* self = (LLFloaterWorldMap*) userdata;
+	self->childSetEnabled("Teleport", true);
+	self->setDefaultBtn("Teleport");/*
+	// *NOTE: The paramters for this method are ignored. 
+	// LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe, void*)
+	// calls this method.
+
+	// The user twiddled with the grid choice ui.
+	// apply the selection to the grid setting.
+	std::string grid_label;
+	//KOW S32 grid_index;
+
+	LLComboBox* combo = sInstance->getChild<LLComboBox>("server_combo");
+	LLSD combo_val = combo->getValue();
+
+	std::string mCurGrid = ctrl->getValue().asString();
+	//KOW
+	gHippoGridManager->setCurrentGrid(mCurGrid);
+	//gHippoGridManager->setDefaultGrid(mCurGrid);
+	//gHippoGridManager->saveFile();
+	HippoGridInfo *gridInfo = gHippoGridManager->getGrid(mCurGrid);
+		if (gridInfo) {
+			//childSetText("gridnick", gridInfo->getGridNick());
+			//platform->setCurrentByIndex(gridInfo->getPlatform());
+			//childSetText("gridname", gridInfo->getGridName());
+			//LLPanelLogin::setFields( gridInfo->getSupportUrl(), gridInfo->getRegisterUrl(), gridInfo->getPasswordUrl(), 1 );
+		}
+	//gHippoGridManager->setCurrentGrid(mCurGrid);
+
+
+	
+		llwarns << "current grid = " << mCurGrid << llendl;
+		
+	// grid changed so show new splash screen (possibly)
+	//loadLoginPage();
+*/}

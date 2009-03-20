@@ -67,6 +67,8 @@ public:
 	static void toggle(void*);
 	static void hide(void*); 
 
+	static void addServer(const std::string& server);
+
 	/*virtual*/ void reshape( S32 width, S32 height, BOOL called_from_parent = TRUE );
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
@@ -159,6 +161,7 @@ protected:
 	static void		onLocationCommit( void* userdata );
 	static void		onCommitLocation( LLUICtrl* ctrl, void* userdata );
 	static void		onCommitSearchResult( LLUICtrl* ctrl, void* userdata );
+	static void		onSelectServer(LLUICtrl*, void* userdata);
 
 	void			cacheLandmarkPosition();
 

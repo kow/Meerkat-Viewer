@@ -15,7 +15,7 @@
    name="avatar_icon" width="16" />
   <combo_box allow_text_entry="true" bottom_delta="0" follows="top|right" height="20"
      label="Grids" left_delta="20" max_chars="60" mouse_opaque="true"
-     name="grid combo" tool_tip="Grid Selection" width="202">
+     name="grid_combo" tool_tip="Grid Selection" width="202">
     <combo_item name="none_selected" value="None">
       Grids
     </combo_item>
@@ -26,7 +26,7 @@
    name="avatar_icon" width="16" />
   <combo_box allow_text_entry="true" bottom_delta="0" follows="top|right" height="20"
      label="Grids" left_delta="20" max_chars="60" mouse_opaque="true"
-     name="grid combo" tool_tip="Avatar Selection" width="202">
+     name="avatar_combo" tool_tip="Avatar Selection" width="202">
     <combo_item name="none_selected" value="None">
       Avatar
     </combo_item>
