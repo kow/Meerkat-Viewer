@@ -72,6 +72,12 @@
 #include "llstartup.h"
 #include "hippoGridManager.h"
 
+#include <boost/algorithm/string.hpp>
+#include "authentication_model.h"
+#include "floaterlogin.h"
+#include "llpanellogin.h"
+
+
 #include "llglheaders.h"
 
 //---------------------------------------------------------------------------
@@ -1427,7 +1433,15 @@ void LLFloaterWorldMap::teleport()
 	
 	if(grid_combo && grid_combo->getSelectedValue().asString() != current_grid)
 	{
+		std::vector<std::string> loginVec;
+		std::string loginName;
+		std::string loginPassword;
+		
 		gHippoGridManager->setCurrentGrid(grid_combo->getSelectedValue());
+		LoginFloater::defaultAccount(grid_combo->getSelectedValue().asString(), loginName);
+		AuthenticationModel::getInstance()->getPassword(grid_combo->getSelectedValue(), loginName, loginPassword);
+		boost::split(loginVec, loginName, boost::is_any_of(" "), boost::token_compress_on);
+		LLPanelLogin::setFields(loginVec[0], loginVec[1], loginPassword, true);
 		LLStartUp::setShouldAutoLogin(true);
 		LLAppViewer::instance()->requestLogout(false);
 		return;

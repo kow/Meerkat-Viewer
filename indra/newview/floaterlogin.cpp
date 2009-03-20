@@ -319,6 +319,9 @@ void LoginFloater::applyChanges()
 			hashPassword(auth_password, hashed_password);
 			authModel->addAccount(childGetValue("gridnick").asString(), 
 								  account_name, hashed_password);
+			std::vector<std::string> loginVec;
+			boost::split(loginVec, account_name, boost::is_any_of(" "), boost::token_compress_on);
+			LLPanelLogin::setFields(loginVec[0], loginVec[1], hashed_password, true);
 		} else {
 			llwarns << "Grid nickname mismatch, ignoring changes." << llendl;
 		}
@@ -794,3 +797,9 @@ void LoginFloater::hashPassword(const std::string& password, std::string& hashed
 	
 }
 
+void LoginFloater::defaultAccount(const std::string& grid, std::string& accountName)
+{
+	std::set<std::string> names;
+	sModel->getAccountNames(grid, names);
+	accountName = *names.begin();
+}
