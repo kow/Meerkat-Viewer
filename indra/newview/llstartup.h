@@ -108,9 +108,12 @@ public:
 	static std::string sSLURLCommand;
 		// *HACK: On startup, if we were passed a secondlife://app/do/foo
 		// command URL, store it for later processing.
+	static bool shouldAutoLogin() { return mShouldAutoLogin; };
+	static void setShouldAutoLogin(bool value) { mShouldAutoLogin = value; };
 
 private:
 	static bool mStartedOnce;
+	static bool mShouldAutoLogin;
 	static std::string startupStateToString(EStartupState state);
 	static EStartupState gStartupState; // Do not set directly, use LLStartup::setStartupState
 };

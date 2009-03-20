@@ -230,6 +230,7 @@ static bool gUseCircuitCallbackCalled = false;
 
 EStartupState LLStartUp::gStartupState = STATE_FIRST;
 bool LLStartUp::mStartedOnce = false;
+bool LLStartUp::mShouldAutoLogin = false;
 
 
 //
@@ -716,6 +717,12 @@ bool idle_startup()
 		gViewerWindow->getWindow()->show();
 
 		timeout_count = 0;
+		
+		if(LLStartUp::shouldAutoLogin())
+		{
+			show_connect_box = false;
+			LLStartUp::setShouldAutoLogin(false);
+		}
 
 		if (show_connect_box)
 		{

@@ -69,6 +69,8 @@
 #include "llmapimagetype.h"
 #include "llweb.h"
 #include "floaterlogin.h"
+#include "llstartup.h"
+#include "hippoGridManager.h"
 
 #include "llglheaders.h"
 
@@ -1388,6 +1390,17 @@ void LLFloaterWorldMap::fly()
 // protected
 void LLFloaterWorldMap::teleport()
 {
+	LLComboBox *grid_combo = getChild<LLComboBox>("grid combo");
+	std::string current_grid = gHippoGridManager->getConnectedGrid()->getGridNick();
+	
+	if(grid_combo && grid_combo->getSelectedValue().asString() != current_grid)
+	{
+		gHippoGridManager->setDefaultGrid(grid_combo->getSelectedValue()); // this is the code that does not work
+		LLStartUp::setShouldAutoLogin(true);
+		LLAppViewer::instance()->requestLogout(false);
+		return;
+	}
+	
 	BOOL teleport_home = FALSE;
 	LLVector3d pos_global;
 	LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
