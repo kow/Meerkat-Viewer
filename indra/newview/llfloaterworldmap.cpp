@@ -1395,7 +1395,7 @@ void LLFloaterWorldMap::teleport()
 	
 	if(grid_combo && grid_combo->getSelectedValue().asString() != current_grid)
 	{
-		gHippoGridManager->setDefaultGrid(grid_combo->getSelectedValue()); // this is the code that does not work
+		gHippoGridManager->setCurrentGrid(grid_combo->getSelectedValue());
 		LLStartUp::setShouldAutoLogin(true);
 		LLAppViewer::instance()->requestLogout(false);
 		return;
