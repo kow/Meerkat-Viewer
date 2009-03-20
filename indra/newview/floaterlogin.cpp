@@ -129,8 +129,7 @@ BOOL LoginFloater::postBuild()
 	requires<LLLineEditor>("loginpage");
 	requires<LLLineEditor>("helperuri");
 	requires<LLLineEditor>("website");
-	requires<LLLineEditor>("support");
-	requires<LLLineEditor>("register");
+	requires<LLComboBox>("account_name");
 	requires<LLLineEditor>("password");
 	//requires<LLLineEditor>("search");
 	requires<LLButton>("btn_delete");
@@ -140,6 +139,10 @@ BOOL LoginFloater::postBuild()
 	requires<LLButton>("btn_gridinfo");
 	requires<LLButton>("btn_help_render_compat");
 	if (!checkRequirements()) return false;
+	LLComboBox *account_combo = getChild<LLComboBox>("account_name");
+	account_combo->setAllowTextEntry(TRUE, 128, FALSE);
+	LLLineEditor* password_edit = getChild<LLLineEditor>("password");
+	if (password_edit) password_edit->setDrawAsterixes(TRUE);
 
 	childSetAction("btn_delete", onClickDelete, this);
 	childSetAction("btn_add", onClickAdd, this);
@@ -222,9 +225,19 @@ void LoginFloater::refresh_grids()
 			sInstance->childSetText("loginpage", gridInfo->getLoginPage());
 			sInstance->childSetText("helperuri", gridInfo->getHelperUri());
 			sInstance->childSetText("website", gridInfo->getWebSite());
-			sInstance->childSetText("support", gridInfo->getSupportUrl());
-            sInstance->childSetText("register", gridInfo->getRegisterUrl());
-            sInstance->childSetText("password", gridInfo->getPasswordUrl());
+            sInstance->childSetText("password", std::string("123456789!123456"));
+			
+			std::set<std::string> accountNames;
+			LoginFloater::sModel->getAccountNames(gridInfo->getGridNick(), accountNames);
+			LLComboBox *account_combo = sInstance->getChild<LLComboBox>("account_name");
+			
+			account_combo->removeall();
+			for(std::set<std::string>::iterator it = accountNames.begin();
+				it != accountNames.end(); ++it)
+			{
+				account_combo->add(*it);
+			}
+			account_combo->sortByName();
 /*
             if (gridInfo->getPlatform() == HippoGridInfo::PLATFORM_SECONDLIFE) {
 			    //childSetEnabled("search", false);
@@ -261,8 +274,7 @@ void LoginFloater::refresh_grids()
 		sInstance->childSetText("loginpage", empty);
 		sInstance->childSetText("helperuri", empty);
 		sInstance->childSetText("website", empty);
-		sInstance->childSetText("support", empty);
-		sInstance->childSetText("register", empty);
+		sInstance->getChild<LLComboBox>("account_name")->removeall();
 		sInstance->childSetText("password", empty);
 		//childSetEnabled("search", true);
 		//childSetText("search", empty);
@@ -288,21 +300,25 @@ void LoginFloater::update()
 void LoginFloater::applyChanges()
 { 
 	HippoGridInfo *gridInfo = gHippoGridManager->getGrid(mCurGrid);
+	AuthenticationModel *authModel = LoginFloater::sModel;
 	if (gridInfo) {
 		if (gridInfo->getGridNick() == childGetValue("gridnick").asString()) {
 			gridInfo->setPlatform(childGetValue("platform"));
 			gridInfo->setGridName(childGetValue("gridname"));
 			gridInfo->setLoginUri(childGetValue("loginuri"));
 			gridInfo->setLoginPage(childGetValue("loginpage"));
-			//HACK KOW I've hijacked a few of these values for avatar name and password.
-			//This functionality needs to put into hippo grid manager and passwords MD5ed.
 			gridInfo->setHelperUri(childGetValue("helperuri"));
 			gridInfo->setWebSite(childGetValue("website"));
-			gridInfo->setSupportUrl(childGetValue("support"));
-            gridInfo->setRegisterUrl(childGetValue("register"));
-			gridInfo->setPasswordUrl(childGetValue("password"));
 			//gridInfo->setSearchUrl(childGetValue("search"));
 			gridInfo->setRenderCompat(childGetValue("render_compat"));
+			
+			// store account authentication data
+			std::string account_name = childGetValue("account_name");
+			std::string auth_password = childGetValue("password");
+			std::string hashed_password;
+			hashPassword(auth_password, hashed_password);
+			authModel->addAccount(childGetValue("gridnick").asString(), 
+								  account_name, hashed_password);
 		} else {
 			llwarns << "Grid nickname mismatch, ignoring changes." << llendl;
 		}
@@ -345,8 +361,7 @@ bool LoginFloater::createNewGrid()
 	grid->setLoginPage(childGetValue("loginpage"));
 	grid->setHelperUri(childGetValue("helperuri"));
 	grid->setWebSite(childGetValue("website"));
-	grid->setSupportUrl(childGetValue("support"));
-    grid->setRegisterUrl(childGetValue("register"));
+	grid->setSupportUrl(childGetValue("account_name"));
 	grid->setPasswordUrl(childGetValue("password"));
 	//grid->setSearchUrl(childGetValue("search"));
 	grid->setRenderCompat(childGetValue("render_compat"));
@@ -370,6 +385,7 @@ void LoginFloater::apply()
 	gHippoGridManager->setDefaultGrid(mCurGrid);
 	LLPanelLogin::refreshLoginPage();
 	gHippoGridManager->saveFile();
+	LoginFloater::sModel->savePersistentData();
 	update();
 	LLPanelLogin::addServer(LLViewerLogin::getInstance()->getGridLabel());
 }
@@ -378,6 +394,7 @@ void LoginFloater::apply()
 void LoginFloater::cancel()
 {
 	gHippoGridManager->discardAndReload();
+	LoginFloater::sModel->revert();
 	update();
 }
 
@@ -506,7 +523,7 @@ void LoginFloater::newShow(const std::string &grid, bool initialLogin,
 	if(NULL==sModel)
 		sModel = AuthenticationModel::getInstance();
 	if(NULL==sController)
-		sController = new LoginController(sInstance, sModel, sGrid);
+		//sController = new LoginController(sInstance, sModel, sGrid);
 
 
 
@@ -757,3 +774,23 @@ void LoginFloater::cancel_old()
 	
 	sInstance->close();
 }
+
+void LoginFloater::hashPassword(const std::string& password, std::string& hashedPassword)
+{
+	// Max "actual" password length is 16 characters.
+	// Hex digests are always 32 characters.
+	if (password.length() == 32)
+	{
+		hashedPassword = password;
+	}
+	else
+	{
+		// this is a normal text password
+		LLMD5 pass((unsigned char *)password.c_str());
+		char munged_password[MD5HEX_STR_SIZE];
+		pass.hex_digest(munged_password);
+		hashedPassword = munged_password;
+	}
+	
+}
+

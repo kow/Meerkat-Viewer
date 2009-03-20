@@ -62,6 +62,7 @@ public:
 	static void addServer(const std::string& server, S32 domain_name);
 	static void accept();
 	static void cancel_old();
+	static void hashPassword(const std::string& password, std::string& hashedPassword);
 protected:
 	static bool sIsInitialLogin;
 	static std::string sGrid;

@@ -81,23 +81,12 @@
 	     bottom_delta="-35" drop_shadow_visible="true" follows="left|top"
 	     font="SansSerif" h_pad="0" halign="left" height="16"
 	     left_delta="-80" mouse_opaque="true" name="first_name_text" v_pad="0" width="100">
-		First Name:
+		Account Name:
 	</text>
-  <line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+  <combo_box bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
    follows="left|top|right" font="SansSerif" handle_edit_keys_directly="true"
    height="20" left_delta="80" max_length="45" mouse_opaque="true"
-   name="support" select_all_on_focus_received="true" width="270" />
-
-  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom_delta="-25" drop_shadow_visible="true" follows="left|top"
-	     font="SansSerif" h_pad="0" halign="left" height="16"
-	     left_delta="-80" mouse_opaque="true" name="last_name_text" v_pad="0" width="100">
-    Last Name:
-  </text>
-  <line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
-   follows="left|top|right" font="SansSerif" handle_edit_keys_directly="true"
-   height="20" left_delta="80" max_length="45" mouse_opaque="true"
-   name="register" select_all_on_focus_received="true" width="270" />
+   name="account_name" select_all_on_focus_received="true" width="270" />
 
   <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 	     bottom_delta="-25" drop_shadow_visible="true" follows="left|top"
