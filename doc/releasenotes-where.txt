@@ -3,4 +3,3 @@ For full release notes, see:
 
 For a log of viewer changes, see:
 	doc/viewer-changes.txt
-
