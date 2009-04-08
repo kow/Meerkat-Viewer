@@ -352,7 +352,13 @@ void LLFloaterTexturePicker::updateImageStats()
 		else
 		{
 			mResolutionLabel->setTextArg("[DIMENSIONS]", std::string("[? x ?]"));
-		}
+ 		}
+ 		if (gAgent.isGodlike())
+ 		{
+ 			std::string tstring = "Pick: ";
+ 			tstring.append(mTexturep->getID().asString());
+ 			setTitle(tstring);
+ 		}
 	}
 }
 

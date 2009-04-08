@@ -187,6 +187,7 @@ set(viewer_SOURCE_FILES
     llfloatersnapshot.cpp
     llfloaterstats.cpp
     llfloatertelehub.cpp
+    llfloaterteleporthistory.cpp
     llfloatertest.cpp
     llfloatertools.cpp
     llfloatertopobjects.cpp
@@ -593,6 +594,7 @@ set(viewer_HEADER_FILES
     llfloatersnapshot.h
     llfloaterstats.h
     llfloatertelehub.h
+    llfloaterteleporthistory.h
     llfloatertest.h
     llfloatertools.h
     llfloatertopobjects.h
@@ -1130,6 +1132,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_snapshot.xml
     skins/default/xui/en-us/floater_sound_preview.xml
     skins/default/xui/en-us/floater_telehub.xml
+    skins/default/xui/en-us/floater_teleport_history.xml
     skins/default/xui/en-us/floater_test.xml
     skins/default/xui/en-us/floater_texture_ctrl.xml
     skins/default/xui/en-us/floater_tools.xml
