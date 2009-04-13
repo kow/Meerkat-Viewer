@@ -564,7 +564,8 @@ S32 LLFontGL::renderUTF8(const std::string &text, const S32 offset,
 					 BOOL use_ellipses) const
 {
 	LLWString wstr = utf8str_to_wstring(text);
-	return render(wstr, offset, x, y, color, halign, valign, style, max_chars, max_pixels, right_x, use_ellipses);
+	return render(wstr, offset, x, y, color, halign, valign, style, max_chars, max_pixels, right_x, FALSE, use_ellipses);
+
 }
 
 S32 LLFontGL::render(const LLWString &wstr, 
