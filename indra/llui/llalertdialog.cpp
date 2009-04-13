@@ -395,6 +395,10 @@ void LLAlertDialog::createDialog(const options_list_t& options_in, S32 default_o
 			edit_text,
 			LLFontGL::sSansSerif,
 			STD_STRING_STR_LEN);
+		
+		// make sure all edit keys get handled properly
+		mLineEditor->setHandleEditKeysDirectly(TRUE);
+
 		addChild(mLineEditor);
 	}
 }
