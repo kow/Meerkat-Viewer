@@ -1214,11 +1214,11 @@ bool LLAppViewer::cleanup()
 	gAudiop = NULL;
 
 	// delete some of the files left around in the cache.
-	removeCacheFiles("*.wav");
+	//removeCacheFiles("*.wav");
 	removeCacheFiles("*.tmp");
-	removeCacheFiles("*.lso");
+	//removeCacheFiles("*.lso");
 	removeCacheFiles("*.out");
-	removeCacheFiles("*.dsf");
+	//removeCacheFiles("*.dsf");
 	removeCacheFiles("*.bodypart");
 	removeCacheFiles("*.clothing");
 
