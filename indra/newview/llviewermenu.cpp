@@ -86,6 +86,7 @@
 #include "llfloateravatarinfo.h"
 #include "llfloateravatartextures.h"
 #include "llfloaterbuildoptions.h"
+#include "llfloaterbulkpermission.h"
 #include "llfloaterbump.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
@@ -6191,6 +6192,16 @@ void handle_set_not_run_selection(void*)
 	queue_actions(queue, "CannotSetRunningNotSelectObjectsNoScripts", "CannotSerRunningNotSelectObjectsNoPermission");
 }
 
+class LLToolsSetBulkPerms : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLFloaterBulkPermission* queue = NULL;
+		queue = LLFloaterBulkPermission::create();
+		return true;
+	}
+};
+
 void handle_selected_texture_info(void*)
 {
 	for (LLObjectSelection::valid_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_begin();
@@ -7759,6 +7770,7 @@ void initialize_menus()
 	addMenu(new LLToolsSaveToInventory(), "Tools.SaveToInventory");
 	addMenu(new LLToolsSaveToObjectInventory(), "Tools.SaveToObjectInventory");
 	addMenu(new LLToolsSelectedScriptAction(), "Tools.SelectedScriptAction");
+	addMenu(new LLToolsSetBulkPerms(), "Tools.SetBulkPerms");
 
 	addMenu(new LLToolsEnableToolNotPie(), "Tools.EnableToolNotPie");
 	addMenu(new LLToolsEnableLink(), "Tools.EnableLink");
