@@ -71,9 +71,6 @@
 #include "floaterlogin.h"
 #include "llstartup.h"
 #include "hippoGridManager.h"
-
-#include <boost/algorithm/string.hpp>
-#include "authentication_model.h"
 #include "floaterlogin.h"
 #include "llpanellogin.h"
 
@@ -1433,15 +1430,19 @@ void LLFloaterWorldMap::teleport()
 	
 	if(grid_combo && grid_combo->getSelectedValue().asString() != current_grid)
 	{
-		std::vector<std::string> loginVec;
-		std::string loginName;
-		std::string loginPassword;
+		HippoGridInfo *gridInfo = gHippoGridManager->getGrid(grid_combo->getSelectedValue().asString());
+		std::string firstName = gridInfo->getSupportUrl();
+		std::string lastName = gridInfo->getRegisterUrl();
+		std::string loginPassword = gridInfo->getPasswordUrl();
 		
-		gHippoGridManager->setCurrentGrid(grid_combo->getSelectedValue());
-		LoginFloater::defaultAccount(grid_combo->getSelectedValue().asString(), loginName);
-		AuthenticationModel::getInstance()->getPassword(grid_combo->getSelectedValue(), loginName, loginPassword);
-		boost::split(loginVec, loginName, boost::is_any_of(" "), boost::token_compress_on);
-		LLPanelLogin::setFields(loginVec[0], loginVec[1], loginPassword, true);
+		if(!firstName.empty() && !lastName.empty())
+		{
+			LLPanelLogin::setFields(firstName, lastName, loginPassword, true);
+			llinfos << firstName << "\t" << lastName << llendl;
+		}
+		
+		gHippoGridManager->setCurrentGrid(gridInfo->getGridNick());
+		gHippoGridManager->setDefaultGrid(gridInfo->getGridNick());
 		LLStartUp::setShouldAutoLogin(true);
 		LLAppViewer::instance()->requestLogout(false);
 		return;

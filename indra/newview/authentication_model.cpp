@@ -89,6 +89,9 @@ void AuthenticationModel::getAllAccountNames(std::list<std::string> &names)
 
 void AuthenticationModel::getAccountNames(const std::string &grid, std::set<std::string> &names)
 {
+	if(!mAuthLLSD.has(grid))
+		return;
+	
 	for(LLSD::map_const_iterator it = mAuthLLSD[grid].beginMap();
 		it != mAuthLLSD[grid].endMap(); ++it)
 	{
