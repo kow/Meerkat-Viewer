@@ -1437,8 +1437,9 @@ void LLFloaterWorldMap::teleport()
 		
 		if(!firstName.empty() && !lastName.empty())
 		{
-			LLPanelLogin::setFields(firstName, lastName, loginPassword, true);
-			llinfos << firstName << "\t" << lastName << llendl;
+			gLoginHandler.mFirstName = firstName;
+			gLoginHandler.mLastName = lastName;
+			gLoginHandler.mPassword = loginPassword;
 		}
 		
 		gHippoGridManager->setCurrentGrid(gridInfo->getGridNick());

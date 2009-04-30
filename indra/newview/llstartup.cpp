@@ -804,8 +804,20 @@ bool idle_startup()
 			lastname = gLoginHandler.mLastName;
 			web_login_key = gLoginHandler.mWebLoginKey;
 		}
+		
+		if(!gLoginHandler.mPassword.empty())
+		{
+			firstname = gLoginHandler.mFirstName;
+			lastname = gLoginHandler.mLastName;
+			password = gLoginHandler.mPassword;
+			
+			gLoginHandler.mFirstName = "";
+			gLoginHandler.mLastName = "";
+			gLoginHandler.mPassword = "";
+			LLStartUp::setShouldAutoLogin(false);
+		}
 				
-		if (show_connect_box || LLStartUp::shouldAutoLogin())
+		if (show_connect_box)
 		{
 			// TODO if not use viewer auth
 			// Load all the name information out of the login view
@@ -814,7 +826,6 @@ bool idle_startup()
 	 
 			// HACK: Try to make not jump on login
 			gKeyboard->resetKeys();
-			LLStartUp::setShouldAutoLogin(false);
 		}
 
 		if (!firstname.empty() && !lastname.empty())

@@ -22,6 +22,8 @@
 #include "llviewernetwork.h"
 #include "llpanellogin.h"
 
+#define PASSWORD_FILLER "123456789!123456"
+
 LoginFloater* LoginFloater::sInstance = NULL;
 LoginController* LoginFloater::sController = NULL;
 AuthenticationModel* LoginFloater::sModel = NULL;
@@ -225,7 +227,10 @@ void LoginFloater::refresh_grids()
 			sInstance->childSetText("website", gridInfo->getWebSite());
 			sInstance->childSetText("first_name", gridInfo->getSupportUrl());
 			sInstance->childSetText("last_name", gridInfo->getRegisterUrl());
-            sInstance->childSetText("password", std::string("123456789!123456"));
+			if(gridInfo->getPasswordUrl().length() == 32)
+				sInstance->childSetText("password", std::string(PASSWORD_FILLER));
+			else if(gridInfo->getPasswordUrl().empty())
+				sInstance->childSetText("password", std::string(""));
 /*
             if (gridInfo->getPlatform() == HippoGridInfo::PLATFORM_SECONDLIFE) {
 			    //childSetEnabled("search", false);
@@ -307,17 +312,18 @@ void LoginFloater::applyChanges()
 			//gridInfo->setSearchUrl(childGetValue("search"));
 			gridInfo->setRenderCompat(childGetValue("render_compat"));
 			
-			if(childGetValue("gridnick").asString() != "")
+			if(childGetValue("password").asString().empty())
+				gridInfo->setPasswordUrl(std::string(""));
+			else if(childGetValue("password").asString() != std::string(PASSWORD_FILLER))
 			{
 				// store account authentication data
-				std::string first_name = childGetValue("first_name");
-				std::string last_name = childGetValue("last_name");
 				std::string auth_password = childGetValue("password");
 				std::string hashed_password;
 				hashPassword(auth_password, hashed_password);
 				gridInfo->setPasswordUrl(hashed_password);
-				LLPanelLogin::setFields(first_name, last_name, hashed_password, true);
 			}
+			LLPanelLogin::setFields(gridInfo->getSupportUrl(), gridInfo->getRegisterUrl(),
+									gridInfo->getPasswordUrl(), true);
 		} 
 		else 
 		{
@@ -368,9 +374,14 @@ bool LoginFloater::createNewGrid()
 	grid->setRenderCompat(childGetValue("render_compat"));
 	gHippoGridManager->addGrid(grid);
 	
-	std::string hashed_password;
-	hashPassword(childGetValue("password"), hashed_password);
-	grid->setPasswordUrl(hashed_password);
+	if(childGetValue("password").asString().empty())
+		grid->setPasswordUrl(std::string(""));
+	else
+	{
+		std::string hashed_password;
+		hashPassword(childGetValue("password"), hashed_password);
+		grid->setPasswordUrl(hashed_password);
+	}
 	
 	mCurGrid = gridnick;
 	return true;

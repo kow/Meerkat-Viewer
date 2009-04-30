@@ -646,11 +646,11 @@ void LLPanelLogin::show(const LLRect &rect,
 void LLPanelLogin::setFields(const std::string& firstname, const std::string& lastname, const std::string& password,
 							 BOOL remember)
 {
-	if (!sInstance)
+	/*if (!sInstance)
 	{
 		llwarns << "Attempted fillFields with no login view shown" << llendl;
 		return;
-	}
+	}*/
 
 	sInstance->childSetText("first_name_edit", firstname);
 	sInstance->childSetText("last_name_edit", lastname);
@@ -686,11 +686,11 @@ void LLPanelLogin::setFields(const std::string& firstname, const std::string& la
 // static
 void LLPanelLogin::addServer(const std::string& server)
 {
-	if (!sInstance)
+	/*if (!sInstance)
 	{
 		llwarns << "Attempted addServer with no login view shown" << llendl;
 		return;
-	}
+	}*/
 
 	//KOW
 	const std::string &defaultGrid = gHippoGridManager->getDefaultGridNick();
@@ -722,11 +722,11 @@ void LLPanelLogin::addServer(const std::string& server)
 void LLPanelLogin::getFields(std::string &firstname, std::string &lastname, std::string &password,
 							BOOL &remember)
 {
-	if (!sInstance)
+	/*if (!sInstance)
 	{
 		llwarns << "Attempted getFields with no login view shown" << llendl;
 		return;
-	}
+	}*/
 
 	firstname = sInstance->childGetText("first_name_edit");
 	LLStringUtil::trim(firstname);
@@ -742,11 +742,12 @@ void LLPanelLogin::getFields(std::string &firstname, std::string &lastname, std:
 BOOL LLPanelLogin::isGridComboDirty()
 {
 	BOOL user_picked = FALSE;
-	if (!sInstance)
+	/*if (!sInstance)
 	{
 		llwarns << "Attempted getServer with no login view shown" << llendl;
 	}
-	else
+	else*/
+	if(TRUE)
 	{
 		LLComboBox* combo = sInstance->getChild<LLComboBox>("server_combo");
 		user_picked = combo->isDirty();
@@ -757,11 +758,11 @@ BOOL LLPanelLogin::isGridComboDirty()
 // static
 void LLPanelLogin::getLocation(std::string &location)
 {
-	if (!sInstance)
+	/*if (!sInstance)
 	{
 		llwarns << "Attempted getLocation with no login view shown" << llendl;
 		return;
-	}
+	}*/
 	
 	LLComboBox* combo = sInstance->getChild<LLComboBox>("start_location_combo");
 	location = combo->getValue().asString();

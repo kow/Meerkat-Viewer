@@ -60,6 +60,7 @@ class LLLoginHandler : public LLCommandHandler
 	LLUUID mWebLoginKey;
 	std::string mFirstName;
 	std::string mLastName;
+	std::string mPassword;
 };
 
 extern LLLoginHandler gLoginHandler;
