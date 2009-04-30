@@ -1428,7 +1428,10 @@ void LLFloaterWorldMap::teleport()
 	LLComboBox *grid_combo = getChild<LLComboBox>("grid_combo");
 	std::string current_grid = gHippoGridManager->getConnectedGrid()->getGridNick();
 	
-	if(grid_combo && grid_combo->getSelectedValue().asString() != current_grid)
+	// BUG: the client crashes if fed an invalid grid through this interface, which shouldn't happen
+	if(grid_combo && grid_combo->getSelectedValue().asString() != current_grid &&
+		grid_combo->getSelectedValue().asString() != "Grids" &&
+		!grid_combo->getSelectedValue().asString().empty())
 	{
 		HippoGridInfo *gridInfo = gHippoGridManager->getGrid(grid_combo->getSelectedValue().asString());
 		std::string firstName = gridInfo->getSupportUrl();
