@@ -1064,13 +1064,15 @@ bool idle_startup()
 		hashed_mac.hex_digest(hashed_mac_string);
 
 		// TODO if statement here to use web_login_key
+		if(web_login_key.isNull()){
 		sAuthUriNum = llclamp(sAuthUriNum, 0, (S32)sAuthUris.size()-1);
 		LLUserAuth::getInstance()->authenticate(
 			sAuthUris[sAuthUriNum],
 			auth_method,
 			firstname,
 			lastname,			
-			password, // web_login_key,
+			password, 
+			//web_login_key,
 			start.str(),
 			gSkipOptionalUpdate,
 			gAcceptTOS,
@@ -1079,6 +1081,22 @@ bool idle_startup()
 			requested_options,
 			hashed_mac_string,
 			LLAppViewer::instance()->getSerialNumber());
+		} else {
+		LLUserAuth::getInstance()->authenticate(
+			sAuthUris[sAuthUriNum],
+			auth_method,
+			firstname,
+			lastname,			 
+			web_login_key,
+			start.str(),
+			gSkipOptionalUpdate,
+			gAcceptTOS,
+			gAcceptCriticalMessage,
+			gLastExecEvent,
+			requested_options,
+			hashed_mac_string,
+			LLAppViewer::instance()->getSerialNumber());
+		}
 
 		// reset globals
 		gAcceptTOS = FALSE;
