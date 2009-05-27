@@ -102,6 +102,7 @@ public:
 	void			clearLocationSelection(BOOL clear_ui = FALSE);
 	void			clearAvatarSelection(BOOL clear_ui = FALSE);
 	void			clearLandmarkSelection(BOOL clear_ui = FALSE);
+	void			clearGridSelection(BOOL clear_ui = FALSE);
 
 	// Adjust the maximally zoomed out limit of the zoom slider so you can
 	// see the whole world, plus a little.

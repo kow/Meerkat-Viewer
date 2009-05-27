@@ -711,7 +711,7 @@ void LLPanelLogin::addServer(const std::string& server)
 			i++;
 		}
 	}
-	//grids->setCurrentByIndex(0);
+	grids->setCurrentByIndex(0);
 
 	//LLComboBox* combo = sInstance->getChild<LLComboBox>("server_combo");
 	//combo->add(server, LLSD(domain_name) );
@@ -1153,7 +1153,7 @@ void LLPanelLogin::onSelectServer(LLUICtrl* ctrl, void*)
 			//childSetText("gridnick", gridInfo->getGridNick());
 			//platform->setCurrentByIndex(gridInfo->getPlatform());
 			//childSetText("gridname", gridInfo->getGridName());
-			LLPanelLogin::setFields( gridInfo->getSupportUrl(), gridInfo->getRegisterUrl(), gridInfo->getPasswordUrl(), 1 );
+			LLPanelLogin::setFields( gridInfo->getFirstName(), gridInfo->getLastName(), gridInfo->getAvatarPassword(), 1 );
 		}
 	//gHippoGridManager->setCurrentGrid(mCurGrid);
 
