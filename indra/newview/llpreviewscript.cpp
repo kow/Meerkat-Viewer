@@ -436,6 +436,14 @@ void LLScriptEdCore::initMenu()
 	menuItem->setMenuCallback(onBtnHelp, this);
 	menuItem->setEnabledCallback(NULL);
 
+	menuItem = getChild<LLMenuItemCallGL>("Load from Disk");
+	menuItem->setMenuCallback(onBtnLoadFromDisc, this);
+	menuItem->setEnabledCallback(NULL);
+
+	menuItem = getChild<LLMenuItemCallGL>("Save to Disk");
+	menuItem->setMenuCallback(onBtnSaveToDisc, this);
+	menuItem->setEnabledCallback(NULL);
+
 	menuItem = getChild<LLMenuItemCallGL>("LSL Wiki Help...");
 	menuItem->setMenuCallback(onBtnDynamicHelp, this);
 	menuItem->setEnabledCallback(NULL);
@@ -822,6 +830,60 @@ void LLScriptEdCore::onBtnUndoChanges( void* userdata )
 		gViewerWindow->alertXml("ScriptCannotUndo",
 			 LLScriptEdCore::handleReloadFromServerDialog, self);
 	}
+}
+
+void LLScriptEdCore::onBtnSaveToDisc( void* userdata )
+{
+
+	LLViewerStats::getInstance()->incStat( LLViewerStats::ST_LSL_SAVE_COUNT );
+
+   LLScriptEdCore* self = (LLScriptEdCore*) userdata;
+
+   if( self->mSaveCallback )
+   {
+      LLFilePicker& file_picker = LLFilePicker::instance();
+	if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_TEXT ) )
+	{
+		return;
+	}
+	
+		std::string filename = file_picker.getFirstFile();
+      std::string scriptText=self->mEditor->getText();
+	  std::ofstream fout(filename.c_str());
+      fout<<(scriptText);
+      fout.close();
+      self->mSaveCallback( self->mUserdata, FALSE );
+         
+   }
+	
+}
+void LLScriptEdCore::onBtnLoadFromDisc( void* data )
+{
+
+	LLScriptEdCore* self = (LLScriptEdCore*) data;
+	
+	LLFilePicker& file_picker = LLFilePicker::instance();
+	if( !file_picker.getOpenFile( LLFilePicker::FFLOAD_TEXT ) )
+	{
+		return;
+	}
+	
+	std::string filename = file_picker.getFirstFile();
+
+	std::ifstream fin(filename.c_str());
+	
+	std::string line;
+	std::string linetotal;
+	self->mEditor->clear();
+	while (!fin.eof())
+	{ 
+		getline(fin,line);
+		line=line+"\n";
+		self->mEditor->insertText(line);
+
+	}
+	fin.close();
+	
 }
 
 void LLScriptEdCore::onSearchMenu(void* userdata)

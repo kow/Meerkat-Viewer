@@ -58,6 +58,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define XML_FILTER L"XML files (*.xml)\0*.xml\0"
 #define SLOBJECT_FILTER L"Objects (*.slobject)\0*.slobject\0"
 #define RAW_FILTER L"RAW files (*.raw)\0*.raw\0"
+#define TEXT_FILTER L"Text files (*.txt; *.rtf)\0*.txt;*.rtf;*.lsl\0"
 #endif
 
 //
@@ -159,6 +160,10 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 		IMAGE_FILTER \
 		ANIM_FILTER \
 		L"\0";
+		break;
+	case FFLOAD_TEXT:
+		mOFN.lpstrFilter = TEXT_FILTER \
+			L"\0";
 		break;
 	case FFLOAD_WAV:
 		mOFN.lpstrFilter = SOUND_FILTER \
@@ -325,6 +330,18 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 			L"All Files (*.*)\0*.*\0" \
 			L"WAV Sounds (*.wav)\0*.wav\0" \
 			L"Targa, Bitmap Images (*.tga; *.bmp)\0*.tga;*.bmp\0" \
+			L"\0";
+		break;
+	case FFSAVE_TEXT:
+		if (filename.empty())
+		{
+			wcsncpy( mFilesW,L"untitled.txt", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
+		}
+		mOFN.lpstrDefExt = L"txt";
+		mOFN.lpstrFilter = 
+			L"Text files (*.txt)\0*.txt\0"
+			L"RTF Files (*.rtf)\0*.rtf\0"
+			L"LSL Files (*.lsl)\0*.lsl\0"
 			L"\0";
 		break;
 	case FFSAVE_WAV:
