@@ -12,7 +12,7 @@
 
   <icon bottom="-56" color="0.5, 0, 0, 1" follows="top|right" height="16"
    image_name="map_track_16.tga" left="1013" mouse_opaque="true"
-   name="avatar_icon" width="16" />
+   name="grid_icon" width="16" />
   <combo_box allow_text_entry="false" bottom_delta="0" follows="top|right" height="20"
      label="Grids" left_delta="20" max_chars="60" mouse_opaque="true"
      name="grid_combo" tool_tip="Grid Selection" width="202">
@@ -20,29 +20,18 @@
       Grids
     </combo_item>
   </combo_box>
-
-  <icon bottom="-81" color="0.5, 0, 0, 1" follows="top|right" height="16"
-   image_name="map_track_16.tga" left="1013" mouse_opaque="true"
-   name="avatar_icon" width="16" />
-  <combo_box allow_text_entry="true" bottom_delta="0" follows="top|right" height="20"
-     label="Grids" left_delta="20" max_chars="60" mouse_opaque="true"
-     name="avatar_combo" tool_tip="Avatar Selection" width="202">
-    <combo_item name="none_selected" value="None">
-      Avatar
-    </combo_item>
-  </combo_box>
   
   <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-	     bottom="-101" drop_shadow_visible="true" follows="top|right"
+	     bottom="-81" drop_shadow_visible="true" follows="top|right"
 	     font="SansSerifSmall" h_pad="0" halign="left" height="16" left_delta="0"
 	     mouse_opaque="true" name="appearance_label" v_pad="0" width="145">
     Keep Appearance
   </text>
-  <check_box bottom="-101" control_name="KeepAppearance" follows="top|right"
+  <check_box bottom="-81" control_name="KeepAppearance" follows="top|right"
 	     font="SansSerifSmall" height="16" initial_value="false" label=""
 	     left_delta="96" mouse_opaque="true" name="appearance_chk" width="55" />
   
-  <button bottom="-101" follows="top|right" font="SansSerifSmall" halign="center"
+  <button bottom="-81" follows="top|right" font="SansSerifSmall" halign="center"
 	     height="16" label="Grid Manager" label_selected="Grid Manager" left_delta="21"
 	     mouse_opaque="true" name="Grid Manager" tool_tip="Edit your grid list"
 	     width="88" />
