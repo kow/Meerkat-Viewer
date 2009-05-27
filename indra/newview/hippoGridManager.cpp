@@ -285,13 +285,13 @@ void HippoGridInfo::cleanUpUri(std::string &uri)
 
 void HippoGridInfo::initFallback()
 {
-	FALLBACK_GRIDINFO.mGridNick = "osgrid";
-	FALLBACK_GRIDINFO.setPlatform(PLATFORM_OPENSIM);
-	FALLBACK_GRIDINFO.setGridName("OSGrid");
-	FALLBACK_GRIDINFO.setLoginUri("http://osgrid.org:8002");
-	FALLBACK_GRIDINFO.setLoginPage("http://osgrid.org/loginscreen.php");
-	FALLBACK_GRIDINFO.setHelperUri("http://osgrid.org/");
-	FALLBACK_GRIDINFO.setWebSite("http://osgrid.org/");
+	FALLBACK_GRIDINFO.mGridNick = "secondlife";
+	FALLBACK_GRIDINFO.setPlatform(PLATFORM_SECONDLIFE);
+	FALLBACK_GRIDINFO.setGridName("Second Life");
+	FALLBACK_GRIDINFO.setLoginUri("https://login.agni.lindenlab.com/cgi-bin/login.cgi");
+	FALLBACK_GRIDINFO.setLoginPage("http://secondlife.com/app/login/");
+	FALLBACK_GRIDINFO.setHelperUri("https://secondlife.com/helpers/");
+	FALLBACK_GRIDINFO.setWebSite("http://secondlife.com/");
 }
 
 
@@ -413,8 +413,8 @@ void HippoGridManager::setDefaultGrid(const std::string &grid)
 	GridIterator it = mGridInfo.find(grid);
 	if (it != mGridInfo.end()) {
 		mDefaultGrid = grid;
-	} else if (mGridInfo.find("osgrid") != mGridInfo.end()) {
-		mDefaultGrid = "osgrid";
+	} else if (mGridInfo.find("secondlife") != mGridInfo.end()) {
+		mDefaultGrid = "secondlife";
 	} else if (!mGridInfo.empty()) {
         mDefaultGrid = mGridInfo.begin()->first;
 	} else {
@@ -543,6 +543,9 @@ void HippoGridManager::parseData(LLSD &gridInfo, bool mergeIfNewer)
 			if (gridMap.has("password")) grid->setPasswordUrl(gridMap["password"]);
 			//if (gridMap.has("search")) grid->setSearchUrl(gridMap["search"]);
 			if (gridMap.has("render_compat")) grid->setRenderCompat(gridMap["render_compat"]);
+			if (gridMap.has("firstname")) grid->setFirstName(gridMap["firstname"]);
+			if (gridMap.has("lastname")) grid->setLastName(gridMap["lastname"]);
+			if (gridMap.has("avatarpassword")) grid->setAvatarPassword(gridMap["avatarpassword"]);
 			if (newGrid) addGrid(grid);
 		}
 	}
@@ -572,7 +575,10 @@ void HippoGridManager::saveFile()
 		gridInfo[i]["website"] = grid->getWebSite();
         gridInfo[i]["support"] = grid->getSupportUrl();
 		gridInfo[i]["register"] = grid->getRegisterUrl();
-        gridInfo[i]["password"] = grid->getPasswordUrl();
+        gridInfo[i]["firstname"] = grid->getFirstName();
+        gridInfo[i]["lastname"] = grid->getLastName();
+        gridInfo[i]["avatarpassword"] = grid->getAvatarPassword();
+		
         //gridInfo[i]["search"] = grid->getSearchUrl();
 		gridInfo[i]["render_compat"] = grid->isRenderCompat();
 	}

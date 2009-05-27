@@ -42,6 +42,9 @@ public:
     const std::string &getRegisterUrl()  const { return mRegisterUrl;  }
     const std::string &getPasswordUrl()  const { return mPasswordUrl;  }
     const std::string &getSearchUrl()    const { return mSearchUrl;    }
+    const std::string &getFirstName()    const { return mFirstName;    }
+    const std::string &getLastName()     const { return mLastName;     }
+    const std::string &getAvatarPassword()    const { return mAvatarPassword;    }
     std::string getSearchUrl(SearchType ty) const;
     bool isRenderCompat() const { return mRenderCompat; }
 
@@ -66,6 +69,9 @@ public:
     void setPasswordUrl(const std::string &url)     { mPasswordUrl = url;     }
     void setSearchUrl(const std::string &url)       { mSearchUrl = url;       }
     void setRenderCompat(bool compat)               { mRenderCompat = compat; }
+    void setFirstName(const std::string &firstName) { mFirstName = firstName;       } //aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    void setLastName(const std::string &lastName)   { mLastName = lastName;        }
+    void setAvatarPassword(const std::string &avatarPassword) { mAvatarPassword = avatarPassword;  }
 
     void setCurrencySymbol(const std::string &sym) { mCurrencySymbol = sym.substr(0, 3); }
     void setRealCurrencySymbol(const std::string &sym) { mRealCurrencySymbol = sym.substr(0, 3); }
@@ -91,6 +97,9 @@ private:
     std::string mRegisterUrl;
     std::string mPasswordUrl;
     std::string mSearchUrl;
+    std::string mFirstName;
+    std::string mLastName;
+    std::string mAvatarPassword;
     bool mRenderCompat;
 
     std::string mCurrencySymbol;
