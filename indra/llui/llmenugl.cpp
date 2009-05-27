@@ -413,7 +413,7 @@ BOOL LLMenuItemGL::handleMouseUp( S32 x, S32 y, MASK )
 	LLMenuGL::setKeyboardMode(FALSE);
 
 	doIt();
-	make_ui_sound("UISndClickRelease");
+	//make_ui_sound("UISndClickRelease");
 	return TRUE;
 }
 
@@ -1066,7 +1066,7 @@ BOOL LLMenuItemBranchGL::handleMouseUp(S32 x, S32 y, MASK mask)
 	LLMenuGL::setKeyboardMode(FALSE);
 
 	doIt();
-	make_ui_sound("UISndClickRelease");
+	//make_ui_sound("UISndClickRelease");
 	return TRUE;
 }
 
@@ -3148,31 +3148,31 @@ BOOL LLPieMenu::handleHover( S32 x, S32 y, MASK mask )
 			switch(pieItemIndexFromXY(x, y))
 			{
 			case 0:
-				make_ui_sound("UISndPieMenuSliceHighlight0");
+				//make_ui_sound("UISndPieMenuSliceHighlight0");
 				break;
 			case 1:
-				make_ui_sound("UISndPieMenuSliceHighlight1");
+				//make_ui_sound("UISndPieMenuSliceHighlight1");
 				break;
 			case 2:
-				make_ui_sound("UISndPieMenuSliceHighlight2");
+				//make_ui_sound("UISndPieMenuSliceHighlight2");
 				break;
 			case 3:
-				make_ui_sound("UISndPieMenuSliceHighlight3");
+				//make_ui_sound("UISndPieMenuSliceHighlight3");
 				break;
 			case 4:
-				make_ui_sound("UISndPieMenuSliceHighlight4");
+				//make_ui_sound("UISndPieMenuSliceHighlight4");
 				break;
 			case 5:
-				make_ui_sound("UISndPieMenuSliceHighlight5");
+				//make_ui_sound("UISndPieMenuSliceHighlight5");
 				break;
 			case 6:
-				make_ui_sound("UISndPieMenuSliceHighlight6");
+				//make_ui_sound("UISndPieMenuSliceHighlight6");
 				break;
 			case 7:
-				make_ui_sound("UISndPieMenuSliceHighlight7");
+				//make_ui_sound("UISndPieMenuSliceHighlight7");
 				break;
 			default:
-				make_ui_sound("UISndPieMenuSliceHighlight0");
+				//make_ui_sound("UISndPieMenuSliceHighlight0");
 				break;
 			}
 		}
@@ -3320,7 +3320,7 @@ BOOL LLPieMenu::handleMouseUp( S32 x, S32 y, MASK mask )
 
 	if (mFirstMouseDown)
 	{
-		make_ui_sound("UISndPieMenuAppear");
+		//make_ui_sound("UISndPieMenuAppear");
 		mFirstMouseDown = FALSE;
 	}
 	
@@ -3693,7 +3693,7 @@ void LLPieMenu::show(S32 x, S32 y, BOOL mouse_down)
 
 	if (!mFirstMouseDown)
 	{
-		make_ui_sound("UISndPieMenuAppear");
+		//make_ui_sound("UISndPieMenuAppear");
 	}
 
 	LLView::setVisible(TRUE);
@@ -3722,7 +3722,7 @@ void LLPieMenu::hide(BOOL item_selected)
 		mHoverItem = NULL;
 	}
 
-	make_ui_sound("UISndPieMenuHide");
+	//make_ui_sound("UISndPieMenuHide");
 
 	mFirstMouseDown = FALSE;
 	mRightMouseDown = FALSE;
