@@ -137,7 +137,7 @@ BOOL LoginFloater::postBuild()
 	requires<LLButton>("btn_delete");
 	requires<LLButton>("btn_add");
 	requires<LLButton>("btn_copy");
-	requires<LLButton>("btn_default");
+	requires<LLButton>("set_default");
 	requires<LLButton>("btn_gridinfo");
 	requires<LLButton>("btn_help_render_compat");
 	if (!checkRequirements()) return false;
@@ -148,8 +148,9 @@ BOOL LoginFloater::postBuild()
 	childSetAction("btn_add", onClickAdd, this);
 	childSetAction("btn_copy", onClickCopy, this);
 	childSetAction("btn_apply", onClickApply, this);
+	childSetAction("set_default", onClickDefault, this);
 	childSetAction("btn_cancel", onClickCancel, this);
-//KOW	childSetAction("btn_default", onClickDefault, this);
+//KOW	childSetAction("set_default", onClickDefault, this);
 //KOW	childSetAction("btn_gridinfo", onClickGridInfo, this);
 //KOW	childSetAction("btn_help_render_compat", onClickHelpRenderCompat, this);
 
@@ -205,7 +206,7 @@ void LoginFloater::refresh_grids()
 
 	sInstance->childSetEnabled("btn_delete", (selectIndex >= 0));
 	sInstance->childSetEnabled("btn_copy", (sInstance->mState == NORMAL) && (selectIndex >= 0));
-	sInstance->childSetEnabled("btn_default", (sInstance->mState == NORMAL) && (selectIndex > 0));
+	sInstance->childSetEnabled("set_default", (sInstance->mState == NORMAL) && (selectIndex > 0));
 	sInstance->childSetEnabled("gridnick", (sInstance->mState == ADD_NEW) || (sInstance->mState == ADD_COPY));
 
 
@@ -225,9 +226,9 @@ void LoginFloater::refresh_grids()
 			sInstance->childSetText("loginpage", gridInfo->getLoginPage());
 			sInstance->childSetText("helperuri", gridInfo->getHelperUri());
 			sInstance->childSetText("website", gridInfo->getWebSite());
-			sInstance->childSetText("first_name", gridInfo->getSupportUrl());
-			sInstance->childSetText("last_name", gridInfo->getRegisterUrl());
-			if(gridInfo->getPasswordUrl().length() == 32)
+			sInstance->childSetText("first_name", gridInfo->getFirstName());
+			sInstance->childSetText("last_name", gridInfo->getLastName());
+			if(gridInfo->getAvatarPassword().length() == 32)
 				sInstance->childSetText("password", std::string(PASSWORD_FILLER));
 			else if(gridInfo->getPasswordUrl().empty())
 				sInstance->childSetText("password", std::string(""));
@@ -307,8 +308,8 @@ void LoginFloater::applyChanges()
 			gridInfo->setLoginPage(childGetValue("loginpage"));
 			gridInfo->setHelperUri(childGetValue("helperuri"));
 			gridInfo->setWebSite(childGetValue("website"));
-			gridInfo->setSupportUrl(childGetValue("first_name"));
-			gridInfo->setRegisterUrl(childGetValue("last_name"));
+			gridInfo->setFirstName(childGetValue("first_name"));
+			gridInfo->setLastName(childGetValue("last_name"));
 			//gridInfo->setSearchUrl(childGetValue("search"));
 			gridInfo->setRenderCompat(childGetValue("render_compat"));
 			
@@ -320,10 +321,10 @@ void LoginFloater::applyChanges()
 				std::string auth_password = childGetValue("password");
 				std::string hashed_password;
 				hashPassword(auth_password, hashed_password);
-				gridInfo->setPasswordUrl(hashed_password);
+				gridInfo->setAvatarPassword(hashed_password);
 			}
-			LLPanelLogin::setFields(gridInfo->getSupportUrl(), gridInfo->getRegisterUrl(),
-									gridInfo->getPasswordUrl(), true);
+			LLPanelLogin::setFields(gridInfo->getFirstName(), gridInfo->getLastName(),
+									gridInfo->getAvatarPassword(), true);
 		} 
 		else 
 		{
@@ -368,19 +369,19 @@ bool LoginFloater::createNewGrid()
 	grid->setLoginPage(childGetValue("loginpage"));
 	grid->setHelperUri(childGetValue("helperuri"));
 	grid->setWebSite(childGetValue("website"));
-	grid->setSupportUrl(childGetValue("first_name"));
-	grid->setRegisterUrl(childGetValue("last_name"));
+	grid->setFirstName(childGetValue("first_name"));
+	grid->setLastName(childGetValue("last_name"));
 	//grid->setSearchUrl(childGetValue("search"));
 	grid->setRenderCompat(childGetValue("render_compat"));
 	gHippoGridManager->addGrid(grid);
 	
 	if(childGetValue("password").asString().empty())
-		grid->setPasswordUrl(std::string(""));
+		grid->setAvatarPassword(std::string(""));
 	else
 	{
 		std::string hashed_password;
 		hashPassword(childGetValue("password"), hashed_password);
-		grid->setPasswordUrl(hashed_password);
+		grid->setAvatarPassword(hashed_password);
 	}
 	
 	mCurGrid = gridnick;
@@ -397,13 +398,30 @@ void LoginFloater::apply()
 		llwarns << "Illegal state " << mState << '.' << llendl;
 		return;
 	}
-	gHippoGridManager->setCurrentGrid(mCurGrid);
-	gHippoGridManager->setDefaultGrid(mCurGrid);
-	LLPanelLogin::refreshLoginPage();
+	//gHippoGridManager->setCurrentGrid(mCurGrid);
+	//gHippoGridManager->setDefaultGrid(mCurGrid);
+	//LLPanelLogin::refreshLoginPage();
 	gHippoGridManager->saveFile();
 	LLPanelLogin::addServer(LLViewerLogin::getInstance()->getGridLabel());
 }
 
+void LoginFloater::setDefault()
+{
+	if (mState == NORMAL) {
+		applyChanges();
+	} else if ((mState == ADD_NEW) || (mState == ADD_COPY)) {
+		if (!createNewGrid()) return;
+	} else {
+		llwarns << "Illegal state " << mState << '.' << llendl;
+		return;
+	}
+	gHippoGridManager->setCurrentGrid(mCurGrid);
+	gHippoGridManager->setDefaultGrid(mCurGrid);
+			llwarns << "I think me grid is " << mCurGrid << llendl;
+	//LLPanelLogin::refreshLoginPage();
+	gHippoGridManager->saveFile();
+	LLPanelLogin::addServer(LLViewerLogin::getInstance()->getGridLabel());
+}
 
 void LoginFloater::cancel()
 {
@@ -474,6 +492,12 @@ void LoginFloater::onClickCopy(void *data)
 void LoginFloater::onClickApply(void *data)
 {
 	sInstance->apply();
+}
+
+//static
+void LoginFloater::onClickDefault(void *data)
+{
+	sInstance->setDefault();
 }
 
 //static
