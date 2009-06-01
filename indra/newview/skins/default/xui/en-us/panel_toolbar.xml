@@ -13,6 +13,14 @@
 	       image_overlay="icn_chatbar.tga" tool_tip="Show Chat Bar. (Enter)"
 	       width="50" auto_resize="false" follows="left|right" user_resize="false"/>
     <icon image_name="spacer24.tga" left_delta="2" width="2" height="2" follows="left|right" auto_resize="false" color="0,0,0,0"/>
+
+    <button bottom="0" font="SansSerif" height="24" label="Avatars" left="0"
+      name="avatar_list_btn" tool_tip="List of nearby avatars" width="50"
+       image_selected="toolbar_btn_selected.tga"
+       image_unselected="toolbar_btn_enabled.tga" scale_image="true"
+      follows="left|right" user_resize="false" />
+    <icon image_name="spacer24.tga" width="2" height="2" follows="left|right" auto_resize="false" color="0,0,0,0"/>
+    
      <flyout_button bottom="0" font="SansSerif" height="24" label="Communicate" left="0"
 	       name="communicate_btn" tool_tip="Communicate with your Friends and Groups."
 	       list_position="above"

@@ -57,6 +57,7 @@
 #include "message.h"
 #include "raytrace.h"
 #include "llsdserialize.h"
+#include "llsdutil.h"
 #include "lltimer.h"
 #include "llvfile.h"
 #include "llvolumemgr.h"
@@ -203,6 +204,7 @@
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "roles_constants.h"
+#include "llfloateravatarlist.h"
 #include "llviewerjoystick.h"
 #include "llwlanimator.h"
 #include "llwlparammanager.h"
@@ -2126,10 +2128,6 @@ class LLObjectCopyUUID : public view_listener_t
         return true;
     }
 };
-
-
-
-
 
 bool handle_go_to()
 {
@@ -5364,6 +5362,10 @@ class LLShowFloater : public view_listener_t
 		{
 			LLFloaterAbout::show(NULL);
 		}
+		else if (floater_name == "avatar list")
+		{
+			LLFloaterAvatarList::toggle(NULL);
+		}
 		else if (floater_name == "active speakers")
 		{
 			LLFloaterActiveSpeakers::toggleInstance(LLSD());
@@ -7665,6 +7667,15 @@ static void addMenu(view_listener_t *menu, const std::string& name)
 	sMenus.push_back(menu);
 	menu->registerListener(gMenuHolder, name);
 }
+
+class LLViewAvatarList : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		llinfos << "LLViewAvatarList::handleEvent()" << llendl;
+		return true;
+	}
+};
 
 void initialize_menus()
 {

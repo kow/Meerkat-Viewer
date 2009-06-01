@@ -32,6 +32,8 @@
 #ifndef LL_LLWEBBROWSERCTRL_H
 #define LL_LLWEBBROWSERCTRL_H
 
+#include "lluictrlfactory.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 // data class that is passed with an event
 class LLWebBrowserCtrlEvent

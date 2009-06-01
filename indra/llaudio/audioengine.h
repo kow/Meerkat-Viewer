@@ -311,6 +311,7 @@ public:
 	BOOL setupChannel();
 	BOOL play(const LLUUID &audio_id);	// Start the audio source playing
 
+	const LLUUID &getOwnerID()		{ return mOwnerID; }
 	BOOL hasPendingPreloads() const;	// Has preloads that haven't been done yet
 
 	friend class LLAudioEngine;

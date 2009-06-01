@@ -421,6 +421,7 @@ public:
 	// Sets an array of column descriptors
 	void 	   		setColumnHeadings(LLSD headings);
 	void   			sortByColumnIndex(U32 column, BOOL ascending);
+	void            sort();
 	
 	// LLCtrlListInterface functions
 	virtual S32  getItemCount() const;
@@ -518,6 +519,7 @@ public:
 	virtual S32			getFirstSelectedIndex() const;
 	std::vector<LLScrollListItem*> getAllSelected() const;
 	LLScrollListItem*	getLastSelectedItem() const { return mLastSelected; }
+	LLDynamicArray<LLUUID> 	getSelectedIDs();
 
 	// iterate over all items
 	LLScrollListItem*	getFirstData() const;

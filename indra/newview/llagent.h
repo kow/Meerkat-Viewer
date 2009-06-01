@@ -36,6 +36,7 @@
 
 #include "indra_constants.h"
 #include "llmath.h"
+#include "llchat.h"
 #include "llcontrol.h"
 #include "llcoordframe.h"
 #include "llevent.h"
@@ -79,6 +80,15 @@ typedef enum e_camera_modes
 	CAMERA_MODE_CUSTOMIZE_AVATAR,
 	CAMERA_MODE_FOLLOW
 } ECameraMode;
+
+/**
+ * @brief When looking at an object, where is the camera offset from
+ */
+typedef enum e_camera_position
+{
+	CAMERA_POSITION_SELF, /** Camera positioned at our position */
+	CAMERA_POSITION_OBJECT /** Camera positioned at observed object's position */
+} ECameraPosition;
 
 typedef enum e_anim_request
 {
@@ -206,6 +216,7 @@ public:
 
 	void			heardChat(const LLUUID& id);
 	void			lookAtLastChat();
+	void			lookAtObject(LLUUID avatar_id, ECameraPosition camera_pos);
 	F32			getTypingTime() { return mTypingTimer.getElapsedTimeF32(); }
 
 	void			setAFK();
@@ -477,6 +488,9 @@ public:
 
 	const std::string getTeleportSourceSLURL() const { return mTeleportSourceSLURL; }
 
+	void sendChat(const std::string &text, S32 channel = 0, EChatType type = CHAT_TYPE_NORMAL, bool animate = false);
+	void sendChat(const std::wstring &text, S32 channel = 0, EChatType type = CHAT_TYPE_NORMAL, bool animate = false)
+		{ sendChat(text, channel, type, animate); }
 
 	// Setting the ability for this avatar to proxy for another avatar.
 	//static void processAddModifyAbility(LLMessageSystem* msg, void**);

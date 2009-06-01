@@ -130,6 +130,7 @@ set(viewer_SOURCE_FILES
     llfloateranimpreview.cpp
     llfloaterauction.cpp
     llfloateravatarinfo.cpp
+    llfloateravatarlist.cpp
     llfloateravatarpicker.cpp
     llfloateravatartextures.cpp
     llfloaterbuildoptions.cpp
@@ -253,6 +254,7 @@ set(viewer_SOURCE_FILES
     llpanelaudioprefs.cpp
     llpanelaudiovolume.cpp
     llpanelavatar.cpp
+    llpaneldatabase.cpp
     llpanelclassified.cpp
     llpanelcontents.cpp
     llpaneldebug.cpp
@@ -660,6 +662,7 @@ set(viewer_HEADER_FILES
     llpanelaudioprefs.h
     llpanelaudiovolume.h
     llpanelavatar.h
+    llpaneldatabase.h
     llpanelclassified.h
     llpanelcontents.h
     llpaneldebug.h

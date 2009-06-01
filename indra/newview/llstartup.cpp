@@ -3082,7 +3082,8 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("ParcelDwellReply",
 		LLViewerParcelMgr::processParcelDwellReply);
 
-	msg->setHandlerFunc("AvatarPropertiesReply",
+	//msg->setHandlerFunc("AvatarPropertiesReply",
+	msg->addHandlerFunc("AvatarPropertiesReply",
 						LLPanelAvatar::processAvatarPropertiesReply);
 	msg->setHandlerFunc("AvatarInterestsReply",
 						LLPanelAvatar::processAvatarInterestsReply);

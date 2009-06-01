@@ -915,7 +915,15 @@ You can find example sculpted textures in the inventory library.
 from this list.
 		</message>
 	</notify>
-	<notify name="VoiceInviteP2P" tip="false" unique="true">
+
+  <!--Database preferences panel -->
+  <notify name="AddSelfDatabase" tip="false">
+    <message name="message">
+      You cannot use yourself as the database avatar.
+    </message>
+  </notify>
+  
+  <notify name="VoiceInviteP2P" tip="false" unique="true">
 		<message name="message">
 			[NAME] is inviting you to a Voice Chat call. 
 Click Accept to join the call or Decline to decline the invitation. Click Mute to mute this caller.

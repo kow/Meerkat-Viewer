@@ -1380,7 +1380,24 @@ chat, or interact with the world.
 			Cancel
 		</option>
 	</alert>
-	<alert modal="true" name="EjectAvatar">
+  <alert modal="true" name="AvatarListFreezeAvatars">
+    <message name="message">
+      Freeze these avatars?
+      [NAMES]
+      They will temporarily be unable to move,
+      chat, or interact with the world.
+    </message>
+    <option name="Freeze">
+      Freeze
+    </option>
+    <option name="Unfreeze">
+      Unfreeze
+    </option>
+    <option name="Cancel">
+      Cancel
+    </option>
+  </alert>
+  <alert modal="true" name="EjectAvatar">
 		<message name="message">
 			Eject this avatar from your land?
 		</message>
@@ -1408,6 +1425,146 @@ chat, or interact with the world.
 			Cancel
 		</option>
 	</alert>
+  	<alert modal="true" name="AvatarListEjectAvatars">
+		<message name="message">
+			Eject these avatars from your land?
+			[NAMES]
+		</message>
+		<option name="Eject">
+			Eject
+		</option>
+		<option name="EjectandBan">
+			Eject and Ban
+		</option>
+		<option name="Cancel">
+			Cancel
+		</option>
+	</alert>
+	<alert modal="true" name="AvatarListEjectAvatarsFromEstate">
+		<message name="message">
+			Eject these avatars from this estate?
+			[NAMES]
+		</message>
+		<option name="Eject">
+			Eject
+		</option>
+		<option name="EjectandBan">
+			Eject and Ban
+		</option>
+		<option name="Cancel">
+			Cancel
+		</option>
+	</alert>
+	
+	<alert modal="true" name="AvatarListMuteAvatars">
+		<message name="message">
+			Mute these avatars?
+			[NAMES]
+		</message>
+		<option name="Mute">
+			Mute
+		</option>
+		<option name="Unmute">
+			Unmute
+		</option>		
+		<option name="Cancel">
+			Cancel
+		</option>
+	</alert>
+  	<alert modal="true" name="AvatarListEjectAvatars">
+		<message name="message">
+			Eject these avatars from your land?
+			[NAMES]
+		</message>
+		<option name="Eject">
+			Eject
+		</option>
+		<option name="EjectandBan">
+			Eject and Ban
+		</option>
+		<option name="Cancel">
+			Cancel
+		</option>
+	</alert>
+	<alert modal="true" name="AvatarListEjectAvatarsFromEstate">
+		<message name="message">
+			Eject these avatars from this estate?
+			[NAMES]
+		</message>
+		<option name="Eject">
+			Eject
+		</option>
+		<option name="EjectandBan">
+			Eject and Ban
+		</option>
+		<option name="Cancel">
+			Cancel
+		</option>
+	</alert>
+	
+	<alert modal="true" name="AvatarListMuteAvatars">
+		<message name="message">
+			Mute these avatars?
+			[NAMES]
+		</message>
+		<option name="Mute">
+			Mute
+		</option>
+		<option name="Unmute">
+			Unmute
+		</option>		
+		<option name="Cancel">
+			Cancel
+		</option>
+	</alert>
+  
+  <alert modal="true" name="AvatarListEjectAvatars">
+    <message name="message">
+      Eject these avatars from your land?
+      [NAMES]
+    </message>
+    <option name="Eject">
+      Eject
+    </option>
+    <option name="EjectandBan">
+      Eject and Ban
+    </option>
+    <option name="Cancel">
+      Cancel
+    </option>
+  </alert>
+  <alert modal="true" name="AvatarListEjectAvatarsFromEstate">
+    <message name="message">
+      Eject these avatars from this estate?
+      [NAMES]
+    </message>
+    <option name="Eject">
+      Eject
+    </option>
+    <option name="EjectandBan">
+      Eject and Ban
+    </option>
+    <option name="Cancel">
+      Cancel
+    </option>
+  </alert>
+
+  <alert modal="true" name="AvatarListMuteAvatars">
+    <message name="message">
+      Mute these avatars?
+      [NAMES]
+    </message>
+    <option name="Mute">
+      Mute
+    </option>
+    <option name="Unmute">
+      Unmute
+    </option>
+    <option name="Cancel">
+      Cancel
+    </option>
+  </alert>
+  
 	<alert modal="true" name="InvalidUUID">
 		<message name="message">
 			Not a valid UUID.

@@ -525,7 +525,8 @@ void LLFloaterReporter::showFromMenu(EReportType report_type)
 
 
 // static
-void LLFloaterReporter::showFromObject(const LLUUID& object_id)
+//void LLFloaterReporter::showFromObject(const LLUUID& object_id)
+LLFloaterReporter* LLFloaterReporter::showFromObject(const LLUUID& object_id, bool show)
 {
 	LLFloaterReporter* f = createNewAbuseReporter();
 	f->center();
@@ -542,7 +543,17 @@ void LLFloaterReporter::showFromObject(const LLUUID& object_id)
 	// Need to deselect on close
 	f->mDeselectOnClose = TRUE;
 
-	f->open();		/* Flawfinder: ignore */
+	//f->open();		/* Flawfinder: ignore */
+	if ( show )
+	{
+		f->open();		/* Flawfinder: ignore */
+	}
+	else
+	{
+		gDialogVisible = FALSE;
+	}
+
+	return f;
 }
 
 

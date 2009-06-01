@@ -2644,6 +2644,22 @@
         <integer>0</integer>
       </array>
     </map>
+    <key>FloaterAvatarListRect</key>
+    <map>
+      <key>Comment</key>
+      <string>Rectangle avatar list window</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Rect</string>
+      <key>Value</key>
+      <array>
+        <integer>0</integer>
+        <integer>400</integer>
+        <integer>200</integer>
+        <integer>0</integer>
+      </array>
+    </map>
     <key>FloaterAudioVolumeRect</key>
     <map>
       <key>Comment</key>

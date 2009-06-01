@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llappviewer.h"
 #include "llprimitive.h"
+#include "llfloateravatarlist.h"
 
 #include "llversionviewer.h"
 #include "llfeaturemanager.h"
@@ -3258,7 +3259,10 @@ void LLAppViewer::idle()
 		}
 		gFrameStats.addFrameData();
 	}
-	
+
+	// Update avatar list
+	gFloaterAvatarList->updateAvatarList();
+
 	if (!gDisconnected)
 	{
 		LLFastTimer t(LLFastTimer::FTM_NETWORK);

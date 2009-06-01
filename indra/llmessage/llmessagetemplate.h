@@ -34,7 +34,11 @@
 
 #include "lldarray.h"
 #include "message.h" // TODO: babbage: Remove...
+#include "llmsgvariabletype.h"
 #include "llstl.h"
+#include <list>
+#include <algorithm>
+#include <functional>
 
 class LLMsgVarData
 {
@@ -269,6 +273,31 @@ enum EMsgDeprecation
 	MD_DEPRECATED
 };
 
+class LLMessageTemplateHandlerEntry
+{
+public:
+	LLMessageTemplateHandlerEntry(message_handler_func_t handler, void **userdata = NULL) :
+		mHandlerFunc(handler), mUserData(userdata) {}
+
+	void call(LLMessageSystem *msgsystem) const { mHandlerFunc(msgsystem, mUserData); }
+
+	bool operator==(const LLMessageTemplateHandlerEntry&a) { return mHandlerFunc == a.mHandlerFunc; }
+private:
+	// message handler function (this is set by each application)
+	message_handler_func_t mHandlerFunc;
+	void **mUserData;	
+};
+
+class callHandler : public std::unary_function<LLMessageTemplateHandlerEntry, void>
+{
+public:
+	callHandler(LLMessageSystem *msg) : mMsg(msg) {}
+	void operator()(const LLMessageTemplateHandlerEntry& a) const { a.call(mMsg); }
+private:
+	LLMessageSystem *mMsg;
+};
+
+
 class LLMessageTemplate
 {
 public:
@@ -290,9 +319,10 @@ public:
 		mTotalDecodeTime(0.f),
 		mMaxDecodeTimePerMsg(0.f),
 		mBanFromTrusted(false),
-		mBanFromUntrusted(false),
-		mHandlerFunc(NULL), 
-		mUserData(NULL)
+		//mBanFromUntrusted(false),
+		//mHandlerFunc(NULL), 
+		//mUserData(NULL)
+		mBanFromUntrusted(false)
 	{ 
 		mName = LLMessageStringTable::getInstance()->getString(name);
 	}
@@ -360,20 +390,91 @@ public:
 		return mDeprecation;
 	}
 	
-	void setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
+//	void setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
+	/**
+	 * @brief Adds a handler
+	 * This function adds a new handler to be called when the message arrives.
+	 * Repeated additions of the same handler function will be ignored.
+	 * @note delHandlerFunc() must be called to remove the registration
+	 * @param handler Function to call
+	 * @param user_data User specified data to pass to the function
+	 */
+	void addHandlerFunc(message_handler_func_t handler, void **user_data)	
 	{
-		mHandlerFunc = handler_func;
-		mUserData = user_data;
+		LLMessageTemplateHandlerEntry h(handler, user_data);
+
+		if ( std::find(mHandlers.begin(), mHandlers.end(), h ) != mHandlers.end() )
+		{
+			return;
+		}
+
+		mHandlers.push_back( h );
+	}
+
+	/**
+	 * @brief Sets a handler
+	 * This function sets a handler to be called when the message arrives.
+	 * Any existing handlers are unregistered.
+	 * @note delHandlerFunc() must be called to remove the registration
+	 * @param handler Function to call
+	 * @param user_data User specified data to pass to the function
+	 */
+	void setHandlerFunc(message_handler_func_t handler, void **user_data)
+	{
+		mHandlers.clear();
+		if( handler )
+		{
+			addHandlerFunc(handler, user_data);
+		}
+		else
+		{
+			llwarns << "code has reset handler for \"" << mName << "\" by setting it to NULL." << llendl;
+		}
+	}
+
+	/**
+	 * @brief Removes a handler
+	 * Removes a handler from the list of handlers.
+	 * Attempts to remove handlers that aren't in the list are silently
+	 * ignored.
+	 * @param handler Function to remove
+	 */
+	void delHandlerFunc(message_handler_func_t handler)
+	{
+		//mHandlerFunc = handler_func;
+		//mUserData = user_data;
+		mHandlers.remove( LLMessageTemplateHandlerEntry(handler) );
 	}
 
 	BOOL callHandlerFunc(LLMessageSystem *msgsystem) const
 	{
-		if (mHandlerFunc)
+		//if (mHandlerFunc)
+		if ( mHandlers.empty() )
 		{
-			mHandlerFunc(msgsystem, mUserData);
+			return FALSE;
+		}
+		/* 
+		 * Be on the safe side and use for_each only when necessary. There is Linden code ("ReplyPayPrice") that
+		 * does not take the multiple reply handlers into account and simply tries to unregister
+		 * by setting the handler function to 0, unfortunately from within the reply handler so in this case
+		 * the for_each iterator inside std_algo.h is invalidated leading to a crash if the memory is reused
+		 * in between.
+		 */
+		else if( mHandlers.size() == 1 )
+		{
+			//KOW HACK we probably want to re-enable the llPerfBlocks here, may need a vendor merge for llstats.cpp stuff.
+			//LLPerfBlock msg_cb_time("msg_cb", mName);
+			//mHandlerFunc(msgsystem, mUserData);
+			mHandlers.begin()->call(msgsystem);
 			return TRUE;
 		}
-		return FALSE;
+		else
+		{
+            //LLPerfBlock msg_cb_time("msg_cb", mName);
+			std::for_each(mHandlers.begin(), mHandlers.end(), callHandler(msgsystem));
+			return TRUE;
+		}
+		//return FALSE;
 	}
 
 	bool isUdpBanned() const
@@ -419,8 +520,9 @@ public:
 
 private:
 	// message handler function (this is set by each application)
-	void									(*mHandlerFunc)(LLMessageSystem *msgsystem, void **user_data);
-	void									**mUserData;
+//	void									(*mHandlerFunc)(LLMessageSystem *msgsystem, void **user_data);
+//	void									**mUserData;
+	std::list<LLMessageTemplateHandlerEntry> mHandlers;
 };
 
 #endif // LL_LLMESSAGETEMPLATE_H

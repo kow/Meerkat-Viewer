@@ -92,7 +92,8 @@ public:
 	// Enables all buttons
 	static void showFromMenu(EReportType report_type);
 
-	static void showFromObject(const LLUUID& object_id);
+	//static void showFromObject(const LLUUID& object_id);
+	static LLFloaterReporter* showFromObject(const LLUUID& object_id, bool show = true);
 
 	static void onClickSend			(void *userdata);
 	static void onClickCancel		(void *userdata);

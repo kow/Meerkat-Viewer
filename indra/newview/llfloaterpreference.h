@@ -49,6 +49,7 @@ class LLPanelAudioPrefs;
 class LLPanelDebug;
 class LLPanelNetwork;
 class LLPanelWeb;
+class LLPanelDatabase;
 class LLMessageSystem;
 class LLPrefsChat;
 class LLPrefsVoice;
@@ -93,6 +94,7 @@ private:
 	LLPanelMsgs				*mMsgPanel;
 	PasswordsPrefPanel		*mPasswordsPanel;
 	LLPanelLCD				*mLCDPanel;
+	LLPanelDatabase				*mDBPanel;
 };
 
 // Floater to control preferences (display, audio, bandwidth, general.

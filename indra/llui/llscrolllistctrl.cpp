@@ -704,6 +704,28 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllSelected() const
 	return ret;
 }
 
+/**
+ * Returns the selected IDs
+ * @returns List of selected IDs
+ * @author Dale Glass
+ */
+LLDynamicArray<LLUUID> LLScrollListCtrl::getSelectedIDs()
+{
+	LLUUID selected_id;
+	LLDynamicArray<LLUUID> ret;
+
+	item_list::const_iterator iter;
+	for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
+	{
+		LLScrollListItem* item  = *iter;
+		if (item->getSelected())
+		{
+			ret.push_back(item->getUUID());
+		}
+	}
+	return ret;
+}
+
 S32 LLScrollListCtrl::getFirstSelectedIndex() const
 {
 	S32 CurSelectedIndex = 0;
@@ -2534,6 +2556,21 @@ void LLScrollListCtrl::onScrollChange( S32 new_pos, LLScrollbar* scrollbar, void
 	self->mScrollLines = new_pos;
 }
 
+/**
+ * Re-sorts the list
+ *
+ * This function allows to avoid multiple unnecessary sorts in the case where
+ * multiple elements will be added or removed at once.
+ * @author Dale Glass
+ */
+void LLScrollListCtrl::sort()
+{
+	// sort by column 0, in ascending order
+	std::stable_sort(
+		mItemList.begin(), 
+		mItemList.end(), 
+		SortScrollListItem(mSortColumns));
+}
 
 void LLScrollListCtrl::sortByColumn(const std::string& name, BOOL ascending)
 {

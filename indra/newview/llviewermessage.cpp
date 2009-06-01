@@ -135,6 +135,8 @@
 #include "llkeythrottle.h"
 #include "llviewerdisplay.h"
 #include "llkeythrottle.h"
+#include "llpanelavatar.h"
+#include "llfloateravatarlist.h"
 
 #include <boost/tokenizer.hpp>
 

@@ -179,7 +179,7 @@ enum EMessageException
 	MX_WROTE_PAST_BUFFER_SIZE // wrote past buffer size in zero code expand
 };
 typedef void (*msg_exception_callback)(LLMessageSystem*,void*,EMessageException);
-
+typedef void (*message_handler_func_t)(LLMessageSystem *msgsystem, void **user_data);
 
 // message data pieces are used to collect the data called for by the message template
 class LLMsgData;
@@ -299,10 +299,22 @@ public:
 
 
 	// methods for building, sending, receiving, and handling messages
-	void	setHandlerFuncFast(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data = NULL);
-	void	setHandlerFunc(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data = NULL)
+	void	setHandlerFuncFast(const char *name, message_handler_func_t, void **user_data = NULL);
+	void	setHandlerFunc(const char *name, message_handler_func_t handler_func, void **user_data = NULL)
 	{
 		setHandlerFuncFast(LLMessageStringTable::getInstance()->getString(name), handler_func, user_data);
+	}
+
+	void	addHandlerFuncFast(const char *name, message_handler_func_t, void **user_data = NULL);
+	void	addHandlerFunc(const char *name, message_handler_func_t handler_func, void **user_data = NULL)
+	{
+		addHandlerFuncFast(LLMessageStringTable::getInstance()->getString(name), handler_func, user_data);
+	}
+
+	void	delHandlerFuncFast(const char *name, message_handler_func_t);
+	void	delHandlerFunc(const char *name, message_handler_func_t handler_func)
+	{
+		delHandlerFuncFast(LLMessageStringTable::getInstance()->getString(name), handler_func);
 	}
 
 	// Set a callback function for a message system exception.

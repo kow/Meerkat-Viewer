@@ -60,6 +60,7 @@
 #include "llpanelLCD.h"
 #include "llpanelmsgs.h"
 #include "llpanelweb.h"
+#include "llpaneldatabase.h"
 #include "llpanelskins.h"
 #include "llprefschat.h"
 #include "llprefsvoice.h"
@@ -195,6 +196,10 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainer* tab_container, LLButton * def
 	mTabContainer->addTabPanel(mSkinsPanel, mSkinsPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mSkinsPanel->setDefaultBtn(default_btn);
 
+	mDBPanel = new LLPanelDatabase();
+	mTabContainer->addTabPanel(mDBPanel, mDBPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
+	mDBPanel->setDefaultBtn(default_btn);
+
 	if (!mTabContainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 	{
 		mTabContainer->selectFirstTab();
@@ -280,6 +285,7 @@ void LLPreferenceCore::apply()
 	LLFloaterHardwareSettings::instance()->apply();
 
 	mWebPanel->apply();
+	mDBPanel->apply();
 #if LL_LCD_COMPILE
 	// only add this option if we actually have a logitech keyboard / speaker set
 	if (gLcdScreen->Enabled())
@@ -309,6 +315,7 @@ void LLPreferenceCore::cancel()
 	LLFloaterHardwareSettings::instance()->cancel();
 
 	mWebPanel->cancel();
+	mDBPanel->cancel();
 #if LL_LCD_COMPILE
 	// only add this option if we actually have a logitech keyboard / speaker set
 	if (gLcdScreen->Enabled())

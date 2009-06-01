@@ -2972,7 +2972,7 @@ void LLMessageSystem::addTemplate(LLMessageTemplate *templatep)
 }
 
 
-void LLMessageSystem::setHandlerFuncFast(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
+void LLMessageSystem::setHandlerFuncFast(const char *name, message_handler_func_t handler_func, void **user_data)
 {
 	LLMessageTemplate* msgtemplate = get_ptr_in_map(mMessageTemplates, name);
 	if (msgtemplate)
@@ -2982,6 +2982,32 @@ void LLMessageSystem::setHandlerFuncFast(const char *name, void (*handler_func)(
 	else
 	{
 		LL_ERRS("Messaging") << name << " is not a known message name!" << llendl;
+	}
+}
+
+void LLMessageSystem::addHandlerFuncFast(const char *name, message_handler_func_t handler_func, void **user_data)
+{
+	LLMessageTemplate* msgtemplate = get_ptr_in_map(mMessageTemplates, name);
+	if (msgtemplate)
+	{
+		msgtemplate->addHandlerFunc(handler_func, user_data);
+	}
+	else
+	{
+		llerrs << name << " is not a known message name!" << llendl;
+	}
+}
+
+void LLMessageSystem::delHandlerFuncFast(const char *name, message_handler_func_t handler_func)
+{
+	LLMessageTemplate* msgtemplate = get_ptr_in_map(mMessageTemplates, name);
+	if (msgtemplate)
+	{
+		msgtemplate->delHandlerFunc(handler_func);
+	}
+	else
+	{
+		llerrs << name << " is not a known message name!" << llendl;
 	}
 }
 
