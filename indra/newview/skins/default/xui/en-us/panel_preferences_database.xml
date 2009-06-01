@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel border="true" bottom="-409" enabled="true" follows="left|top|right|bottom"
+       height="408" hidden="false" label="Database" left="102" mouse_opaque="true"
+       name="avatar_db" width="517">
+	
+	<!-- Options section -->
+	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	      bottom="-30" drop_shadow_visible="true" enabled="true" follows="left|top"
+	      font="SansSerifSmall" h_pad="0" halign="left" height="10" hidden="false"
+	      left="12" mouse_opaque="false" name="text_box" v_pad="0" width="300">
+		Options:
+	</text>
+
+	<check_box bottom_delta="0" control_name="DBEnabled" enabled="true"
+		   follows="left|top" font="SansSerifSmall" height="16" hidden="false"
+		   initial_value="false" label="Database enabled" left="148"
+		   mouse_opaque="true" name="database_enabled_cb" radio_style="false"
+	     width="256" />
+	
+	<radio_group bottom_delta="-110" control_name="DBRetrievalMode" draw_border="true" enabled="true"
+		     follows="left|top" height="100" hidden="false" left="148"
+		     mouse_opaque="true" name="Database access type" width="321">
+		<radio_item type="string" length="1" bottom="-20" enabled="true" follows="left|top" height="16" hidden="false"
+			    left="3" mouse_opaque="true" name="UseAvatar" width="315">
+			Avatar:
+		</radio_item>
+		<radio_item type="string" length="1" bottom_delta="-10" enabled="false" follows="left|top" height="16" hidden="false"
+			    left="3" mouse_opaque="true" name="UseURL" width="315">
+			URL:
+		</radio_item>
+	</radio_group>
+	
+	<!-- HACK: apparently line_editor can't go inside a radio_group, so we make it appear
+	     inside while not actually being in there -->
+	<button bottom_delta="78" follows="right|bottom" font="SansSerif" halign="center"
+		height="20" label="Change Avatar" label_selected="Change Avatar" left="260"
+	     mouse_opaque="true" name="change_avatar_btn" width="100" />
+	
+	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+		     follows="left|top|right" font="SansSerifSmall" height="16" hidden="false"
+		     left="348" max_length="254" mouse_opaque="true" name="db_avatar"
+		     select_on_focus="false" width="130" control_name="DBAvatar" enabled="false"/>
+	
+	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="-20"
+		     follows="left|top|right" font="SansSerifSmall" height="16" hidden="false"
+		     left="248" max_length="254" mouse_opaque="true" name="db_url"
+		     select_on_focus="false" width="230" enabled="false" control_name="DBURL" />	
+
+	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	      bottom_delta="-20" drop_shadow_visible="true" enabled="true" follows="left|top"
+	      font="SansSerifSmall" h_pad="0" halign="left" height="10" hidden="false"
+	      left="170" mouse_opaque="false" name="text_box" v_pad="0" width="300">
+		Username:
+	</text>	
+
+	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+		     follows="left|top|right" font="SansSerifSmall" height="16" hidden="false"
+		     left="248" max_length="254" mouse_opaque="true" name="db_url_username"
+		     select_on_focus="false" width="230" enabled="false" control_name="DBURLUsername" />
+	
+	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	      bottom_delta="-20" drop_shadow_visible="true" enabled="true" follows="left|top"
+	      font="SansSerifSmall" h_pad="0" halign="left" height="10" hidden="false"
+	      left="170" mouse_opaque="false" name="text_box" v_pad="0" width="300">
+		Password:
+	</text>	
+
+	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+		     follows="left|top|right" font="SansSerifSmall" height="16" hidden="false"
+		     left="248" max_length="254" mouse_opaque="true" name="db_url_password"
+		     select_on_focus="false" width="230" enabled="false" control_name="DBURLPassword" />
+
+	
+	<!--Patterns section-->
+	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	      bottom_delta="-30" drop_shadow_visible="true" enabled="true" follows="left|top"
+	      font="SansSerifSmall" h_pad="0" halign="left" height="10" hidden="false"
+	      left="12" mouse_opaque="false" name="text_box" v_pad="0" width="300">
+		Patterns:
+	</text>
+	
+
+	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	      bottom_delta="-20" drop_shadow_visible="true" enabled="true" follows="left|top"
+	      font="SansSerifSmall" h_pad="0" halign="left" height="10" hidden="false"
+	      left="148" mouse_opaque="false" name="text_box2" v_pad="0" width="300">
+		Send:
+	</text>
+	
+	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+		     follows="left|top|right" font="SansSerifSmall" height="16" hidden="false"
+		     left="248" max_length="254" mouse_opaque="true" name="send_pattern"
+		     select_on_focus="false" width="230" control_name="DBSendPattern" >
+		$NAME
+	</line_editor>
+
+	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	      bottom_delta="-20" drop_shadow_visible="true" enabled="true" follows="left|top"
+	      font="SansSerifSmall" h_pad="0" halign="left" height="10" hidden="false"
+	      left="148" mouse_opaque="false" name="text_box2" v_pad="0" width="300">
+		Positive contains:
+	</text>
+	
+	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+		     follows="left|top|right" font="SansSerifSmall" height="16" hidden="false"
+		     left="248" max_length="254" mouse_opaque="true" name="positive_pattern"
+		     select_on_focus="false" width="230"  control_name="DBPositivePattern" />
+	
+	
+	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	      bottom_delta="-20" drop_shadow_visible="true" enabled="true" follows="left|top"
+	      font="SansSerifSmall" h_pad="0" halign="left" height="10" hidden="false"
+	      left="148" mouse_opaque="false" name="text_box2" v_pad="0" width="300">
+		Negative contains:
+	</text>
+	
+	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+		     follows="left|top|right" font="SansSerifSmall" height="16" hidden="false"
+		     left="248" max_length="254" mouse_opaque="true" name="negative_pattern"
+		     select_on_focus="false" width="230"  control_name="DBNegativePattern" />
+	
+	
+	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	      bottom_delta="-20" drop_shadow_visible="true" enabled="true" follows="left|top"
+	      font="SansSerifSmall" h_pad="0" halign="left" height="10" hidden="false"
+	      left="148" mouse_opaque="false" name="text_box2" v_pad="0" width="300">
+		Denied contains:
+	</text>
+	
+	<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
+		     follows="left|top|right" font="SansSerifSmall" height="16" hidden="false"
+		     left="248" max_length="254" mouse_opaque="true" name="denied_pattern"
+		     select_on_focus="false" width="230"  control_name="DBDeniedPattern" />
+	
+	<!--Timeouts section-->
+	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+	      bottom_delta="-30" drop_shadow_visible="true" enabled="true" follows="left|top"
+	      font="SansSerifSmall" h_pad="0" halign="left" height="10" hidden="false"
+	      left="12" mouse_opaque="false" name="text_box" v_pad="0" width="300">
+		Timeouts:
+	</text>
+		
+	<spinner bottom_delta="-20" control_name="DBMaxConcurrentRequests" decimal_digits="0" enabled="true"
+		 follows="left|top" height="16" hidden="false" increment="1"
+		 initial_val="4" label="Max concurrent requests:" label_width="138" left="148"
+		 max_val="32" min_val="1" mouse_opaque="true" name="max_concurrent_requests"
+		 width="202" />
+
+	<spinner bottom_delta="-20" control_name="DBDelayBetweenRequests" decimal_digits="0" enabled="true"
+		 follows="left|top" height="16" hidden="false" increment="1"
+		 initial_val="1" label="Delay between requests:" label_width="138" left="148"
+		 max_val="32" min_val="0" mouse_opaque="true" name="delay_between_requests"
+		 width="202" />
+	
+	<spinner bottom_delta="-20" control_name="DBRequestTimeout" decimal_digits="0" enabled="true"
+		 follows="left|top" height="16" hidden="false" increment="4"
+		 initial_val="64" label="Request timeout:" label_width="138" left="148"
+		 max_val="65536" min_val="16" mouse_opaque="true" name="request_timeout"
+		 width="202" />
+	
+	<spinner bottom_delta="-20" control_name="DBGiveUpAfter" decimal_digits="0" enabled="true"
+		 follows="left|top" height="16" hidden="false" increment="64"
+		 initial_val="4096" label="Give up after:" label_width="138" left="148"
+		 max_val="65536" min_val="64" mouse_opaque="true" name="give_up_after"
+		 width="202" />
+</panel>
