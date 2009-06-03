@@ -152,7 +152,7 @@ class WindowsManifest(ViewerManifest):
     def final_exe(self):
         if self.default_channel():
             if self.default_grid():
-                return "SecondLife.exe"
+                return "Meerkat.exe"
             else:
                 return "SecondLifePreview.exe"
         else:
@@ -163,7 +163,11 @@ class WindowsManifest(ViewerManifest):
         super(WindowsManifest, self).construct()
         # the final exe is complicated because we're not sure where it's coming from,
         # nor do we have a fixed name for the executable
-        self.path(self.find_existing_file('debug/meerkat-bin.exe', 'relwithdebinfo/meerkat-bin.exe', 'release/meerkat-bin.exe'), dst=self.final_exe())
+        self.path(self.find_existing_file(
+		#'../build-VC90/newview/debug/meerkat-bin.exe'
+		#, '../build-VC90/newview/relwithdebinfo/meerkat-bin.exe'
+		'../build-VC90/newview/release/meerkat-bin.exe'
+		), dst=self.final_exe())
         # need to get the kdu dll from any of the build directories as well
         #self.path(self.find_existing_file(
                 # *FIX:Mani we need to add support for packaging specific targets.
@@ -175,7 +179,7 @@ class WindowsManifest(ViewerManifest):
         self.path(src="licenses-win32.txt", dst="licenses.txt")
 
         self.path("featuretable.txt")
-
+			
         # For use in crash reporting (generates minidumps)
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
             self.path("dbghelp.dll")
@@ -234,16 +238,30 @@ class WindowsManifest(ViewerManifest):
 
         # Vivox runtimes
         if self.prefix(src="vivox-runtime/i686-win32", dst=""):
-#            self.path("SLVoice.exe")
-#            self.path("SLVoiceAgent.exe")
+            self.path("SLVoice.exe")
+            self.path("SLVoiceAgent.exe")
             self.path("libeay32.dll")
             self.path("srtp.dll")
             self.path("ssleay32.dll")
             self.path("tntk.dll")
-            self.path("alut.dll")
-#            self.path("vivoxsdk.dll")
+            self.path("vivoxsdk.dll")
             self.path("ortp.dll")
             self.path("wrap_oal.dll")
+            self.end_prefix()
+			
+		# Meerkat things
+	if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
+            self.path("alut.dll")
+            self.path("freebl3.dll")
+            self.path("intl.dll")
+            self.path("libgio-2.0-0.dll")
+            self.path("libgstaudio-0.10.dll")
+            self.path("libgstbase-0.10.dll")
+            self.path("libgstinterfaces-0.10.dll")
+            self.path("libgstpbutils-0.10.dll")
+            self.path("libgstplaybin.dll")
+            self.path("libgstvideo-0.10.dll")
+            self.path("OpenAL32.dll")
             self.end_prefix()
 
 #        # pull in the crash logger and updater from other projects
@@ -253,9 +271,9 @@ class WindowsManifest(ViewerManifest):
 #                "../win_crash_logger/relwithdebinfo/windows-crash-logger.exe"),
 #                  dst="win_crash_logger.exe")
         self.path(src=self.find_existing_file(
-                "../win_updater/debug/windows-updater.exe",
-                "../win_updater/relwithdebinfo/windows-updater.exe",
-                "../win_updater/release/windows-updater.exe"),
+#                "../build-VC90/win_updater/debug/windows-updater.exe",
+#                "../build-VC90/win_updater/relwithdebinfo/windows-updater.exe",
+                "../build-VC90/win_updater/release/windows-updater.exe"),
                   dst="updater.exe")
 
     def nsi_file_commands(self, install=True):
