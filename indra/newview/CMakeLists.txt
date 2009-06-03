@@ -443,6 +443,7 @@ set(viewer_SOURCE_FILES
     noise.cpp
     pipeline.cpp
 	prefpanelpasswords.cpp
+    primbackup.cpp
     )
 
 set(VIEWER_BINARY_NAME "meerkat-bin" CACHE STRING
@@ -857,6 +858,7 @@ set(viewer_HEADER_FILES
     noise.h
     pipeline.h
 	prefpanelpasswords.h
+    primbackup.h
     randgauss.h
     VertexCache.h
     VorbisFramework.h

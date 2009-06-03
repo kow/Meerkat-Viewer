@@ -74,6 +74,8 @@
 
 #include "llappviewer.h"
 
+#include "primbackup.h"
+
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
 
@@ -217,6 +219,11 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 
 	updateActive(objectp);
 
+	if(!just_created)
+		primbackup::getInstance()->prim_update(objectp);
+	
+
+
 	if (just_created) 
 	{
 		gPipeline.addObject(objectp);
@@ -246,6 +253,9 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 		objectp->mCreateSelected = false;
 		gViewerWindow->getWindow()->decBusyCount();
 		gViewerWindow->getWindow()->setCursor( UI_CURSOR_ARROW );
+
+		primbackup::getInstance()->newprim(objectp);
+
 	}
 }
 
