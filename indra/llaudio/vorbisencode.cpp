@@ -184,7 +184,7 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
 
 	F32 clip_length = (F32)raw_data_length/(F32)bytes_per_sec;
 		
-	if (clip_length > 90.0f)
+	if (clip_length > 600.0f)
 	{
 		error_msg = "SoundFileInvalidTooLong";
 		return(LLVORBISENC_CLIP_TOO_LONG);		 
