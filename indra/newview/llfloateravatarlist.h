@@ -651,6 +651,7 @@ private:
 		LIST_PAYMENT,
 		LIST_ACTIVITY,
 		LIST_ENTERED,
+		LIST_CLIENT
 	};
 
 	typedef void (*avlist_command_t)(const LLUUID &avatar, const std::string &name);

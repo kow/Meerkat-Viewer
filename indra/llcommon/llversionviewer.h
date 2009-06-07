@@ -39,4 +39,17 @@ const S32 LL_VERSION_BUILD = 55;
 
 const char * const LL_CHANNEL = "Meerkat Release";
 
+
+#ifdef LL_WINDOWS
+#define LL_PLATFORM "win32"
+#endif
+
+#ifdef LL_LINUX
+#define LL_PLATFORM "linux32"
+#endif
+
+#ifdef LL_DARWIN
+#define LL_PLATFORM "mac"
+#endif
+
 #endif

@@ -24,7 +24,7 @@ bool HippoUpdate::checkUpdate()
 	llinfos << "Hippo Update Check..." << llendl;
 
 	// get channel name
-	gHippoChannel = gSavedSettings.getString("ChannelName");
+	//gHippoChannel = gSavedSettings.getString("VersionChannelName");
 
 	// get mac address
 	char macAddress[18];
@@ -34,13 +34,16 @@ bool HippoUpdate::checkUpdate()
 	// build URL for update check
 	char url[1000];
 	snprintf(url, 1000, 
-/*		"http://update.mjm.game-host.org/os/viewer.php?"
-		"product=%s&channel=%s&"
-		"version_major=%d&version_minor=%d&version_patch=%d&version_base=%s&"
-		"platform=%s&mac=%s",
-		LL_PRODUCT, LL_CHANNEL_CSTR,
-		LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VERSION_BASE,
-		LL_PLATFORM*/"%s", macAddress);
+		"http://meerkatviewer.org/scripts/viewerupdate.php?"
+		//"product=%s&channel=%s&"
+		"version_major=%d&version_minor=%d&version_patch=%d&" //version_base=%s&"
+		"platform=%s&"
+		"mac=%s",
+		//LL_PRODUCT, LL_CHANNEL_CSTR,
+		LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, 
+		//LL_VERSION_BASE,
+		LL_PLATFORM, 
+		macAddress);
 
 	// query update server
 	std::string escaped_url = LLWeb::escapeURL(url);
@@ -80,7 +83,7 @@ bool HippoUpdate::checkUpdate()
 		"Do you want to visit the web site?",
 		yourVersion.c_str(), curVersion.c_str(),
 		mandatory? "\nThis is a mandatory update.\n": "");
-	S32 button = OSMessageBox(msg, "Hippo OpenSim Viewer Update", OSMB_YESNO);
+	S32 button = OSMessageBox(msg, "Meerkat Update", OSMB_YESNO);
 	if (button == OSBTN_YES) {
 		llinfos << "Taking user to " << webpage << llendl;
 		LLWeb::loadURLExternal(webpage);

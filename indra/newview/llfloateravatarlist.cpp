@@ -661,6 +661,7 @@ void LLFloaterAvatarList::expireAvatarList()
  * Only does anything if the avatar list is visible.
  * @author Dale Glass
  */
+void resolve_client(LLColor4& avatar_name_color, std::string& client, LLUUID idx);
 void LLFloaterAvatarList::refreshAvatarList()
 {
 
@@ -950,7 +951,24 @@ void LLFloaterAvatarList::refreshAvatarList()
 		element["columns"][LIST_ENTERED]["column"] = "entered";
 		element["columns"][LIST_ENTERED]["type"] = "text";
 		element["columns"][LIST_ENTERED]["value"] = tempentered;
-		element["columns"][LIST_ENTERED]["color"] = getAvatarColor(ent, distance, CT_ENTERED).getValue();
+
+		
+		element["columns"][LIST_CLIENT]["column"] = "client";
+		element["columns"][LIST_CLIENT]["type"] = "text";
+		LLColor4 avatar_name_color = gColors.getColor( "AvatarNameColor" );
+		std::string client;
+		LLVOAvatar *av = (LLVOAvatar*)gObjectList.findObject(av_id);
+		if(av)
+		{
+			resolve_client(avatar_name_color, client, av->getTE(0)->getID());
+			if(client == "")client = "?";
+			element["columns"][LIST_CLIENT]["value"] = client.c_str();
+			//element["columns"][LIST_CLIENT]["color"] = avatar_name_color.getValue();
+		}else
+		{
+			element["columns"][LIST_CLIENT]["value"] = "Out Of Range";
+		}
+		element["columns"][LIST_CLIENT]["color"] = avatar_name_color.getValue();
 
 		// Add to list
 		mAvatarList->addElement(element, ADD_BOTTOM);

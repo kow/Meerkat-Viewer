@@ -10353,6 +10353,28 @@
     <key>Value</key>
     <string>secondlife</string>
   </map>
+  <key>CheckForUpdate</key>
+  <map>
+    <key>Comment</key>
+    <string>Check for new viewer version on startup</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>CheckForGridUpdates</key>
+  <map>
+    <key>Comment</key>
+    <string>Check for grid info updates on the web server</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>KeepAppearance</key>
   <map>
     <key>Comment</key>

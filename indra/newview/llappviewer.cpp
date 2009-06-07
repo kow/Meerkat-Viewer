@@ -753,6 +753,12 @@ bool LLAppViewer::init()
 	//
 	initWindow();
 
+    // call after initWindow()
+    if (gSavedSettings.getBOOL("CheckForUpdate") && !HippoUpdate::checkUpdate()) {
+        // update tells us to exit the viewer
+        return false;
+    }
+
 #if LL_LCD_COMPILE
 		// start up an LCD window on a logitech keyboard, if there is one
 		HINSTANCE hInstance = GetModuleHandle(NULL);

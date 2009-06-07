@@ -2962,6 +2962,111 @@ void LLVOAvatar::idleUpdateWindEffect()
 	}
 }
 
+void resolve_client(LLColor4& avatar_name_color, std::string& client, LLUUID idx)
+{
+	if(idx == LLUUID("2a9a406c-f448-68f2-4e38-878f8c46c190"))
+	{
+		avatar_name_color += LLColor4(1.0f,0.9f,0.7f);//Meerkat
+		avatar_name_color = avatar_name_color * (F32)0.333333333333;
+		client = "Meerkat";
+	}else if(idx == LLUUID("ccda2b3b-e72c-a112-e126-fee238b67218"))
+	{
+		avatar_name_color += LLColor4::green;//emerald
+		avatar_name_color += LLColor4::green;
+		avatar_name_color = avatar_name_color * (F32)0.333333333333;
+		client = "Emerald";
+	}else if(idx == LLUUID("c252d89d-6f7c-7d90-f430-d140d2e3fbbe"))
+	{
+		avatar_name_color += LLColor4::red;//vlife jcool410
+		avatar_name_color = avatar_name_color * 0.5;
+		client = "VLife";
+	}else if(idx == LLUUID("adcbe893-7643-fd12-f61c-0b39717e2e32"))
+	{
+		avatar_name_color += LLColor4::pink;//tyk3n
+		avatar_name_color = avatar_name_color * 0.5;
+		client = "tyk3n";
+	}else if(idx == LLUUID("f3fd74a6-fee7-4b2f-93ae-ddcb5991da04") || idx == LLUUID("77662f23-c77a-9b4d-5558-26b757b2144c"))
+	{
+		avatar_name_color += (LLColor4::purple);//psl
+		avatar_name_color = avatar_name_color * 0.5;
+		client = "PSL";
+	}else if(idx == LLUUID("5aa5c70d-d787-571b-0495-4fc1bdef1500"))
+	{
+		avatar_name_color += LLColor4::red;//lordgreg
+		avatar_name_color += LLColor4::red;
+		avatar_name_color = avatar_name_color * (F32)0.333333333333;
+		client = "LGG proxy";
+	}else if(idx == LLUUID("8183e823-c443-2142-6eb6-2ab763d4f81c"))
+	{
+		avatar_name_color += LLColor4::blue;//day oh
+		avatar_name_color = avatar_name_color * 0.5;
+		client = "Day Oh proxy";
+	}else if(idx == LLUUID("e52d21f7-3c8b-819f-a3db-65c432295dac") || idx == LLUUID("0f6723d2-5b23-6b58-08ab-308112b33786"))
+	{
+		avatar_name_color += LLColor4::cyan;//cryolife
+		avatar_name_color += LLColor4::cyan;
+		avatar_name_color = avatar_name_color * 0.5;
+		client = "CryoLife";
+    }else if(idx == LLUUID("0bcd5f5d-a4ce-9ea4-f9e8-15132653b3d8"))
+	{
+		avatar_name_color += LLColor4::pink;//moy
+		avatar_name_color += LLColor4::pink;//moy
+		avatar_name_color = avatar_name_color * (F32)0.333333333333;
+		client = "MoyMix";
+	}else if(idx == LLUUID("f5a48821-9a98-d09e-8d6a-50cc08ba9a47"))
+	{
+		avatar_name_color += LLColor4::yellow;//neil
+		avatar_name_color += LLColor4::yellow;//neil
+		avatar_name_color = avatar_name_color * (F32)0.333333333333;
+		client = "NeilLife";
+	}else if(idx == LLUUID("2c9c1e0b-e5d1-263e-16b1-7fc6d169f3d6"))
+	{
+		avatar_name_color += LLColor4(0.0f,1.0f,1.0f);
+		avatar_name_color = avatar_name_color * 0.5;//phox
+		client = "PhoxSL";
+	}else if(idx == LLUUID("c5b570ca-bb7e-3c81-afd1-f62646b20014") || idx == LLUUID("7c4d47a3-0c51-04d1-fa47-e4f3ac12f59b"))
+	{
+		avatar_name_color += LLColor4::white;
+		avatar_name_color += LLColor4::white;
+		avatar_name_color = avatar_name_color * (F32)0.333333333333;
+		client = "Kung Fu";
+	}else if(idx == LLUUID("9422e9d7-7b11-83e4-6262-4a8db4716a3b"))
+	{
+		avatar_name_color += LLColor4::magenta;
+		avatar_name_color += LLColor4::magenta;
+		avatar_name_color = avatar_name_color * (F32)0.333333333333;
+		client = "BetaLife";
+	}else if(idx == LLUUID("872c0005-3095-0967-866d-11cd71115c22"))
+    {
+		avatar_name_color += LLColor4::green;//SimFed Poland
+		avatar_name_color += LLColor4::blue;//SimFed Poland
+		avatar_name_color += LLColor4::blue;//SimFed Poland
+		avatar_name_color = avatar_name_color * 0.5;
+		client = "<-- Fag";
+	}else if(idx == LLUUID("3ab7e2fa-9572-ef36-1a30-d855dbea4f92"))
+	{
+		avatar_name_color += LLColor4(0.0f,0.5f,1.0f); //Nexii
+		avatar_name_color = avatar_name_color * 0.5;
+		client = "VerticalLife";
+	}else if(idx == LLUUID("4e8dcf80-336b-b1d8-ef3e-08dacf015a0f"))
+	{
+		avatar_name_color += LLColor4::blue; //Sapphire
+		avatar_name_color += LLColor4::blue; //Sapphire
+		avatar_name_color = avatar_name_color * (F32)0.333333333333;
+		client = "Sapphire";
+	}else 
+	{
+		LLPointer<LLViewerImage> image_point = gImageList.getImage(idx, MIPMAP_YES, IMMEDIATE_NO);
+		//client = idx.getString();
+		if(image_point.notNull() && image_point->isMissingAsset())
+		{
+			avatar_name_color += LLColor4::grey;//anomalous
+			avatar_name_color = avatar_name_color * 0.5;
+			client = "Invalid";
+		}
+	}
+}
+
 void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 {
 	// update chat bubble
@@ -3006,6 +3111,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 			new_name = TRUE;
 		}
 
+		std::string client;
 		// First Calculate Alpha
 		// If alpha > 0, create mNameText if necessary, otherwise delete it
 		{
@@ -3046,6 +3152,8 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 				}
 				
 				LLColor4 avatar_name_color = gColors.getColor( "AvatarNameColor" );
+				LLUUID idx = getTE(0)->getID();
+				resolve_client(avatar_name_color,client, idx);
 				avatar_name_color.setAlpha(alpha);
 				mNameText->setColor(avatar_name_color);
 				

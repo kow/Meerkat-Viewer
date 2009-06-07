@@ -541,6 +541,7 @@ set(viewer_HEADER_FILES
     llfloateranimpreview.h
     llfloaterauction.h
     llfloateravatarinfo.h
+	llfloateravatarlist.h
     llfloateravatarpicker.h
     llfloateravatartextures.h
     llfloaterbuildoptions.h
