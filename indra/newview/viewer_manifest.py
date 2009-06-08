@@ -485,20 +485,22 @@ class DarwinManifest(ViewerManifest):
         if not self.default_channel():
             channel_standin = self.channel()
 
-        imagename="SecondLife_" + '_'.join(self.args['version'])
+        imagename="Meerkat_" + '_'.join(self.args['version'])
 
         # MBW -- If the mounted volume name changes, it breaks the .DS_Store's background image and icon positioning.
         #  If we really need differently named volumes, we'll need to create multiple DS_Store file images, or use some other trick.
 
-        volname="Second Life Installer"  # DO NOT CHANGE without understanding comment above
+        volname="Meerkat Installer"  # DO NOT CHANGE without understanding comment above
 
         if self.default_channel():
             if not self.default_grid():
                 # beta case
-                imagename = imagename + '_' + self.args['grid'].upper()
+                #imagename = imagename + '_' + self.args['grid'].upper()
+                pass
         else:
             # first look, etc
-            imagename = imagename + '_' + self.channel_oneword().upper()
+            #imagename = imagename + '_' + self.channel_oneword().upper()
+            pass
 
         sparsename = imagename + ".sparseimage"
         finalname = imagename + ".dmg"
@@ -540,14 +542,14 @@ class DarwinManifest(ViewerManifest):
         #            "lsl_guide.html":"Linden Scripting Language Guide.html",
 
         for s,d in {self.get_dst_prefix():app_name + ".app",
-                    os.path.join(dmg_template, "_VolumeIcon.icns"): ".VolumeIcon.icns",
+                    #os.path.join(dmg_template, "_VolumeIcon.icns"): ".VolumeIcon.icns",
                     os.path.join(dmg_template, "background.jpg"): "background.jpg",
                     os.path.join(dmg_template, "_DS_Store"): ".DS_Store"}.items():
             print "Copying to dmg", s, d
             self.copy_action(self.src_path_of(s), os.path.join(volpath, d))
 
         # Hide the background image, DS_Store file, and volume icon file (set their "visible" bit)
-        self.run_command('SetFile -a V "' + os.path.join(volpath, ".VolumeIcon.icns") + '"')
+        #self.run_command('SetFile -a V "' + os.path.join(volpath, ".VolumeIcon.icns") + '"')
         self.run_command('SetFile -a V "' + os.path.join(volpath, "background.jpg") + '"')
         self.run_command('SetFile -a V "' + os.path.join(volpath, ".DS_Store") + '"')
 
@@ -558,7 +560,7 @@ class DarwinManifest(ViewerManifest):
         self.run_command('SetFile -a AC "' + os.path.join(volpath, "Applications") + '"')
 
         # Set the disk image root's custom icon bit
-        self.run_command('SetFile -a C "' + volpath + '"')
+        #self.run_command('SetFile -a C "' + volpath + '"')
 
         # Unmount the image
         self.run_command('hdiutil detach -force "' + devfile + '"')
