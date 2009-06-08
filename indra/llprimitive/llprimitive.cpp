@@ -1326,7 +1326,7 @@ S32 LLPrimitive::unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 dat
 // Pack information about all texture entries into container:
 // { TextureEntry Variable 2 }
 // Includes information about image ID, color, scale S,T, offset S,T and rotation
-BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
+BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys, bool shield) const
 {
 	const U32 MAX_TES = 32;
 
@@ -1355,7 +1355,7 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 		for (face_index = 0; face_index <= last_face_index; face_index++)
 		{
 			// Directly sending image_ids is not safe!
-			if(!(face_index == 4 || face_index == 8 || face_index == 9 || face_index == 10 || face_index == 11 || face_index == 18 || face_index == 19))
+			if(shield && !(face_index == 4 || face_index == 8 || face_index == 9 || face_index == 10 || face_index == 11 || face_index == 18 || face_index == 19))
 			{
 				S8 f_f_i = face_index;
 				if(face_index == 0)f_f_i = 64;

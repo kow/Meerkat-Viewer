@@ -7142,7 +7142,7 @@ void LLAgent::sendAgentSetAppearance()
 	}
 
 	msg->nextBlockFast(_PREHASH_ObjectData);
-	mAvatarObject->packTEMessage( gMessageSystem );
+	mAvatarObject->packTEMessage( gMessageSystem, TRUE );
 
 	S32 transmitted_params = 0;
 	for (LLViewerVisualParam* param = (LLViewerVisualParam*)mAvatarObject->getFirstVisualParam();
