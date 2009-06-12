@@ -34,6 +34,7 @@
 
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
+#include "llstartup.h"
 
  #include "hippoGridManager.h"
 
@@ -43,7 +44,49 @@ unsigned char gMACAddress[MAC_ADDRESS_BYTES];		/* Flawfinder: ignore */
 
 void LLViewerLogin::getLoginURIs(std::vector<std::string>& uris) const
 {
-	uris.push_back(gHippoGridManager->getConnectedGrid()->getLoginUri());
+	// return the login uri set on the command line.
+	LLControlVariable* c = gSavedSettings.getControl("CmdLineLoginURI");
+	if(c && !LLStartUp::shouldAutoLogin())
+	{
+		LLSD v = c->getValue();
+		if(v.isArray())
+		{
+			for(LLSD::array_const_iterator itr = v.beginArray();
+				itr != v.endArray(); ++itr)
+			{
+				std::string uri = itr->asString();
+				if(!uri.empty())
+				{
+					uris.push_back(uri);
+				}
+			}
+		}
+		else
+		{
+			std::string uri = v.asString();
+			if(!uri.empty())
+			{
+				uris.push_back(uri);
+			}
+		}
+	}
+	
+	// If there was no command line uri...
+	if(uris.empty())
+	{
+		uris.push_back(gHippoGridManager->getConnectedGrid()->getLoginUri());
+		/*
+		// If its a known grid choice, get the uri from the table,
+		// else try the grid name.
+		if(mGridChoice > GRID_INFO_NONE && mGridChoice < GRID_INFO_OTHER)
+		{
+			uris.push_back(gGridInfo[mGridChoice].mLoginURI);
+		}
+		else
+		{
+			uris.push_back(mGridName);
+		} */
+	}
 }
 
 const std::string &LLViewerLogin::getGridLabel() const

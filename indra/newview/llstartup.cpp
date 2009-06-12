@@ -429,7 +429,7 @@ bool idle_startup()
 		{
 			// *TODO:translate (maybe - very unlikely error message)
 			// Note: alerts.xml may be invalid - if this gets translated it will need to be in the code
-			std::string bad_xui_msg = "An error occured while updating Meerkat. Please download the latest version from www.secondlife.com.";
+			std::string bad_xui_msg = "An error occured while updating Meerkat. Please download the latest version from www.meerkatviewer.org.";
             LLAppViewer::instance()->earlyExit(bad_xui_msg);
 		}
 		//
@@ -637,7 +637,7 @@ bool idle_startup()
 
 			show_connect_box = false;
 		}
-        else if(gSavedSettings.getLLSD("UserLoginInfo").size() == 3)
+        else if((gSavedSettings.getLLSD("UserLoginInfo").size() == 3) && !LLStartUp::shouldAutoLogin())
         {
             LLSD cmd_line_login = gSavedSettings.getLLSD("UserLoginInfo");
 			firstname = cmd_line_login[0].asString();
@@ -1025,6 +1025,10 @@ bool idle_startup()
 		LLStringUtil::format_map_t args;
 		args["[APP_NAME]"] = LLAppViewer::instance()->getSecondLifeTitle();
 		auth_desc = LLTrans::getString("LoginInProgress", args);
+
+		//Since we are about to login, we don't want the client to attempt auto login
+		//again until the user does a grid2grid teleport.
+		LLStartUp::setShouldAutoLogin(false);
 		LLStartUp::setStartupState( STATE_LOGIN_AUTHENTICATE );
 	}
 
@@ -1584,6 +1588,8 @@ bool idle_startup()
 				gViewerWindow->alertXml("ErrorMessage", args, login_alert_done);
 				LLStartUp::resetLogin();
 				gSavedSettings.setBOOL("AutoLogin", FALSE);
+				//this might be redundant
+				LLStartUp::setShouldAutoLogin(false);
 				show_connect_box = true;
 			}
 			
@@ -1604,6 +1610,8 @@ bool idle_startup()
 			gViewerWindow->alertXml("ErrorMessage", args, login_alert_done);
 			LLStartUp::resetLogin();
 			gSavedSettings.setBOOL("AutoLogin", FALSE);
+			//this might be redundant
+			LLStartUp::setShouldAutoLogin(false);
 			show_connect_box = true;
 			// Don't save an incorrect password to disk.
 			save_password_to_disk(NULL);

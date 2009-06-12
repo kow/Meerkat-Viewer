@@ -1482,7 +1482,7 @@ void LLFloaterWorldMap::teleport()
 	std::string current_grid = gHippoGridManager->getConnectedGrid()->getGridNick();
 	
 	// BUG: the client crashes if fed an invalid grid through this interface, which shouldn't happen
-	if(grid_combo && grid_combo->getSelectedValue().asString() != current_grid &&
+	if(//grid_combo && grid_combo->getSelectedValue().asString() != current_grid || gSavedSettings.getBOOL("CmdLineLoginURI") &&
 		grid_combo->getSelectedValue().asString() != "None" &&
 		!grid_combo->getSelectedValue().asString().empty())
 	{
@@ -1503,6 +1503,7 @@ void LLFloaterWorldMap::teleport()
 		
 		gHippoGridManager->setCurrentGrid(gridInfo->getGridNick());
 		gHippoGridManager->setDefaultGrid(gridInfo->getGridNick());
+		//this doesn't work :( gSavedSettings.setBOOL("CmdLineLoginURI", FALSE);
 		LLStartUp::setShouldAutoLogin(true);
 		LLAppViewer::instance()->requestLogout(false);
 		return;
