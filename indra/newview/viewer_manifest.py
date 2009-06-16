@@ -236,19 +236,6 @@ class WindowsManifest(ViewerManifest):
             self.path("res/*/*")
             self.end_prefix()
 
-        # Vivox runtimes
-        if self.prefix(src="vivox-runtime/i686-win32", dst=""):
-            self.path("SLVoice.exe")
-            self.path("SLVoiceAgent.exe")
-            self.path("libeay32.dll")
-            self.path("srtp.dll")
-            self.path("ssleay32.dll")
-            self.path("tntk.dll")
-            self.path("vivoxsdk.dll")
-            self.path("ortp.dll")
-            self.path("wrap_oal.dll")
-            self.end_prefix()
-			
 		# Meerkat things
 	if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
             self.path("alut.dll")
@@ -296,9 +283,9 @@ class WindowsManifest(ViewerManifest):
             if installed_dir != out_path:
                 if install:
                     out_path = installed_dir
-                    result += 'SetOutPath ' + out_path + '\n'
+                    result += 'SetOutPath ' + ' "' + out_path + '" ' + '\n'
             if install:
-                result += 'File ' + pkg_file + '\n'
+                result += 'File ' + ' "' + pkg_file +'" ' + '\n'
             else:
                 result += 'Delete ' + wpath(os.path.join('$INSTDIR', rel_file)) + '\n'
         # at the end of a delete, just rmdir all the directories
@@ -383,7 +370,7 @@ class WindowsManifest(ViewerManifest):
             installer_file = installer_file % substitution_strings
         substitution_strings['installer_file'] = installer_file
 
-        tempfile = "secondlife_setup_tmp.nsi"
+        tempfile = "meerkat_setup_tmp.nsi"
         # the following replaces strings in the nsi template
         # it also does python-style % substitution
         self.replace_in("installers/windows/installer_template.nsi", tempfile, {
@@ -393,8 +380,8 @@ class WindowsManifest(ViewerManifest):
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
-        NSIS_path = 'C:\\Program Files\\NSIS\\makensis.exe'
-        self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
+        NSIS_path = r'"C:\\Program Files\\NSIS\\makensis.exe"'
+        self.run_command(NSIS_path + ' "' + self.dst_path_of(tempfile) + '" ')
         # self.remove(self.dst_path_of(tempfile))
         self.created_path(self.dst_path_of(installer_file))
         self.package_file = installer_file

@@ -39,6 +39,8 @@ import shutil
 import sys
 import tarfile
 import errno
+from subprocess import *
+from   sys   import   stdout 
 
 def path_ancestors(path):
     drive, path = os.path.splitdrive(os.path.normpath(path))
@@ -370,16 +372,16 @@ class LLManifest(object):
         debugging/informational purpoases, prints out the command's
         output as it is received."""
         print "Running command:", command
-        fd = os.popen(command, 'r')
+        out = Popen(command, stdout=PIPE)
         lines = []
         while True:
-            lines.append(fd.readline())
+            lines.append(out.stdout.readline())
             if lines[-1] == '':
                 break
             else:
                 print lines[-1],
         output = ''.join(lines)
-        status = fd.close()
+        status = out.wait()
         if status:
             raise RuntimeError(
                 "Command %s returned non-zero status (%s) \noutput:\n%s"

@@ -5,6 +5,10 @@
 ;;
 ;; NSIS 2.22 or higher required
 ;; Author: James Cook, Don Kjer, Callum Prentice
+;;
+;;
+;; Modified for Meerkat June 2009.
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -51,18 +55,18 @@ Name ${INSTNAME}
 SubCaption 0 $(LicenseSubTitleSetup)	; override "license agreement" text
 
 BrandingText " "						; bottom of window text
-Icon %%SOURCE%%\res\install_icon.ico	; our custom icon
-UninstallIcon %%SOURCE%%\res\uninstall_icon.ico    ; our custom icon
+Icon "%%SOURCE%%\res\install_icon.ico"	; our custom icon
+UninstallIcon "%%SOURCE%%\res\uninstall_icon.ico"    ; our custom icon
 WindowIcon on							; show our icon in left corner
 BGGradient off							; no big background window
 CRCCheck on								; make sure CRC is OK
 InstProgressFlags smooth colored		; new colored smooth look
-ShowInstDetails nevershow				; no details, no "show" button
+ShowInstDetails hide				; no details, no "show" button
 SetOverwrite on							; stomp files by default
-AutoCloseWindow true					; after all files install, close window
+AutoCloseWindow false					; after all files install, close window
 
 InstallDir "$PROGRAMFILES\${INSTNAME}"
-InstallDirRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" ""
+InstallDirRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\${INSTNAME}" ""
 !ifdef UPDATE
 DirText $(DirectoryChooseTitle) $(DirectoryChooseUpdate)
 !else
@@ -89,7 +93,7 @@ Var INSTSHORTCUT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function PostInstallExe
 push $0
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "PostInstallExe"
+  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "PostInstallExe"
   ;MessageBox MB_OK '$0'
   ExecWait '$0'
 pop $0
@@ -109,19 +113,19 @@ push $R0
   StrCpy $INSTPROG "$R0"
   StrCpy $INSTEXE "$R0.exe"
 
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" ""
+  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" ""
   ; If key doesn't exist, skip install
   IfErrors ABORT
   StrCpy $INSTDIR "$0"
 
   ; We now have a directory to install to.  Get the startup parameters and shortcut as well.
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Flags"
+  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Flags"
   IfErrors +2
   StrCpy $INSTFLAGS "$0"
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Shortcut"
+  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Shortcut"
   IfErrors +2
   StrCpy $INSTSHORTCUT "$0"
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Exe"
+  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Exe"
   IfErrors +2
   StrCpy $INSTEXE "$0"
   Goto FINISHED
@@ -149,19 +153,19 @@ push $R0
   StrCpy $INSTPROG "$R0"
   StrCpy $INSTEXE "$R0.exe"
 
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" ""
+  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" ""
   ; If key doesn't exist, skip install
   IfErrors ABORT
   StrCpy $INSTDIR "$0"
 
   ; We now have a directory to install to.  Get the startup parameters and shortcut as well.
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Flags"
+  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Flags"
   IfErrors +2
   StrCpy $INSTFLAGS "$0"
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Shortcut"
+  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Shortcut"
   IfErrors +2
   StrCpy $INSTSHORTCUT "$0"
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Exe"
+  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Exe"
   IfErrors +2
   StrCpy $INSTEXE "$0"
   Goto FINISHED
@@ -187,6 +191,7 @@ Function .onInstSuccess
 	NoReadme:
 FunctionEnd
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Remove old NSIS version. Modifies no variables.
 ; Does NOT delete the LindenWorld directory, or any
@@ -196,15 +201,10 @@ Function RemoveNSIS
   Push $0
   ; Grab the installation directory of the old version
   DetailPrint $(RemoveOldNSISVersion)
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" ""
+  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" ""
 
   ; If key doesn't exist, skip uninstall
   IfErrors NO_NSIS
-
-  ; Clean up legacy beta shortcuts
-  Delete "$SMPROGRAMS\Second Life Beta.lnk"
-  Delete "$DESKTOP\Second Life Beta.lnk"
-  Delete "$SMPROGRAMS\Second Life.lnk"
   
   ; Clean up old newview.exe file
   Delete "$INSTDIR\newview.exe"
@@ -272,7 +272,7 @@ FunctionEnd
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckIfAlreadyCurrent
   Push $0
-	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Version"
+	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Version"
     StrCmp $0 ${VERSION_LONG} 0 DONE
 	MessageBox MB_OKCANCEL $(CheckIfCurrentMB) /SD IDOK IDOK DONE
     Quit
@@ -286,21 +286,21 @@ FunctionEnd
 ; Close the program, if running. Modifies no variables.
 ; Allows user to bail out of install process.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function CloseSecondLife
+Function CloseMeerkat
   Push $0
-  FindWindow $0 "Second Life" ""
+  FindWindow $0 "Meerkat" ""
   IntCmp $0 0 DONE
-  MessageBox MB_OKCANCEL $(CloseSecondLifeInstMB) IDOK CLOSE IDCANCEL CANCEL_INSTALL
+  MessageBox MB_OKCANCEL $(CloseMeerkatInstMB) IDOK CLOSE IDCANCEL CANCEL_INSTALL
 
   CANCEL_INSTALL:
     Quit
 
   CLOSE:
-    DetailPrint $(CloseSecondLifeInstDP)
+    DetailPrint $(CloseMeerkatInstDP)
     SendMessage $0 16 0 0
 
   LOOP:
-	  FindWindow $0 "Second Life" ""
+	  FindWindow $0 "Meerkat" ""
 	  IntCmp $0 0 DONE
 	  Sleep 500
 	  Goto LOOP
@@ -312,12 +312,12 @@ FunctionEnd
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Delete files in Documents and Settings\<user>\SecondLife\cache
-; Delete files in Documents and Settings\All Users\SecondLife\cache
+; Delete files in Documents and Settings\<user>\Meerkat\cache
+; Delete files in Documents and Settings\All Users\Meerkat\cache
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Function RemoveCacheFiles
 ;
-;; Delete files in Documents and Settings\<user>\SecondLife
+;; Delete files in Documents and Settings\<user>\Meerkat
 ;Push $0
 ;Push $1
 ;Push $2
@@ -336,7 +336,7 @@ FunctionEnd
 ;    ExpandEnvStrings $2 $2
 ;
 ;	; When explicitly uninstalling, everything goes away
-;    RMDir /r "$2\Application Data\SecondLife\cache"
+;    RMDir /r "$2\Application Data\Meerkat\cache"
 ;
 ;  CONTINUE:
 ;    IntOp $0 $0 + 1
@@ -346,17 +346,17 @@ FunctionEnd
 ;Pop $1
 ;Pop $0
 ;
-;; Delete files in Documents and Settings\All Users\SecondLife
+;; Delete files in Documents and Settings\All Users\Meerkat
 ;Push $0
 ;  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
 ;  StrCmp $0 "" +2
-;  RMDir /r "$0\SecondLife\cache"
+;  RMDir /r "$0\Meerkat\cache"
 ;Pop $0
 ;
-;; Delete filse in C:\Windows\Application Data\SecondLife
+;; Delete filse in C:\Windows\Application Data\Meerkat
 ;; If the user is running on a pre-NT system, Application Data lives here instead of
 ;; in Documents and Settings.
-;RMDir /r "$WINDIR\Application Data\SecondLife\cache"
+;RMDir /r "$WINDIR\Application Data\Meerkat\cache"
 ;
 ;FunctionEnd
 
@@ -406,12 +406,12 @@ FunctionEnd
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Delete files in Documents and Settings\<user>\SecondLife
-; Delete files in Documents and Settings\All Users\SecondLife
+; Delete files in Documents and Settings\<user>\Meerkat
+; Delete files in Documents and Settings\All Users\Meerkat
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.DocumentsAndSettingsFolder
 
-; Delete files in Documents and Settings\<user>\SecondLife
+; Delete files in Documents and Settings\<user>\Meerkat
 Push $0
 Push $1
 Push $2
@@ -434,11 +434,11 @@ Push $2
 	; Otherwise (preview/dmz etc) just remove cache
     StrCmp $INSTFLAGS "" RM_ALL RM_CACHE
       RM_ALL:
-        RMDir /r "$2\Application Data\SecondLife"
+        RMDir /r "$2\Application Data\Meerkat"
         GoTo CONTINUE
       RM_CACHE:
-        RMDir /r "$2\Application Data\SecondLife\Cache"
-        Delete "$2\Application Data\SecondLife\user_settings\settings_windlight.xml"
+        RMDir /r "$2\Application Data\Meerkat\Cache"
+        Delete "$2\Application Data\Meerkat\user_settings\settings_windlight.xml"
 
   CONTINUE:
     IntOp $0 $0 + 1
@@ -449,17 +449,17 @@ Pop $2
 Pop $1
 Pop $0
 
-; Delete files in Documents and Settings\All Users\SecondLife
+; Delete files in Documents and Settings\All Users\Meerkat
 Push $0
   ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
   StrCmp $0 "" +2
-  RMDir /r "$0\SecondLife"
+  RMDir /r "$0\Meerkat"
 Pop $0
 
-; Delete filse in C:\Windows\Application Data\SecondLife
+; Delete filse in C:\Windows\Application Data\Meerkat
 ; If the user is running on a pre-NT system, Application Data lives here instead of
 ; in Documents and Settings.
-RMDir /r "$WINDIR\Application Data\SecondLife"
+RMDir /r "$WINDIR\Application Data\Meerkat"
 
 FunctionEnd
 
@@ -467,21 +467,21 @@ FunctionEnd
 ; Close the program, if running. Modifies no variables.
 ; Allows user to bail out of uninstall process.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function un.CloseSecondLife
+Function un.CloseMeerkat
   Push $0
-  FindWindow $0 "Second Life" ""
+  FindWindow $0 "Meerkat" ""
   IntCmp $0 0 DONE
-  MessageBox MB_OKCANCEL $(CloseSecondLifeUnInstMB) IDOK CLOSE IDCANCEL CANCEL_UNINSTALL
+  MessageBox MB_OKCANCEL $(CloseMeerkatUnInstMB) IDOK CLOSE IDCANCEL CANCEL_UNINSTALL
 
   CANCEL_UNINSTALL:
     Quit
 
   CLOSE:
-    DetailPrint $(CloseSecondLifeUnInstDP)
+    DetailPrint $(CloseMeerkatUnInstDP)
     SendMessage $0 16 0 0
 
   LOOP:
-	  FindWindow $0 "Second Life" ""
+	  FindWindow $0 "Meerkat" ""
 	  IntCmp $0 0 DONE
 	  Sleep 500
 	  Goto LOOP
@@ -499,10 +499,10 @@ FunctionEnd
 ;
 Function un.RemovePassword
 
-DetailPrint "Removing Second Life password"
+DetailPrint "Removing Meerkat password"
 
 SetShellVarContext current
-Delete "$APPDATA\SecondLife\user_settings\password.dat"
+Delete "$APPDATA\Meerkat\user_settings\password.dat"
 SetShellVarContext all
 
 FunctionEnd
@@ -529,8 +529,8 @@ Delete "$INSTDIR\dronesettings.ini"
 Delete "$INSTDIR\message_template.msg"
 Delete "$INSTDIR\newview.pdb"
 Delete "$INSTDIR\newview.map"
-Delete "$INSTDIR\SecondLife.pdb"
-Delete "$INSTDIR\SecondLife.map"
+Delete "$INSTDIR\Meerkat.pdb"
+Delete "$INSTDIR\Meerkat.map"
 Delete "$INSTDIR\comm.dat"
 Delete "$INSTDIR\*.glsl"
 Delete "$INSTDIR\motions\*.lla"
@@ -584,12 +584,12 @@ Call un.CheckIfAdministrator		; Make sure the user can install/uninstall
 SetShellVarContext all			
 
 ; Make sure we're not running
-Call un.CloseSecondLife
+Call un.CloseMeerkat
 
 ; Clean up registry keys (these should all be !defines somewhere)
-DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG"
+DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG"
 DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG"
-DeleteRegKey HKEY_LOCAL_MACHINE "Software\Linden Research, Inc.\Installer Language" 
+DeleteRegKey HKEY_LOCAL_MACHINE "Software\Open Metaverse Foundation\Installer Language" 
 
 ; Clean up shortcuts
 Delete "$SMPROGRAMS\$INSTSHORTCUT\*.*"
@@ -724,11 +724,11 @@ SectionEnd 				; end of uninstall section
 !macroend
 
 Function GetProgramName
-  !insertmacro GetParameterValue "/P=" "SecondLife"
+  !insertmacro GetParameterValue "/P=" "Meerkat"
 FunctionEnd
 
 Function un.GetProgramName
-  !insertmacro GetParameterValue "/P=" "SecondLife"
+  !insertmacro GetParameterValue "/P=" "Meerkat"
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -822,6 +822,65 @@ Function GetWindowsVersion
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; GetSLVoice asks the user if they would like to download SLVoice binaries
+;; and downloads a Meerkat compatible slvoice bundle.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function GetSLVoice
+  MessageBox MB_YESNO "Meerkat installed successfully!$\nWould you like to download and install SLVoice now?" IDNO skip
+
+  Call ConnectInternet ;Make an internet connection (if no connection available)
+  
+  StrCpy $2 "$TEMP\slvoice.zip"
+  NSISdl::download http://www.meerkatviewer.org/slvoice.zip $2
+  Pop $0
+  StrCmp $0 success success
+    SetDetailsView show
+    DetailPrint "download failed: $0"
+    Abort
+  success:
+    ; Call plug-in. Push filename to ZIP first, and the dest. folder last.
+    nsisunz::UnzipToLog "$2" "$INSTDIR"
+ 
+    ; Always check result on stack
+    Pop $0
+    StrCmp $0 "SLVoice Installed!" ok
+    DetailPrint "$0" ;print error message to log
+    ok:
+        Delete $2
+        StrCpy $INSTDIR $0
+  skip:
+  
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ConnectInternet checks for an internet connection
+;; and reports any errors.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function ConnectInternet
+
+  Push $R0
+    
+    ClearErrors
+    Dialer::AttemptConnect
+    IfErrors noie3
+    
+    Pop $R0
+    StrCmp $R0 "online" connected
+      MessageBox MB_OK|MB_ICONSTOP "Cannot connect to the internet."
+      Quit
+    
+    noie3:
+  
+    ; IE3 not installed
+    MessageBox MB_OK|MB_ICONINFORMATION "Please connect to the internet now."
+    
+    connected:
+  
+  Pop $R0
+  
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Note: to add new languages, add a language file include to the list 
 ;;  at the top of this file, add an entry to the menu and then add an 
 ;;  entry to the language ID selector below
@@ -829,7 +888,7 @@ FunctionEnd
 Function .onInit
 
 	; read the language from registry (ok if not there) and set langauge menu
-	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
+	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\${INSTNAME}" "InstallerLanguage"
 	StrCpy $LANGUAGE $0
 
 	Push ""
@@ -848,14 +907,14 @@ Function .onInit
 		Abort
 
 	; save language in registry		
-	WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage" $LANGUAGE
+	WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\${INSTNAME}" "InstallerLanguage" $LANGUAGE
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.onInit
 
 	; read language from registry and set for ininstaller
-	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
+	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\${INSTNAME}" "InstallerLanguage"
 	StrCpy $LANGUAGE $0
 
 FunctionEnd
@@ -881,7 +940,7 @@ NOT_SILENT:
 Call CheckWindowsVersion		; warn if on Windows 98/ME
 Call CheckIfAdministrator		; Make sure the user can install/uninstall
 Call CheckIfAlreadyCurrent		; Make sure that we haven't already installed this version
-Call CloseSecondLife			; Make sure we're not running
+Call CloseMeerkat			; Make sure we're not running
 Call RemoveNSIS					; Check for old NSIS install to remove
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -918,23 +977,7 @@ SetOutPath "$INSTDIR"
 CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT.lnk" \
 				"$INSTDIR\$INSTEXE" "$INSTFLAGS"
 
-!ifdef MUSEUM
-CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT Museum.lnk" \
-
-				"$INSTDIR\$INSTEXE" "$INSTFLAGS -simple"
-CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT Museum Spanish.lnk" \
-
-				"$INSTDIR\$INSTEXE" "$INSTFLAGS -simple -spanish"
-!endif
-
-WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Create Trial Account.url" \
-				"InternetShortcut" "URL" \
-				"http://www.secondlife.com/registration/"
-WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Your Account.url" \
-				"InternetShortcut" "URL" \
-				"http://www.secondlife.com/account/"
-CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\SL Scripting Language Help.lnk" \
-				"$INSTDIR\lsl_guide.html"
+                
 CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\Uninstall $INSTSHORTCUT.lnk" \
 				'"$INSTDIR\uninst.exe"' '/P="$INSTPROG"'
 
@@ -946,24 +989,14 @@ CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS"
 CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" \
 				'"$INSTDIR\uninst.exe"' '/P="$INSTPROG"'
 
-!ifdef MUSEUM
-CreateShortCut "$DESKTOP\$INSTSHORTCUT Museum.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS -simple"
-
-CreateShortCut "$DESKTOP\$INSTSHORTCUT Museum Spanish.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS -simple -spanish"
-
-CreateShortCut "$INSTDIR\$INSTSHORTCUT Museum.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS -simple"
-
-CreateShortCut "$INSTDIR\$INSTSHORTCUT Museum Spanish.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS -simple -spanish"
-
-!endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Write registry
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "" "$INSTDIR"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Version" "${VERSION_LONG}"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Flags" "$INSTFLAGS"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Shortcut" "$INSTSHORTCUT"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Exe" "$INSTEXE"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "" "$INSTDIR"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Version" "${VERSION_LONG}"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Flags" "$INSTFLAGS"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Shortcut" "$INSTSHORTCUT"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Exe" "$INSTEXE"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayName" "$INSTPROG (remove only)"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "UninstallString" '"$INSTDIR\uninst.exe" /P="$INSTPROG"'
 
@@ -983,6 +1016,8 @@ Call PostInstallExe
 WRITE_UNINST:
 ; write out uninstaller
 WriteUninstaller "$INSTDIR\uninst.exe"
+
+Call GetSLVoice ; ?
 
 ; end of default section
 SectionEnd
