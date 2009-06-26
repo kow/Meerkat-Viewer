@@ -196,7 +196,14 @@ BOOL LLAudioChannelOpenAL::updateBuffer()
 		// set up the source for a different buffer.
 		LLAudioBufferOpenAL *bufferp = (LLAudioBufferOpenAL *)mCurrentSourcep->getCurrentBuffer();
 		alSourcei(ALSource, AL_BUFFER, bufferp->getBuffer());
+		//alSourcef(ALSource, AL_GAIN, mCurrentSourcep->getGain());
+		//alSourcei(ALSource, AL_LOOPING, mCurrentSourcep->isLoop() ? AL_TRUE : AL_FALSE);
+	}
+	
+	if (mCurrentSourcep)
+	{
 		alSourcef(ALSource, AL_GAIN, mCurrentSourcep->getGain());
+		alSourcef(ALSource, AL_MAX_GAIN, getSecondaryGain());
 		alSourcei(ALSource, AL_LOOPING, mCurrentSourcep->isLoop() ? AL_TRUE : AL_FALSE);
 	}
 
