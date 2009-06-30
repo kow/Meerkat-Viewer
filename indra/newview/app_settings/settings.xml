@@ -10413,5 +10413,27 @@
       <integer>0</integer>
     </array>
   </map>
+  <key>MeerkatDoubleClickTeleport</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable double click teleportation</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatVelocityDoubleClickTeleport</key>
+  <map>
+    <key>Comment</key>
+    <string>Interpolate double click teleportation</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   </map>
 </llsd>

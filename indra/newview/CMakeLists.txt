@@ -285,6 +285,7 @@ set(viewer_SOURCE_FILES
     llpanellandobjects.cpp
     llpanellandoptions.cpp
     llpanellogin.cpp
+    llpanelmeerkat.cpp
     llpanelmorph.cpp
     llpanelmsgs.cpp
     llpanelnetwork.cpp
@@ -696,6 +697,7 @@ set(viewer_HEADER_FILES
     llpanellandoptions.h
     llpanelLCD.h
     llpanellogin.h
+    llpanelmeerkat.h
     llpanelmorph.h
     llpanelmsgs.h
     llpanelnetwork.h

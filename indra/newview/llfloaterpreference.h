@@ -49,6 +49,7 @@ class LLPanelAudioPrefs;
 class LLPanelDebug;
 class LLPanelNetwork;
 class LLPanelWeb;
+class LLPanelMeerkat;
 class LLPanelDatabase;
 class LLMessageSystem;
 class LLPrefsChat;
@@ -57,7 +58,6 @@ class LLPrefsIM;
 class LLPanelMsgs;
 class LLPanelSkins;
 class LLScrollListCtrl;
-class PasswordsPrefPanel;
 
 class LLPreferenceCore
 {
@@ -92,9 +92,9 @@ private:
 	LLPrefsIM				*mPrefsIM;
 	LLPanelWeb				*mWebPanel;
 	LLPanelMsgs				*mMsgPanel;
-	PasswordsPrefPanel		*mPasswordsPanel;
 	LLPanelLCD				*mLCDPanel;
-	LLPanelDatabase				*mDBPanel;
+	LLPanelDatabase			*mDBPanel;
+	LLPanelMeerkat			*mMeerkatPanel;
 };
 
 // Floater to control preferences (display, audio, bandwidth, general.

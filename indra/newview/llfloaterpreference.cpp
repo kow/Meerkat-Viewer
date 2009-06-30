@@ -62,6 +62,7 @@
 #include "llpanelweb.h"
 #include "llpaneldatabase.h"
 #include "llpanelskins.h"
+#include "llpanelmeerkat.h"
 #include "llprefschat.h"
 #include "llprefsvoice.h"
 #include "llprefsim.h"
@@ -76,7 +77,6 @@
 #include "llkeyboard.h"
 #include "llscrollcontainer.h"
 #include "llfloaterhardwaresettings.h"
-#include "prefpanelpasswords.h"
 
 const S32 PREF_BORDER = 4;
 const S32 PREF_PAD = 5;
@@ -188,10 +188,6 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainer* tab_container, LLButton * def
 	mTabContainer->addTabPanel(mMsgPanel, mMsgPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mMsgPanel->setDefaultBtn(default_btn);
 	
-	mPasswordsPanel = new PasswordsPrefPanel();
-	mTabContainer->addTabPanel(mPasswordsPanel, mPasswordsPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mPasswordsPanel->setDefaultBtn(default_btn);
-	
 	mSkinsPanel = new LLPanelSkins();
 	mTabContainer->addTabPanel(mSkinsPanel, mSkinsPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mSkinsPanel->setDefaultBtn(default_btn);
@@ -200,6 +196,10 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainer* tab_container, LLButton * def
 	mTabContainer->addTabPanel(mDBPanel, mDBPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mDBPanel->setDefaultBtn(default_btn);
 
+	mMeerkatPanel = new LLPanelMeerkat();
+	mTabContainer->addTabPanel(mMeerkatPanel, mMeerkatPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
+	mMeerkatPanel->setDefaultBtn(default_btn);
+	
 	if (!mTabContainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 	{
 		mTabContainer->selectFirstTab();
@@ -259,10 +259,10 @@ LLPreferenceCore::~LLPreferenceCore()
 		delete mSkinsPanel;
 		mSkinsPanel = NULL;
 	}
-	if (mPasswordsPanel)
+	if (mMeerkatPanel)
 	{
-		delete mPasswordsPanel;
-		mPasswordsPanel = NULL;
+		delete mMeerkatPanel;
+		mMeerkatPanel = NULL;
 	}
 
 }
@@ -278,8 +278,8 @@ void LLPreferenceCore::apply()
 	mPrefsVoice->apply();
 	mPrefsIM->apply();
 	mMsgPanel->apply();
-	mPasswordsPanel->apply();
 	mSkinsPanel->apply();
+	mMeerkatPanel->apply();
 
 	// hardware menu apply
 	LLFloaterHardwareSettings::instance()->apply();
@@ -308,8 +308,8 @@ void LLPreferenceCore::cancel()
 	mPrefsVoice->cancel();
 	mPrefsIM->cancel();
 	mMsgPanel->cancel();
-	mPasswordsPanel->cancel();
 	mSkinsPanel->cancel();
+	mMeerkatPanel->cancel();
 
 	// cancel hardware menu
 	LLFloaterHardwareSettings::instance()->cancel();

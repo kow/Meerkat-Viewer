@@ -2131,7 +2131,6 @@ class LLObjectCopyUUID : public view_listener_t
     }
 };
 
-
 class LLObjectEnableExport : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -2236,38 +2235,23 @@ class LLObjectImportUpload : public view_listener_t
 	}
 };
 
-
-
-
-
 bool handle_go_to()
 {
-	// JAMESDEBUG try simulator autopilot
-	std::vector<std::string> strings;
-	std::string val;
 	LLVector3d pos = LLToolPie::getInstance()->getPick().mPosGlobal;
-	val = llformat("%g", pos.mdV[VX]);
-	strings.push_back(val);
-	val = llformat("%g", pos.mdV[VY]);
-	strings.push_back(val);
-	val = llformat("%g", pos.mdV[VZ]);
-	strings.push_back(val);
-	send_generic_message("autopilot", strings);
-
-	LLViewerParcelMgr::getInstance()->deselectLand();
-
-	if (gAgent.getAvatarObject() && !gSavedSettings.getBOOL("AutoPilotLocksCamera"))
+	if(!gSavedSettings.getBOOL("MeerkatDoubleClickTeleport"))
 	{
-		gAgent.setFocusGlobal(gAgent.getFocusTargetGlobal(), gAgent.getAvatarObject()->getID());
-	}
-	else 
-	{
-		// Snap camera back to behind avatar
-		gAgent.setFocusOnAvatar(TRUE, ANIMATE);
-	}
+		// JAMESDEBUG try simulator autopilot
+		std::vector<std::string> strings;
+		std::string val;
+		val = llformat("%g", pos.mdV[VX]);
+		strings.push_back(val);
+		val = llformat("%g", pos.mdV[VY]);		strings.push_back(val);		val = llformat("%g", pos.mdV[VZ]);		strings.push_back(val);		send_generic_message("autopilot", strings);
+		LLViewerParcelMgr::getInstance()->deselectLand();
 
-	// Could be first use
-	LLFirstUse::useGoTo();
+		if (gAgent.getAvatarObject() && !gSavedSettings.getBOOL("AutoPilotLocksCamera"))
+		{			gAgent.setFocusGlobal(gAgent.getFocusTargetGlobal(), gAgent.getAvatarObject()->getID());		}		else 		{			// Snap camera back to behind avatar			gAgent.setFocusOnAvatar(TRUE, ANIMATE);		}		// Could be first use		LLFirstUse::useGoTo();	}else	{
+		LLVector3d got( 0.0f, 0.0f, 1.2f);
+		got += pos;		if(gSavedSettings.getBOOL("MeerkatVelocityDoubleClickTeleport"))got += ((LLVector3d)gAgent.getVelocity() * 0.25);		gAgent.teleportViaLocation(got);	}
 	return true;
 }
 
