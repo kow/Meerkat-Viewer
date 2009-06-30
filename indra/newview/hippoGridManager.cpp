@@ -450,7 +450,7 @@ void HippoGridManager::loadFromFile()
 		parseUrl("http://opensim-viewer.sourceforge.net/db/grids.php", !mGridInfo.empty());
 
 	setDefaultGrid(gSavedSettings.getString("DefaultGrid"));
-	setCurrentGrid(gSavedSettings.getString("CmdLineGridChoice"));
+	setCurrentGrid(gSavedSettings.getString("DefaultGrid"));
 }
 
 

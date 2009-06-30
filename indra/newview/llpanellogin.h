@@ -58,6 +58,7 @@ class LLLoginHandler : public LLCommandHandler
 	void parse(const LLSD& queryMap);
 
 	LLUUID mWebLoginKey;
+	std::string mGrid;
 	std::string mFirstName;
 	std::string mLastName;
 	std::string mPassword;

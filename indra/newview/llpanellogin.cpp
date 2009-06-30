@@ -136,9 +136,10 @@ void LLLoginHandler::parse(const LLSD& queryMap)
 	mWebLoginKey = queryMap["web_login_key"].asUUID();
 	mFirstName = queryMap["first_name"].asString();
 	mLastName = queryMap["last_name"].asString();
+	mGrid = queryMap["grid"].asString();
 
-	const std::string &grid = queryMap["grid"].asString();
-	if (grid != "") gHippoGridManager->setCurrentGrid(grid);
+	//const std::string &grid = queryMap["grid"].asString();
+	//if (grid != "") mGrid = grid;
 	std::string startLocation = queryMap["location"].asString();
 
 	if (startLocation == "specify")

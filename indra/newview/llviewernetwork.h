@@ -40,6 +40,7 @@
 class LLViewerLogin : public LLSingleton<LLViewerLogin>
 {
 public:
+	void resetURIs();
 	void getLoginURIs(std::vector<std::string>& uris) const;
 	const std::string &getGridLabel() const; 
 	const std::string &getLoginPage() const;

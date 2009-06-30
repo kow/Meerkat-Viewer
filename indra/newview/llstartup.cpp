@@ -342,6 +342,7 @@ bool idle_startup()
 	static std::string firstname;
 	static std::string lastname;
 	static LLUUID web_login_key;
+	static std::string grid;
 	static std::string password;
 	static std::vector<const char*> requested_options;
 
@@ -634,7 +635,13 @@ bool idle_startup()
 			firstname = gLoginHandler.mFirstName;
 			lastname = gLoginHandler.mLastName;
 			web_login_key = gLoginHandler.mWebLoginKey;
-
+			grid = gLoginHandler.mGrid;
+			if (grid != "") {
+				LLSD tmp;
+				tmp = LLSD::emptyArray();
+				tmp.append(grid);
+				gSavedSettings.setValue("CmdLineLoginURI", tmp);
+			}
 			show_connect_box = false;
 		}
         else if((gSavedSettings.getLLSD("UserLoginInfo").size() == 3) && !LLStartUp::shouldAutoLogin())

@@ -498,6 +498,7 @@ void LoginFloater::onClickApply(void *data)
 void LoginFloater::onClickDefault(void *data)
 {
 	sInstance->setDefault();
+	sInstance->refresh_grids();
 }
 
 //static

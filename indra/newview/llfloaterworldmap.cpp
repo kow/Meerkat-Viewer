@@ -60,6 +60,7 @@
 #include "lltracker.h"
 #include "llurldispatcher.h"
 #include "llviewermenu.h"
+#include "llviewernetwork.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llworldmap.h"
@@ -1503,8 +1504,9 @@ void LLFloaterWorldMap::teleport()
 		
 		gHippoGridManager->setCurrentGrid(gridInfo->getGridNick());
 		gHippoGridManager->setDefaultGrid(gridInfo->getGridNick());
-		//this doesn't work :( gSavedSettings.setBOOL("CmdLineLoginURI", FALSE);
 		LLStartUp::setShouldAutoLogin(true);
+		LLViewerLogin* vl = LLViewerLogin::getInstance();
+		vl->resetURIs();
 		LLAppViewer::instance()->requestLogout(false);
 		return;
 	}

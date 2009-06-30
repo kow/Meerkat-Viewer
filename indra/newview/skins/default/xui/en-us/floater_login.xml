@@ -155,7 +155,6 @@
   <check_box bottom="10" follows="left|bottom" font="SansSerifSmall" height="16"
 	     initial_value="false" label="Remember password"
 	     left_delta="165" mouse_opaque="true" name="remember_check" width="138" />
-       -->
   
   <check_box bottom="10" follows="left|bottom" font="SansSerifSmall" height="16"
      initial_value="false" label="secret level"
@@ -175,7 +174,7 @@
      height="24" label="Apply" label_selected="Apply" left="385"
      mouse_opaque="true" name="btn_apply" scale_image="TRUE" width="100" />
 	<button bottom="28" follows="right|bottom" font="SansSerif" halign="center"
-	     height="24" label="Quit" label_selected="Quit" left="490"
+	     height="24" label="Undo" label_selected="Undo" left="490"
 	     mouse_opaque="true" name="btn_cancel" scale_image="TRUE" width="100" />
   <!--
 	<combo_box allow_text_entry="true" bottom="32" follows="left|bottom" height="18"
