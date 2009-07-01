@@ -759,6 +759,15 @@ bool LLAppViewer::init()
         return false;
     }
 
+	{
+		BOOL download = gSavedSettings.getBOOL("MeerkatDownloadClientTags");
+
+		if(download)
+		{
+			LLVOAvatar::updateClientTags();
+		}
+	}
+
 #if LL_LCD_COMPILE
 		// start up an LCD window on a logitech keyboard, if there is one
 		HINSTANCE hInstance = GetModuleHandle(NULL);

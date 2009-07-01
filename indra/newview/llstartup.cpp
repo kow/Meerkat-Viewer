@@ -2195,6 +2195,18 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if (STATE_MISC == LLStartUp::getStartupState())
 	{
+		//more of kows hacks. here we do things that only get done on a relog.
+		if(LLStartUp::shouldAutoLogin()) {
+			LLVOAvatar* avatar = gAgent.getAvatarObject();
+			if (avatar) {
+
+				// Slam pending upload count to "unstick" things
+				bool slam_for_debug = true;
+				avatar->forceBakeAllTextures(slam_for_debug);
+			}
+		}
+
+
 		// We have a region, and just did a big inventory download.
 		// We can estimate the user's connection speed, and set their
 		// max bandwidth accordingly.  JC

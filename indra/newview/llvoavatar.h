@@ -1033,6 +1033,13 @@ private:
 	static  S32 sFreezeCounter ;
 public:
 	static void updateFreezeCounter(S32 counter = 0 ) ;
+
+	static bool updateClientTags();
+	static bool loadClientTags();
+
+	static LLSD sClientResolutionList;
+
+	static void resolveClient(LLColor4& avatar_name_color, std::string& client, LLVOAvatar* avatar);
 };
 
 #endif // LL_VO_AVATAR_H
