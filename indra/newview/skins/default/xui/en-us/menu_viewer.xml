@@ -7,14 +7,18 @@
 	     opaque="true" tear_off="true" width="243">
 		<tearoff_menu bottom="-10" enabled="true" height="10" label="~~~~~~~~~~~" left="0"
 		     mouse_opaque="true" name="~~~~~~~~~~~" width="243" />
-	    <menu_item_call enabled="false" hidden="false" label="Import" mouse_opaque="true" name="Import">
-            <on_click function="Object.Import" />
-            <on_enable function="Object.EnableImport" />
-        </menu_item_call>
-        <menu_item_call enabled="false" hidden="false" label="Upload + Import" mouse_opaque="true" name="Import">
-            <on_click function="Object.ImportUpload" />
-            <on_enable function="Object.EnableImport" />
-        </menu_item_call>
+    <menu bottom="-554" create_jump_keys="true" drop_shadow="true" enabled="true"
+     height="79" label="Import" left="0" mouse_opaque="false"
+     name="Import" opaque="true" tear_off="true" width="158">
+      <menu_item_call enabled="false" hidden="false" label="Import" mouse_opaque="true" name="Import">
+        <on_click function="Object.Import" />
+        <on_enable function="Object.EnableImport" />
+      </menu_item_call>
+      <menu_item_call enabled="false" hidden="false" label="Upload Textures + Import" mouse_opaque="true" name="Import">
+        <on_click function="Object.ImportUpload" />
+        <on_enable function="Object.EnableImport" />
+      </menu_item_call>
+    </menu>
 		<menu_item_call bottom="-29" enabled="true" height="19" label="Upload Image (L$[COST])..."
 		     left="0" mouse_opaque="true" name="Upload Image" shortcut="control|U"
 		     width="243">

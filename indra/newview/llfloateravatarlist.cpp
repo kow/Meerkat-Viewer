@@ -661,7 +661,6 @@ void LLFloaterAvatarList::expireAvatarList()
  * Only does anything if the avatar list is visible.
  * @author Dale Glass
  */
-void resolve_client(LLColor4& avatar_name_color, std::string& client, LLUUID idx);
 void LLFloaterAvatarList::refreshAvatarList()
 {
 
@@ -960,8 +959,12 @@ void LLFloaterAvatarList::refreshAvatarList()
 		LLVOAvatar *av = (LLVOAvatar*)gObjectList.findObject(av_id);
 		if(av)
 		{
-			resolve_client(avatar_name_color, client, av->getTE(0)->getID());
-			if(client == "")client = "?";
+			LLVOAvatar::resolveClient(avatar_name_color, client, av);
+			if(client == "")
+			{
+				avatar_name_color = gColors.getColor( "ScrollUnselectedColor" );
+				client = "?";
+			}
 			element["columns"][LIST_CLIENT]["value"] = client.c_str();
 			//element["columns"][LIST_CLIENT]["color"] = avatar_name_color.getValue();
 		}else

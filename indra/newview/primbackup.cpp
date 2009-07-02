@@ -229,9 +229,9 @@ primbackup::primbackup()
 	LLUICtrlFactory::getInstance()->buildFloater( this, "floater_prim_import.xml" );
 
 	// reposition floater from saved settings
-	LLRect rect = gSavedSettings.getRect( "FloaterPrimImport" );
-	reshape( rect.getWidth(), rect.getHeight(), FALSE );
-	setRect( rect );
+	//LLRect rect = gSavedSettings.getRect( "FloaterPrimImport" );
+	//reshape( rect.getWidth(), rect.getHeight(), FALSE );
+	//setRect( rect );
 
 	running=false;
 	textures.clear();
