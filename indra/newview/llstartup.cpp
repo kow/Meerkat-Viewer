@@ -1077,6 +1077,7 @@ bool idle_startup()
 		// TODO if statement here to use web_login_key
 		if(web_login_key.isNull()){
 		sAuthUriNum = llclamp(sAuthUriNum, 0, (S32)sAuthUris.size()-1);
+		//LL_INFOS("AppInit") << "GGGGGGGGGG authenticating NOT via web_login_key" << web_login_key << LL_ENDL;
 		LLUserAuth::getInstance()->authenticate(
 			sAuthUris[sAuthUriNum],
 			auth_method,
@@ -1093,6 +1094,7 @@ bool idle_startup()
 			hashed_mac_string,
 			LLAppViewer::instance()->getSerialNumber());
 		} else {
+		//LL_INFOS("AppInit") << "GGGGGGGGGG authenticating via web_login_key" << web_login_key << LL_ENDL;
 		LLUserAuth::getInstance()->authenticate(
 			sAuthUris[sAuthUriNum],
 			auth_method,
@@ -1112,6 +1114,12 @@ bool idle_startup()
 		// reset globals
 		gAcceptTOS = FALSE;
 		gAcceptCriticalMessage = FALSE;
+
+		//clear the web_login_key so that we don't attempt to use it again.
+		//We need to clear both as somewhere, for some reason, web_login_key is set to mWebLoginKey after initial login.
+		gLoginHandler.mWebLoginKey.setNull();
+		web_login_key.setNull();
+
 		LLStartUp::setStartupState( STATE_LOGIN_NO_DATA_YET );
 		return FALSE;
 	}
