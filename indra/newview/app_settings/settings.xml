@@ -6558,7 +6558,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>SafeMode</key>
     <map>
@@ -7236,6 +7236,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>ShowGraphicsSettingsPopup</key>
+  <map>
+    <key>Comment</key>
+    <string>Show quick graphics options</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
     <key>ShowWorldMap</key>
     <map>
       <key>Comment</key>
@@ -10439,6 +10450,17 @@
   <map>
     <key>Comment</key>
     <string>download tags</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>_GEMINI_ShowLookAt</key>
+  <map>
+    <key>Comment</key>
+    <string>Always display LookAt beacons</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
