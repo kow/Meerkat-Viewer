@@ -52,6 +52,7 @@ target_link_libraries(linux-crash-logger
     ${LLCOMMON_LIBRARIES}
     ${UI_LIBRARIES}
     ${DB_LIBRARIES}
+    ${FREETYPE_LIBRARIES}
     )
 
 add_custom_command(
