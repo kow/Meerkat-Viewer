@@ -2147,7 +2147,7 @@ class LLObjectEnableExport : public view_listener_t
 			
 			struct ff : public LLSelectedNodeFunctor
 			{
-				ff::ff(const LLSD& data) : LLSelectedNodeFunctor()
+				ff(const LLSD& data) : LLSelectedNodeFunctor()
 				,userdata(data)
 				{
 

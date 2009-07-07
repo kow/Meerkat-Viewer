@@ -97,7 +97,7 @@ private:
 	void import_next_object();
 	
 	//Get an offset from the agent based on rotation and current pos
-	LLVector3 primbackup::offset_agent(LLVector3 offset);
+	LLVector3 offset_agent(LLVector3 offset);
 
 	// Rebase map
 	std::map<LLUUID,LLUUID> assetmap;

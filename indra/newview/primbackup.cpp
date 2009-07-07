@@ -71,9 +71,9 @@ class importResponder: public LLNewAgentInventoryResponder
 {
 	public:
 
-	importResponder::importResponder(const LLSD& post_data,
-															   const LLUUID& vfile_id,
-															   LLAssetType::EType asset_type)
+	importResponder(const LLSD& post_data,
+		const LLUUID& vfile_id,
+		LLAssetType::EType asset_type)
 	: LLNewAgentInventoryResponder(post_data, vfile_id, asset_type)
 	{
 	}
