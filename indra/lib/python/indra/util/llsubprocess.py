@@ -104,3 +104,4 @@ all the output, and get the result.
     err = ''.join(err)
     #print "stderr:", err
     return result, out, err
+

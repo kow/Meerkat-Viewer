@@ -579,9 +579,9 @@ class LinuxManifest(ViewerManifest):
         # stripping all the libs removes a few megabytes from the end-user package
         for s,d in self.file_list:
             if re.search("lib/lib.+\.so.*", d):
-                self.run_command('strip -S %s' % d)
+                self.run_command(["strip", "-S", "%s" % d])
             if re.search("app_settings/mozilla-runtime-.*/lib.+\.so.*", d):
-                self.run_command('strip %s' % d)
+                self.run_command(["strip", "%s" % d] )
 
         if 'installer_name' in self.args:
             installer_name = self.args['installer_name']
@@ -607,21 +607,21 @@ class LinuxManifest(ViewerManifest):
 
         # temporarily move directory tree so that it has the right
         # name in the tarfile
-        self.run_command("mv %(dst)s %(inst)s" % {
-            'dst': self.get_dst_prefix(),
-            'inst': self.build_path_of(installer_name)})
+        self.run_command(["mv", 
+		"%(dst)s" % {'dst': self.get_dst_prefix()}, 
+		"%(inst)s" % {'inst': self.build_path_of(installer_name)}])
         try:
             # --numeric-owner hides the username of the builder for
             # security etc.
-            self.run_command('tar -C %(dir)s --numeric-owner -cjf '
-                             '%(inst_path)s.tar.bz2 %(inst_name)s' % {
-                'dir': self.get_build_prefix(),
-                'inst_name': installer_name,
-                'inst_path':self.build_path_of(installer_name)})
+            self.run_command(['tar', '-C', 
+		'%(dir)s' % {'dir': self.get_build_prefix()}, 
+		'--numeric-owner', '-cjf', 
+		'%(inst_path)s.tar.bz2' % {'inst_path':self.build_path_of(installer_name)}, 
+		'%(inst_name)s' % {'inst_name': installer_name }])
         finally:
-            self.run_command("mv %(inst)s %(dst)s" % {
-                'dst': self.get_dst_prefix(),
-                'inst': self.build_path_of(installer_name)})
+            self.run_command(["mv", 
+		"%(inst)s" % {'inst': self.build_path_of(installer_name)}, 
+		"%(dst)s" % {'dst': self.get_dst_prefix()}])
 
 class Linux_i686Manifest(LinuxManifest):
     def construct(self):
