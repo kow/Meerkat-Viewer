@@ -75,24 +75,3 @@ if (VIEWER)
   add_subdirectory(${VIEWER_PREFIX}newview)
   add_dependencies(viewer meerkat-bin)
 endif (VIEWER)
-
-# Linux builds the viewer and server in 2 separate projects
-# In order for ./develop.py build server to work on linux, 
-# the viewer project needs a server target.
-# This is not true for mac and windows.
-if (LINUX) 
-  add_custom_target(server)
-endif (LINUX)
-if (SERVER)
-  if (NOT LINUX)
-    add_custom_target(server)
-  endif (NOT LINUX)
-  include(${SERVER_PREFIX}Server.cmake)
-endif (SERVER)
-
-# Windows builds include tools like VFS tool
-if (SERVER)
-  if (WINDOWS)
-    add_subdirectory(${SERVER_PREFIX}tools)
-  endif (WINDOWS)
-endif (SERVER)
