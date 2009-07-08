@@ -2,12 +2,12 @@
 include(Prebuilt)
 
 
-#if (STANDALONE)
-#  include(FindPkgConfig)
+if (STANDALONE)
+  include(FindPkgConfig)
 
-#  pkg_check_modules(GSTREAMER REQUIRED gstreamer-0.10)
-#  pkg_check_modules(GSTREAMER_PLUGINS_BASE REQUIRED gstreamer-plugins-base-0.10)
-#elseif (LINUX)
+  pkg_check_modules(GSTREAMER REQUIRED gstreamer-0.10)
+  pkg_check_modules(GSTREAMER_PLUGINS_BASE REQUIRED gstreamer-plugins-base-0.10)
+else (STANDALONE)
 if (NOT DARWIN)
   use_prebuilt_binary(gstreamer)
   # possible libxml should have its own .cmake file instead
@@ -41,7 +41,7 @@ elseif(WINDOWS)
       )
 endif(LINUX)
 endif (NOT DARWIN)
-#endif (STANDALONE)
+endif (STANDALONE)
 
 if (GSTREAMER_FOUND AND GSTREAMER_PLUGINS_BASE_FOUND)
   set(GSTREAMER ON CACHE BOOL "Build with GStreamer streaming media support.")
