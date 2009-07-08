@@ -57,6 +57,11 @@ include_directories(
     ${LSCRIPT_INCLUDE_DIRS}/lscript_compile
     )
 
+if (LINUX)
+    include_directories (${DBUSGLIB_INCLUDE_DIRS})
+endif (LINUX)
+
+
 set(viewer_SOURCE_FILES
 	authentication_controller.cpp
 	authentication_floater.cpp
