@@ -63,11 +63,6 @@ endif (LINUX)
 
 
 set(viewer_SOURCE_FILES
-	authentication_controller.cpp
-	authentication_floater.cpp
-	authentication_model.cpp
-	controllerlogin.cpp
-	controllerpasswords.cpp
 	floaterlogin.cpp
 	hippoGridManager.cpp
 	hippoLimits.cpp
@@ -474,11 +469,6 @@ set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
 
-	authentication_controller.h
-	authentication_floater.h
-	authentication_model.h
-	controllerlogin.h
-	controllerpasswords.h
 	floaterlogin.h
 	hippoGridManager.h
 	hippoLimits.h
