@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel border="false" follows="left|top|right|bottom" height="215"
+     label="Audio &amp; Video" name="Graphics panel" width="175">
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+ bottom_delta="-10" drop_shadow_visible="true" follows="left|top"
+ font="SansSerifSmall" h_pad="0" halign="left" height="14"
+ left="5" mouse_opaque="true" name="gridnick_text" v_pad="0" width="120">
+    Sun Override
+  </text>
+  <icon bottom_delta="-25" follows="left|top" height="20"
+     image_name="icon_day_cycle.tga" left="10" name="daycycle" width="135" />
+  <slider bottom_delta="-15" can_edit_text="false" control_name="EnvTimeSlider"
+     left="5" decimal_digits="2" follows="left|top" height="10" increment="0.0069444"
+     initial_val="0.7" label="" max_val="0.99" min_val="0"
+     mouse_opaque="true" name="EnvTimeSlider" show_text="false" value="0.0"
+     width="145" />
+
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+ bottom_delta="-25" drop_shadow_visible="true" follows="left|top"
+ font="SansSerifSmall" h_pad="0" halign="left" height="14"
+ left="5" mouse_opaque="true" name="gridnick_text" v_pad="0" width="120">
+    Mesh Quality (LOD)
+  </text>
+  
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+ bottom_delta="-15" drop_shadow_visible="true" follows="left|top"
+ font="SansSerifSmall" h_pad="0" halign="left" height="14"
+ left="10" mouse_opaque="true" name="objects_text" v_pad="0" width="120">
+    Objects
+  </text>
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+ bottom_delta="0" drop_shadow_visible="true" follows="left|top"
+ font="SansSerifSmall" h_pad="0" halign="left" height="14"
+ left="80" mouse_opaque="true" name="flexiprims_text" v_pad="0" width="120">
+    Flexiprims
+  </text>
+  <slider bottom_delta="-15" can_edit_text="false" control_name="RenderVolumeLODFactor"
+     decimal_digits="3" enabled="true" follows="left|top" height="16"
+     increment="0.125" initial_val="40" left="5" max_val="2" min_val="0"
+     mouse_opaque="true" name="ObjectMeshDetail" show_text="false" width="75" />
+  <slider bottom_delta="0" can_edit_text="false" control_name="RenderFlexTimeFactor"
+	     decimal_digits="3" enabled="true" follows="left|top" height="16"
+	     increment="0.1" initial_val="40" left_delta="68" max_val="1" min_val="0"
+	     mouse_opaque="true" name="FlexibleMeshDetail" show_text="false" width="75" />
+  
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+ bottom_delta="-12" drop_shadow_visible="true" follows="left|top"
+ font="SansSerifSmall" h_pad="0" halign="left" height="14"
+ left="10" mouse_opaque="true" name="flexiprims_text" v_pad="0" width="120">
+    Terrain
+  </text>
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+ bottom_delta="0" drop_shadow_visible="true" follows="left|top"
+ font="SansSerifSmall" h_pad="0" halign="left" height="14"
+ left="80" mouse_opaque="true" name="flexiprims_text" v_pad="0" width="120">
+    Avatars
+  </text>
+  <slider bottom_delta="-15x" can_edit_text="false" control_name="RenderTerrainLODFactor"
+	     decimal_digits="3" enabled="true" follows="left|top" height="16"
+	     increment="0.125" initial_val="160" left="5" max_val="2" min_val="1"
+	     mouse_opaque="true" name="TerrainMeshDetail" show_text="false" width="75" />
+
+  <slider bottom_delta="0" can_edit_text="false" control_name="RenderAvatarLODFactor"
+	     decimal_digits="3" enabled="true" follows="left|top" height="16"
+	     increment="0.125" initial_val="160" left_delta="68" max_val="1" min_val="0"
+	     mouse_opaque="true" name="AvatarMeshDetail" show_text="false" width="75" />
+
+  <check_box control_name="_GEMINI_ShowLookAt" bottom_delta="-25" follows="left|top" height="20" label="Avatar Look Beacons" left="5"
+font="SansSerifSmall" name="look_at_check" width="100" />
+  <check_box control_name="RunMultipleThreads" bottom_delta="-17" follows="left|top" height="20" label="Run Multiple Threads" left="5"
+     font="SansSerifSmall" name="multiple_threads_check" width="100" />
+  <check_box bottom_delta="-17" control_name="RenderAvatarVP" enabled="true"
+     follows="left|top" font="SansSerifSmall" height="16" initial_value="true"
+     label="Hardware Skinning" left_delta="0" mouse_opaque="true"
+     name="AvatarVertexProgram" radio_style="false" width="256" />
+
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+ bottom="1" drop_shadow_visible="true" follows="left|top"
+ font="SansSerifSmall" h_pad="0" halign="left" height="14"
+ left="25" mouse_opaque="true" name="drawdistance_text" v_pad="0" width="145">
+    Draw Distance
+  </text>
+</panel>

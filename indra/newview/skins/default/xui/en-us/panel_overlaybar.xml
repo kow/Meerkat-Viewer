@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel follows="left|right|bottom|top" height="200" left="-1" mouse_opaque="false"
+<panel follows="left|right|bottom|top" height="250" left="-1" mouse_opaque="false"
      name="overlay" use_bounding_rect="true" width="728">
-	<layout_stack bottom="0" follows="left|right|bottom" height="200" left="0"
+	<layout_stack bottom="0" follows="left|right|bottom" height="250" left="0"
 	     mouse_opaque="false" name="overlay_layout_panel" orientation="horizontal"
 	     right="-1" use_bounding_rect="true">
 		<layout_panel auto_resize="true" bottom="0" left="0" min_width="420" mouse_opaque="false"
@@ -41,6 +41,11 @@
 				     use_bounding_rect="true" width="395" />
 			</layout_stack>
 		</layout_panel>
+    <layout_panel auto_resize="false" bottom="0" left="0" min_width="150" mouse_opaque="false"
+     name="graphics_remote_container" use_bounding_rect="true" user_resize="false"
+     width="148">
+      <panel background_visible="false" border="false" bottom="0" name="graphics_remote" />
+    </layout_panel>
 		<layout_panel auto_resize="false" bottom="0" left="0" min_width="220" mouse_opaque="false"
 		     name="media_remote_container" use_bounding_rect="true" user_resize="false"
 		     width="220">

@@ -44,6 +44,7 @@
 #include "llfocusmgr.h"
 #include "llimview.h"
 #include "llmediaremotectrl.h"
+#include "llgraphicsremotectrl.h"
 #include "llpanelaudiovolume.h"
 #include "llparcel.h"
 #include "lltextbox.h"
@@ -91,6 +92,13 @@ void* LLOverlayBar::createVoiceRemote(void* userdata)
 	return self->mVoiceRemote;
 }
 
+void* LLOverlayBar::createGraphicsRemote(void* userdata)
+{
+	LLOverlayBar *self = (LLOverlayBar*)userdata;	
+	self->mGraphicsRemote = new LLGraphicsRemoteCtrl ();
+	return self->mGraphicsRemote;
+}
+
 void* LLOverlayBar::createChatBar(void* userdata)
 {
 	gChatBar = new LLChatBar();
@@ -101,6 +109,7 @@ LLOverlayBar::LLOverlayBar()
 	:	LLPanel(),
 		mMediaRemote(NULL),
 		mVoiceRemote(NULL),
+		mGraphicsRemote(NULL),
 		mMusicState(STOPPED)
 {
 	setMouseOpaque(FALSE);
@@ -111,6 +120,7 @@ LLOverlayBar::LLOverlayBar()
 	LLCallbackMap::map_t factory_map;
 	factory_map["media_remote"] = LLCallbackMap(LLOverlayBar::createMediaRemote, this);
 	factory_map["voice_remote"] = LLCallbackMap(LLOverlayBar::createVoiceRemote, this);
+	factory_map["graphics_remote"] = LLCallbackMap(LLOverlayBar::createGraphicsRemote, this);
 	factory_map["chat_bar"] = LLCallbackMap(LLOverlayBar::createChatBar, this);
 	
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_overlaybar.xml", &factory_map);
@@ -240,6 +250,7 @@ void LLOverlayBar::refresh()
 
 	moveChildToBackOfTabGroup(mMediaRemote);
 	moveChildToBackOfTabGroup(mVoiceRemote);
+	moveChildToBackOfTabGroup(mGraphicsRemote);
 
 	// turn off the whole bar in mouselook
 	if (gAgent.cameraMouselook())
