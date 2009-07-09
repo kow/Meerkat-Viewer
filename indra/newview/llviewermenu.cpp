@@ -209,7 +209,6 @@
 #include "llwlanimator.h"
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
-#include "authentication_floater.h"
 
 #include "lltexlayer.h"
 
