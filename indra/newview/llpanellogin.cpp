@@ -1147,6 +1147,10 @@ void LLPanelLogin::onSelectServer(LLUICtrl* ctrl, void*)
 	std::string mCurGrid = ctrl->getValue().asString();
 	//KOW
 	gHippoGridManager->setCurrentGrid(mCurGrid);
+
+	LLViewerLogin* vl = LLViewerLogin::getInstance();
+	vl->resetURIs();
+
 	//gHippoGridManager->setDefaultGrid(mCurGrid);
 	//gHippoGridManager->saveFile();
 	HippoGridInfo *gridInfo = gHippoGridManager->getGrid(mCurGrid);

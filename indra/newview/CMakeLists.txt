@@ -213,6 +213,7 @@ set(viewer_SOURCE_FILES
     llgesturemgr.cpp
     llgivemoney.cpp
     llglsandbox.cpp
+	llgraphicsremotectrl.cpp
     llgroupmgr.cpp
     llgroupnotify.cpp
     llhomelocationresponder.cpp
@@ -624,6 +625,7 @@ set(viewer_HEADER_FILES
     llgenepool.h
     llgesturemgr.h
     llgivemoney.h
+	llgraphicsremotectrl.h
     llgroupmgr.h
     llgroupnotify.h
     llhomelocationresponder.h
@@ -1062,6 +1064,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_auction.xml
     skins/default/xui/en-us/floater_audio_volume.xml
     skins/default/xui/en-us/floater_avatar_picker.xml
+	skins/default/xui/en-us/floater_avatar_scanner.xml
     skins/default/xui/en-us/floater_avatar_textures.xml
     skins/default/xui/en-us/floater_build_options.xml
     skins/default/xui/en-us/floater_bulk_perms.xml
@@ -1132,6 +1135,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_preview_texture.xml
     skins/default/xui/en-us/floater_preview_url.xml
     skins/default/xui/en-us/floater_price_for_listing.xml
+	skins/default/xui/en-us/floater_prim_import.xml
     skins/default/xui/en-us/floater_profile.xml
     skins/default/xui/en-us/floater_region_info.xml
     skins/default/xui/en-us/floater_report_abuse.xml
@@ -1183,6 +1187,10 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/panel_classified.xml
     skins/default/xui/en-us/panel_event.xml
     skins/default/xui/en-us/panel_friends.xml
+	skins/default/xui/en-us/panel_graphics.xml
+	skins/default/xui/en-us/panel_graphics_controls.xml
+	skins/default/xui/en-us/panel_graphics_remote.xml
+	skins/default/xui/en-us/panel_graphics_remote_expanded.xml
     skins/default/xui/en-us/panel_group_finder.xml
     skins/default/xui/en-us/panel_group_general.xml
     skins/default/xui/en-us/panel_group_invite.xml
@@ -1203,13 +1211,16 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/panel_place.xml
     skins/default/xui/en-us/panel_preferences_audio.xml
     skins/default/xui/en-us/panel_preferences_chat.xml
+	skins/default/xui/en-us/panel_preferences_database.xml
     skins/default/xui/en-us/panel_preferences_general.xml
     skins/default/xui/en-us/panel_preferences_graphics1.xml
     skins/default/xui/en-us/panel_preferences_im.xml
     skins/default/xui/en-us/panel_preferences_input.xml
+	skins/default/xui/en-us/panel_preferences_meerkat.xml
     skins/default/xui/en-us/panel_preferences_network.xml
 	skins/default/xui/en-us/panel_preferences_passwords.xml
     skins/default/xui/en-us/panel_preferences_popups.xml
+	skins/default/xui/en-us/panel_preferences_skins.xml
     skins/default/xui/en-us/panel_preferences_voice.xml
     skins/default/xui/en-us/panel_preferences_web.xml
     skins/default/xui/en-us/panel_region_covenant.xml

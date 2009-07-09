@@ -1029,7 +1029,6 @@ extern BOOL gDebugSelectMgr;
 
 void init_debug_ui_menu(LLMenuGL* menu)
 {
-	menu->append(new LLMenuItemCallGL("Authentication Test", AuthenticationFloater::show));
 	menu->append(new LLMenuItemCallGL("SLURL Test", &handle_slurl_test));
 	menu->append(new LLMenuItemCallGL("Editable UI", &edit_ui));
 	menu->append(new LLMenuItemToggleGL("Async Keystrokes", &gHandleKeysAsync));
