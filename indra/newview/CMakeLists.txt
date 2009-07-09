@@ -444,7 +444,6 @@ set(viewer_SOURCE_FILES
 	LocalInventory.cpp
     noise.cpp
     pipeline.cpp
-	prefpanelpasswords.cpp
     primbackup.cpp
     )
 
@@ -857,7 +856,6 @@ set(viewer_HEADER_FILES
     macmain.h
     noise.h
     pipeline.h
-	prefpanelpasswords.h
     primbackup.h
     randgauss.h
     VertexCache.h

@@ -16,7 +16,6 @@
 #include "llmd5.h"
 #include "llurlsimstring.h"
 #include "lluictrlfactory.h"
-#include "controllerlogin.h"
 #include "floaterlogin.h"
 #include "hippoGridManager.h"
 #include "llviewernetwork.h"
@@ -26,7 +25,6 @@
 
 LoginFloater* LoginFloater::sInstance = NULL;
 LoginController* LoginFloater::sController = NULL;
-AuthenticationModel* LoginFloater::sModel = NULL;
 bool LoginFloater::sIsInitialLogin;
 std::string LoginFloater::sGrid;
 
@@ -104,9 +102,6 @@ LoginFloater::LoginFloater(void (*callback)(S32 option, void* user_data),
 
 LoginFloater::~LoginFloater()
 {
-	delete LoginFloater::sController;
-	
-	LoginFloater::sModel = NULL;
 	LoginFloater::sController = NULL;
 	LoginFloater::sInstance = NULL;
 }
@@ -426,7 +421,6 @@ void LoginFloater::setDefault()
 void LoginFloater::cancel()
 {
 	gHippoGridManager->discardAndReload();
-	LoginFloater::sModel->revert();
 	update();
 }
 
@@ -557,14 +551,6 @@ void LoginFloater::newShow(const std::string &grid, bool initialLogin,
 		
 		llwarns << "sInstance assigned. sInstance=" << sInstance << llendl;
 	}
-	
-	// floater controller requires initialized floater and model
-	if(NULL==sModel)
-		sModel = AuthenticationModel::getInstance();
-	if(NULL==sController)
-		//sController = new LoginController(sInstance, sModel, sGrid);
-
-
 
 		llwarns << "newshow called" << llendl;
 		sInstance->mCurGrid = gHippoGridManager->getCurrentGridNick();
