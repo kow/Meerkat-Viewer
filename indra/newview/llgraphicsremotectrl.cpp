@@ -31,7 +31,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "LLGraphicsRemotectrl.h"
+#include "llgraphicsremotectrl.h"
 
 #include "audioengine.h"
 #include "lliconctrl.h"
