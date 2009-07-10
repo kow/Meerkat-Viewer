@@ -2153,12 +2153,15 @@ class LLObjectEnableExport : public view_listener_t
 				const LLSD& userdata;
 				virtual bool apply(LLSelectNode* node)
 				{
-					if(gAgent.getID()!=node->mPermissions->getCreator())
+					if(gAgent.getID()!=node->mPermissions->getOwner())
 					{
-						llwarns<<"Incorrect permission to export"<<llendl;
 						return false;
 					}
-					return true;
+					else if (581632==node->mPermissions->getMaskOwner() || 2147483647==node->mPermissions->getMaskOwner())
+					{
+						return true;
+					}
+					return false;
 				}
 			};
  

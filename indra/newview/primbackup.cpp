@@ -365,7 +365,7 @@ void primbackup::exportworker(void *userdata)
 					{
 						virtual bool apply(LLSelectNode* node)
 						{
-							if(gAgent.getID()!=node->mPermissions->getCreator())
+							if(gAgent.getID()!=node->mPermissions->getOwner())
 							{
 								#ifdef LL_GRID_PERMISSIONS
 									return false;
@@ -373,7 +373,11 @@ void primbackup::exportworker(void *userdata)
 									return true;
 								#endif
 							}
-							return true;
+							else if(581632==node->mPermissions->getMaskOwner() || 2147483647==node->mPermissions->getMaskOwner())
+							{
+								return true;
+							}
+							return false;
 						}
 				} func;
 
