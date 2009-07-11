@@ -47,7 +47,6 @@
 #include "llui.h"
 
 #include "llviewercontrol.h"
-#include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llfloateravatarinfo.h"
 #include "llfloaterchat.h"
@@ -444,13 +443,6 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id, std::vector<std::str
 		}
 	}
 
-	items.push_back(std::string("Save Asset"));
-	if ( (! ( isItemPermissive() || gAgent.isGodlike() ) ) 
-		|| (flags & FIRST_SELECTED_ITEM) == 0) //FIX check perms better
-	{
-		disabled_items.push_back(std::string("Save Asset"));
-	}
-
 	items.push_back(std::string("Copy Separator"));
 
 	items.push_back(std::string("Copy"));
@@ -779,16 +771,6 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 		gViewerWindow->mWindow->copyTextToClipboard(utf8str_to_wstring(buffer));
 		return;
 	}
-	else if ("save_asset" == action)
-	{
-		// Single item only
-		LLInventoryItem* item = model->getItem(mUUID);
-		if(!item) return;
-		LLUUID asset_id = item->getAssetUUID();
-		
-		saveAsset(&asset_id);
-		return;
-	}
 	else if ("copy" == action)
 	{
 		copyToClipboard();
@@ -880,9 +862,10 @@ std::string LLItemBridge::getLabelSuffix() const
 	LLInventoryItem* item = getItem();
 	if(item) 
 	{
+		LLPermissions perm = item->getPermissions();
 		// it's a bit confusing to put nocopy/nomod/etc on calling cards.
 		if(LLAssetType::AT_CALLINGCARD != item->getType()
-		   && item->getPermissions().getOwner() == gAgent.getID())
+		   && perm.getOwner() == gAgent.getID())
 		{
 			BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
 			BOOL mod = item->getPermissions().allowModifyBy(gAgent.getID());
@@ -893,6 +876,7 @@ std::string LLItemBridge::getLabelSuffix() const
 			const char* NO_COPY = " (no copy)";
 			const char* NO_MOD = " (no modify)";
 			const char* NO_XFER = " (no transfer)";
+			const char* TEMPO = " (temporary)";
 			const char* scopy;
 			if(copy) scopy = EMPTY;
 			else scopy = NO_COPY;
@@ -902,7 +886,10 @@ std::string LLItemBridge::getLabelSuffix() const
 			const char* sxfer;
 			if(xfer) sxfer = EMPTY;
 			else sxfer = NO_XFER;
-			suffix = llformat("%s%s%s",scopy,smod,sxfer);
+			const char* stempo;
+			if(perm.getGroup() == gAgent.getID())stempo = TEMPO;
+			else stempo = EMPTY;
+			suffix = llformat("%s%s%s%s",scopy,smod,sxfer,stempo);
 		}
 	}
 	return suffix;
@@ -995,29 +982,6 @@ BOOL LLItemBridge::copyToClipboard() const
 		LLInventoryClipboard::instance().add(mUUID);
 		return TRUE;
 	}
-	return FALSE;
-}
-
-BOOL LLItemBridge::saveAsset(LLUUID *asset_id)
-{
-	std::string default_name = ""; // TODO: begin the saved asset default filename with its inventory type
-	default_name += asset_id->asString();
-	default_name += ".inv";
-	
-	LLStringUtil::toLower(default_name);
-	LLStringUtil::replaceChar(default_name, ' ', '_');
-	LLStringUtil::replaceChar(default_name, '/', '_');
-	LLStringUtil::replaceChar(default_name, ':', '_');
-	LLStringUtil::replaceChar(default_name, '"', '_');
-	
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (picker.getSaveFile(LLFilePicker::FFSAVE_INV, default_name))
-	{
-		std::string filename = picker.getFirstFile();
-		// TODO: call brian's code here
-		return TRUE;
-	}
-	
 	return FALSE;
 }
 
@@ -1942,7 +1906,6 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		mItems.push_back(std::string("New Gesture"));
 		mItems.push_back(std::string("New Clothes"));
 		mItems.push_back(std::string("New Body Parts"));
-		mItems.push_back(std::string("Save Folder"));
 
 		getClipboardEntries(false, mItems, mDisabledItems, flags);
 
