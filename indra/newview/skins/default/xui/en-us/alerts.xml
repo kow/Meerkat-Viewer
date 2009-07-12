@@ -4155,6 +4155,16 @@ covenants are always visible in the About Land dialog for
 any parcels that have one set.
 		</message>
 	</alert>
+  <alert modal="true" name="HelpIMEncryption" title="IM Encryption">
+    <message name="message">
+To use encryption, you and your chat partner must enter the same
+password of your choosing into the "IM Encryption Key" field.
+When both chatters have a matching Encryption Key, Meerkat will
+successfully encrypt and decrypt chat messages. Chat encrypted
+using Meerkat's IM Encryption can only be decrypted using the
+original encryption key.
+    </message>
+  </alert>
 	<alert modal="true" name="BuyObjectOneOnly" title="Can&apos;t Buy Objects">
 		<message name="message">
 			Unable to buy more than one object at a time. 

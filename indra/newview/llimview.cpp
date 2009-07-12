@@ -267,7 +267,8 @@ public:
 		EInstantMessage type,
 		EInvitationType inv_type,
 		const std::string& session_handle,
-		const std::string& notify_box) : 
+		const std::string& notify_box,
+		const std::string& session_uri) : 
 		mSessionID(session_id),
 		mSessionName(session_name),
 		mCallerID(caller_id),
@@ -275,7 +276,8 @@ public:
 		mType(type),
 		mInvType(inv_type),
 		mSessionHandle(session_handle),
-		mNotifyBox(notify_box)
+		mNotifyBox(notify_box),
+		mSessionURI(session_uri)
 	{};
 
 	LLUUID		mSessionID;
@@ -286,6 +288,7 @@ public:
 	EInvitationType mInvType;
 	std::string	mSessionHandle;
 	std::string	mNotifyBox;
+	std::string	mSessionURI;
 };
 
 
@@ -384,6 +387,20 @@ LLIMMgr::~LLIMMgr()
 	// Children all cleaned up by default view destructor.
 }
 
+// try to decrypt message, true if successful
+bool LLIMMgr::decryptMessage(
+	const LLUUID& session_id,
+	const LLUUID& target_id,
+	const std::string& msg,
+	std::string& decrypted_msg)
+{
+	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
+	if(!floater)
+		return false;
+
+	return floater->decryptMsg(msg, decrypted_msg);
+}
+
 // Add a message to a session. 
 void LLIMMgr::addMessage(
 	const LLUUID& session_id,
@@ -475,9 +492,11 @@ void LLIMMgr::addMessage(
 
 	// now add message to floater
 	bool is_from_system = target_id.isNull() || (from == SYSTEM_FROM);
+	bool is_encrypted = (msg.substr(0, 3) == "\xe2\x80\xa7");
 	const LLColor4& color = ( is_from_system ? 
 							  gSavedSettings.getColor4("SystemChatColor") : 
-							  gSavedSettings.getColor("IMChatColor"));
+							  ( is_encrypted ? gSavedSettings.getColor("IMEncryptedChatColor") :
+		                        gSavedSettings.getColor("IMChatColor") ) );
 	if ( !link_name )
 	{
 		floater->addHistoryLine(msg,color); // No name to prepend, so just add the message normally
@@ -568,7 +587,8 @@ BOOL LLIMMgr::isIMSessionOpen(const LLUUID& uuid)
 
 LLUUID LLIMMgr::addP2PSession(const std::string& name,
 							const LLUUID& other_participant_id,
-							const std::string& voice_session_handle)
+							const std::string& voice_session_handle,
+							const std::string& caller_uri)
 {
 	LLUUID session_id = addSession(name, IM_NOTHING_SPECIAL, other_participant_id);
 
@@ -576,7 +596,7 @@ LLUUID LLIMMgr::addP2PSession(const std::string& name,
 	if(floater)
 	{
 		LLVoiceChannelP2P* voice_channelp = (LLVoiceChannelP2P*)floater->getVoiceChannel();
-		voice_channelp->setSessionHandle(voice_session_handle);
+		voice_channelp->setSessionHandle(voice_session_handle, caller_uri);		
 	}
 
 	return session_id;
@@ -699,7 +719,8 @@ void LLIMMgr::inviteToSession(
 	const std::string& caller_name,
 	EInstantMessage type,
 	EInvitationType inv_type,
-	const std::string& session_handle)
+	const std::string& session_handle,
+	const std::string& session_uri)
 {
 	//ignore invites from muted residents
 	if (LLMuteList::getInstance()->isMuted(caller_id))
@@ -741,7 +762,8 @@ void LLIMMgr::inviteToSession(
 		type,
 		inv_type,
 		session_handle,
-		notify_box_type);
+		notify_box_type,
+		session_uri);
 	
 	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(session_id);
 	if (channelp && channelp->callStarted())
@@ -916,7 +938,8 @@ void LLIMMgr::inviteUserResponse(S32 option, void* user_data)
 				invitep->mSessionID = gIMMgr->addP2PSession(
 					invitep->mSessionName,
 					invitep->mCallerID,
-					invitep->mSessionHandle);
+					invitep->mSessionHandle, 
+					invitep->mSessionURI );
 
 				LLFloaterIMPanel* im_floater =
 					gIMMgr->findFloaterBySession(

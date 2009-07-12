@@ -10457,6 +10457,22 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>IMEncryptedChatColor</key>
+  <map>
+    <key>Comment</key>
+    <string>Color of encrypted instant messages from other residents</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>1.0</real>
+      <real>1.0</real>
+      <real>0.8</real>
+      <real>1.0</real>
+    </array>
+  </map>
   <key>_GEMINI_ShowLookAt</key>
   <map>
     <key>Comment</key>

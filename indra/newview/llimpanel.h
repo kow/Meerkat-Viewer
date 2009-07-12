@@ -161,7 +161,7 @@ public:
     /*virtual*/ void activate();
 	/*virtual*/ void getChannelInfo();
 
-	void setSessionHandle(const std::string& handle);
+	void setSessionHandle(const std::string& handle, const std::string &inURI);
 
 protected:
 	virtual void setState(EState state);
@@ -230,6 +230,7 @@ public:
 	static void		onTabClick( void* userdata );
 
 	static void		onClickProfile( void* userdata );
+	static void		onClickTeleport( void* userdata );
 	static void		onClickGroupInfo( void* userdata );
 	static void		onClickClose( void* userdata );
 	static void		onClickStartCall( void* userdata );
@@ -242,6 +243,11 @@ public:
 	//callbacks for P2P muting and volume control
 	static void onClickMuteVoice(void* user_data);
 	static void onVolumeChange(LLUICtrl* source, void* user_data);
+
+	void initHelpBtn(const std::string& name, const std::string& xml_alert);
+
+	// Callback for all help buttons, data is name of XML alert to show.
+	static void onClickHelp(void* data);
 
 	const LLUUID& getSessionID() const { return mSessionUUID; }
 	const LLUUID& getOtherParticipantID() const { return mOtherParticipantUUID; }
@@ -268,6 +274,9 @@ public:
 
 	static void onConfirmForceCloseError(S32 option, void* data);
 
+	bool decryptMsg(const std::string& msg, std::string& decrypted_msg);
+	bool isEncrypted();
+
 private:
 	// called by constructors
 	void init(const std::string& session_label);
@@ -293,6 +302,8 @@ private:
 	void removeTypingIndicator(const LLIMInfo* im_info);
 
 	void sendTypingState(BOOL typing);
+
+	std::string encrypt(const std::string &msg);
 	
 	static LLFloaterIMPanel* sInstance;
 

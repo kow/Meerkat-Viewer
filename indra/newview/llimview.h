@@ -68,6 +68,13 @@ public:
 					const LLVector3& position = LLVector3::zero,
 					bool link_name = false);
 
+	// try to decrypt a Message, returns true if decrypted_msg has been set
+	// and message was encrypted
+	bool decryptMessage(const LLUUID& session_id,
+						const LLUUID& target_id,
+						const std::string& msg,
+						std::string& decrypted_msg);
+
 	void addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLStringUtil::format_map_t& args);
 
 	// This method returns TRUE if the local viewer has a session
@@ -97,7 +104,8 @@ public:
 	// Creates a P2P session with the requisite handle for responding to voice calls
 	LLUUID addP2PSession(const std::string& name,
 					  const LLUUID& other_participant_id,
-					  const std::string& voice_session_handle);
+					  const std::string& voice_session_handle,
+					  const std::string& caller_uri = LLStringUtil::null);
 
 	// This removes the panel referenced by the uuid, and then
 	// restores internal consistency. The internal pointer is not
@@ -111,7 +119,8 @@ public:
 		const std::string& caller_name,
 		EInstantMessage type,
 		EInvitationType inv_type, 
-		const std::string& session_handle = LLStringUtil::null);
+		const std::string& session_handle = LLStringUtil::null,
+		const std::string& session_uri = LLStringUtil::null);
 
 	//Updates a given session's session IDs.  Does not open,
 	//create or do anything new.  If the old session doesn't

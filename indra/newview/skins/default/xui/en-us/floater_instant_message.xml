@@ -36,9 +36,11 @@
 	</string>
 	<button bottom="-40" follows="left|top" height="20" label="Profile..." left="5"
 	     name="profile_callee_btn" width="80" />
+	<button bottom="-40" follows="left|top" halign="center" height="20" label="Teleport..." left_delta="85"
+		 name="profile_tele_btn" width="90" />
 	<button bottom="-40" follows="left|top" halign="center" height="20"
 	     image_overlay="icn_voice-call-start.tga" image_overlay_alignment="left"
-	     label="Call" left_delta="85" name="start_call_btn" width="100" />
+	     label="Call" left_delta="95" name="start_call_btn" width="100" />
 	<button bottom="-40" follows="left|top" halign="center" height="20"
 	     image_overlay="icn_voice-call-end.tga" image_overlay_alignment="left"
 	     label="End Call" left_delta="0" name="end_call_btn" pad_right="10"
@@ -51,6 +53,15 @@
 		     image_unselected="icn_speaker_dark.tga" label="" left_delta="56"
 		     name="mute_btn" tool_tip="Mute voice" width="25" />
 	</panel>
+  <button bottom="-39" height="16" follows="top|right" image_selected="icon_lock.tga"
+     image_unselected="icon_lock.tga" label="" left_delta="47" name="encryption_lock"
+     scale_image="false" width="16" />
+  <line_editor bevel_style="in" border_style="line" border_thickness="1" bottom="-40"
+               follows="top|right" font="SansSerif" height="20" left="-150" 
+               label="IM Encryption Key" max_length="64" mouse_opaque="true" name="password"
+               select_all_on_focus_received="false" select_on_focus="false" width="120" />
+  <button bottom="-40" follows="top|right" halign="center" height="20"
+	     label="?" left_delta="123" name="encryption_help" width="18" />
 	<text_editor type="string" length="1" bg_readonly_color="ChatHistoryBgColor" bg_writeable_color="ChatHistoryBgColor"
 	     bottom="30" embedded_items="false" enabled="false"
 	     follows="left|top|right|bottom" font="SansSerif" height="221" left="5"
