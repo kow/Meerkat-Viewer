@@ -63,6 +63,7 @@ endif (LINUX)
 
 
 set(viewer_SOURCE_FILES
+	emerald.cpp
 	floaterlogin.cpp
 	hippoGridManager.cpp
 	hippoLimits.cpp
@@ -468,6 +469,7 @@ set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
 
+	emerald.h
 	floaterlogin.h
 	hippoGridManager.h
 	hippoLimits.h
