@@ -3040,7 +3040,7 @@ void LLVOAvatar::resolveClient(LLColor4& avatar_name_color, std::string& client,
 	}else
 	{
 		//legacy code
-		if(idx == LLUUID("2a9a406c-f448-68f2-4e38-878f8c46c190"))
+		if(idx == LLUUID("2a9a406c-f448-68f2-4e38-878f8c46c190") || idx == LLUUID("89fcd2f1-a450-a60b-1151-4caf39fe8556"))
 		{
 			avatar_name_color += LLColor4(1.0f,0.9f,0.7f);//Meerkat
 			avatar_name_color = avatar_name_color * (F32)0.333333333333;
