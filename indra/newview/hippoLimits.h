@@ -14,6 +14,8 @@ public:
 	float getMaxPrimScale()   const { return mMaxPrimScale;   }
 
 	void setLimits();
+	void setOpenSimLimits();
+	void setSecondLifeLimits();
 
 private:
 	int   mMaxAgentGroups;
@@ -22,8 +24,6 @@ private:
 	float mMaxHollow;
 	float mMaxPrimScale;
 
-	void setOpenSimLimits();
-	void setSecondLifeLimits();
 };
 
 

@@ -74,6 +74,7 @@
 
 #include "lldrawpool.h"
 
+#include "hippoLimits.h"
 //
 // Constants
 //
@@ -386,6 +387,8 @@ void LLPanelObject::getState( )
 	mCtrlPosY->setEnabled(enable_move);
 	mCtrlPosZ->setEnabled(enable_move);
 
+	mCtrlPosZ->setMaxValue(gHippoLimits->getMaxHeight());
+
 	if (enable_scale)
 	{
 		vec = objectp->getScale();
@@ -404,6 +407,10 @@ void LLPanelObject::getState( )
 	mCtrlScaleX->setEnabled( enable_scale );
 	mCtrlScaleY->setEnabled( enable_scale );
 	mCtrlScaleZ->setEnabled( enable_scale );
+
+	mCtrlScaleX->setMaxValue(gHippoLimits->getMaxPrimScale());
+	mCtrlScaleY->setMaxValue(gHippoLimits->getMaxPrimScale());
+	mCtrlScaleZ->setMaxValue(gHippoLimits->getMaxPrimScale());
 
 	LLQuaternion object_rot = objectp->getRotationEdit();
 	object_rot.getEulerAngles(&(mCurEulerDegrees.mV[VX]), &(mCurEulerDegrees.mV[VY]), &(mCurEulerDegrees.mV[VZ]));
@@ -916,9 +923,9 @@ void LLPanelObject::getState( )
 	case MI_RING:
 		mSpinScaleX->set( scale_x );
 		mSpinScaleY->set( scale_y );
-		mSpinScaleX->setMinValue(OBJECT_MIN_HOLE_SIZE);
+		mSpinScaleX->setMinValue(gHippoLimits->getMinHoleSize());
 		mSpinScaleX->setMaxValue(OBJECT_MAX_HOLE_SIZE_X);
-		mSpinScaleY->setMinValue(OBJECT_MIN_HOLE_SIZE);
+		mSpinScaleY->setMinValue(gHippoLimits->getMinHoleSize());
 		mSpinScaleY->setMaxValue(OBJECT_MAX_HOLE_SIZE_Y);
 		break;
 	default:
@@ -948,7 +955,7 @@ void LLPanelObject::getState( )
 */
 	{
 		mSpinHollow->setMinValue(0.f);
-		mSpinHollow->setMaxValue(99.f);
+		mSpinHollow->setMaxValue(gHippoLimits->getMaxHollow() * 100.0f);
 	}
 
 	// Update field enablement
@@ -980,11 +987,6 @@ void LLPanelObject::getState( )
 			childSetVisible("scale_hole", TRUE);
 			childSetEnabled("scale_hole", enabled);
 		}
-		else if (advanced_is_slice)
-		{
-			childSetVisible("advanced_slice", TRUE);
-			childSetEnabled("advanced_slice", enabled);
-		}
 		else
 		{
 			childSetVisible("scale_taper", TRUE);
@@ -1009,6 +1011,11 @@ void LLPanelObject::getState( )
 		{
 			childSetVisible("advanced_dimple", TRUE);
 			childSetEnabled("advanced_dimple", enabled);
+		}
+		else if (advanced_is_slice)
+		{
+			childSetVisible("advanced_slice", TRUE);
+			childSetEnabled("advanced_slice", enabled);
 		}
 		else
 		{
@@ -1354,7 +1361,7 @@ void LLPanelObject::getVolumeParams(LLVolumeParams& volume_params)
 	}
 
 
-	if (path == LL_PCODE_PATH_LINE)
+	if ((path == LL_PCODE_PATH_LINE) || (selected_type == MI_SCULPT))
 	{
 		LLVOVolume *volobjp = (LLVOVolume *)(LLViewerObject*)(mObject);
 		if (volobjp->isFlexible())
@@ -1499,11 +1506,11 @@ void LLPanelObject::getVolumeParams(LLVolumeParams& volume_params)
 	{
 		scale_x = llclamp(
 			scale_x,
-			OBJECT_MIN_HOLE_SIZE,
+			gHippoLimits->getMinHoleSize(),
 			OBJECT_MAX_HOLE_SIZE_X);
 		scale_y = llclamp(
 			scale_y,
-			OBJECT_MIN_HOLE_SIZE,
+			gHippoLimits->getMinHoleSize(),
 			OBJECT_MAX_HOLE_SIZE_Y);
 
 		// Limit radius offset, based on taper and hole size y.

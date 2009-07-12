@@ -79,6 +79,8 @@
 #include "llviewerjoystick.h"
 #include "lluictrlfactory.h"
 
+#include "hippoLimits.h"
+
 // Globals
 LLFloaterTools *gFloaterTools = NULL;
 
@@ -99,6 +101,7 @@ void click_show_more(void*);
 void click_popup_info(void*);
 void click_popup_done(void*);
 void click_popup_minimize(void*);
+void click_unconstrain(LLUICtrl *ctrl, void*);
 void click_popup_grab_drag(LLUICtrl *, void*);
 void click_popup_grab_lift(LLUICtrl *, void*);
 void click_popup_grab_spin(LLUICtrl *, void*);
@@ -227,6 +230,9 @@ BOOL	LLFloaterTools::postBuild()
 	childSetValue("checkbox snap to grid",(BOOL)gSavedSettings.getBOOL("SnapEnabled"));
 	mBtnGridOptions = getChild<LLButton>("Options...");
 	childSetAction("Options...",onClickGridOptions, this);
+	mCheckUnconstrain = getChild<LLCheckBoxCtrl>("checkbox unconstrain");
+	childSetValue("checkbox unconstrain",(BOOL)gSavedSettings.getBOOL("UnconstrainObjectSize"));
+	childSetCommitCallback("checkbox unconstrain",click_unconstrain,NULL);
 	mCheckStretchUniform = getChild<LLCheckBoxCtrl>("checkbox uniform");
 	childSetValue("checkbox uniform",(BOOL)gSavedSettings.getBOOL("ScaleUniform"));
 	mCheckStretchTexture = getChild<LLCheckBoxCtrl>("checkbox stretch textures");
@@ -369,6 +375,7 @@ LLFloaterTools::LLFloaterTools()
 	mBtnGridOptions(NULL),
 	mTextGridMode(NULL),
 	mComboGridMode(NULL),
+	mCheckUnconstrain(NULL),
 	mCheckStretchUniform(NULL),
 	mCheckStretchTexture(NULL),
 
@@ -649,6 +656,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	if (mBtnGridOptions) mBtnGridOptions->setVisible( edit_visible /* || tool == LLToolGrab::getInstance() */ );
 
 	//mCheckSelectLinked	->setVisible( edit_visible );
+	if (mCheckUnconstrain) mCheckUnconstrain->setVisible( edit_visible );
 	if (mCheckStretchUniform) mCheckStretchUniform->setVisible( edit_visible );
 	if (mCheckStretchTexture) mCheckStretchTexture->setVisible( edit_visible );
 
@@ -864,6 +872,19 @@ void click_popup_info(void*)
 void click_popup_done(void*)
 {
 	handle_reset_view();
+}
+
+void click_unconstrain(LLUICtrl *ctrl, void*)
+{
+	bool constraints = ctrl->getValue();;
+	if (constraints)
+	{
+		gHippoLimits->setOpenSimLimits();
+	}
+	else
+	{
+		gHippoLimits->setSecondLifeLimits();
+	}
 }
 
 void click_popup_grab_drag(LLUICtrl*, void*)
