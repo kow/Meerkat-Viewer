@@ -607,54 +607,54 @@
 			     mouse_opaque="true" name="label position" v_pad="0" width="121">
 				Position (meters)
 			</text>
-			<spinner bottom_delta="-20" decimal_digits="3" follows="left|top" height="16"
+			<spinner bottom_delta="-20" decimal_digits="4" follows="left|top" height="16"
 			     increment="0.01" initial_val="0" label="X" label_width="10" left="10"
 			     max_val="512" min_val="-256" mouse_opaque="true" name="Pos X"
-			     text_enabled_color="110, 15, 15, 255" width="87" />
-			<spinner bottom_delta="-18" decimal_digits="3" follows="left|top" height="16"
+			     text_enabled_color="110, 15, 15, 255" width="100" />
+			<spinner bottom_delta="-18" decimal_digits="4" follows="left|top" height="16"
 			     increment="0.01" initial_val="0" label="Y" label_width="10" left="10"
 			     max_val="512" min_val="-256" mouse_opaque="true" name="Pos Y"
-			     text_enabled_color="0, 100, 40, 255" width="87" />
-			<spinner bottom_delta="-18" decimal_digits="3" follows="left|top" height="16"
+			     text_enabled_color="0, 100, 40, 255" width="100" />
+			<spinner bottom_delta="-18" decimal_digits="4" follows="left|top" height="16"
 			     increment="0.01" initial_val="0" label="Z" label_width="10" left="10"
 			     max_val="16384" min_val="0" mouse_opaque="true" name="Pos Z"
-			     text_enabled_color="0, 67, 132, 255" width="87" />
+			     text_enabled_color="0, 67, 132, 255" width="100" />
 			<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom_delta="-16" drop_shadow_visible="true" follows="left|top"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="10" left="10"
 			     mouse_opaque="true" name="label size" v_pad="0" width="121">
 				Size (meters)
 			</text>
-			<spinner bottom_delta="-20" decimal_digits="3" follows="left|top" height="16"
+			<spinner bottom_delta="-20" decimal_digits="5" follows="left|top" height="16"
 			     increment="0.01" initial_val="0" label="X" label_width="10" left="10"
 			     max_val="1024" min_val="0.01" mouse_opaque="true" name="Scale X"
-			     text_enabled_color="1, 1, 1, 1" width="87" />
-			<spinner bottom_delta="-18" decimal_digits="3" follows="left|top" height="16"
+			     text_enabled_color="1, 1, 1, 1" width="100" />
+			<spinner bottom_delta="-18" decimal_digits="5" follows="left|top" height="16"
 			     increment="0.01" initial_val="0" label="Y" label_width="10" left="10"
 			     max_val="1024" min_val="0.01" mouse_opaque="true" name="Scale Y"
-			     text_enabled_color="1, 1, 1, 1" width="87" />
-			<spinner bottom_delta="-18" decimal_digits="3" follows="left|top" height="16"
+			     text_enabled_color="1, 1, 1, 1" width="100" />
+			<spinner bottom_delta="-18" decimal_digits="5" follows="left|top" height="16"
 			     increment="0.01" initial_val="0" label="Z" label_width="10" left="10"
 			     max_val="1024" min_val="0.01" mouse_opaque="true" name="Scale Z"
-			     text_enabled_color="1, 1, 1, 1" width="87" />
+			     text_enabled_color="1, 1, 1, 1" width="100" />
 			<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom_delta="-16" drop_shadow_visible="true" follows="left|top"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="10" left="10"
 			     mouse_opaque="true" name="label rotation" v_pad="0" width="121">
 				Rotation (degrees)
 			</text>
-			<spinner bottom_delta="-22" decimal_digits="2" follows="left|top" height="16"
+			<spinner bottom_delta="-22" decimal_digits="4" follows="left|top" height="16"
 			     increment="1" initial_val="0" label="X" label_width="10" left="10"
 			     max_val="9999" min_val="-9999" mouse_opaque="true" name="Rot X"
-			     text_enabled_color="1, 1, 1, 1" width="87" />
-			<spinner bottom_delta="-18" decimal_digits="2" follows="left|top" height="16"
+			     text_enabled_color="1, 1, 1, 1" width="100" />
+			<spinner bottom_delta="-18" decimal_digits="4" follows="left|top" height="16"
 			     increment="1" initial_val="0" label="Y" label_width="10" left="10"
 			     max_val="9999" min_val="-9999" mouse_opaque="true" name="Rot Y"
-			     text_enabled_color="1, 1, 1, 1" width="87" />
-			<spinner bottom_delta="-18" decimal_digits="2" follows="left|top" height="16"
+			     text_enabled_color="1, 1, 1, 1" width="100" />
+			<spinner bottom_delta="-18" decimal_digits="4" follows="left|top" height="16"
 			     increment="1" initial_val="0" label="Z" label_width="10" left="10"
 			     max_val="9999" min_val="-9999" mouse_opaque="true" name="Rot Z"
-			     text_enabled_color="1, 1, 1, 1" width="87" />
+			     text_enabled_color="1, 1, 1, 1" width="100" />
 			<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom_delta="-16" drop_shadow_visible="true" follows="left|top"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="10" left="10"
@@ -828,12 +828,12 @@
 			     mouse_opaque="true" name="advanced_dimple" v_pad="0" width="141">
 				Dimple Begin and End
 			</text>
-		  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-           bottom_delta="0" drop_shadow_visible="true" follows="left|top"
-           font="SansSerifSmall" h_pad="0" halign="left" height="10" left_delta="0"
-           mouse_opaque="true" name="advanced_slice" v_pad="0" width="141">
-        Slice Begin and End
-      </text>
+			<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+			     bottom_delta="0" drop_shadow_visible="true" follows="left|top"
+			     font="SansSerifSmall" h_pad="0" halign="left" height="10" left_delta="0"
+			     mouse_opaque="true" name="advanced_slice" v_pad="0" width="141">
+				Slice Begin and End
+			</text>
 			<spinner bottom_delta="-19" decimal_digits="3" follows="left|top" height="16"
 			     increment="0.025" initial_val="0" label="B" label_width="10" left="121"
 			     max_val="0.95" min_val="0" mouse_opaque="true" name="Path Limit Begin"
