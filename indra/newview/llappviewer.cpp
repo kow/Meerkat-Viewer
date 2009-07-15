@@ -1402,6 +1402,10 @@ bool LLAppViewer::cleanup()
 	delete sImageDecodeThread;
     sImageDecodeThread = NULL;
 
+    //Note: 
+    //LLViewerMedia::cleanupClass() has to be put before gImageList.shutdown() 
+    //because some new image might be generated during cleaning up media. --bao 
+    LLViewerMedia::cleanupClass();
 	gImageList.shutdown(); // shutdown again in case a callback added something
 	LLUIImageList::getInstance()->cleanUp();
 	
@@ -1445,8 +1449,6 @@ bool LLAppViewer::cleanup()
 
 		LLWeb::loadURLExternal( gLaunchFileOnQuit );
 	}
-	
-	LLViewerMedia::cleanupClass();
 
     llinfos << "Goodbye" << llendflush;
 
