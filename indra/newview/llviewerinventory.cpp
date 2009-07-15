@@ -662,13 +662,13 @@ void RezAttachmentCallback::fire(const LLUUID& inv_item)
 	}
 }
 
-extern LLGestureManager gGestureManager;
+//extern LLGestureManager gGestureManager;
 void ActivateGestureCallback::fire(const LLUUID& inv_item)
 {
 	if (inv_item.isNull())
 		return;
 
-	gGestureManager.activateGesture(inv_item);
+	LLGestureManager::getInstance()->activateGesture(inv_item);
 }
 
 void CreateGestureCallback::fire(const LLUUID& inv_item)
@@ -676,7 +676,7 @@ void CreateGestureCallback::fire(const LLUUID& inv_item)
 	if (inv_item.isNull())
 		return;
 
-	gGestureManager.activateGesture(inv_item);
+	LLGestureManager::getInstance()->activateGesture(inv_item);
 	
 	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 	if (!item) return;

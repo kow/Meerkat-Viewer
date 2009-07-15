@@ -114,7 +114,7 @@ LLChatBar::LLChatBar()
 
 LLChatBar::~LLChatBar()
 {
-	gGestureManager.removeObserver(mObserver);
+	LLGestureManager::getInstance()->removeObserver(mObserver);
 	delete mObserver;
 	mObserver = NULL;
 	// LLView destructor cleans up children
@@ -229,7 +229,7 @@ void LLChatBar::refreshGestures()
 		// collect list of unique gestures
 		std::map <std::string, BOOL> unique;
 		LLGestureManager::item_map_t::iterator it;
-		for (it = gGestureManager.mActive.begin(); it != gGestureManager.mActive.end(); ++it)
+		for (it = LLGestureManager::getInstance()->mActive.begin(); it != LLGestureManager::getInstance()->mActive.end(); ++it)
 		{
 			LLMultiGesture* gesture = (*it).second;
 			if (gesture)
@@ -315,7 +315,7 @@ void LLChatBar::setGestureCombo(LLComboBox* combo)
 
 		// now register observer since we have a place to put the results
 		mObserver = new LLChatBarGestureObserver(this);
-		gGestureManager.addObserver(mObserver);
+		LLGestureManager::getInstance()->addObserver(mObserver);
 
 		// refresh list from current active gestures
 		refreshGestures();
@@ -396,7 +396,7 @@ void LLChatBar::sendChat( EChatType type )
 			if (0 == channel)
 			{
 				// discard returned "found" boolean
-				gGestureManager.triggerAndReviseString(utf8text, &utf8_revised_text);
+				LLGestureManager::getInstance()->triggerAndReviseString(utf8text, &utf8_revised_text);
 			}
 			else
 			{
@@ -518,7 +518,7 @@ void LLChatBar::onInputEditorKeystroke( LLLineEditor* caller, void* userdata )
 		std::string utf8_trigger = wstring_to_utf8str(raw_text);
 		std::string utf8_out_str(utf8_trigger);
 
-		if (gGestureManager.matchPrefix(utf8_trigger, &utf8_out_str))
+		if (LLGestureManager::getInstance()->matchPrefix(utf8_trigger, &utf8_out_str))
 		{
 			if (self->mInputEditor)
 			{
@@ -623,7 +623,7 @@ void LLChatBar::onCommitGesture(LLUICtrl* ctrl, void* data)
 		// substitution and logging.
 		std::string text(trigger);
 		std::string revised_text;
-		gGestureManager.triggerAndReviseString(text, &revised_text);
+		LLGestureManager::getInstance()->triggerAndReviseString(text, &revised_text);
 
 		revised_text = utf8str_trim(revised_text);
 		if (!revised_text.empty())

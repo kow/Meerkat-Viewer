@@ -57,7 +57,7 @@
 #include "llvoavatar.h"
 #include "llviewerstats.h"
 
-LLGestureManager gGestureManager;
+//LLGestureManager gGestureManager;
 
 // Longest time, in seconds, to wait for all animations to stop playing
 const F32 MAX_WAIT_ANIM_SECS = 30.f;
@@ -441,7 +441,7 @@ void LLGestureManager::replaceGesture(const LLUUID& item_id, LLMultiGesture* new
 
 void LLGestureManager::replaceGesture(const LLUUID& item_id, const LLUUID& new_asset_id)
 {
-	item_map_t::iterator it = gGestureManager.mActive.find(item_id);
+	item_map_t::iterator it = LLGestureManager::getInstance()->mActive.find(item_id);
 	if (it == mActive.end())
 	{
 		llwarns << "replaceGesture for inactive gesture " << item_id << llendl;
@@ -450,7 +450,7 @@ void LLGestureManager::replaceGesture(const LLUUID& item_id, const LLUUID& new_a
 
 	// mActive owns this gesture pointer, so clean up memory.
 	LLMultiGesture* gesture = (*it).second;
-	gGestureManager.replaceGesture(item_id, gesture, new_asset_id);
+	LLGestureManager::getInstance()->replaceGesture(item_id, gesture, new_asset_id);
 }
 
 void LLGestureManager::playGesture(LLMultiGesture* gesture)
@@ -918,7 +918,7 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 	delete info;
 	info = NULL;
 
-	gGestureManager.mLoadingCount--;
+	LLGestureManager::getInstance()->mLoadingCount--;
 
 	if (0 == status)
 	{
@@ -945,21 +945,21 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 		{
 			if (deactivate_similar)
 			{
-				gGestureManager.deactivateSimilarGestures(gesture, item_id);
+				LLGestureManager::getInstance()->deactivateSimilarGestures(gesture, item_id);
 
 				// Display deactivation message if this was the last of the bunch.
-				if (gGestureManager.mLoadingCount == 0
-					&& gGestureManager.mDeactivateSimilarNames.length() > 0)
+				if (LLGestureManager::getInstance()->mLoadingCount == 0
+					&& LLGestureManager::getInstance()->mDeactivateSimilarNames.length() > 0)
 				{
 					// we're done with this set of deactivations
 					LLStringUtil::format_map_t args;
-					args["[NAMES]"] = gGestureManager.mDeactivateSimilarNames;
+					args["[NAMES]"] = LLGestureManager::getInstance()->mDeactivateSimilarNames;
 					LLNotifyBox::showXml("DeactivatedGesturesTrigger", args);
 				}
 			}
 
 			// Everything has been successful.  Add to the active list.
-			gGestureManager.mActive[item_id] = gesture;
+			LLGestureManager::getInstance()->mActive[item_id] = gesture;
 			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 			if (inform_server)
 			{
@@ -979,13 +979,13 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 				gAgent.sendReliableMessage();
 			}
 
-			gGestureManager.notifyObservers();
+			LLGestureManager::getInstance()->notifyObservers();
 		}
 		else
 		{
 			llwarns << "Unable to load gesture" << llendl;
 
-			gGestureManager.mActive.erase(item_id);
+			LLGestureManager::getInstance()->mActive.erase(item_id);
 			
 			delete gesture;
 			gesture = NULL;
@@ -1010,7 +1010,7 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 
 		llwarns << "Problem loading gesture: " << status << llendl;
 		
-		gGestureManager.mActive.erase(item_id);			
+		LLGestureManager::getInstance()->mActive.erase(item_id);			
 	}
 }
 

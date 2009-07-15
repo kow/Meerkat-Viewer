@@ -3345,7 +3345,7 @@ void LLAppViewer::idle()
 
 	{
 		// Handle pending gesture processing
-		gGestureManager.update();
+		LLGestureManager::getInstance()->update();
 
 		gAgent.updateAgentPosition(gFrameDTClamped, yaw, current_mouse.mX, current_mouse.mY);
 	}

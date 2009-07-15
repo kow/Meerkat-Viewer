@@ -230,7 +230,7 @@ void LLInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batc
 		{
 			if(LLAssetType::AT_GESTURE == item->getType())
 			{
-				gGestureManager.deactivateGesture(item->getUUID());
+				LLGestureManager::getInstance()->deactivateGesture(item->getUUID());
 			}
 		}
 	}
@@ -246,7 +246,7 @@ void LLInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batc
 			{
 				if(LLAssetType::AT_GESTURE == descendent_items[j]->getType())
 				{
-					gGestureManager.deactivateGesture(descendent_items[j]->getUUID());
+					LLGestureManager::getInstance()->deactivateGesture(descendent_items[j]->getUUID());
 				}
 			}
 		}
@@ -1211,9 +1211,9 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				{
 					LLInventoryItem* item = descendent_items[i];
 					if (item->getType() == LLAssetType::AT_GESTURE
-						&& gGestureManager.isGestureActive(item->getUUID()))
+						&& LLGestureManager::getInstance()->isGestureActive(item->getUUID()))
 					{
-						gGestureManager.deactivateGesture(item->getUUID());
+						LLGestureManager::getInstance()->deactivateGesture(item->getUUID());
 					}
 				}
 			}
@@ -1736,9 +1736,9 @@ BOOL LLFolderBridge::removeItem()
 	{
 		LLInventoryItem* item = descendent_items[i];
 		if (item->getType() == LLAssetType::AT_GESTURE
-			&& gGestureManager.isGestureActive(item->getUUID()))
+			&& LLGestureManager::getInstance()->isGestureActive(item->getUUID()))
 		{
-			gGestureManager.deactivateGesture(item->getUUID());
+			LLGestureManager::getInstance()->deactivateGesture(item->getUUID());
 		}
 	}
 
@@ -2231,9 +2231,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		if(accept && drop)
 		{
 			if (inv_item->getType() == LLAssetType::AT_GESTURE
-				&& gGestureManager.isGestureActive(inv_item->getUUID()) && move_is_into_trash)
+				&& LLGestureManager::getInstance()->isGestureActive(inv_item->getUUID()) && move_is_into_trash)
 			{
-				gGestureManager.deactivateGesture(inv_item->getUUID());
+				LLGestureManager::getInstance()->deactivateGesture(inv_item->getUUID());
 			}
 			// If an item is being dragged between windows, unselect
 			// everything in the active window so that we don't follow
@@ -2926,7 +2926,7 @@ LLUIImagePtr LLGestureBridge::getIcon() const
 
 LLFontGL::StyleFlags LLGestureBridge::getLabelStyle() const
 {
-	if( gGestureManager.isGestureActive(mUUID) )
+	if( LLGestureManager::getInstance()->isGestureActive(mUUID) )
 	{
 		return LLFontGL::BOLD;
 	}
@@ -2938,7 +2938,7 @@ LLFontGL::StyleFlags LLGestureBridge::getLabelStyle() const
 
 std::string LLGestureBridge::getLabelSuffix() const
 {
-	if( gGestureManager.isGestureActive(mUUID) )
+	if( LLGestureManager::getInstance()->isGestureActive(mUUID) )
 	{
 		return LLItemBridge::getLabelSuffix() + " (active)";
 	}
@@ -2953,7 +2953,7 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 {
 	if ("activate" == action)
 	{
-		gGestureManager.activateGesture(mUUID);
+		LLGestureManager::getInstance()->activateGesture(mUUID);
 
 		LLViewerInventoryItem* item = gInventory.getItem(mUUID);
 		if (!item) return;
@@ -2965,7 +2965,7 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 	}
 	else if ("deactivate" == action)
 	{
-		gGestureManager.deactivateGesture(mUUID);
+		LLGestureManager::getInstance()->deactivateGesture(mUUID);
 
 		LLViewerInventoryItem* item = gInventory.getItem(mUUID);
 		if (!item) return;
@@ -3002,7 +3002,7 @@ void LLGestureBridge::openItem()
 BOOL LLGestureBridge::removeItem()
 {
 	// Force close the preview window, if it exists
-	gGestureManager.deactivateGesture(mUUID);
+	LLGestureManager::getInstance()->deactivateGesture(mUUID);
 	return LLItemBridge::removeItem();
 }
 
@@ -3890,7 +3890,7 @@ void wear_inventory_category_on_avatar_step2( BOOL proceed, void* userdata )
 		{
 			llinfos << "Activating " << gest_count << " gestures" << llendl;
 
-			gGestureManager.activateGestures(gest_item_array);
+			LLGestureManager::getInstance()->activateGestures(gest_item_array);
 
 			// Update the inventory item labels to reflect the fact
 			// they are active.
@@ -4188,9 +4188,9 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, void* userdata)
 		{
 			for(i = 0; i  < gest_count; ++i)
 			{
-				if ( gGestureManager.isGestureActive( gest_item_array.get(i)->getUUID()) )
+				if ( LLGestureManager::getInstance()->isGestureActive( gest_item_array.get(i)->getUUID()) )
 				{
-					gGestureManager.deactivateGesture( gest_item_array.get(i)->getUUID() );
+					LLGestureManager::getInstance()->deactivateGesture( gest_item_array.get(i)->getUUID() );
 					gInventory.updateItem( gest_item_array.get(i) );
 					gInventory.notifyObservers();
 				}

@@ -51,7 +51,7 @@ public:
 	virtual void changed() = 0;
 };
 
-class LLGestureManager
+class LLGestureManager : public LLSingleton<LLGestureManager>
 {
 public:
 	LLGestureManager();
@@ -157,6 +157,6 @@ public:
 	std::vector<LLGestureManagerObserver*> mObservers;
 };
 
-extern LLGestureManager gGestureManager;
+//extern LLGestureManager gGestureManager;
 
 #endif

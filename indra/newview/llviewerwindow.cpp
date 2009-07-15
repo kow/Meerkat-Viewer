@@ -2492,7 +2492,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// Try for a new-format gesture
-	if (gGestureManager.triggerGesture(key, mask))
+	if (LLGestureManager::getInstance()->triggerGesture(key, mask))
 	{
 		return TRUE;
 	}
