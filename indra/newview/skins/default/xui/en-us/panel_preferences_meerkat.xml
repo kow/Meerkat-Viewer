@@ -249,7 +249,11 @@
 	<check_box bottom_delta="-40" enabled="true"
 		 follows="left|top" font="SansSerifSmall" height="16" initial_value="false"
 		 label="Hear typing sound when people type" left_delta="0" mouse_opaque="true"
-		 name="typing-sound-toggle" radio_style="false" width="270" control_name="PlayTypingSound" />	
+		 name="typing-sound-toggle" radio_style="false" width="270" control_name="PlayTypingSound" />
+	<check_box bottom_delta="-40" enabled="true"
+		 follows="left|top" font="SansSerifSmall" height="16" initial_value="false"
+		 label="Allow multiple viewer processes" left_delta="0" mouse_opaque="true"
+		 name="multiple-viewers-toggle" radio_style="false" width="270" control_name="MeerkatAllowMultipleViewers" />
     </panel>
     <panel border="true" bottom="-580" follows="left|top|right|bottom" height="525"
            label="CmdLine" left="1" mouse_opaque="true" name="CmdLine" width="418">

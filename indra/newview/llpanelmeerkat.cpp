@@ -218,6 +218,7 @@ BOOL LLPanelMeerkat::postBuild()
 	childSetValue("MeerkatInstantMessageResponseItem", gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageResponseItem"));
 	childSetValue("MeerkatInstantMessageAnnounceIncoming", gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageAnnounceIncoming"));
 	childSetValue("MeerkatInstantMessageAnnounceStealFocus", gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageAnnounceStealFocus"));
+	childSetValue("multiple-viewers-toggle", gSavedSettings.getBOOL("AllowMultipleViewers"));
 
 	refresh();
 	return TRUE;
@@ -255,6 +256,7 @@ void LLPanelMeerkat::apply()
 	gSavedPerAccountSettings.setBOOL("MeerkatInstantMessageResponseItem", childGetValue("MeerkatInstantMessageResponseItem").asBoolean());
 	gSavedPerAccountSettings.setBOOL("MeerkatInstantMessageAnnounceIncoming", childGetValue("MeerkatInstantMessageAnnounceIncoming").asBoolean());
 	gSavedPerAccountSettings.setBOOL("MeerkatInstantMessageAnnounceStealFocus", childGetValue("MeerkatInstantMessageAnnounceStealFocus").asBoolean());
+	gSavedSettings.setBOOL("AllowMultipleViewers", childGetValue("multiple-viewers-toggle").asBoolean());
 
 }
 
