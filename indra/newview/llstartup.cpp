@@ -954,7 +954,7 @@ bool idle_startup()
 		}
 
 		// Display the startup progress bar.
-		gViewerWindow->setShowProgress(TRUE);
+		gViewerWindow->setShowProgress(!gSavedSettings.getBOOL("MeerkatDisableLoginScreens"));
 		gViewerWindow->setProgressCancelButtonVisible(TRUE, std::string("Quit")); // *TODO: Translate
 
 		// Poke the VFS, which could potentially block for a while if
@@ -2590,17 +2590,6 @@ void login_show()
 						login_callback, NULL );
 
 	// UI textures have been previously loaded in doPreloadImages()
-	
-	LL_DEBUGS("AppInit") << "Setting Servers" << LL_ENDL;
-
-	//KOW
-	/*
-	LLViewerLogin* vl = LLViewerLogin::getInstance();
-	for(int grid_index = 1; grid_index < GRID_INFO_OTHER; ++grid_index)
-	{
-		LLPanelLogin::addServer(vl->getKnownGridLabel(grid_index), grid_index);
-	}
-	*/
 }
 
 // Callback for when login screen is closed.  Option 0 = connect, option 1 = quit.
@@ -2787,14 +2776,27 @@ void first_run_dialog_callback(S32 option, void* userdata)
 	LLPanelLogin::giveFocus();
 }
 
-
-
+std::string last_d;
 void set_startup_status(const F32 frac, const std::string& string, const std::string& msg)
 {
-	gViewerWindow->setProgressPercent(frac*100);
-	gViewerWindow->setProgressString(string);
+	if(gSavedSettings.getBOOL("MeerkatDisableLoginScreens"))
+	{
+		std::string new_d = string;
+		if(new_d != last_d)
+		{
+			last_d = new_d;
+			LLChat chat;
+			chat.mText = new_d;
+			chat.mSourceType = (EChatSourceType)(CHAT_SOURCE_OBJECT+1);
+			LLFloaterChat::addChat(chat);
+		}
+	}else
+	{
+		gViewerWindow->setProgressPercent(frac*100);
+		gViewerWindow->setProgressString(string);
 
-	gViewerWindow->setProgressMessage(msg);
+		gViewerWindow->setProgressMessage(msg);
+	}
 }
 
 void login_alert_status(S32 option, void* user_data)

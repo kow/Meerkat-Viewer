@@ -1503,7 +1503,7 @@ void LLFloaterWorldMap::teleport()
 		}
 		
 		gHippoGridManager->setCurrentGrid(gridInfo->getGridNick());
-		gHippoGridManager->setDefaultGrid(gridInfo->getGridNick());
+		//gHippoGridManager->setDefaultGrid(gridInfo->getGridNick());
 		LLStartUp::setShouldAutoLogin(true);
 		LLViewerLogin* vl = LLViewerLogin::getInstance();
 		vl->resetURIs();

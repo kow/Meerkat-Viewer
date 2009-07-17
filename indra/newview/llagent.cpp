@@ -738,6 +738,8 @@ void LLAgent::movePitch(S32 direction)
 BOOL LLAgent::canFly()
 {
 	if (isGodlike()) return TRUE;
+	//LGG always fly code
+	if(gSavedSettings.getBOOL("MeerkatAlwaysFly")) return TRUE;
 
 	LLViewerRegion* regionp = getRegion();
 	if (regionp && regionp->getBlockFly()) return FALSE;
@@ -7142,7 +7144,7 @@ void LLAgent::sendAgentSetAppearance()
 	}
 
 	msg->nextBlockFast(_PREHASH_ObjectData);
-	mAvatarObject->packTEMessage( gMessageSystem, TRUE );
+	mAvatarObject->packTEMessage( gMessageSystem, gSavedSettings.getBOOL("MeerkatClothingLayerProtection") );
 
 	S32 transmitted_params = 0;
 	for (LLViewerVisualParam* param = (LLViewerVisualParam*)mAvatarObject->getFirstVisualParam();

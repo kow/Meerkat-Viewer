@@ -943,14 +943,14 @@ void LLFloaterAvatarList::refreshAvatarList()
 			element["columns"][LIST_ACTIVITY]["value"] = icon;
 			//llinfos << "Activity icon: " << activity_icon << llendl;
 		}
-
+/*
 		char tempentered[32];
 		F32 entered = ent->getEntryEnteredSeconds();
 		snprintf(tempentered, sizeof(tempentered), "%u", (unsigned int)(entered/60.0));
 		element["columns"][LIST_ENTERED]["column"] = "entered";
 		element["columns"][LIST_ENTERED]["type"] = "text";
 		element["columns"][LIST_ENTERED]["value"] = tempentered;
-
+*/
 		
 		element["columns"][LIST_CLIENT]["column"] = "client";
 		element["columns"][LIST_CLIENT]["type"] = "text";

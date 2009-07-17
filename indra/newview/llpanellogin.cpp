@@ -1151,8 +1151,6 @@ void LLPanelLogin::onSelectServer(LLUICtrl* ctrl, void*)
 	LLViewerLogin* vl = LLViewerLogin::getInstance();
 	vl->resetURIs();
 
-	//gHippoGridManager->setDefaultGrid(mCurGrid);
-	//gHippoGridManager->saveFile();
 	HippoGridInfo *gridInfo = gHippoGridManager->getGrid(mCurGrid);
 		if (gridInfo) {
 			//childSetText("gridnick", gridInfo->getGridNick());
@@ -1164,50 +1162,8 @@ void LLPanelLogin::onSelectServer(LLUICtrl* ctrl, void*)
 
 
 	
-		llwarns << "current grid = " << mCurGrid << llendl;
+	llwarns << "current grid = " << mCurGrid << llendl;
 
-	/*
-	if (LLSD::TypeInteger == combo_val.type())
-	{
-		grid_index = combo->getValue().asInteger();
-
-		if ((S32)GRID_INFO_OTHER == grid_index)
-		{
-			// This happens if the user specifies a custom grid
-			// via command line.
-			grid_label = combo->getSimple();
-		}
-	}
-	else
-	{
-		// no valid selection, return other
-		grid_index = (S32)GRID_INFO_OTHER;
-		grid_label = combo_val.asString();
-	}
-
-	// This new seelction will override preset uris
-	// from the command line.
-	LLViewerLogin* vl = LLViewerLogin::getInstance();
-	vl->resetURIs();
-	if(grid_index != GRID_INFO_OTHER)
-	{
-		vl->setGridChoice(grid_index);
-	}
-	else
-	{
-		vl->setGridChoice(grid_label);
-	}
-
-	// clear the password if we are switching grids so we don't send
-	// the wrong pass to the wrong grid.
-	if (sInstance)
-	{
-		// no method to clear a text box?
-		const std::string nothing("");
-		sInstance->childSetText("password_edit", nothing);		
-	}
-	*/
-		
 	// grid changed so show new splash screen (possibly)
 	loadLoginPage();
 }

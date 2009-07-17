@@ -1287,6 +1287,15 @@ void LLScrollingPanelParam::onSliderMoved(LLUICtrl* ctrl, void* userdata)
 	F32 new_weight = self->percentToWeight( (F32)slider->getValue().asReal() );
 	if (current_weight != new_weight )
 	{
+		LLFloaterCustomize* floater_customize = gFloaterCustomize;
+		if (!floater_customize) return;
+
+		LLVOAvatar* avatar = gAgent.getAvatarObject();
+		F32 avatar_size = avatar->mBodySize.mV[VZ];
+		
+		floater_customize->getChild<LLTextBox>("HeightText")->setValue(llformat("%.2f", avatar_size) + "m");
+		floater_customize->getChild<LLTextBox>("HeightText2")->setValue(llformat("%.1f", avatar_size / 0.3048) + "'");
+
 		gAgent.getAvatarObject()->setVisualParamWeight( param, new_weight, TRUE);
 		gAgent.getAvatarObject()->updateVisualParams();
 	}
@@ -2247,6 +2256,15 @@ void LLFloaterCustomize::draw()
 	// to be called when the tabs change or an inventory item
 	// arrives. Figure out some way to avoid this if possible.
 	updateInventoryUI();
+
+	LLFloaterCustomize* floater_customize = gFloaterCustomize;
+	if (!floater_customize) return;
+
+	LLVOAvatar* avatar = gAgent.getAvatarObject();
+	F32 avatar_size = avatar->mBodySize.mV[VZ];
+		
+	floater_customize->getChild<LLTextBox>("HeightText")->setValue(llformat("%.2f", avatar_size) + "m");
+	floater_customize->getChild<LLTextBox>("HeightText2")->setValue(llformat("%.1f", avatar_size / 0.3048) + "'");
 
 	LLScrollingPanelParam::sUpdateDelayFrames = 0;
 	

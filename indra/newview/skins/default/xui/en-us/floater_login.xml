@@ -162,6 +162,13 @@
   -->
 
   <!-- Cancel/Connect Buttons -->
+  <text_editor type="string" length="1" allow_html="false" bg_readonly_color="0 0 0 0" top_delta="150"
+     embedded_items="false" enabled="false" follows="left|top"
+     font="SansSerifSmall" height="65" hide_border="true" hide_scrollbar="true"
+     left="190" max_length="65535" mouse_opaque="true"
+     name="copy_description" tab_stop="false" width="420" word_wrap="true">
+    Tip: Store information for alternate accounts by using the "Copy" button to create multiple profiles for the same grid.
+  </text_editor>
   <button bottom="-44" follows="right|top" font="SansSerif" halign="center"
 	     height="24" label="Set as Default" label_selected="Set as Default"
 	     left="470" mouse_opaque="true" name="set_default" scale_image="TRUE"

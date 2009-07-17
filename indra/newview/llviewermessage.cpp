@@ -1441,10 +1441,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	bool typing_init = false;
 	if( dialog == IM_TYPING_START && !is_muted )
 	{
-		if(!gIMMgr->hasSession(computed_session_id) && gSavedPerAccountSettings.getBOOL("EmeraldInstantMessageAnnounceIncoming"))
+		if(!gIMMgr->hasSession(computed_session_id) && gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageAnnounceIncoming"))
 		{
 			typing_init = true;
-			if( gSavedPerAccountSettings.getBOOL("EmeraldInstantMessageAnnounceStealFocus") )
+			if( gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageAnnounceStealFocus") )
 			{
 				/*LLUUID sess =*/ gIMMgr->addSession(name, IM_NOTHING_SPECIAL, from_id);
 				make_ui_sound("UISndNewIncomingIMSession");
@@ -1470,15 +1470,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	}
 
 	bool do_auto_response = false;
-	if( gSavedPerAccountSettings.getBOOL("EmeraldInstantMessageResponseAnyone" ) )
+	if( gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageResponseAnyone" ) )
 		do_auto_response = true;
 
 	// odd name for auto respond to non-friends
-	if( gSavedPerAccountSettings.getBOOL("EmeraldInstantMessageResponseFriends") &&
+	if( gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageResponseFriends") &&
 		LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL )
 		do_auto_response = true;
 
-	if( is_muted && !gSavedPerAccountSettings.getBOOL("EmeraldInstantMessageResponseMuted") )
+	if( is_muted && !gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageResponseMuted") )
 		do_auto_response = false;
 
 	if( offline != IM_ONLINE )
@@ -1496,13 +1496,13 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	if( do_auto_response )
 	{
 		if((dialog == IM_NOTHING_SPECIAL && !is_auto_response) ||
-			(dialog == IM_TYPING_START && gSavedPerAccountSettings.getBOOL("EmeraldInstantMessageShowOnTyping"))
+			(dialog == IM_TYPING_START && gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageShowOnTyping"))
 			)
 		{
 			BOOL has = gIMMgr->hasSession(computed_session_id);
-			if(!has || gSavedPerAccountSettings.getBOOL("EmeraldInstantMessageResponseRepeat") || typing_init)
+			if(!has || gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageResponseRepeat") || typing_init)
 			{
-				BOOL show = !gSavedPerAccountSettings.getBOOL("EmeraldInstantMessageShowResponded");
+				BOOL show = !gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageShowResponded");
 				if(!has && show)
 				{
 					gIMMgr->addSession(name, IM_NOTHING_SPECIAL, from_id);
@@ -1523,14 +1523,14 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				}
 				std::string my_name;
 				gAgent.buildFullname(my_name);
-				if(gSavedPerAccountSettings.getBOOL("EmeraldInstantMessageResponseRepeat") && has && !typing_init) {
+				if(gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageResponseRepeat") && has && !typing_init) {
 					// send as busy auto response instead to prevent endless repeating replies
 					// when other end is a bot or broken client that answers to every usual IM
 					// reasoning for this decision can be found in RFC2812 3.3.2 Notices
 					// where PRIVMSG can be seen as IM_NOTHING_SPECIAL and NOTICE can be seen as
 					// IM_BUSY_AUTO_RESPONSE. The assumption here is that no existing client
 					// responds to IM_BUSY_AUTO_RESPONSE. --TS
-					std::string response = gSavedPerAccountSettings.getText("EmeraldInstantMessageResponse");
+					std::string response = gSavedPerAccountSettings.getText("MeerkatInstantMessageResponse");
 					pack_instant_message(
 						gMessageSystem,
 						gAgent.getID(),
@@ -1543,7 +1543,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 						IM_BUSY_AUTO_RESPONSE,
 						session_id);
 				} else {
-					std::string response = "/me (auto-response): "+gSavedPerAccountSettings.getText("EmeraldInstantMessageResponse");
+					std::string response = "/me (auto-response): "+gSavedPerAccountSettings.getText("MeerkatInstantMessageResponse");
 					pack_instant_message(
 						gMessageSystem,
 						gAgent.getID(),
@@ -1557,9 +1557,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 						session_id);
 				}
 				gAgent.sendReliableMessage();
-				if(gSavedPerAccountSettings.getBOOL("EmeraldInstantMessageResponseItem") && (!has || typing_init))
+				if(gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageResponseItem") && (!has || typing_init))
 				{
-					LLUUID itemid = (LLUUID)gSavedPerAccountSettings.getString("EmeraldInstantMessageResponseItemData");
+					LLUUID itemid = (LLUUID)gSavedPerAccountSettings.getString("MeerkatInstantMessageResponseItemData");
 					LLViewerInventoryItem* item = gInventory.getItem(itemid);
 					if(item)
 					{
@@ -1581,7 +1581,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 						LLToolDragAndDrop::giveInventory(from_id, item);
 					}
 				}
-				//EmeraldInstantMessageResponseItem<
+				//MeerkatInstantMessageResponseItem<
 				
 			}
 		}
