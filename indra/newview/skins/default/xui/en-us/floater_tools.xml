@@ -102,9 +102,13 @@
 			Reference
 		</combo_item>
 	</combo_box>
-	<check_box bottom="-70" control_name="ScaleUniform" follows="left|top"
+    <check_box bottom="-70" control_name="UnconstrainSize" follows="left|top"
 	     font="SansSerifSmall" height="16" initial_value="false"
-	     label="Stretch Both Sides" left="143" mouse_opaque="true"
+	     label=">10m Object Size" left="143" mouse_opaque="true"
+	     name="checkbox unconstrain" width="134" />
+	<check_box bottom_delta="-15" control_name="ScaleUniform" follows="left|top"
+	     font="SansSerifSmall" height="16" initial_value="false"
+	     label="Stretch Both Sides" left_delta="0" mouse_opaque="true"
 	     name="checkbox uniform" width="134" />
 	<check_box bottom_delta="-15" control_name="ScaleStretchTextures" follows="left|top"
 	     font="SansSerifSmall" height="16" initial_value="true"
@@ -227,11 +231,6 @@
 	     image_unselected="object_grass.tga" label="" label_selected=""
 	     left_delta="23" mouse_opaque="true" name="ToolGrass" scale_image="TRUE"
 	     tool_tip="Grass" width="24" />
-
-	<combo_box max_chars="20" enabled="false" allow_text_entry="false" name="trees_grass"
-		height="18" width="135" right="-5" bottom="-122"
-		follows="left|top" mouse_opaque="true" />
-
 	<check_box bottom="-117" control_name="CreateToolKeepSelected" follows="left|top"
 	     font="SansSerifSmall" height="16" initial_value="false"
 	     label="Keep Tool Selected" left="4" mouse_opaque="true"
@@ -433,7 +432,7 @@
 			     bottom_delta="0" drop_shadow_visible="true" follows="left|top"
 			     font="SansSerifSmall" h_pad="0" halign="left" height="16" left_delta="90"
 			     mouse_opaque="true" name="Cost" v_pad="0" width="78">
-				Price: [CURRENCY]
+				Price:  L$
 			</text>
 			<line_editor bevel_style="in" border_style="line" border_thickness="1" bottom_delta="0"
 			     follows="left|top|right" font="SansSerifSmall" height="16" left_delta="80"
@@ -552,13 +551,13 @@
 				Must select entire object to set permissions.
 			</string>
 			<string name="Cost Default">
-			Price:           [CURRENCY]
+			Price:           L$
 			</string>
 			<string name="Cost Total">
-			Total Price:  [CURRENCY]
+			Total Price:  L$
 			</string>
 			<string name="Cost Per Unit">
-			Price Per:     [CURRENCY]
+			Price Per:     L$
 			</string>
 			<string name="Cost Mixed">
 			Mixed Price
@@ -608,17 +607,17 @@
 			     mouse_opaque="true" name="label position" v_pad="0" width="121">
 				Position (meters)
 			</text>
-			<spinner bottom_delta="-20" decimal_digits="3" follows="left|top" height="16"
+			<spinner bottom_delta="-20" decimal_digits="4" follows="left|top" height="16"
 			     increment="0.01" initial_val="0" label="X" label_width="10" left="10"
-			     max_val="2147483647" min_val="-2147483647" mouse_opaque="true" name="Pos X"
+			     max_val="512" min_val="-256" mouse_opaque="true" name="Pos X"
 			     text_enabled_color="110, 15, 15, 255" width="100" />
 			<spinner bottom_delta="-18" decimal_digits="4" follows="left|top" height="16"
 			     increment="0.01" initial_val="0" label="Y" label_width="10" left="10"
-			     max_val="2147483647" min_val="-2147483647" mouse_opaque="true" name="Pos Y"
+			     max_val="512" min_val="-256" mouse_opaque="true" name="Pos Y"
 			     text_enabled_color="0, 100, 40, 255" width="100" />
 			<spinner bottom_delta="-18" decimal_digits="4" follows="left|top" height="16"
 			     increment="0.01" initial_val="0" label="Z" label_width="10" left="10"
-			     max_val="2147483647" min_val="2147483647" mouse_opaque="true" name="Pos Z"
+			     max_val="16384" min_val="0" mouse_opaque="true" name="Pos Z"
 			     text_enabled_color="0, 67, 132, 255" width="100" />
 			<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom_delta="-16" drop_shadow_visible="true" follows="left|top"
@@ -628,15 +627,15 @@
 			</text>
 			<spinner bottom_delta="-20" decimal_digits="5" follows="left|top" height="16"
 			     increment="0.01" initial_val="0" label="X" label_width="10" left="10"
-			     max_val="2147483647" min_val="0.01" mouse_opaque="true" name="Scale X"
+			     max_val="1024" min_val="0.01" mouse_opaque="true" name="Scale X"
 			     text_enabled_color="1, 1, 1, 1" width="100" />
 			<spinner bottom_delta="-18" decimal_digits="5" follows="left|top" height="16"
 			     increment="0.01" initial_val="0" label="Y" label_width="10" left="10"
-			     max_val="2147483647" min_val="0.01" mouse_opaque="true" name="Scale Y"
+			     max_val="1024" min_val="0.01" mouse_opaque="true" name="Scale Y"
 			     text_enabled_color="1, 1, 1, 1" width="100" />
 			<spinner bottom_delta="-18" decimal_digits="5" follows="left|top" height="16"
 			     increment="0.01" initial_val="0" label="Z" label_width="10" left="10"
-			     max_val="2147483647" min_val="0.01" mouse_opaque="true" name="Scale Z"
+			     max_val="1024" min_val="0.01" mouse_opaque="true" name="Scale Z"
 			     text_enabled_color="1, 1, 1, 1" width="100" />
 			<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 			     bottom_delta="-16" drop_shadow_visible="true" follows="left|top"
@@ -745,8 +744,8 @@
 				Skew
 			</text>
 			<spinner bottom_delta="-20" decimal_digits="1" follows="left|top" height="16"
-			     increment="5" initial_val="0" left="121" max_val="95" min_val="0"
-			     mouse_opaque="true" name="hollow" width="68" />
+			     increment="1" initial_val="0" left="121" max_val="99" min_val="0"
+			     mouse_opaque="true" name="Scale 1" width="68" />
 			<spinner bottom_delta="0" decimal_digits="2" follows="left|top" height="16"
 			     increment="0.05" initial_val="0" left_delta="73" max_val="0.95"
 			     min_val="-0.95" mouse_opaque="true" name="Skew" width="68" />
@@ -1136,13 +1135,13 @@
 			     mouse_opaque="true" name="tex scale" v_pad="0" width="160">
 				Repeats per Face
 			</text>
-			<spinner bottom="-178" decimal_digits="3" follows="left|top" height="16" increment="0.05"
+			<spinner bottom="-178" decimal_digits="3" follows="left|top" height="16" increment="0.1"
 			     initial_val="0" label="Horizontal (U)" label_width="90" left="20"
 			     max_val="100" min_val="0" mouse_opaque="true" name="TexScaleU" width="160" />
 			<check_box bottom="-179" follows="left|top" font="SansSerifSmall" height="16"
 			     initial_value="false" label="Flip" left_delta="170" mouse_opaque="true"
 			     name="checkbox flip s" width="70" />
-			<spinner bottom="-196" decimal_digits="3" follows="left|top" height="16" increment="0.05"
+			<spinner bottom="-196" decimal_digits="3" follows="left|top" height="16" increment="0.1"
 			     initial_val="0" label="Vertical (V)" label_width="90" left="20"
 			     max_val="100" min_val="0" mouse_opaque="true" name="TexScaleV" width="160" />
 			<check_box bottom="-197" follows="left|top" font="SansSerifSmall" height="16"
@@ -1218,7 +1217,7 @@
 		     bottom="-18" drop_shadow_visible="true" follows="left|top"
 		     font="SansSerifSmall" h_pad="0" halign="left" height="16" left="4"
 		     mouse_opaque="true" name="label_area_price" v_pad="0" width="150">
-			Price: [CURRENCY][PRICE] for [AREA] sq. m.
+			Price: L$[PRICE] for [AREA] sq. m.
 		</text>
 		<text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 		     bottom_delta="0" drop_shadow_visible="true" follows="left|top"
