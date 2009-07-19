@@ -10506,6 +10506,28 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>MeerkatJointBeacons</key>
+  <map>
+    <key>Comment</key>
+    <string>Always display LookAt beacons</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatAttachmentBeacons</key>
+  <map>
+    <key>Comment</key>
+    <string>Always display attachment beacons</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>MeerkatDoubleClickWearInventoryObjects</key>
   <map>
     <key>Comment</key>
@@ -10824,6 +10846,28 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>MeerkatAllowPhantomToggle</key>
+  <map>
+    <key>Comment</key>
+    <string>Do you want to be able to hit ctrl alt p to become visably phantom?</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatAllowSitToggle</key>
+  <map>
+    <key>Comment</key>
+    <string>Do you want to be able to hit ctrl-alt-s to ground sit anywhere?</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
   </map>
   <key>MeerkatCmdLine</key>
   <map>

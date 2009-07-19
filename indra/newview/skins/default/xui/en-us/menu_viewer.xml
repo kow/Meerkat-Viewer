@@ -484,11 +484,6 @@
 		     mouse_opaque="true" name="Set UI Size to Default" width="188">
 			<on_click function="View.DefaultUISize" userdata="" />
 		</menu_item_call>
-    <menu_item_check bottom="-186" enabled="true" height="20" label="Avatar List" left="0"
-		     mouse_opaque="true" name="Avatar List" width="155">
-      <on_click function="Emerald.ToggleAvatarList" userdata="avatars" />
-      <on_check control="ShowAvatarList" />
-    </menu_item_check>
 	</menu>
 	<menu bottom="-18" create_jump_keys="true" drop_shadow="true" enabled="true"
 	     height="339" label="World" left="0" mouse_opaque="false" name="World"
@@ -889,4 +884,95 @@
 			<on_click function="ShowFloater" userdata="about" />
 		</menu_item_call>
 	</menu>
+  <menu bottom="729" create_jump_keys="true" drop_shadow="true" enabled="true"
+     height="210" label="Meerkat" left="269" mouse_opaque="false" name="Meerkat"
+     opaque="true" tear_off="true" width="155">
+    <tearoff_menu bottom="-10" enabled="true" height="10" label="~~~~~~~~~~~" left="0"
+		     mouse_opaque="true" name="~~~~~~~~~~~" width="155" />
+    <menu_item_check bottom="-30" enabled="true" height="20" label="Phantom" left="0"
+		     mouse_opaque="true" name="Phantom" shortcut="control|alt|p" width="155">
+      <on_click function="Emerald.TogglePhantom" userdata="" />
+      <on_check function="Emerald.CheckPhantom" userdata="" />
+    </menu_item_check>
+    <menu_item_call bottom="-50" enabled="true" height="20" label="Ground Sit" left="0"
+		     mouse_opaque="true" name="Ground Sit" shortcut="control|alt|s" width="155">
+      <on_click function="Emerald.ToggleSit" userdata="" />
+    </menu_item_call>
+    <menu_item_separator bottom="-58" enabled="true" height="8" label="-----------" left="0"
+		     mouse_opaque="true" name="separator1" width="155" />
+    <menu_item_check bottom="-58" enabled="true" height="20" label="Double-Click Auto-Pilot" left="0"
+		     mouse_opaque="true" name="Double-Click Auto-Pilot" width="155">
+      <on_click function="ToggleControl" userdata="DoubleClickAutoPilot" />
+      <on_check control="DoubleClickAutoPilot" />
+    </menu_item_check>
+    <menu_item_check bottom="-58" enabled="true" height="20" label="Show LookAt" left="0"
+		     mouse_opaque="true" name="show LookAt" width="155">
+      <on_click function="ToggleControl" userdata="PersistShowLookAt" />
+      <on_check control="PersistShowLookAt" />
+    </menu_item_check>
+    <menu_item_check bottom="-58" enabled="true" height="20" label="Show Joint Beacons" left="0"
+		     mouse_opaque="true" name="Show Joint Beacons" width="155">
+      <on_click function="ToggleControl" userdata="MeerkatJointBeacons" />
+      <on_check control="MeerkatJointBeacons" />
+    </menu_item_check>
+    <menu_item_check bottom="-58" enabled="true" height="20" label="Show Attachment Beacons" left="0"
+		     mouse_opaque="true" name="Show Attachment Beacons" width="155">
+      <on_click function="ToggleControl" userdata="MeerkatAttachmentBeacons" />
+      <on_check control="MeerkatAttachmentBeacons" />
+    </menu_item_check>
+    
+    <menu_item_separator bottom="-58" enabled="true" height="8" label="-----------" left="0"
+		     mouse_opaque="true" name="separator1" width="155" />
+    <!-- 
+    <menu_item_check bottom="-78" enabled="true" height="20" label="Rainbow Beam" left="0"
+		     mouse_opaque="true" name="Rainbow Beam" width="155">
+      <on_click function="ToggleControl" userdata="EmeraldRainbowBeam" />
+      <on_check control="EmeraldRainbowBeam" />
+    </menu_item_check>
+    -->
+    <menu_item_check bottom="-98" enabled="true" height="20" label="SL Particle Chat" left="0"
+		     mouse_opaque="true" name="SL Particle Chat" width="155">
+      <on_click function="ToggleControl" userdata="EmeraldParticleChat" />
+      <on_check control="EmeraldParticleChat" />
+    </menu_item_check>
+    <menu_item_check bottom="-118" enabled="true" height="20" label="Radar Chat" left="0"
+		     mouse_opaque="true" name="Radar Chat" width="155">
+      <on_click function="ToggleControl" userdata="EmeraldRadarChatKeys" />
+      <on_check control="EmeraldRadarChatKeys" />
+    </menu_item_check>
+    <menu_item_check bottom="-118" enabled="true" height="20" label="Show Advanced" left="0"
+		     mouse_opaque="true" name="Show Advanced" width="155">
+      <on_click function="ToggleDebugMenus" userdata="" />
+      <on_check control="UseDebugMenus" />
+    </menu_item_check>
+    <menu_item_separator bottom="-126" enabled="true" height="8" label="-----------" left="0"
+		     mouse_opaque="true" name="separator2" width="155" />
+    <menu_item_check bottom="-146" enabled="false" height="20" label="Animation List" left="0"
+		     mouse_opaque="true" name="Animation List" width="155">
+      <on_click function="ShowFloater" userdata="animation list" />
+      <on_check function="FloaterVisible" userdata="animation list" />
+    </menu_item_check>
+    <menu_item_check bottom="-166" enabled="false" height="20" label="Area Search" left="0"
+		     mouse_opaque="true" name="Area Search" width="155">
+      <on_click function="ShowFloater" userdata="areasearch" />
+      <on_check function="FloaterVisible" userdata="areasearch" />
+    </menu_item_check>
+    <menu_item_check bottom="-186" enabled="true" height="20" label="Avatar List" left="0"
+		     mouse_opaque="true" name="Avatar List" width="155">
+      <on_click function="Emerald.ToggleAvatarList" userdata="avatars" />
+      <on_check control="ShowAvatarList" />
+    </menu_item_check>
+    <menu_item_check bottom="-206" enabled="true" height="20" label="Teleport History" left="0"
+		     mouse_opaque="true" name="Teleport History" shortcut="" width="155">
+      <on_click function="ShowFloater" userdata="teleport history" />
+      <on_check function="FloaterVisible" userdata="teleport history" />
+    </menu_item_check>
+    <!-- 
+    <menu_item_check bottom="-206" enabled="true" height="20" label="Lua Console" left="0"
+		     mouse_opaque="true" name="Lua Console" shortcut="" width="155">
+      <on_click function="ShowFloater" userdata="lua console" />
+      <on_check function="FloaterVisible" userdata="lua console" />
+    </menu_item_check>
+    -->
+  </menu>
 </menu_bar>

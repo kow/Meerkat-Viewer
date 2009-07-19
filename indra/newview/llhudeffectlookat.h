@@ -76,6 +76,7 @@ protected:
 
 	/*virtual*/ void update();
 	/*virtual*/ void render();
+	/*virtual*/	void drawBeacon(LLVector3 target, LLQuaternion grid_rotation, std::string text, LLColor4 color, F32 size);
 	/*virtual*/ void packData(LLMessageSystem *mesgsys);
 	/*virtual*/ void unpackData(LLMessageSystem *mesgsys, S32 blocknum);
 	

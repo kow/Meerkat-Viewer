@@ -553,8 +553,92 @@ void LLHUDEffectLookAt::render()
 			hud_render_utf8text(text, render_pos, *fontp, LLFontGL::NORMAL, -0.5f * fontp->getWidthF32(text), 3.f, Color, FALSE );
 			
 			glPopMatrix();
+		}	
+	}
+	if( gSavedSettings.getBOOL("MeerkatJointBeacons") ){
+		LLVOAvatar* source_avatar = (LLVOAvatar*)(LLViewerObject*)mSourceObject;
+
+		int numJoints = source_avatar->mNumJoints;
+//		int numJoints = (int)30;
+		for(int i=0; i<numJoints; i++)
+		{
+			LLJoint* cur_joint = source_avatar->getCharacterJoint( (U32)i );
+			drawBeacon(cur_joint->getWorldPosition(), cur_joint->getWorldRotation(), cur_joint->getName(), LLColor4(1.0f, 1.0f, 1.0f, 1.0f), 0.3f);
 		}
 	}
+			
+	if( gSavedSettings.getBOOL("MeerkatAttachmentBeacons") ){
+		LLVOAvatar* source_avatar = (LLVOAvatar*)(LLViewerObject*)mSourceObject;
+
+		for (LLVOAvatar::attachment_map_t::iterator iter = source_avatar->mAttachmentPoints.begin(); 
+		 iter != source_avatar->mAttachmentPoints.end(); )
+		{
+			LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+			LLViewerJointAttachment* attachment = curiter->second;
+			if (attachment->getObject())
+			{
+				if(attachment->getObject()->mDrawable->isVisible())
+				{
+					LLDrawable* parent = attachment->getObject()->mDrawable->getParent();
+
+					drawBeacon(parent->getWorldPosition(),
+					parent->getWorldRotation(), attachment->getName(),
+					LLColor4(1.0f, 1.0f, 1.0f, 1.0f), 0.3f);
+					drawBeacon(attachment->getObject()->getRenderPosition(),
+					attachment->getObject()->getRenderRotation(), attachment->getName(),
+					LLColor4(1.0f, 1.0f, 1.0f, 1.0f), 0.3f);
+				}
+			}
+		}
+	}
+}
+
+//draws a beacon at target, with rotation, text, color, and beacon size.
+void LLHUDEffectLookAt::drawBeacon(LLVector3 target, LLQuaternion grid_rotation, std::string text, LLColor4 color, F32 size)
+{
+	LLGLSNoTexture gls_no_texture;
+
+	glMatrixMode(GL_MODELVIEW);
+	gGL.pushMatrix();
+	gGL.translatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
+		
+	F32 angle_radians, x, y, z;
+	grid_rotation.getAngleAxis(&angle_radians, &x, &y, &z);
+	glRotatef(angle_radians * RAD_TO_DEG, x, y, z);
+
+	glScalef(0.3f, 0.3f, 0.3f);
+	gGL.begin(LLVertexBuffer::LINES);
+	{
+		gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], color.mV[VALPHA]);
+		gGL.vertex3f(-size, 0.f, 0.f);
+		gGL.vertex3f(size, 0.f, 0.f);
+
+		gGL.vertex3f(0.f, -size, 0.f);
+		gGL.vertex3f(0.f, size, 0.f);
+
+		gGL.vertex3f(0.f, 0.f, -size);
+		gGL.vertex3f(0.f, 0.f, size);
+	} gGL.end();
+	gGL.popMatrix();
+
+	const LLFontGL* fontp = LLFontGL::sSansSerifSmall;//LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL );
+	LLGLEnable color_mat(GL_COLOR_MATERIAL);
+	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+	LLGLState gls_blend(GL_BLEND, TRUE);
+	LLGLState gls_alpha(GL_ALPHA_TEST, TRUE);
+	//gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], color.mV[VALPHA]);
+	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+	gGL.getTexUnit(0)->enable();
+	
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	LLVector3 render_pos = target + LLVector3( 0.f, 0.f, 0.1f );
+	LLColor4 Color = LLColor4( 1.0f, 1.0f, 1.0f, 1.0f ); 
+	
+	gViewerWindow->setupViewport();
+	hud_render_utf8text(text, render_pos, *fontp, LLFontGL::NORMAL, -0.5f * fontp->getWidthF32(text), 3.f, Color, FALSE );
+			
+	glPopMatrix();	
 }
 
 //-----------------------------------------------------------------------------

@@ -39,7 +39,13 @@
 		<combo_item type="string" length="1" enabled="true" name="1024x768" value="1024 x 768">
 			1024x768
 		</combo_item>
-
+    <combo_item type="string" length="1" enabled="true" name="1280x720" value="1280 x 720">
+      1280x720 (720p)
+    </combo_item>
+    <combo_item type="string" length="1" enabled="true" name="1024x554" value="1024 x 554">
+      1024x554 (Youtube HD)
+    </combo_item>
+    
 	</combo_box>
 	<text type="string" length="1" bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
 	     bottom="-62" drop_shadow_visible="true" enabled="true" follows="left|top"

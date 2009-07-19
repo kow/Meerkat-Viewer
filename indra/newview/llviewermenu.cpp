@@ -965,15 +965,6 @@ void init_client_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemCallGL("Leave Admin Status", 
 		&handle_leave_god_mode, NULL, NULL, 'G', MASK_ALT | MASK_SHIFT | MASK_CONTROL));
 
-	//menu->append(new LLMenuItemCallGL("Log Out", LLAppViewer::userLogout, NULL,NULL));
-
-	menu->append(new LLMenuItemCheckGL( "Keep Appearance Across Grids", 
-									&menu_toggle_control,
-									NULL, 
-									&menu_check_control,
-									(void*)"KeepAppearance"));
-	menu->append(new LLMenuItemCallGL("Load Asset From Disk...", NULL, NULL, NULL));
-
 	menu->createJumpKeys();
 }
 
@@ -1360,7 +1351,9 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemCallGL("Reload Vertex Shader", &reload_vertex_shader, NULL));
 	menu->append(new LLMenuItemToggleGL("Animation Info", &LLVOAvatar::sShowAnimationDebug));
 	menu->append(new LLMenuItemCallGL("Slow Motion Animations", &slow_mo_animations, NULL));
-	menu->append(new LLMenuItemToggleGL("Show Look At", &LLHUDEffectLookAt::sDebugLookAt));
+	menu->append(new LLMenuItemCheckGL( "Show 'Look At' Beacons",	&menu_toggle_control, NULL, &menu_check_control, (void*)"_GEMINI_ShowLookAt"));
+	menu->append(new LLMenuItemCheckGL( "Show Joint Beacons",	&menu_toggle_control, NULL, &menu_check_control, (void*)"MeerkatJointBeacons"));
+	menu->append(new LLMenuItemCheckGL( "Show Attachment Beacons",	&menu_toggle_control, NULL, &menu_check_control, (void*)"MeerkatAttachmentBeacons"));
 	menu->append(new LLMenuItemToggleGL("Show Point At", &LLHUDEffectPointAt::sDebugPointAt));
 	menu->append(new LLMenuItemToggleGL("Debug Joint Updates", &LLVOAvatar::sJointDebug));
 	menu->append(new LLMenuItemToggleGL("Disable LOD", &LLViewerJoint::sDisableLOD));
@@ -2137,8 +2130,8 @@ class LLObjectEnableExport : public view_listener_t
 		bool new_value = (object != NULL);
 		if (new_value)
 		{
-			LLVOAvatar* avatar = find_avatar_from_object(object); 
-			new_value = (avatar == NULL);
+			//LLVOAvatar* avatar = find_avatar_from_object(object); 
+			//new_value = (avatar == NULL);
 		}
 		if(new_value)
 		{
@@ -5478,10 +5471,7 @@ class LLShowFloater : public view_listener_t
 		{
 			LLFloaterAbout::show(NULL);
 		}
-		else if (floater_name == "avatar list")
-		{
-			LLFloaterAvatarList::toggle(NULL);
-		}
+
 		else if (floater_name == "active speakers")
 		{
 			LLFloaterActiveSpeakers::toggleInstance(LLSD());
@@ -7630,6 +7620,78 @@ class LLWorldChat : public view_listener_t
 	}
 };
 
+//handlers lgg new menu
+class LLEmeraldTogglePhantom: public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		if(gSavedSettings.getBOOL("MeerkatAllowPhantomToggle"))
+		{
+			LLAgent::togglePhantom();
+			BOOL ph = LLAgent::getPhantom();
+			LLChat chat;
+			chat.mSourceType = CHAT_SOURCE_SYSTEM;
+			chat.mText = llformat("%s%s","Phantom ",(ph ? "On" : "Off"));
+			LLFloaterChat::addChat(chat);
+			//gMenuHolder->findControl(userdata["control"].asString())->setValue(ph);
+		}
+		return true;
+	}
+
+};
+
+class LLEmeraldCheckPhantom: public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(LLAgent::getPhantom());
+		return true;
+	}
+};
+
+class LLEmeraldToggleSit: public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		if(gSavedSettings.getBOOL("MeerkatAllowSitToggle"))
+		{
+			gAgent.setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
+			LLChat chat;
+			chat.mSourceType = CHAT_SOURCE_SYSTEM;
+			chat.mText = "Forcing Ground Sit";
+			LLFloaterChat::addChat(chat);
+		}
+		return true;
+	}
+
+};
+class LLEmeraldToggleRadar: public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		//open the radar panel
+		LLFloaterAvatarList::toggle(0);
+		bool vis = false;
+		if(LLFloaterAvatarList::getInstance())
+		{
+			vis = (bool)LLFloaterAvatarList::getInstance()->getVisible();
+		}
+		//gMenuHolder->findControl(userdata["control"].asString())->setValue(vis);
+		return true;
+	}
+};
+
+class LLEmeraldDisable: public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		std::string control_name = userdata["control"].asString();
+
+		gMenuHolder->findControl(control_name)->setValue(false);
+		return true;
+	}
+};
+
 class LLToolsSelectTool : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -7852,6 +7914,15 @@ void initialize_menus()
 	addMenu(new LLViewCheckBeaconEnabled(), "View.CheckBeaconEnabled");
 	addMenu(new LLViewCheckRenderType(), "View.CheckRenderType");
 	addMenu(new LLViewCheckHUDAttachments(), "View.CheckHUDAttachments");
+
+	//Emerlad menu, another shakey lgg mod
+	addMenu(new LLEmeraldTogglePhantom(), "Emerald.TogglePhantom");
+	addMenu(new LLEmeraldCheckPhantom(), "Emerald.CheckPhantom");
+	addMenu(new LLEmeraldToggleSit(), "Emerald.ToggleSit");
+	addMenu(new LLEmeraldToggleRadar(), "Emerald.ToggleAvatarList");
+	//addMenu(new LLEmeraldCheckRadar(), "Emerald.CheckAvatarList");
+	addMenu(new LLEmeraldDisable(), "Emerald.Disable");
+//	addMenu(new LLToggleDebugMenus(), "ToggleDebugMenus");
 
 	// World menu
 	addMenu(new LLWorldChat(), "World.Chat");
