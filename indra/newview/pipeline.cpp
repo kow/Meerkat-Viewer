@@ -93,7 +93,6 @@
 #include "llvopartgroup.h"
 #include "llworld.h"
 #include "llcubemap.h"
-#include "llfloateravatarlist.h"
 #include "lldebugmessagebox.h"
 #include "llviewershadermgr.h"
 #include "llviewerjoystick.h"
@@ -2002,27 +2001,6 @@ void renderSoundHighlights(LLDrawable* drawablep)
 	}
 }
 
-/**
- * @brief Add particle sources to avatar list
- * This tells the avatar list floater who is emitting particles
- */
-void addParticleSourcesToList(LLDrawable *drawablep)
-{
-	if ( NULL != gFloaterAvatarList )
-	{
-		LLViewerObject *vobj = drawablep->getVObj();
-		if (vobj && vobj->isParticleSource())
-		{
-			LLUUID id = vobj->mPartSourcep->getOwnerUUID();
-			LLAvatarListEntry *ent = gFloaterAvatarList->getAvatarEntry(id);
-			if ( NULL != ent )
-			{
-				ent->setActivity(ACTIVITY_PARTICLES);
-			}
-		}
-	}
-}
-
 void LLPipeline::postSort(LLCamera& camera)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
@@ -2123,8 +2101,6 @@ void LLPipeline::postSort(LLCamera& camera)
 		std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
 	}
 
-	forAllVisibleDrawables(addParticleSourcesToList);
-
 	// only render if the flag is set. The flag is only set if we are in edit mode or the toggle is set in the menus
 	if (gSavedSettings.getBOOL("BeaconAlwaysOn"))
 	{
@@ -2170,23 +2146,6 @@ void LLPipeline::postSort(LLCamera& camera)
 			}
 			// now deal with highlights for all those seeable sound sources
 			forAllVisibleDrawables(renderSoundHighlights);
-		}
-	}
-
-	// Avatar list support
-	if ( gFloaterAvatarList && gAudiop )
-	{
-		LLAudioEngine::source_map::iterator iter;
-		for (iter = gAudiop->mAllSources.begin(); iter != gAudiop->mAllSources.end(); ++iter)
-		{
-			LLAudioSource *sourcep = iter->second;
-			LLUUID uuid = sourcep->getOwnerID();
-			LLAvatarListEntry *ent = gFloaterAvatarList->getAvatarEntry(uuid);
-
-			if ( ent )
-			{
-				ent->setActivity(ACTIVITY_SOUND);
-			}
 		}
 	}
 

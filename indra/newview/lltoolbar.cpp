@@ -156,7 +156,7 @@ BOOL LLToolBar::postBuild()
 	childSetControlName("inventory_btn", "ShowInventory");
 	
 	childSetAction("avatar_list_btn", onClickAvatarList, this);
-	childSetControlName("inventory_btn", "ShowAvatarList");
+	childSetControlName("avatar_list_btn", "ShowAvatarList");
 
 	for (child_list_const_iter_t child_iter = getChildList()->begin();
 		 child_iter != getChildList()->end(); ++child_iter)

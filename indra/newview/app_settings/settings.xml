@@ -6840,7 +6840,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowCameraControls</key>
+  <key>ShowAvatarList</key>
+  <map>
+    <key>Comment</key>
+    <string>Show Avatar List Floater</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>ShowCameraControls</key>
     <map>
       <key>Comment</key>
       <string>Display camera controls on login</string>
@@ -10649,6 +10660,94 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>MeerkatRadarChatKeys</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable silent chat of avatar keys when they enter the region to boost lsl radars speed and range</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatRadarChatKeysChannel</key>
+  <map>
+    <key>Comment</key>
+    <string>What channel you want the avatar key chat to go on, -777777777 is default</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>-777777777</integer>
+  </map>
+  <key>vivoxProductionServerName</key>
+  <map>
+    <key>Comment</key>
+    <string>vivoxProductionServerName</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>bhr.vivox.com</string>
+  </map>
+  <key>vivoxDebugServerName</key>
+  <map>
+    <key>Comment</key>
+    <string>vivoxDebugServerName</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>bhd.vivox.com</string>
+  </map>
+  <key>MeerkatRadarChatKeys</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable silent chat of avatar keys when they enter the region to boost lsl radars speed and range</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatRadarChatKeysChannel</key>
+  <map>
+    <key>Comment</key>
+    <string>What channel you want the avatar key chat to go on, -777777777 is default</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>-777777777</integer>
+  </map>
+  <key>vivoxProductionServerName</key>
+  <map>
+    <key>Comment</key>
+    <string>vivoxProductionServerName</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>bhr.vivox.com</string>
+  </map>
+  <key>vivoxDebugServerName</key>
+  <map>
+    <key>Comment</key>
+    <string>vivoxDebugServerName</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>bhd.vivox.com</string>
+  </map>
   <key>MeerkatClothingLayerProtection</key>
   <map>
     <key>Comment</key>
@@ -10664,6 +10763,50 @@
   <map>
     <key>Comment</key>
     <string>Overwrites clothing layers to sim in order to protect your worn items from being as easily stolen</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatRadarChatAlerts</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether the radar emits chat alerts regarding the status of avatars it displays</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatRadarAlertSim</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether the radar emits chat alerts for entering / exiting sim</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatRadarAlertDraw</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether the radar emits chat alerts for entering / exiting draw distance</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatRadarAlertChatRange</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether the radar emits chat alerts for entering / exiting chat range</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -10681,6 +10824,753 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>MeerkatCmdLine</key>
+  <map>
+    <key>Comment</key>
+    <string>Would you like the chatbar to be able to be used for command line functions?</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatCmdLineHeight</key>
+  <map>
+    <key>Comment</key>
+    <string>Teleport to height function command</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>gth</string>
+  </map>
+  <key>MeerkatCmdLinePos</key>
+  <map>
+    <key>Comment</key>
+    <string>Teleport to position function command</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>gtp</string>
+  </map>
+  <key>MeerkatCmdLineGround</key>
+  <map>
+    <key>Comment</key>
+    <string>Teleport to ground function command</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>flr</string>
+  </map>
+  <key>MeerkatCmdLineTeleportHome</key>
+  <map>
+    <key>Comment</key>
+    <string>Teleport to home function command</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>tph</string>
+  </map>
+  <key>MeerkatCmdLineRezPlatform</key>
+  <map>
+    <key>Comment</key>
+    <string>Rez a platform underneath you</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>rezplat</string>
+  </map>
+  <key>MeerkatCmdLineMapTo</key>
+  <map>
+    <key>Comment</key>
+    <string>Teleport to a region by name rapidly</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>mapto</string>
+  </map>
+  <key>MeerkatCmdLineDrawDistance</key>
+  <map>
+    <key>Comment</key>
+    <string>Change draw distance quickly</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>dd</string>
+  </map>
+  <key>MeerkatCmdTeleportToCam</key>
+  <map>
+    <key>Comment</key>
+    <string>Teleport to your camera</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>tp2cam</string>
+  </map>
+  <key>MeerkatCmdLineKeyToName</key>
+  <map>
+    <key>Comment</key>
+    <string>Use a fast key to name querry</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>key2name</string>
+  </map>
+  <key>MeerkatCmdLineOfferTp</key>
+  <map>
+    <key>Comment</key>
+    <string>Offer a teleport to target avatar</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>offertp</string>
+  </map>
+  <key>MeerkatMapToKeepPos</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether to use current local pos on tp to the new sim</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatCmdLineCalc</key>
+  <map>
+    <key>Comment</key>
+    <string>Calculates an expression</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>calc</string>
+  </map>
+  <key>MeerkatCmdLineTP2</key>
+  <map>
+    <key>Comment</key>
+    <string>Teleport to a person by name, partials work.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>tp2</string>
+  </map>
+  <key>MeerkatDoubleClickWearInventoryObjects</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to automatically wear objects in your inventory you wear</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatBlockClickSit</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to block left-click sitting on things</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatTemporaryUpload</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not a upload is temp</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatParticleChat</key>
+  <map>
+    <key>Comment</key>
+    <string>Speak Particle Info on channel 9000</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatBeamShape</key>
+  <map>
+    <key>Comment</key>
+    <string>Beam file for the shape of your beam</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>Meerkat</string>
+  </map>
+  <key>MeerkatBeamShapeScale</key>
+  <map>
+    <key>Comment</key>
+    <string>How Big You Want to let the beam be</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
+  <key>MeerkatRainbowBeam</key>
+  <map>
+    <key>Comment</key>
+    <string>Use color cycling selection beam.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatClickSendTouchPos</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable sending clicked points</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatAvatarListKeepOpen</key>
+  <map>
+    <key>Comment</key>
+    <string>Keeps Avatar List updates running in background</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatLargeFriendslistNoSLim</key>
+  <map>
+    <key>Comment</key>
+    <string>Wipes SLim FriendsList [TESTING ONLY!]</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatPlayTpSound</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to hear the tp sound</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatRenderHighlightSelections</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to show selection highlight</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatBlockMapTps</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to block all script map tps</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatShowMoneyChangeInChat</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to chat out money events</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatBroadcastEffects</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to broadcast your head and point at movements</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatMaxBeamsPerSecond</key>
+  <map>
+    <key>Comment</key>
+    <string>How many beams you want to send per second(more = more bandwidth)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>40.0</real>
+  </map>
+  <key>MeerkatChangeColorOnClient</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to change tag color based on client</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatClientTagDisplay</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to change tag color based on client</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatShowLookAtNames</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to show names over who looks at you</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>PersistShowLookAt</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to show look at info</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>FloaterAreaSearchRect</key>
+  <map>
+    <key>Comment</key>
+    <string>Rectangle</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Rect</string>
+    <key>Value</key>
+    <array>
+      <integer>0</integer>
+      <integer>400</integer>
+      <integer>200</integer>
+      <integer>0</integer>
+    </array>
+  </map>
+  <key>AppName</key>
+  <map>
+    <key>Comment</key>
+    <string>AppData Directory Name</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>SecondLife</string>
+  </map>
+  <key>PortableMode</key>
+  <map>
+    <key>Comment</key>
+    <string>Client is running in portable mode</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatVerticalIMTabs</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable vertical layout for IM tabs</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatDownloadClientTags</key>
+  <map>
+    <key>Comment</key>
+    <string>download tags</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>WarnClientTags</key>
+  <map>
+    <key>Comment</key>
+    <string>Enables ClientTags warning dialog</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatAvatarXModifier</key>
+  <map>
+    <key>Comment</key>
+    <string>wat</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.0</real>
+  </map>
+  <key>MeerkatAvatarYModifier</key>
+  <map>
+    <key>Comment</key>
+    <string>wat</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.0</real>
+  </map>
+  <key>MeerkatAvatarZModifier</key>
+  <map>
+    <key>Comment</key>
+    <string>wat</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.0</real>
+  </map>
+  <key>MeerkatDialogSpamEnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>Enables Dialog Spam Prevention</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatCardSpamEnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>Enables CallingCard Spam Prevention</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatSpamTime</key>
+  <map>
+    <key>Comment</key>
+    <string>ADVANCED SETTINGS: Time of Evalulating spam. RECOMMENDED NUMBER IS 1.000</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
+  <key>MeerkatSpamCount</key>
+  <map>
+    <key>Comment</key>
+    <string>ADVANCED SETTINGS: Number of items spammed per time set in MeerkatSpamTime. RECOMMENDED IS 4.000</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>4.0</real>
+  </map>
+  <key>MeerkatBuildPrefs_Xsize</key>
+  <map>
+    <key>Comment</key>
+    <string>Default Size For New Objects to be created X</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
+  <key>MeerkatBuildPrefs_Ysize</key>
+  <map>
+    <key>Comment</key>
+    <string>Default Size For New Objects to be created Y</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
+  <key>MeerkatBuildPrefs_Zsize</key>
+  <map>
+    <key>Comment</key>
+    <string>Default Size For New Objects to be created Z</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
+  <key>MeerkatBuildPrefs_Phantom</key>
+  <map>
+    <key>Comment</key>
+    <string>Default Setting For New Objects to be created, phantom flag</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatBuildPrefs_Temporary</key>
+  <map>
+    <key>Comment</key>
+    <string>Default Setting For New Objects to be created, temp flag</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatBuildPrefs_Physical</key>
+  <map>
+    <key>Comment</key>
+    <string>Default Setting For New Objects to be created, physical flag</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatBuildPrefs_Material</key>
+  <map>
+    <key>Comment</key>
+    <string>Default Setting For New Objects to be created, physical flag</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>Wood</string>
+  </map>
+  <key>MeerkatBuildPrefs_Color</key>
+  <map>
+    <key>Comment</key>
+    <string>Color of new objects textures</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>1.0</real>
+      <real>1.0</real>
+      <real>1.0</real>
+      <real>1.0</real>
+    </array>
+  </map>
+  <key>MeerkatBuildPrefs_Texture</key>
+  <map>
+    <key>Comment</key>
+    <string>Texture used as 'Default' for new object created</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>89556747-24cb-43ed-920b-47caed15465f</string>
+  </map>
+  <key>MeerkatBuildPrefs_Alpha</key>
+  <map>
+    <key>Comment</key>
+    <string>Default Alpha For New Objects to be created</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.0</real>
+  </map>
+  <key>MeerkatBuildPrefs_Glow</key>
+  <map>
+    <key>Comment</key>
+    <string>Default Glow For New Objects to be created</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.0</real>
+  </map>
+  <key>MeerkatBuildPrefs_FullBright</key>
+  <map>
+    <key>Comment</key>
+    <string>Default Setting For New Objects to be created, whether textures are full bright</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatBuildPrefs_Shiny</key>
+  <map>
+    <key>Comment</key>
+    <string>Shiny level used as 'Default' for new objects created</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>None</string>
+  </map>
+  <key>MeerkatBuildPrefs_PivotX</key>
+  <map>
+    <key>Comment</key>
+    <string>Pivot point on the X axis</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>50</real>
+  </map>
+  <key>MeerkatBuildPrefs_PivotY</key>
+  <map>
+    <key>Comment</key>
+    <string>Pivot point on the Y axis</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>50</real>
+  </map>
+  <key>MeerkatBuildPrefs_PivotZ</key>
+  <map>
+    <key>Comment</key>
+    <string>Pivot point on the Z axis</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>50</real>
+  </map>
+  <key>MeerkatBuildPrefs_PivotIsPercent</key>
+  <map>
+    <key>Comment</key>
+    <string>Consider the Pivot points values as a percentage</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatBuildPrefs_ActualRoot</key>
+  <map>
+    <key>Comment</key>
+    <string>Show the axis on the actual root of a linkset instead of mass center</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MeerkatIgnoreSimulatorCameraConstraints</key>
+  <map>
+    <key>Comment</key>
+    <string>Ignores the 'push' the simulator applies to your camera to keep it out of objects.(Requires restart to work correctly)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MeerkatMaxBeamsPerSecond</key>
+  <map>
+    <key>Comment</key>
+    <string>How many selection beam updates to send in a second</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>40</real>
   </map>
 </map>
 </llsd>

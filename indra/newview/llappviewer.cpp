@@ -33,7 +33,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llappviewer.h"
 #include "llprimitive.h"
-#include "llfloateravatarlist.h"
 
 #include "llversionviewer.h"
 #include "llfeaturemanager.h"
@@ -3229,7 +3228,13 @@ void LLAppViewer::idle()
 	    {
 		    // Send avatar and camera info
 		    last_control_flags = gAgent.getControlFlags();
-		    send_agent_update(TRUE);
+		    //TODO lgg - ok, this is it!  check setting on this thing and only do it if allowd
+			
+			//if(!gSavedSettings.getBOOL("phantomRightNow"))
+			if(!gAgent.getPhantom())
+			{
+				send_agent_update(TRUE);
+			}
 		    agent_update_timer.reset();
 	    }
 	}
@@ -3279,10 +3284,7 @@ void LLAppViewer::idle()
 		}
 		gFrameStats.addFrameData();
 	}
-
-	// Update avatar list
-	gFloaterAvatarList->updateAvatarList();
-
+	
 	if (!gDisconnected)
 	{
 		LLFastTimer t(LLFastTimer::FTM_NETWORK);

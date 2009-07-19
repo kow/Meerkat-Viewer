@@ -31,25 +31,33 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llpanelmeerkat.h"
-
+#include "llpanelMeerkat.h"
+//#include "lggBeamMapFloater.h"
 // linden library includes
 #include "llradiogroup.h"
 #include "llbutton.h"
 #include "lluictrlfactory.h"
+#include "llcombobox.h"
+#include "llslider.h"
+#include "lltexturectrl.h"
+
+//#include "lggBeamMaps.h"
 
 // project includes
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
+#include "llsdserialize.h"
 
 
 #include "lltabcontainer.h"
 
 #include "llinventorymodel.h"
-
+#include "llfilepicker.h"
 #include "llstartup.h"
 
 #include "lltexteditor.h"
+
+#include "llagent.h"
 
 ////////begin drop utility/////////////
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -144,7 +152,7 @@ JCInvDropTarget * LLPanelMeerkat::mObjectDropTarget;
 
 LLPanelMeerkat::LLPanelMeerkat()
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_preferences_meerkat.xml");
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_preferences_Meerkat.xml");
 	if(sInstance)delete sInstance;
 	sInstance = this;
 }
@@ -158,12 +166,28 @@ LLPanelMeerkat::~LLPanelMeerkat()
 
 BOOL LLPanelMeerkat::postBuild()
 {
-	//LLRadioGroup* skin_select = getChild<LLRadioGroup>("skin_selection");
-	//skin_select->setCommitCallback(onSelectSkin);
-	//skin_select->setCallbackUserData(this);
-	//onCommitApplyControl
+	refresh();
+	getChild<LLComboBox>("material")->setSimple(gSavedSettings.getString("MeerkatBuildPrefs_Material"));
+	getChild<LLComboBox>("combobox shininess")->setSimple(gSavedSettings.getString("MeerkatBuildPrefs_Shiny"));
+	
+	getChild<LLSlider>("MeerkatBeamShapeScale")->setCommitCallback(beamUpdateCall);
+	getChild<LLSlider>("MeerkatMaxBeamsPerSecond")->setCommitCallback(beamUpdateCall);
+
+	getChild<LLComboBox>("material")->setCommitCallback(onComboBoxCommit);
+	getChild<LLComboBox>("combobox shininess")->setCommitCallback(onComboBoxCommit);
+	getChild<LLComboBox>("MeerkatBeamShape_combo")->setCommitCallback(onComboBoxCommit);
+	getChild<LLTextureCtrl>("texture control")->setDefaultImageAssetID(LLUUID("89556747-24cb-43ed-920b-47caed15465f"));
+	getChild<LLTextureCtrl>("texture control")->setCommitCallback(onTexturePickerCommit);
+
+		
+	//childSetCommitCallback("material",onComboBoxCommit);
+	//childSetCommitCallback("combobox shininess",onComboBoxCommit);
+	getChild<LLButton>("custom_beam_btn")->setClickedCallback(onCustomBeam, this);
+	getChild<LLButton>("refresh_beams")->setClickedCallback(onRefresh,this);
+	getChild<LLButton>("delete_beam")->setClickedCallback(onBeamDelete,this);
 	getChild<LLButton>("revert_production_voice_btn")->setClickedCallback(onClickVoiceRevertProd, this);
 	getChild<LLButton>("revert_debug_voice_btn")->setClickedCallback(onClickVoiceRevertDebug, this);
+	
 
 	childSetCommitCallback("production_voice_field", onCommitApplyControl);//onCommitVoiceProductionServerName);
 	childSetCommitCallback("debug_voice_field", onCommitApplyControl);//onCommitVoiceDebugServerName);
@@ -173,7 +197,17 @@ BOOL LLPanelMeerkat::postBuild()
 	childSetCommitCallback("MeerkatCmdLineHeight", onCommitApplyControl);
 	childSetCommitCallback("MeerkatCmdLineTeleportHome", onCommitApplyControl);
 	childSetCommitCallback("MeerkatCmdLineRezPlatform", onCommitApplyControl);
-	childSetCommitCallback("MeerkatCmdLineMapTo", onCommitApplyControl);
+	childSetCommitCallback("MeerkatCmdLineMapTo", onCommitApplyControl);	
+	childSetCommitCallback("MeerkatCmdLineCalc", onCommitApplyControl);
+
+	childSetCommitCallback("MeerkatCmdLineDrawDistance", onCommitApplyControl);
+	childSetCommitCallback("MeerkatCmdTeleportToCam", onCommitApplyControl);
+	childSetCommitCallback("MeerkatCmdLineKeyToName", onCommitApplyControl);
+	childSetCommitCallback("MeerkatCmdLineOfferTp", onCommitApplyControl);
+
+	childSetCommitCallback("X Modifier", onCommitSendAppearance);
+	childSetCommitCallback("Y Modifier", onCommitSendAppearance);
+	childSetCommitCallback("Z Modifier", onCommitSendAppearance);
 
 	LLView *target_view = getChild<LLView>("im_give_drop_target_rect");
 	if(target_view)
@@ -218,7 +252,6 @@ BOOL LLPanelMeerkat::postBuild()
 	childSetValue("MeerkatInstantMessageResponseItem", gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageResponseItem"));
 	childSetValue("MeerkatInstantMessageAnnounceIncoming", gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageAnnounceIncoming"));
 	childSetValue("MeerkatInstantMessageAnnounceStealFocus", gSavedPerAccountSettings.getBOOL("MeerkatInstantMessageAnnounceStealFocus"));
-	childSetValue("multiple-viewers-toggle", gSavedSettings.getBOOL("AllowMultipleViewers"));
 
 	refresh();
 	return TRUE;
@@ -226,6 +259,22 @@ BOOL LLPanelMeerkat::postBuild()
 
 void LLPanelMeerkat::refresh()
 {
+	/* KOW uncomment this stuff when implementing LGG's beam code
+
+	LLComboBox* comboBox = getChild<LLComboBox>("MeerkatBeamShape_combo");
+
+	if(comboBox != NULL) 
+	{
+		comboBox->removeall();
+		comboBox->add("===OFF===");
+		std::vector<std::string> names = gLggBeamMaps.getFileNames();
+		for(int i=0; i<(int)names.size(); i++) 
+		{
+			comboBox->add(names[i]);
+		}
+		comboBox->setSimple(gSavedSettings.getString("MeerkatBeamShape"));
+	}
+	*/
 	//mSkin = gSavedSettings.getString("SkinCurrent");
 	//getChild<LLRadioGroup>("skin_selection")->setValue(mSkin);
 }
@@ -256,58 +305,84 @@ void LLPanelMeerkat::apply()
 	gSavedPerAccountSettings.setBOOL("MeerkatInstantMessageResponseItem", childGetValue("MeerkatInstantMessageResponseItem").asBoolean());
 	gSavedPerAccountSettings.setBOOL("MeerkatInstantMessageAnnounceIncoming", childGetValue("MeerkatInstantMessageAnnounceIncoming").asBoolean());
 	gSavedPerAccountSettings.setBOOL("MeerkatInstantMessageAnnounceStealFocus", childGetValue("MeerkatInstantMessageAnnounceStealFocus").asBoolean());
-	gSavedSettings.setBOOL("AllowMultipleViewers", childGetValue("multiple-viewers-toggle").asBoolean());
-
+	
+//kow uncomment when fixing lgg beam	gLggBeamMaps.forceUpdate();
 }
 
 void LLPanelMeerkat::cancel()
 {
-	// reverts any changes to current skin
-	//gSavedSettings.setString("SkinCurrent", mSkin);
 }
-//static 
 void LLPanelMeerkat::onClickVoiceRevertProd(void* data)
 {
 	LLPanelMeerkat* self = (LLPanelMeerkat*)data;
 	gSavedSettings.setString("vivoxProductionServerName", "bhr.vivox.com");
 	self->getChild<LLLineEditor>("production_voice_field")->setValue("bhr.vivox.com");
 }
+void LLPanelMeerkat::onCustomBeam(void* data)
+{
+	//LLPanelMeerkat* self =(LLPanelMeerkat*)data;
+//kow uncomment when fixing lgg beam	LggBeamMap::show(true);
 
+}
+void LLPanelMeerkat::beamUpdateCall(LLUICtrl* crtl, void* userdata)
+{
+//kow uncomment when fixing lgg beam	gLggBeamMaps.forceUpdate();
+}
+void LLPanelMeerkat::onComboBoxCommit(LLUICtrl* ctrl, void* userdata)
+{
+	LLComboBox* box = (LLComboBox*)ctrl;
+	if(box)
+	{
+		gSavedSettings.setString(box->getControlName(),box->getValue().asString());
+	}
+	
+}
+void LLPanelMeerkat::onTexturePickerCommit(LLUICtrl* ctrl, void* userdata)
+{
+	LLTextureCtrl*	image_ctrl = (LLTextureCtrl*)ctrl;
+	if(image_ctrl)
+	{
+		gSavedSettings.setString("MeerkatBuildPrefs_Texture", image_ctrl->getImageAssetID().asString());
+	}
+}
+
+void LLPanelMeerkat::onRefresh(void* data)
+{
+	LLPanelMeerkat* self = (LLPanelMeerkat*)data;
+	self->refresh();
+	
+	
+}
 void LLPanelMeerkat::onClickVoiceRevertDebug(void* data)
 {
 	LLPanelMeerkat* self = (LLPanelMeerkat*)data;
 	gSavedSettings.setString("vivoxDebugServerName", "bhd.vivox.com");
 	self->getChild<LLLineEditor>("debug_voice_field")->setValue("bhd.vivox.com");
+
+ 
+ 
 }
-/*
-//LGGs avatar effects crap
-void LLPanelMeerkat::onCommitAvatarEffectsChange(LLUICtrl* ctrl, void* user_data)
+void LLPanelMeerkat::onBeamDelete(void* data)
 {
-	//std::string control_name = ctrl->getControlName();
-	BOOL newValue = ctrl->getValue().asBoolean();
-	std::string setting_name =ctrl->getName();
-	gSavedSettings.setBOOL(setting_name, newValue);
-	//if(control_name == "MeerkatAlwaysFly")
-	//{
-	//	gSavedSettings.setBOOL("allow_phantom_toggle", newValue);
-	//}
-	//if (control_name == "MeerkatAllowPhantomToggle")
-	//{
-	//		gSavedSettings.setBOOL("allow_phantom_toggle", FALSE);
-	//}MeerkatAlwaysFly
-}*/ //jcool410 - *burns* see comment in postbuild
-//lgg - Cool, it works magicly instead, even better :) 
+	LLPanelMeerkat* self = (LLPanelMeerkat*)data;
+	
+	LLComboBox* comboBox = self->getChild<LLComboBox>("MeerkatBeamShape_combo");
 
-//void LLPanelMeerkat::onCommitVoiceProductionServerName(LLUICtrl* caller, void* user_data)
-//{
-//	gSavedSettings.setString("vivoxProductionServerName", (std::string)(((LLLineEditor*)caller)->getValue()));
-///	std::string cntrl = ((LLLineEditor*)caller)->getControlName()
-//}
-
-//void LLPanelMeerkat::onCommitVoiceDebugServerName(LLUICtrl* caller, void* user_data)
-//{
-//	gSavedSettings.setString("vivoxDebugServerName", (std::string)(((LLLineEditor*)caller)->getValue()));
-//}
+	if(comboBox != NULL) 
+	{
+		std::string filename = gDirUtilp->getAppRODataDir() 
+						+gDirUtilp->getDirDelimiter()
+						+"beams"
+						+gDirUtilp->getDirDelimiter()
+						+comboBox->getValue().asString()+".xml";
+		if(gDirUtilp->fileExists(filename))
+		{
+			LLFile::remove(filename);
+			gSavedSettings.setString("MeerkatBeamShape","===OFF===");
+		}
+	}
+	self->refresh();
+}
 
 //workaround for lineeditor dumbness in regards to control_name
 void LLPanelMeerkat::onCommitApplyControl(LLUICtrl* caller, void* user_data)
@@ -318,6 +393,12 @@ void LLPanelMeerkat::onCommitApplyControl(LLUICtrl* caller, void* user_data)
 		LLControlVariable *var = line->findControl(line->getControlName());
 		if(var)var->setValue(line->getValue());
 	}
+}
+
+void LLPanelMeerkat::onCommitSendAppearance(LLUICtrl* ctrl, void* userdata)
+{
+	gAgent.sendAgentSetAppearance();
+	//llinfos << llformat("%d,%d,%d",gSavedSettings.getF32("MeerkatAvatarXModifier"),gSavedSettings.getF32("MeerkatAvatarYModifier"),gSavedSettings.getF32("MeerkatAvatarZModifier")) << llendl;
 }
 
 

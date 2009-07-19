@@ -377,6 +377,11 @@ public:
 	void			setFlying(BOOL fly);
 	void			toggleFlying();
 
+	//lgg crap
+	static BOOL			getPhantom();// const				{ return emeraldPhantom; }
+	static void			setPhantom(BOOL phantom);
+	static void			togglePhantom();
+
 	// Does this parcel allow you to fly?
 	BOOL canFly();
 
@@ -749,6 +754,7 @@ public:
 	EDoubleTapRunMode mDoubleTapRunMode;
 
 private:
+	static BOOL emeraldPhantom;
 	bool mbAlwaysRun; // should the avatar run by default rather than walk
 	bool mbRunning;	// is the avatar trying to run right now
 

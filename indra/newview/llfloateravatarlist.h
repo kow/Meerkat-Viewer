@@ -14,9 +14,8 @@
 #include "lluuid.h"
 #include "lltimer.h"
 #include "llchat.h"
-#include "llappviewer.h"
 #include "llscrolllistctrl.h"
-#include "llhudobject.h"
+//#include "viewer.h"
 
 #include <time.h>
 #include <map>
@@ -84,8 +83,7 @@ enum e_coloring_type
 	CT_DISTANCE,
 	CT_AGE,
 	CT_SCORE,
-	CT_PAYMENT,
-	CT_ENTERED
+	CT_PAYMENT
 };
 
 /**
@@ -302,13 +300,13 @@ template <class T> U32 LLAvatarListDatum<T>::mPending = 0;
 /**
  * @brief A TrustNet score
  */
-struct LLAvListTrustNetScore
+/*struct LLAvListTrustNetScore
 {
 	F32 Score;
 	std::string Type;
 
 	LLAvListTrustNetScore(std::string type = "<uninitialized>", F32 score = 0.0f);
-};
+};*/
 
 /**
  * @brief Avatar payment information
@@ -363,24 +361,21 @@ public:
 	 * @param name Avatar's name
 	 * @param position Avatar's current position
 	 * @param isLinden TRUE if the avatar is a Linden
-	 * @param isCoarse TRUE if the avatar is only in the coarse location list
-	 * @param regionname if the region is not the same as the current agent region, else empty string
 	 */
-	LLAvatarListEntry(const LLUUID& id = LLUUID::null, const std::string &name = "", const LLVector3d &position = LLVector3d::zero, BOOL isLinden = FALSE, BOOL isCoarse = FALSE, std::string regionname = std::string() ) :
-		mID(id), mName(name), mPosition(position), mMarked(FALSE), mFocused(FALSE), mIsLinden(isLinden), mIsCoarse(isCoarse), mRegionName(regionname), mActivityType(ACTIVITY_NEW), mAccountTitle(""),
-		mUpdateTimer(), mActivityTimer(), mFrame(0)
+	LLAvatarListEntry(const LLUUID& id = LLUUID::null, const std::string &name = "", const LLVector3d &position = LLVector3d::zero, BOOL isLinden = FALSE) :
+		mID(id), mName(name), mPosition(position), mDrawPosition(position), mMarked(FALSE), mFocused(FALSE), mIsLinden(isLinden), mActivityType(ACTIVITY_NEW), mAccountTitle(""),
+		mUpdateTimer(), mActivityTimer(), mFrame(0), mInSimFrame(U32_MAX), mInDrawFrame(U32_MAX), mInChatFrame(U32_MAX)
 	{
-		mTrustNetScore.setRequestDelay(0.1f);
-		mTrustNetScore.setMaxPending(8);
-		mFrame = gFrameCount;
-		mEnteredTimer.start();
+		//mTrustNetScore.setRequestDelay(0.1f);
+		//mTrustNetScore.setMaxPending(8);
+		//mFrame;// = gFrameCount;
 	}
 
 	/**
 	 * Update world position.
 	 * Affects age.
 	 */	
-	void setPosition(LLVector3d position);
+	void setPosition(LLVector3d position, bool this_sim, bool drawn, bool chatrange);
 
 	LLVector3d getPosition();
 
@@ -390,17 +385,17 @@ public:
 	 * This is only used for determining whether the avatar is still around.
 	 * @see getEntryAgeSeconds
 	 */
-	U32 getEntryAgeFrames();
+	bool getAlive();
+
+	//for properly firing chat alerts based on prox
+	U32 getOffSimFrames();
+	U32 getOffDrawFrames();
+	U32 getOutsideChatRangeFrames();
 
 	/**
 	 * @brief Returns the age of this entry in seconds
 	 */
 	F32 getEntryAgeSeconds();
-
-	/**
-	 * @brief Returns time when avatar entered the list
-	 */
-	F32 getEntryEnteredSeconds();
 
 	/**
 	 * @brief Returns the name of the avatar
@@ -417,26 +412,6 @@ public:
 	 * @brief Whether the avatar is a Linden
 	 */
 	BOOL getIsLinden();
-
-	/**
-	 * @brief whether the avatar entry was taken from the coarse location update
-	 */
-	BOOL getIsCoarse() { return mIsCoarse; }
-
-	/**
-	 * @brief returns the agents region name or "" if same as main agent
-	 */
-	std::string &getRegionName() { return mRegionName; }
-
-	/**
-	 * @brief returns true if agent is on same region
-	 */
-	BOOL getIsSameRegion() { return mRegionName.empty(); }
-
-	/**
-	 * @brief returns reference to the HUDObject-pointer for this avatar if any
-	 */
-	LLPointer<LLHUDObject> &getHudObject() { return mHudObject; }
 
 	/**
 	 * @brief Sets a custom title for the account
@@ -485,19 +460,16 @@ private:
 	LLUUID mID;
 	std::string mName;
 	LLVector3d mPosition;
+	LLVector3d mDrawPosition;
 	BOOL mMarked;
 	BOOL mFocused;
 	BOOL mIsLinden;
-	BOOL mIsCoarse;
-	std::string mRegionName;
-	LLPointer<LLHUDObject> mHudObject; /* holds the text on screen, if we don't keep this it won't reach a stable position on-screen but gets recreated for each update */
-
 
 	ACTIVITY_TYPE mActivityType;
 
 	std::string mAccountTitle;
 
-	LLAvatarListDatum<LLAvListTrustNetScore> mTrustNetScore;
+//	LLAvatarListDatum<LLAvListTrustNetScore> mTrustNetScore;
 	LLAvatarListDatum<LLAvatarInfo>   mAvatarInfo;
 	LLAvatarListDatum<LLMiscDBInfo> mMiscInfo;
 
@@ -515,11 +487,12 @@ private:
 	 * @brief Last frame when this avatar was updated
 	 */
 	U32 mFrame;
-	
-	/**
-	 * @brief Time when avatar entered the list
-	 */
-	LLTimer mEnteredTimer;
+	//last frame when this avatar was in sim
+	U32 mInSimFrame;
+	//last frame when this avatar was in draw
+	U32 mInDrawFrame;
+	//last frame when this avatar was in chat range
+	U32 mInChatFrame;
 };
 
 
@@ -537,20 +510,19 @@ private:
  */
 class LLFloaterAvatarList : public LLFloater
 {
-public:
 	/**
 	 * @brief Creates and initializes the LLFloaterAvatarList
 	 * Here the interface is created, and callbacks are initialized.
 	 */
+private:
 	LLFloaterAvatarList();
+public:
 	~LLFloaterAvatarList();
 
-	void show();
-
-	/**
-	 * @brief Hide when user closes the list.
-	 */
-	virtual void onClose(bool app_quitting) { setVisible(FALSE); }
+	/*virtual*/ void onClose(bool app_quitting);
+	/*virtual*/ void onOpen();
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void draw();
 
 	/**
 	 * @brief Toggles interface visibility
@@ -558,10 +530,7 @@ public:
 	 */
 	static void toggle(void*);
 
-	/**
-	 * @brief Returns floater visibility status
-	 */
-	static BOOL visible(void*);
+	static void showInstance();
 
 	/**
 	 * @brief Updates the internal avatar list with the currently present avatars.
@@ -596,14 +565,14 @@ public:
 	 * @param name Avatar's name
 	 * @param type Score type ("behavior", etc)
 	 */
-	void requestTrustNetScore(LLUUID avatar, const std::string name, const std::string type);
+	//void requestTrustNetScore(LLUUID avatar, const std::string name, const std::string type);
 
 	/**
 	 * @brief Requests information about the avatar from the database
 	 * @param avatar Avatar about whom we need information
 	 * @param name Avatar's name
 	 */
-	void requestMiscInfo(LLUUID avatar, const std::string name);
+	//void requestMiscInfo(LLUUID avatar, const std::string name);
 
 	/**
 	 * @brief Handles IM messages to process the ones that are replies to database requests
@@ -611,31 +580,25 @@ public:
 	 * @param message Content
 	 * @returns TRUE if the message was handled. This will suppress further processing in llviewermessage.cpp
 	 */
-	static BOOL handleIM(LLUUID from_id, const std::string message);
+	//static BOOL handleIM(LLUUID from_id, const std::string message);
 
 	/**
 	 * @brief Process a reply from the TrustNet Adapter
 	 * This handles replies from the TrustNet adapter, such as score results.
 	 */
-	static void processTrustNetReply(char *reply);
+	//static void processTrustNetReply(char *reply);
 
 	/**
 	 * @brief Returns a string with the selected names in the list
 	 */
 	std::string getSelectedNames(const std::string& separator = ", ");
 
-	/** @brief render a debug beacon for the coarse avatars */
-	void renderDebugBeacons();
+private:
 
-	/** @brief if avatar beacons shall be rendered */
-	static bool getRenderAvatarBeacons(void *data) { return sRenderAvatarBeacons; }
+	static LLFloaterAvatarList* sInstance;
 
-	/** @brief set if avatar beacons shall be rendered */
-	static void toggleRenderAvatarBeacons(void *data) { sRenderAvatarBeacons = !sRenderAvatarBeacons; }
-
-	/** @brief set if avatar beacons shall be rendered */
-	static void setRenderAvatarBeacons(bool do_render ) { sRenderAvatarBeacons = do_render; }
-
+public:
+	static LLFloaterAvatarList* getInstance(){ return sInstance; }
 private:
 	// when a line editor loses keyboard focus, it is committed.
 	// commit callbacks are named onCommitWidgetName by convention.
@@ -647,10 +610,8 @@ private:
 		LIST_AVATAR_NAME,
 		LIST_DISTANCE,
 		LIST_AGE,
-		/*LIST_SCORE,*/
 		LIST_PAYMENT,
 		LIST_ACTIVITY,
-		LIST_ENTERED,
 		LIST_CLIENT
 	};
 
@@ -674,16 +635,6 @@ private:
 	 * @param marked_only Whether to choose only marked avatars
 	 */
 	void focusOnNext(BOOL marked_only);
-
-	/**
-	 * @brief Updates the internal avatar list from the coarse location list if not already present
-	 */
-	void updateFromCoarse();
-
-	/**
-	 * @brief Purge hud object map from entries no longer in the list
-	 */
-	void purgeAvatarHUDMap();
 
 	/**
 	 * @brief Handler for the "refresh" button click.
@@ -715,11 +666,11 @@ private:
 	static void onClickNextMarked(void *userdata);
 	static void onClickGetKey(void *userdata);
 
-	static void onClickTrustNetRate(void *userdata);
+	/*static void onClickTrustNetRate(void *userdata);
 	static void onClickTrustNetExplain(void *userdata);
 	static void onClickTrustNetWebsite(void *userdata);
 	static void onClickTrustNetGetPassword(void *userdata);
-	static void onClickTrustNetRenew(void *userdata);
+	static void onClickTrustNetRenew(void *userdata);*/
 
 	static void onDoubleClick(void *userdata);
 
@@ -728,7 +679,7 @@ private:
 //	static void onClickBan(void *userdata);
 //	static void onClickUnban(void *userdata);
 	static void onClickMute(void *userdata);
-//	static void onClickUnmute(void *userdata);
+	static void onClickUnmute(void *userdata);
 	static void onClickAR(void *userdata);
 	static void onClickTeleport(void *userdata);
 	static void onClickEjectFromEstate(void *userdata);
@@ -737,10 +688,12 @@ private:
 //	static void callbackUnfreeze(S32 option, void *userdata);
 	static void callbackEject(S32 option, void *userdata);
 //	static void callbackBan(S32 option, void *userdata);
-	static void callbackMute(S32 option, void *userdata);
+//	static void callbackMute(S32 option, void *userdata);
 //	static void callbackUnmute(void *userdata);
 	static void callbackAR(void *userdata);
 	static void callbackEjectFromEstate(S32 option, void *userdata);
+
+	static void callbackIdle(void *userdata);
 
 	void doCommand(avlist_command_t cmd);
 
@@ -776,14 +729,20 @@ private:
 	 * @brief Process the AR queue
 	 * This generates AR reports for the queued avatars
 	 */
-	void processARQueue();
-		
+	//void processARQueue();
 private:
 	/**
 	 * @brief Pointer to the avatar scroll list
 	 */
 	LLScrollListCtrl*			mAvatarList;
 	std::map<LLUUID, LLAvatarListEntry>	mAvatars;
+
+	struct LLAreaAlertEntry
+	{
+		LLUUID key;
+		U32 area;
+	};
+	std::map<LLUUID, LLAreaAlertEntry>	mAreaAlertList;
 
 	/**
 	 * @brief Queue of abuse reports
@@ -827,7 +786,7 @@ private:
 	 * @param avatar Value for $KEY
 	 * @param name Value for $NAME
 	 */
-	static void replaceVars(std::string &str, LLUUID avatar, const std::string& name);
+	//static void replaceVars(std::string &str, LLUUID avatar, const std::string& name);
 
 	// tracking data
 	BOOL mTracking;             // tracking?
@@ -842,7 +801,7 @@ private:
 	/**
 	 * @brief Used to delay trustnet requests
 	 */
-	LLTimer mTrustNetTimer;
+	//LLTimer mTrustNetTimer;
 
 	/**
 	 * @brief Luskwood command to execute
@@ -853,17 +812,5 @@ private:
 	 * @brief Avatar the camera is focused on
 	 */
 	LLUUID mFocusedAvatar;
-
-	/** @brief holds state of avatar beacon render setup */
-	static bool sRenderAvatarBeacons;
-
-
-	std::map< LLUUID, LLPointer<LLHUDObject> > mHudObjectMap;
+	//e_coloring_type mColoringType;
 };
-
-/**
- * Pointer to global LLFloaterAvatarList instance.
- * This is initialized in llviewerwindow.cpp
- * @see llviewerwindow.cpp
- */
-extern LLFloaterAvatarList* gFloaterAvatarList;

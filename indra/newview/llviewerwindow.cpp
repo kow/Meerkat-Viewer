@@ -107,7 +107,6 @@
 #include "llfloaterteleporthistory.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
-#include "llfloateravatarlist.h"
 #include "llfocusmgr.h"
 #include "llframestatview.h"
 #include "llgesturemgr.h"
@@ -1870,12 +1869,6 @@ void LLViewerWindow::initWorldUI()
 	gMorphView->setVisible(FALSE);
 
 	// *Note: this is where gFloaterMute used to be initialized.
-
-	gFloaterAvatarList = NULL;
-	LLWorldMapView::initClass();
-
-	gFloaterAvatarList = new LLFloaterAvatarList();
-	gFloaterAvatarList->setVisible(FALSE);
 
 	LLWorldMapView::initClass();
 

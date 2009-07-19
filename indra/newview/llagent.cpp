@@ -234,6 +234,8 @@ LLAgent gAgent;
 //
 BOOL LLAgent::sDebugDisplayTarget = FALSE;
 
+BOOL LLAgent::emeraldPhantom = 0;
+
 const F32 LLAgent::TYPING_TIMEOUT_SECS = 5.f;
 
 std::map<std::string, std::string> LLAgent::sTeleportErrorMessages;
@@ -755,6 +757,20 @@ BOOL LLAgent::canFly()
 
 	return parcel->getAllowFly();
 }
+//-----------------------------------------------------------------------------
+// setPhantom()  lgg
+//-----------------------------------------------------------------------------
+void LLAgent::setPhantom(BOOL phantom)
+{
+	emeraldPhantom = phantom;
+}
+//-----------------------------------------------------------------------------
+// getPhantom()  lgg
+//-----------------------------------------------------------------------------
+BOOL LLAgent::getPhantom()
+{
+	return emeraldPhantom;
+}
 
 
 //-----------------------------------------------------------------------------
@@ -813,6 +829,17 @@ void LLAgent::toggleFlying()
 
 	setFlying( fly );
 	resetView();
+}
+
+
+//-----------------------------------------------------------------------------
+// togglePhantom()
+//-----------------------------------------------------------------------------
+void LLAgent::togglePhantom()
+{
+	BOOL phan = !(emeraldPhantom);
+
+	setPhantom( phan );
 }
 
 
@@ -2730,9 +2757,9 @@ void LLAgent::startTyping()
 
 	// Addition for avatar list support.
 	// Makes the fact that this avatar is typing appear in the list
-	if ( NULL != gFloaterAvatarList )
+	if ( LLFloaterAvatarList::getInstance() )
 	{
-		LLAvatarListEntry *ent = gFloaterAvatarList->getAvatarEntry(getID());
+		LLAvatarListEntry *ent = LLFloaterAvatarList::getInstance()->getAvatarEntry(getID());
 		if ( NULL != ent )
 		{
 			ent->setActivity(ACTIVITY_TYPING);
