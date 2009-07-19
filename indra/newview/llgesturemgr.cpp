@@ -56,6 +56,7 @@
 #include "llviewermessage.h"
 #include "llvoavatar.h"
 #include "llviewerstats.h"
+#include "chatbar_as_cmdline.h"
 
 //LLGestureManager gGestureManager;
 

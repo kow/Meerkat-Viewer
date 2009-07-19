@@ -46,6 +46,7 @@
 #include "llviewermessage.h" // send_guid_sound_trigger
 #include "llviewernetwork.h"
 #include "llagent.h"
+#include "chatbar_as_cmdline.h"
 
 // Globals
 LLViewerGestureList gGestureList;

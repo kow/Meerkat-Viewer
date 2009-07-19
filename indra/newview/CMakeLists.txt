@@ -63,6 +63,7 @@ endif (LINUX)
 
 
 set(viewer_SOURCE_FILES
+	chatbar_as_cmdline.cpp
 	emerald.cpp
 	floaterlogin.cpp
 	hippoGridManager.cpp
@@ -469,6 +470,7 @@ set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
 
+	chatbar_as_cmdline.h
 	emerald.h
 	floaterlogin.h
 	hippoGridManager.h
