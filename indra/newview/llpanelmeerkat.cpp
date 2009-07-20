@@ -31,7 +31,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llpanelMeerkat.h"
+#include "llpanelmeerkat.h"
 //#include "lggBeamMapFloater.h"
 // linden library includes
 #include "llradiogroup.h"
