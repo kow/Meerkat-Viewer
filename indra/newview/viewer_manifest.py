@@ -463,8 +463,10 @@ class DarwinManifest(ViewerManifest):
         # This may be desirable for the final release.  Or not.
         if ("package" in self.args['actions'] or 
             "unpacked" in self.args['actions']):
-            self.run_command('strip -S "%(viewer_binary)s"' %
-                             { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Meerkat')})
+		self.run_command([
+			'strip', '-S', 
+			'"%(viewer_binary)s"' % { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Meerkat')}
+			])
 
 
     def package_finish(self):
@@ -494,12 +496,16 @@ class DarwinManifest(ViewerManifest):
         # make sure we don't have stale files laying about
         self.remove(sparsename, finalname)
 
-        self.run_command('hdiutil create "%(sparse)s" -volname "%(vol)s" -fs HFS+ -type SPARSE -megabytes 300 -layout SPUD' % {
-                'sparse':sparsename,
-                'vol':volname})
+        self.run_command([
+		'hdiutil', 'create', 
+		'"%(sparse)s"' % {'sparse':sparsename}, 
+		'-volname', 
+		'"%(vol)s"' % {'vol':volname}, 
+		'-fs', 'HFS+', '-type', 'SPARSE', '-megabytes', '300', '-layout', 'SPUD'
+		])
 
         # mount the image and get the name of the mount point and device node
-        hdi_output = self.run_command('hdiutil attach -private "' + sparsename + '"')
+        hdi_output = self.run_command(['hdiutil', 'attach', '-private', '"' + sparsename + '"'])
         devfile = re.search("/dev/disk([0-9]+)[^s]", hdi_output).group(0).strip()
         volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
 
@@ -537,23 +543,28 @@ class DarwinManifest(ViewerManifest):
 
         # Hide the background image, DS_Store file, and volume icon file (set their "visible" bit)
         #self.run_command('SetFile -a V "' + os.path.join(volpath, ".VolumeIcon.icns") + '"')
-        self.run_command('SetFile -a V "' + os.path.join(volpath, "background.jpg") + '"')
-        self.run_command('SetFile -a V "' + os.path.join(volpath, ".DS_Store") + '"')
+        self.run_command(['SetFile', '-a', 'V', '"' + os.path.join(volpath, "background.jpg") + '"'])
+        self.run_command(['SetFile', '-a', 'V', '"' + os.path.join(volpath, ".DS_Store") + '"'])
 
         # Create the alias file (which is a resource file) from the .r
         self.run_command('rez "' + self.src_path_of("installers/darwin/release-dmg/Applications-alias.r") + '" -o "' + os.path.join(volpath, "Applications") + '"')
 
         # Set the alias file's alias and custom icon bits
-        self.run_command('SetFile -a AC "' + os.path.join(volpath, "Applications") + '"')
+        self.run_command(['SetFile', '-a', 'AC', '"' + os.path.join(volpath, "Applications") + '"'])
 
         # Set the disk image root's custom icon bit
         #self.run_command('SetFile -a C "' + volpath + '"')
 
         # Unmount the image
-        self.run_command('hdiutil detach -force "' + devfile + '"')
+        self.run_command(['hdiutil', 'detach', '-force', '"' + devfile + '"'])
 
         print "Converting temp disk image to final disk image"
-        self.run_command('hdiutil convert "%(sparse)s" -format UDZO -imagekey zlib-level=9 -o "%(final)s"' % {'sparse':sparsename, 'final':finalname})
+        self.run_command([
+		'hdiutil', 'convert', 
+		'"%(sparse)s"' % {'sparse':sparsename}, 
+		'-format', 'UDZO', '-imagekey', 'zlib-level=9', '-o',
+		'"%(final)s"' % {'final':finalname}
+		])
         # get rid of the temp file
         self.package_file = finalname
         self.remove(sparsename)
