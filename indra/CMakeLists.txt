@@ -16,7 +16,7 @@ endif(COMMAND cmake_policy)
 project(Meerkat)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-SET(CMAKE_SUPPRESS_REGENERATION ON)
+SET(CMAKE_SUPPRESS_REGENERATION OFF)
 
 include(Variables)
 
