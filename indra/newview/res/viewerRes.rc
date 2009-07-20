@@ -249,12 +249,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Open Metaverse Foundation"
             VALUE "FileDescription", "Meerkat"
-            VALUE "FileVersion", "0.1.4.142"
+            VALUE "FileVersion", "0.1.4.151"
             VALUE "InternalName", "Meerkat"
             VALUE "LegalCopyright", "Copyright © 2001-2008, Linden Research, Inc."
             VALUE "OriginalFilename", "Meerkat.exe"
             VALUE "ProductName", "Meerkat"
-            VALUE "ProductVersion", "0.1.4.142"
+            VALUE "ProductVersion", "0.1.4.151"
         END
     END
     BLOCK "VarFileInfo"
