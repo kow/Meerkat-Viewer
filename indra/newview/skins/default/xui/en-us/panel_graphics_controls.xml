@@ -6,12 +6,11 @@
 	     image_name="icn_label_graphics2.tga" label="" left_delta="2" mouse_opaque="true"
 	     name="graphics_icon" scale_image="true" tool_tip="Adjust graphics settings"
 	     width="20" />
-  <slider bottom="-18" width="110" height="14" left_delta="20" follows="right|bottom" mouse_opaque="true"
-      name="drawslider" initial_val="64" max_val="512" min_val="24" increment="8.0"
-      can_edit_text="false" enabled="true" decimal_digits="0" show_text="true" value="64"
-           control_name="RenderFarClip" tool_tip="Draw Distance"  />
+  <combo_box allow_text_entry="false" bottom="-20" follows="left|top" height="18"
+	     left_delta="22" max_chars="20" mouse_opaque="true" name="WLPresetsCombo"
+	     width="100" />
 	<button bottom="-22" control_name="ShowGraphicsSettingsPopup" height="22" label=""
-	      left_delta="105" name="ShowGraphicsPopup" scale_image="true" toggle="true"
+	      left_delta="102" name="ShowGraphicsPopup" scale_image="true" toggle="true"
 	     tool_tip="Adjust graphics settings" width="22" />
         
 	<string name="play_label">

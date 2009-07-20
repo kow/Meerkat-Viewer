@@ -50,10 +50,10 @@ public:
 	LLPanel* mControls;
 	
 	static void onClickExpandBtn(void* user_data);
-	static void* createGraphicsPanel(void* data);
+	//static void* createGraphicsPanel(void* data);
 
-	/// handle if time of day is changed
-	static void onChangeDayTime(LLUICtrl* ctrl, void* userData);
+	/// handle if WL preset is changed
+	static void onChangePresetName(LLUICtrl* ctrl, void* userData);
 	
 	virtual void setToolTip(const std::string& msg);
 

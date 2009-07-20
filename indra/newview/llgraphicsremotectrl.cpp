@@ -33,15 +33,11 @@
 
 #include "llgraphicsremotectrl.h"
 
-#include "audioengine.h"
+#include "llcombobox.h"
 #include "lliconctrl.h"
 #include "llmimetypes.h"
 #include "lloverlaybar.h"
-#include "llviewermedia.h"
-#include "llviewerparcelmedia.h"
-#include "llviewerparcelmgr.h"
 #include "lluictrlfactory.h"
-#include "llpanelaudiovolume.h"
 #include "llparcel.h"
 #include "llviewercontrol.h"
 #include "llbutton.h"
@@ -59,7 +55,7 @@ LLGraphicsRemoteCtrl::LLGraphicsRemoteCtrl()
 	setIsChrome(TRUE);
 	setFocusRoot(TRUE);
 
-	mFactoryMap["Graphics Panel"]	= LLCallbackMap(createGraphicsPanel, NULL);
+	//mFactoryMap["Graphics Panel"]	= LLCallbackMap(createGraphicsPanel, NULL);
 	build();
 }
 
@@ -82,17 +78,28 @@ BOOL LLGraphicsRemoteCtrl::postBuild()
 	mControls = getChild<LLPanel>("graphics_controls");
 	llassert_always(mControls);
 	
-	// our three sliders
-	childSetCommitCallback("EnvTimeSlider", onChangeDayTime, NULL);
-
-	childSetAction("media_play",LLOverlayBar::toggleMediaPlay,this);
-	childSetAction("music_play",LLOverlayBar::toggleMusicPlay,this);
-	childSetAction("media_stop",LLOverlayBar::mediaStop,this);
-	childSetAction("music_stop",LLOverlayBar::toggleMusicPlay,this);
-	childSetAction("media_pause",LLOverlayBar::toggleMediaPlay,this);
-	childSetAction("music_pause",LLOverlayBar::toggleMusicPlay,this);
-
 	childSetAction("ShowGraphicsPopup", onClickExpandBtn, this);	
+
+	// add the combo boxes
+	LLComboBox* comboBox = getChild<LLComboBox>("WLPresetsCombo");
+
+	if(comboBox != NULL) {
+		
+		std::map<std::string, LLWLParamSet>::iterator mIt = 
+			LLWLParamManager::instance()->mParamList.begin();
+		for(; mIt != LLWLParamManager::instance()->mParamList.end(); mIt++) 
+		{
+			comboBox->add(mIt->first);
+		}
+
+		// entry for when we're in estate time
+		comboBox->add(LLStringUtil::null);
+
+		// set defaults on combo boxes
+		comboBox->selectByValue(LLSD("Default"));
+	}
+	comboBox->setCommitCallback(onChangePresetName);
+
 	return TRUE;
 }
 
@@ -131,46 +138,40 @@ void LLGraphicsRemoteCtrl::onClickExpandBtn(void* user_data)
 }
 
 //static
+/*
 void* LLGraphicsRemoteCtrl::createGraphicsPanel(void* data)
 {
 	LLPanelAudioVolume* panel = new LLPanelAudioVolume();
 	return panel;
 }
+*/
 
-void LLGraphicsRemoteCtrl::onChangeDayTime(LLUICtrl* ctrl, void* userData)
+void LLGraphicsRemoteCtrl::onChangePresetName(LLUICtrl* ctrl, void * userData)
 {
+	LLWLParamManager::instance()->mAnimator.mIsRunning = false;
+	LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
 
-	LLSliderCtrl* sldr = (LLSliderCtrl*) ctrl;
-	//LLGraphicsRemoteCtrl* self = (LLGraphicsRemoteCtrl*) userData;
-	//LLSliderCtrl* sldr = self->getChild<LLSliderCtrl>("EnvTimeSlider");
-
-	if (sldr) {
-		// deactivate animator
-		LLWLParamManager::instance()->mAnimator.mIsRunning = false;
-		LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
-
-		F32 val = sldr->getValueF32() + 0.25f;
-		if(val > 1.0) 
-		{
-			val--;
-		}
-
-		LLWLParamManager::instance()->mAnimator.setDayTime((F64)val);
-		LLWLParamManager::instance()->mAnimator.update(
-			LLWLParamManager::instance()->mCurParams);
+	LLComboBox * combo_box = static_cast<LLComboBox*>(ctrl);
+	
+	if(combo_box->getSimple() == "")
+	{
+		return;
 	}
+	
+	LLWLParamManager::instance()->loadPreset(
+		combo_box->getSelectedValue().asString());
+	//sWindLight->syncMenu();
 }
-
 
 // Virtual
 void LLGraphicsRemoteCtrl::setToolTip(const std::string& msg)
 {
-	std::string mime_type = LLMIMETypes::translate(LLViewerMedia::getMimeType());
-	std::string tool_tip = LLMIMETypes::findToolTip(LLViewerMedia::getMimeType());
-	std::string play_tip = LLMIMETypes::findPlayTip(LLViewerMedia::getMimeType());
+	//std::string mime_type = LLMIMETypes::translate(LLViewerMedia::getMimeType());
+	//std::string tool_tip = LLMIMETypes::findToolTip(LLViewerMedia::getMimeType());
+	//std::string play_tip = LLMIMETypes::findPlayTip(LLViewerMedia::getMimeType());
 	// childSetToolTip("media_stop", mControls->getString("stop_label") + "\n" + tool_tip);
-	childSetToolTip("media_icon", tool_tip);
-	childSetToolTip("media_play", play_tip);
+	//childSetToolTip("media_icon", tool_tip);
+	//childSetToolTip("media_play", play_tip);
 }
 
 void LLGraphicsRemoteCtrl::enableGraphicsButtons()
@@ -180,9 +181,9 @@ void LLGraphicsRemoteCtrl::enableGraphicsButtons()
 	std::string media_type = "none/none";
 
 	// Put this in xui file
-	std::string media_url = mControls->getString("default_tooltip_label");
-	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-
+	//std::string media_url = mControls->getString("default_tooltip_label");
+	//LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+/*
 	if (gSavedSettings.getBOOL("AudioStreamingVideo"))
 	{
 		if ( parcel && parcel->getMediaURL()[0])
@@ -195,11 +196,11 @@ void LLGraphicsRemoteCtrl::enableGraphicsButtons()
 			media_icon_color = LLUI::sColorsGroup->getColor( "IconEnabledColor" );
 		}
 	}
+*/
+	//childSetColor("music_icon", music_icon_color);
+	//childSetColor("media_icon", media_icon_color);
 
-	childSetColor("music_icon", music_icon_color);
-	childSetColor("media_icon", media_icon_color);
-
-	setToolTip(media_url);
+	//setToolTip(media_url);
 }
 
 
