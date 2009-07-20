@@ -984,7 +984,7 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 	lldebugs << "Folder: " << gInventory.findCategoryUUIDForType((destination_folder_type == LLAssetType::AT_NONE) ? asset_type : destination_folder_type) << llendl;
 	lldebugs << "Asset Type: " << LLAssetType::lookup(asset_type) << llendl;
 	std::string url = gAgent.getRegion()->getCapability("NewFileAgentInventory");
-	if (!url.empty() && LLAssetType::AT_SOUND != asset_type)
+	if (!url.empty())
 	{
 		llinfos << "New Agent Inventory via capability" << llendl;
 		LLSD body;
