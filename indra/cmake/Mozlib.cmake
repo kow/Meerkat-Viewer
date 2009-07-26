@@ -2,30 +2,47 @@
 include(Linking)
 include(Prebuilt)
 
-if (STANDALONE)
-    set(MOZLIB OFF CACHE BOOL 
-        "Enable Mozilla support in the viewer (requires llmozlib library).")
-else (STANDALONE)
-    use_prebuilt_binary(llmozlib)
-    set(MOZLIB ON CACHE BOOL
-        "Enable Mozilla support in the viewer (requires llmozlib library).")
-endif (STANDALONE)
+set(MOZLIB ON CACHE BOOL 
+    "Enable Mozilla support in the viewer (requires llmozlib library).")
 
 if (MOZLIB)
-    add_definitions(-DLL_LLMOZLIB_ENABLED=1)
+    if (STANDALONE)
+        set(MOZLIB_FIND_QUIETLY OFF)
+        include(FindMozlib)
+        if (MOZLIB_SHARED OR MOZLIB_STATIC)
+	        MESSAGE ( STATUS "llmozlib2 found, embedded web support enabled" )
+	        set(MOZLIB ON)
+    		add_definitions(-DLL_LLMOZLIB_ENABLED=1)
+        else (MOZLIB_SHARED OR MOZLIB_STATIC)
+	        MESSAGE ( STATUS "llmozlib2 NOT found, embedded web support DISABLED")
+        endif (MOZLIB_SHARED OR MOZLIB_STATIC)
+    else (STANDALONE)
+        use_prebuilt_binary(llmozlib)
+	add_definitions(-DLL_LLMOZLIB_ENABLED=1)
+    endif (STANDALONE)
+
 
     if (LINUX)
-        link_directories(${CMAKE_SOURCE_DIR}/newview/app_settings/mozilla-runtime-linux-${ARCH})
-        set(MOZLIB_LIBRARIES
-            llmozlib2
-            mozjs
-            nspr4
-            plc4
-            plds4
-            xpcom
-            xul
-            profdirserviceprovider_s
-            )
+        if(NOT STANDALONE)
+            link_directories(${CMAKE_SOURCE_DIR}/newview/app_settings/mozilla-runtime-linux-${ARCH})
+        endif(NOT STANDALONE)
+        
+        if(MOZLIB_STATIC OR NOT STANDALONE)
+            set(MOZLIB_LIBRARIES
+                llmozlib2
+                mozjs
+                nspr4
+                plc4
+                plds4
+                xpcom
+                xul
+                profdirserviceprovider_s
+                )
+        elseif(MOZLIB_SHARED)
+            set(MOZLIB_LIBRARIES
+                llmozlib2
+                )
+        endif(MOZLIB_STATIC OR NOT STANDALONE)
     elseif (WINDOWS)
         if (MSVC71)
             set(MOZLIB_LIBRARIES 
