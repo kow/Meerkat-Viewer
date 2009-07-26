@@ -55,6 +55,7 @@ include_directories(
     ${LLXML_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}/lscript_compile
+    ${GSTREAMER_INCLUDE_DIRS}
     )
 
 if (LINUX)
