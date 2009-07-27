@@ -16,7 +16,8 @@
 #include <boost/spirit/include/classic_core.hpp>
 #include <boost/spirit/include/classic_error_handling.hpp>
 #else
-#include <boost/spirit/core.hpp>    #include <boost/spirit/error_handling.hpp>
+#include <boost/spirit/core.hpp>    
+#include <boost/spirit/error_handling.hpp>
 #endif
 
 #include "llcalcparser.h"
