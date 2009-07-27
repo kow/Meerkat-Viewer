@@ -1029,6 +1029,10 @@ protected:
 	LLVoiceVisualizer * mVoiceVisualizer;
 	int					mCurrentGesticulationLevel;
 
+	//lgg i dont know what im doign here
+	static BOOL		sPartsNow;
+	static LLVector3d sBeamLastAt;
+
 private:
 	static  S32 sFreezeCounter ;
 public:

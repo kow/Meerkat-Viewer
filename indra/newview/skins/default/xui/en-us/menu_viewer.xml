@@ -932,13 +932,13 @@
     -->
     <menu_item_check bottom="-98" enabled="true" height="20" label="SL Particle Chat" left="0"
 		     mouse_opaque="true" name="SL Particle Chat" width="155">
-      <on_click function="ToggleControl" userdata="EmeraldParticleChat" />
-      <on_check control="EmeraldParticleChat" />
+      <on_click function="ToggleControl" userdata="MeerkatParticleChat" />
+      <on_check control="MeerkatParticleChat" />
     </menu_item_check>
     <menu_item_check bottom="-118" enabled="true" height="20" label="Radar Chat" left="0"
 		     mouse_opaque="true" name="Radar Chat" width="155">
-      <on_click function="ToggleControl" userdata="EmeraldRadarChatKeys" />
-      <on_check control="EmeraldRadarChatKeys" />
+      <on_click function="ToggleControl" userdata="MeerkatRadarChatKeys" />
+      <on_check control="MeerkatRadarChatKeys" />
     </menu_item_check>
     <menu_item_check bottom="-118" enabled="true" height="20" label="Show Advanced" left="0"
 		     mouse_opaque="true" name="Show Advanced" width="155">

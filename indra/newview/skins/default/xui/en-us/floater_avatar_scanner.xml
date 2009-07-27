@@ -405,7 +405,7 @@
 				   width="200" follows="bottom|left"
 				   hidden="false" mouse_opaque="true" font="SansSerifSmall"
 				   initial_value="true" enabled="true" radio_style="false"
-                   control_name="EmeraldRadarChatKeys"
+                   control_name="MeerkatRadarChatKeys"
 			   tool_tip="Set whether to chat keys of avatars to LSL scripts" />
 
       <check_box height="16" label="Announce even when closed"
