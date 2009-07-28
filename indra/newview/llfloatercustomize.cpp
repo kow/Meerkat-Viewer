@@ -1290,11 +1290,14 @@ void LLScrollingPanelParam::onSliderMoved(LLUICtrl* ctrl, void* userdata)
 		LLFloaterCustomize* floater_customize = gFloaterCustomize;
 		if (!floater_customize) return;
 
+		//KOWs avatar height stuff
 		LLVOAvatar* avatar = gAgent.getAvatarObject();
-		F32 avatar_size = avatar->mBodySize.mV[VZ];
+		F32 avatar_size = (avatar->mBodySize.mV[VZ]) + (F32)0.17; //mBodySize is actually quite a bit off.
+		avatar_size += (F32)99; //mBodySize is actually quite a bit off.
 		
 		floater_customize->getChild<LLTextBox>("HeightText")->setValue(llformat("%.2f", avatar_size) + "m");
-		floater_customize->getChild<LLTextBox>("HeightText2")->setValue(llformat("%.1f", avatar_size / 0.3048) + "'");
+		floater_customize->getChild<LLTextBox>("HeightText2")->setValue(llformat("%.2f",llround(avatar_size / 0.3048)) + "'"
+																	  + llformat("%.2f",llround(avatar_size * 39.37) % 12) + "\"");
 
 		gAgent.getAvatarObject()->setVisualParamWeight( param, new_weight, TRUE);
 		gAgent.getAvatarObject()->updateVisualParams();
@@ -2260,11 +2263,17 @@ void LLFloaterCustomize::draw()
 	LLFloaterCustomize* floater_customize = gFloaterCustomize;
 	if (!floater_customize) return;
 
+	//KOWs avatar height stuff
 	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	F32 avatar_size = avatar->mBodySize.mV[VZ];
+	F32 avatar_size = (avatar->mBodySize.mV[VZ]) + (F32)0.17; //mBodySize is actually quite a bit off.
 		
 	floater_customize->getChild<LLTextBox>("HeightText")->setValue(llformat("%.2f", avatar_size) + "m");
-	floater_customize->getChild<LLTextBox>("HeightText2")->setValue(llformat("%.1f", avatar_size / 0.3048) + "'");
+	//inches = avatar_size * 39.37
+	//round(inches) + inches % 12
+	std::string temp = llformat("%.0f",(F32)llfloor(avatar_size / 0.3048));
+	std::string temp2 = llformat("%.0f",(F32)(llround(avatar_size * 39.37) % 12));
+	floater_customize->getChild<LLTextBox>("HeightText2")->setValue(temp + "'"
+																  + temp2 + "\"");
 
 	LLScrollingPanelParam::sUpdateDelayFrames = 0;
 	
