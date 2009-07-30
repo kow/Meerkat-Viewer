@@ -78,6 +78,9 @@ const PREF_BLOCKLIST_DETAILS_URL      = "extensions.blocklist.detailsURL";
 const PREF_BLOCKLIST_ENABLED          = "extensions.blocklist.enabled";
 const PREF_BLOCKLIST_INTERVAL         = "extensions.blocklist.interval";
 const PREF_UPDATE_NOTIFYUSER          = "extensions.update.notifyUser";
+const PREF_GENERAL_USERAGENT_LOCALE   = "general.useragent.locale";
+const PREF_PARTNER_BRANCH             = "app.partner.";
+const PREF_APP_UPDATE_CHANNEL         = "app.update.channel";
 
 const DIR_EXTENSIONS                  = "extensions";
 const DIR_CHROME                      = "chrome";
@@ -166,6 +169,8 @@ var gPref = null;
 var gRDF  = null;
 var gOS   = null;
 var gXPCOMABI             = null;
+var gABI                  = null;
+var gOSVersion            = null;
 var gOSTarget             = null;
 var gConsole              = null;
 var gInstallManifestRoot  = null;
@@ -179,7 +184,7 @@ var gCheckCompatibility   = true;
 var gIDTest = /^(\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\}|[a-z0-9-\._]*\@[a-z0-9-\._]+)$/i;
 
 // shared code for suppressing bad cert dialogs
-//@line 40 "/c/mozilla/toolkit/mozapps/extensions/src/../../shared/src/badCertHandler.js"
+//@line 40 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/extensions/src/../../shared/src/badCertHandler.js"
 
 /**
  * Only allow built-in certs for HTTPS connections.  See bug 340198.
@@ -258,7 +263,7 @@ BadCertHandler.prototype = {
     return this;
   }
 };
-//@line 183 "/c/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 188 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
 
 /**
  * Creates a Version Checker object.
@@ -1366,7 +1371,7 @@ DirectoryInstallLocation.prototype = {
   }
 };
 
-//@line 1291 "/c/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 1296 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
 
 const nsIWindowsRegKey = Components.interfaces.nsIWindowsRegKey;
 
@@ -1424,7 +1429,7 @@ WinRegInstallLocation.prototype = {
     var appVendor = gApp.vendor;
     var appName = gApp.name;
 
-//@line 1353 "/c/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 1358 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
   
     // XULRunner-based apps may intentionally not specify a vendor:
     if (appVendor != "")
@@ -1512,7 +1517,7 @@ WinRegInstallLocation.prototype = {
   }
 };
 
-//@line 1441 "/c/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 1446 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
 
 /**
  * An object which handles the installation of an Extension.
@@ -2404,6 +2409,60 @@ var StartupCache = {
 };
 
 /**
+ * Gets the current value of the locale.  It's possible for this preference to
+ * be localized, so we have to do a little extra work here.  Similar code
+ * exists in nsHttpHandler.cpp when building the UA string.
+ */
+function getLocale() {
+  try {
+      // Get the default branch
+      var defaultPrefs = gPref.QueryInterface(Components.interfaces.nsIPrefService)
+                              .getDefaultBranch(null);
+      return defaultPrefs.getCharPref(PREF_GENERAL_USERAGENT_LOCALE);
+  } catch (e) {}
+
+  return gPref.getCharPref(PREF_GENERAL_USERAGENT_LOCALE);
+}
+
+/**
+ * Read the update channel from defaults only.  We do this to ensure that
+ * the channel is tightly coupled with the application and does not apply
+ * to other installations of the application that may use the same profile.
+ */
+function getUpdateChannel() {
+  var channel = "default";
+  var prefName;
+  var prefValue;
+
+  var defaults =
+      gPref.QueryInterface(Components.interfaces.nsIPrefService).
+      getDefaultBranch(null);
+  try {
+    channel = defaults.getCharPref(PREF_APP_UPDATE_CHANNEL);
+  } catch (e) {
+    // use default when pref not found
+  }
+
+  try {
+    var partners = gPref.getChildList(PREF_PARTNER_BRANCH, { });
+    if (partners.length) {
+      channel += "-cck";
+      partners.sort();
+
+      for each (prefName in partners) {
+        prefValue = gPref.getCharPref(prefName);
+        channel += "-" + prefValue;
+      }
+    }
+  }
+  catch (e) {
+    Components.utils.reportError(e);
+  }
+
+  return channel;
+}
+
+/**
  * Manages the Blocklist. The Blocklist is a representation of the contents of
  * blocklist.xml and allows us to remotely disable / re-enable blocklisted
  * items managed by the Extension Manager with an item's appDisabled property.
@@ -2441,6 +2500,19 @@ var Blocklist = {
 
     dsURI = dsURI.replace(/%APP_ID%/g, gApp.ID);
     dsURI = dsURI.replace(/%APP_VERSION%/g, gApp.version);
+    dsURI = dsURI.replace(/%PRODUCT%/g, gApp.name);
+    dsURI = dsURI.replace(/%VERSION%/g, gApp.version);
+    dsURI = dsURI.replace(/%BUILD_ID%/g, gApp.appBuildID);
+    dsURI = dsURI.replace(/%BUILD_TARGET%/g, gApp.OS + "_" + gABI);
+    dsURI = dsURI.replace(/%OS_VERSION%/g, gOSVersion);
+    dsURI = dsURI.replace(/%LOCALE%/g, getLocale());
+    dsURI = dsURI.replace(/%CHANNEL%/g, getUpdateChannel());
+    dsURI = dsURI.replace(/%PLATFORM_VERSION%/g, gApp.platformVersion);
+    // Distribution values are not present in 1.8 branch
+    dsURI = dsURI.replace(/%DISTRIBUTION%/g, "default");
+    dsURI = dsURI.replace(/%DISTRIBUTION_VERSION%/g, "default");
+    dsURI = dsURI.replace(/\+/g, "%2B");
+
     // Verify that the URI is valid
     try {
       var uri = newURI(dsURI);
@@ -2733,6 +2805,30 @@ function ExtensionManager() {
     // transmitted to update URLs.
     gXPCOMABI = UNKNOWN_XPCOM_ABI;
   }
+  gABI = gXPCOMABI;
+
+  var osVersion;
+  var sysInfo = Components.classes["@mozilla.org/system-info;1"]
+                          .getService(Components.interfaces.nsIPropertyBag2);
+  try {
+    osVersion = sysInfo.getProperty("name") + " " + sysInfo.getProperty("version");
+  }
+  catch (e) {
+    LOG("ExtensionManager: OS Version unknown.");
+  }
+
+  if (osVersion) {
+    try {
+      osVersion += " (" + sysInfo.getProperty("secondaryLibrary") + ")";
+    }
+    catch (e) {
+      // Not all platforms have a secondary widget library, so an error is nothing to worry about.
+    }
+    gOSVersion = encodeURIComponent(osVersion);
+  }
+
+//@line 2764 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+
   gPref = Components.classes["@mozilla.org/preferences-service;1"]
                     .getService(Components.interfaces.nsIPrefBranch2);
 
@@ -2763,7 +2859,7 @@ function ExtensionManager() {
                                                      priority);
   InstallLocations.put(profileLocation);
 
-//@line 2692 "/c/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 2796 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
   // Register HKEY_LOCAL_MACHINE Install Location
   InstallLocations.put(
       new WinRegInstallLocation("winreg-app-global",
@@ -2777,7 +2873,7 @@ function ExtensionManager() {
                                 nsIWindowsRegKey.ROOT_KEY_CURRENT_USER,
                                 false,
                                 nsIInstallLocation.PRIORITY_APP_SYSTEM_USER + 10));
-//@line 2706 "/c/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 2810 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
 
   // Register Additional Install Locations
   var categoryManager = Components.classes["@mozilla.org/categorymanager;1"]
@@ -3056,12 +3152,12 @@ ExtensionManager.prototype = {
   _installGlobalItem: function(file) {
     if (!file || !file.exists())
       throw new Error("Unable to find the file specified on the command line!");
-//@line 2985 "/c/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 3089 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
     // make sure the file is local on Windows
     file.normalize();
     if (file.path[1] != ':')
       throw new Error("Can't install global chrome from non-local file "+file.path);
-//@line 2990 "/c/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 3094 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
     var installManifestFile = extractRDFFileToTempDir(file, FILE_INSTALL_MANIFEST, true);
     if (!installManifestFile.exists())
       throw new Error("The package is missing an install manifest!");
@@ -5537,13 +5633,13 @@ ExtensionManager.prototype = {
       // count to 0 to prevent this dialog from being displayed again.
       this._downloadCount = 0;
       var result;
-//@line 5466 "/c/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 5570 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
       result = this._confirmCancelDownloads(this._downloadCount, 
                                             "quitCancelDownloadsAlertTitle",
                                             "quitCancelDownloadsAlertMsgMultiple",
                                             "quitCancelDownloadsAlertMsg",
                                             "dontQuitButtonWin");
-//@line 5478 "/c/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 5582 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
       if (!result)
         this._cancelDownloads();
       if (subject instanceof Components.interfaces.nsISupportsPRBool)
@@ -6205,12 +6301,15 @@ RDFItemUpdater.prototype = {
     this._versionUpdateOnly = aVersionUpdateOnly;
     this._item = aItem;
   
-    var itemStatus;
+    var itemStatus = "userEnabled";
     if (emDS.getItemProperty(aItem.id, "userDisabled") == "true" ||
         emDS.getItemProperty(aItem.id, "userDisabled") == OP_NEEDS_ENABLE)
       itemStatus = "userDisabled";
-    else
-      itemStatus = "userEnabled";
+    else if (emDS.getItemProperty(aItem.id, "type") == nsIUpdateItem.TYPE_THEME) {
+      var currentSkin = gPref.getCharPref(PREF_GENERAL_SKINS_SELECTEDSKIN);
+      if (emDS.getItemProperty(aItem.id, "internalName") != currentSkin)
+        itemStatus = "userDisabled";
+    }
     
     if (emDS.getItemProperty(aItem.id, "compatible") == "false")
       itemStatus += ",incompatible";

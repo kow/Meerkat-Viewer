@@ -210,6 +210,7 @@ class LLMozLib
 		bool navigateBack( int browserWindowIdIn );
 		bool canNavigateForward( int browserWindowIdIn );
 		bool navigateForward( int browserWindowIdIn );
+		bool navigateReload( int browserWindowIdIn );
 
 		// javascript access/control
 		std::string evaluateJavascript( int browserWindowIdIn, const std::string scriptIn );

@@ -1026,19 +1026,28 @@ function UpdateService() {
     LOG("UpdateService", "XPCOM ABI unknown: updates are not possible.");
   }
 
-  try {
-    var sysInfo = 
-      Components.classes["@mozilla.org/system-info;1"]
-                .getService(Components.interfaces.nsIPropertyBag2);
+  var osVersion;
+  var sysInfo = Components.classes["@mozilla.org/system-info;1"]
+                          .getService(Components.interfaces.nsIPropertyBag2);
 
-    gOSVersion = encodeURIComponent(sysInfo.getProperty("name") + " " +  
-                                    sysInfo.getProperty("version"));
+  try {
+    osVersion = sysInfo.getProperty("name") + " " + sysInfo.getProperty("version");
   }
   catch (e) {
     LOG("UpdateService", "OS Version unknown: updates are not possible.");
   }
 
-//@line 1026 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
+  if (osVersion) {
+    try {
+      osVersion += " (" + sysInfo.getProperty("secondaryLibrary") + ")";
+    }
+    catch (e) {
+      // Not all platforms have a secondary widget library, so an error is nothing to worry about.
+    }
+    gOSVersion = encodeURIComponent(osVersion);
+  }
+
+//@line 1035 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
 
   // Start the update timer only after a profile has been selected so that the
   // appropriate values for the update check are read from the user's profile.  
@@ -1134,7 +1143,7 @@ UpdateService.prototype = {
       status = null;
 
     var updRootKey = null;
-//@line 1143 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
+//@line 1152 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
 
     if (status == STATE_DOWNLOADING) {
       LOG("UpdateService", "_postUpdateProcessing: Downloading patch, resuming...");
@@ -1178,13 +1187,13 @@ UpdateService.prototype = {
 
         LOG("UpdateService", "_postUpdateProcessing: Install Succeeded, Showing UI");
         prompter.showUpdateInstalled(update);
-//@line 1190 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
+//@line 1199 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
         // Perform platform-specific post-update processing.
         if (POST_UPDATE_CONTRACTID in Components.classes) {
           Components.classes[POST_UPDATE_CONTRACTID].
               createInstance(Components.interfaces.nsIRunnable).run();
         }
-//@line 1196 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
+//@line 1205 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
 
         // Done with this update. Clean it up.
         cleanupActiveUpdate(updRootKey);
@@ -1506,7 +1515,7 @@ UpdateService.prototype = {
         upDirFile.create(nsILocalFile.NORMAL_FILE_TYPE, PERMS_FILE);
         upDirFile.remove(false);
       }
-//@line 1548 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
+//@line 1557 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
     }
     catch (e) {
        LOG("UpdateService", "can't update, no privileges: " + e);
@@ -2691,7 +2700,7 @@ TimerManager.prototype = {
   }
 };
 
-//@line 2733 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
+//@line 2742 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
 /**
  * UpdatePrompt
  * An object which can prompt the user with information about updates, request
@@ -2833,7 +2842,7 @@ UpdatePrompt.prototype = {
     return this;
   }
 };
-//@line 2875 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
+//@line 2884 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
 
 var gModule = {
   registerSelf: function(componentManager, fileSpec, location, type) {
@@ -2876,13 +2885,13 @@ var gModule = {
                className  : "Update Checker",
                factory    : makeFactory(Checker)
              },
-//@line 2918 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
+//@line 2927 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
     prompt:  { CID        : Components.ID("{27ABA825-35B5-4018-9FDD-F99250A0E722}"),
                contractID : "@mozilla.org/updates/update-prompt;1",
                className  : "Update Prompt",
                factory    : makeFactory(UpdatePrompt)
              },
-//@line 2924 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
+//@line 2933 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
     timers:  { CID        : Components.ID("{B322A5C0-A419-484E-96BA-D7182163899F}"),
                contractID : "@mozilla.org/updates/timer-manager;1",
                className  : "Timer Manager",
@@ -2926,14 +2935,14 @@ function NSGetModule(compMgr, fileSpec) {
  *          the specified update, false otherwise.
  */
 function isCompatible(update) {
-//@line 2968 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
+//@line 2977 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
   var em = 
       Components.classes["@mozilla.org/extensions/manager;1"].
       getService(Components.interfaces.nsIExtensionManager);
   var items = em.getIncompatibleItemList("", update.extensionVersion,
     nsIUpdateItem.TYPE_ADDON, false, { });
   return items.length == 0;
-//@line 2977 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
+//@line 2986 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
 }
 
 /**
@@ -2952,7 +2961,7 @@ function showPromptIfNoIncompatibilities(update) {
     prompter.showUpdateAvailable(update);
   }
 
-//@line 2996 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
+//@line 3005 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
   /**
    * Determines if an addon is compatible with a particular update.
    * @param   addon
@@ -3052,6 +3061,6 @@ function showPromptIfNoIncompatibilities(update) {
     em.update([], 0, mode != 0, listener);
   }
   else
-//@line 3096 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
+//@line 3105 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/update/src/nsUpdateService.js.in"
     showPrompt(update);
 }

@@ -78,6 +78,9 @@ const PREF_BLOCKLIST_DETAILS_URL      = "extensions.blocklist.detailsURL";
 const PREF_BLOCKLIST_ENABLED          = "extensions.blocklist.enabled";
 const PREF_BLOCKLIST_INTERVAL         = "extensions.blocklist.interval";
 const PREF_UPDATE_NOTIFYUSER          = "extensions.update.notifyUser";
+const PREF_GENERAL_USERAGENT_LOCALE   = "general.useragent.locale";
+const PREF_PARTNER_BRANCH             = "app.partner.";
+const PREF_APP_UPDATE_CHANNEL         = "app.update.channel";
 
 const DIR_EXTENSIONS                  = "extensions";
 const DIR_CHROME                      = "chrome";
@@ -166,6 +169,8 @@ var gPref = null;
 var gRDF  = null;
 var gOS   = null;
 var gXPCOMABI             = null;
+var gABI                  = null;
+var gOSVersion            = null;
 var gOSTarget             = null;
 var gConsole              = null;
 var gInstallManifestRoot  = null;
@@ -258,7 +263,7 @@ BadCertHandler.prototype = {
     return this;
   }
 };
-//@line 183 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 188 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
 
 /**
  * Creates a Version Checker object.
@@ -1366,7 +1371,7 @@ DirectoryInstallLocation.prototype = {
   }
 };
 
-//@line 1441 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 1446 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
 
 /**
  * An object which handles the installation of an Extension.
@@ -2258,6 +2263,60 @@ var StartupCache = {
 };
 
 /**
+ * Gets the current value of the locale.  It's possible for this preference to
+ * be localized, so we have to do a little extra work here.  Similar code
+ * exists in nsHttpHandler.cpp when building the UA string.
+ */
+function getLocale() {
+  try {
+      // Get the default branch
+      var defaultPrefs = gPref.QueryInterface(Components.interfaces.nsIPrefService)
+                              .getDefaultBranch(null);
+      return defaultPrefs.getCharPref(PREF_GENERAL_USERAGENT_LOCALE);
+  } catch (e) {}
+
+  return gPref.getCharPref(PREF_GENERAL_USERAGENT_LOCALE);
+}
+
+/**
+ * Read the update channel from defaults only.  We do this to ensure that
+ * the channel is tightly coupled with the application and does not apply
+ * to other installations of the application that may use the same profile.
+ */
+function getUpdateChannel() {
+  var channel = "default";
+  var prefName;
+  var prefValue;
+
+  var defaults =
+      gPref.QueryInterface(Components.interfaces.nsIPrefService).
+      getDefaultBranch(null);
+  try {
+    channel = defaults.getCharPref(PREF_APP_UPDATE_CHANNEL);
+  } catch (e) {
+    // use default when pref not found
+  }
+
+  try {
+    var partners = gPref.getChildList(PREF_PARTNER_BRANCH, { });
+    if (partners.length) {
+      channel += "-cck";
+      partners.sort();
+
+      for each (prefName in partners) {
+        prefValue = gPref.getCharPref(prefName);
+        channel += "-" + prefValue;
+      }
+    }
+  }
+  catch (e) {
+    Components.utils.reportError(e);
+  }
+
+  return channel;
+}
+
+/**
  * Manages the Blocklist. The Blocklist is a representation of the contents of
  * blocklist.xml and allows us to remotely disable / re-enable blocklisted
  * items managed by the Extension Manager with an item's appDisabled property.
@@ -2295,6 +2354,19 @@ var Blocklist = {
 
     dsURI = dsURI.replace(/%APP_ID%/g, gApp.ID);
     dsURI = dsURI.replace(/%APP_VERSION%/g, gApp.version);
+    dsURI = dsURI.replace(/%PRODUCT%/g, gApp.name);
+    dsURI = dsURI.replace(/%VERSION%/g, gApp.version);
+    dsURI = dsURI.replace(/%BUILD_ID%/g, gApp.appBuildID);
+    dsURI = dsURI.replace(/%BUILD_TARGET%/g, gApp.OS + "_" + gABI);
+    dsURI = dsURI.replace(/%OS_VERSION%/g, gOSVersion);
+    dsURI = dsURI.replace(/%LOCALE%/g, getLocale());
+    dsURI = dsURI.replace(/%CHANNEL%/g, getUpdateChannel());
+    dsURI = dsURI.replace(/%PLATFORM_VERSION%/g, gApp.platformVersion);
+    // Distribution values are not present in 1.8 branch
+    dsURI = dsURI.replace(/%DISTRIBUTION%/g, "default");
+    dsURI = dsURI.replace(/%DISTRIBUTION_VERSION%/g, "default");
+    dsURI = dsURI.replace(/\+/g, "%2B");
+
     // Verify that the URI is valid
     try {
       var uri = newURI(dsURI);
@@ -2587,6 +2659,30 @@ function ExtensionManager() {
     // transmitted to update URLs.
     gXPCOMABI = UNKNOWN_XPCOM_ABI;
   }
+  gABI = gXPCOMABI;
+
+  var osVersion;
+  var sysInfo = Components.classes["@mozilla.org/system-info;1"]
+                          .getService(Components.interfaces.nsIPropertyBag2);
+  try {
+    osVersion = sysInfo.getProperty("name") + " " + sysInfo.getProperty("version");
+  }
+  catch (e) {
+    LOG("ExtensionManager: OS Version unknown.");
+  }
+
+  if (osVersion) {
+    try {
+      osVersion += " (" + sysInfo.getProperty("secondaryLibrary") + ")";
+    }
+    catch (e) {
+      // Not all platforms have a secondary widget library, so an error is nothing to worry about.
+    }
+    gOSVersion = encodeURIComponent(osVersion);
+  }
+
+//@line 2764 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+
   gPref = Components.classes["@mozilla.org/preferences-service;1"]
                     .getService(Components.interfaces.nsIPrefBranch2);
 
@@ -2617,7 +2713,7 @@ function ExtensionManager() {
                                                      priority);
   InstallLocations.put(profileLocation);
 
-//@line 2706 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 2810 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
 
   // Register Additional Install Locations
   var categoryManager = Components.classes["@mozilla.org/categorymanager;1"]
@@ -2896,7 +2992,7 @@ ExtensionManager.prototype = {
   _installGlobalItem: function(file) {
     if (!file || !file.exists())
       throw new Error("Unable to find the file specified on the command line!");
-//@line 2990 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 3094 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
     var installManifestFile = extractRDFFileToTempDir(file, FILE_INSTALL_MANIFEST, true);
     if (!installManifestFile.exists())
       throw new Error("The package is missing an install manifest!");
@@ -5372,13 +5468,13 @@ ExtensionManager.prototype = {
       // count to 0 to prevent this dialog from being displayed again.
       this._downloadCount = 0;
       var result;
-//@line 5466 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 5570 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
       result = this._confirmCancelDownloads(this._downloadCount, 
                                             "quitCancelDownloadsAlertTitle",
                                             "quitCancelDownloadsAlertMsgMultiple",
                                             "quitCancelDownloadsAlertMsg",
                                             "dontQuitButtonWin");
-//@line 5478 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
+//@line 5582 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/toolkit/mozapps/extensions/src/nsExtensionManager.js.in"
       if (!result)
         this._cancelDownloads();
       if (subject instanceof Components.interfaces.nsISupportsPRBool)
@@ -6040,12 +6136,15 @@ RDFItemUpdater.prototype = {
     this._versionUpdateOnly = aVersionUpdateOnly;
     this._item = aItem;
   
-    var itemStatus;
+    var itemStatus = "userEnabled";
     if (emDS.getItemProperty(aItem.id, "userDisabled") == "true" ||
         emDS.getItemProperty(aItem.id, "userDisabled") == OP_NEEDS_ENABLE)
       itemStatus = "userDisabled";
-    else
-      itemStatus = "userEnabled";
+    else if (emDS.getItemProperty(aItem.id, "type") == nsIUpdateItem.TYPE_THEME) {
+      var currentSkin = gPref.getCharPref(PREF_GENERAL_SKINS_SELECTEDSKIN);
+      if (emDS.getItemProperty(aItem.id, "internalName") != currentSkin)
+        itemStatus = "userDisabled";
+    }
     
     if (emDS.getItemProperty(aItem.id, "compatible") == "false")
       itemStatus += ",incompatible";

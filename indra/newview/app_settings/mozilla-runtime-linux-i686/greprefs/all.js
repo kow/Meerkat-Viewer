@@ -312,6 +312,8 @@ pref("capability.policy.mailnews.*.data.get", "noAccess");
 pref("capability.policy.mailnews.*.getAttribute", "noAccess");
 pref("capability.policy.mailnews.HTMLDivElement.getAttribute", "sameOrigin");
 pref("capability.policy.mailnews.*.getAttributeNS", "noAccess");
+pref("capability.policy.mailnews.*.getAttributeNode", "noAccess");
+pref("capability.policy.mailnews.*.getAttributeNodeNS", "noAccess");
 pref("capability.policy.mailnews.*.getNamedItem", "noAccess");
 pref("capability.policy.mailnews.*.getNamedItemNS", "noAccess");
 pref("capability.policy.mailnews.*.host.get", "noAccess");
@@ -325,11 +327,13 @@ pref("capability.policy.mailnews.*.protocol.get", "noAccess");
 pref("capability.policy.mailnews.*.src.get", "noAccess");
 pref("capability.policy.mailnews.*.substringData.get", "noAccess");
 pref("capability.policy.mailnews.*.text.get", "noAccess");
+pref("capability.policy.mailnews.*.textContent", "noAccess");
 pref("capability.policy.mailnews.*.title.get", "noAccess");
 pref("capability.policy.mailnews.DOMException.toString", "noAccess");
 pref("capability.policy.mailnews.HTMLAnchorElement.toString", "noAccess");
 pref("capability.policy.mailnews.HTMLDocument.domain", "noAccess");
 pref("capability.policy.mailnews.HTMLDocument.URL", "noAccess");
+pref("capability.policy.mailnews.*.documentURI", "noAccess");
 pref("capability.policy.mailnews.Location.toString", "noAccess");
 pref("capability.policy.mailnews.Range.toString", "noAccess");
 pref("capability.policy.mailnews.Window.blur", "noAccess");
@@ -487,7 +491,7 @@ pref("network.protocol-handler.external.data", false);
 pref("network.protocol-handler.external.ms-help", false);
 pref("network.protocol-handler.external.shell", false);
 pref("network.protocol-handler.external.vnd.ms.radio", false);
-//@line 496 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 500 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 pref("network.protocol-handler.external.disk", false);
 pref("network.protocol-handler.external.disks", false);
 pref("network.protocol-handler.external.afp", false);
@@ -639,7 +643,7 @@ pref("network.IDN.whitelist.org", true);
 // attempt and so we always display the domain name as punycode. This would 
 // override the settings "network.IDN_show_punycode" and 
 // "network.IDN.whitelist.*".
-pref("network.IDN.blacklist_chars", "\u0020\u00A0\u00BC\u00BD\u01C3\u0337\u0338\u05C3\u05F4\u06D4\u0702\u115F\u1160\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u2024\u2027\u2028\u2029\u202F\u2039\u203A\u2044\u205F\u2154\u2155\u2156\u2159\u215A\u215B\u215F\u2215\u23AE\u29F6\u29F8\u2AFB\u2AFD\u2FF0\u2FF1\u2FF2\u2FF3\u2FF4\u2FF5\u2FF6\u2FF7\u2FF8\u2FF9\u2FFA\u2FFB\u3000\u3002\u3014\u3015\u3033\u3164\u321D\u321E\u33AE\u33AF\u33C6\u33DF\uFE14\uFE15\uFE3F\uFE5D\uFE5E\uFEFF\uFF0E\uFF0F\uFF61\uFFA0\uFFF9\uFFFA\uFFFB\uFFFC\uFFFD");
+pref("network.IDN.blacklist_chars", "\u0020\u00A0\u00BC\u00BD\u00BE\u01C3\u02D0\u0337\u0338\u0589\u05C3\u05F4\u0609\u060A\u066A\u06D4\u0701\u0702\u0703\u0704\u115F\u1160\u1735\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u2024\u2027\u2028\u2029\u202F\u2039\u203A\u2041\u2044\u2052\u205F\u2153\u2154\u2155\u2156\u2157\u2158\u2159\u215A\u215B\u215C\u215D\u215E\u215F\u2215\u2236\u23AE\u2571\u29F6\u29F8\u2AFB\u2AFD\u2FF0\u2FF1\u2FF2\u2FF3\u2FF4\u2FF5\u2FF6\u2FF7\u2FF8\u2FF9\u2FFA\u2FFB\u3000\u3002\u3014\u3015\u3033\u3164\u321D\u321E\u33AE\u33AF\u33C6\u33DF\uA789\uFE14\uFE15\uFE3F\uFE5D\uFE5E\uFEFF\uFF0E\uFF0F\uFF61\uFFA0\uFFF9\uFFFA\uFFFB\uFFFC\uFFFD");
 
 // This preference specifies a list of domains for which DNS lookups will be
 // IPv4 only. Works around broken DNS servers which can't handle IPv6 lookups
@@ -692,7 +696,7 @@ pref("network.negotiate-auth.gsslib", "");
 // Specify if the gss lib comes standard with the OS
 pref("network.negotiate-auth.using-native-gsslib", true);
 
-//@line 706 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 710 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 
 // The following prefs are used to enable automatic use of the operating
 // system's NTLM implementation to silently authenticate the user with their
@@ -840,7 +844,7 @@ pref("mousewheel.withmetakey.sysnumlines",true);
 
 // on platforms where scroll messages differ between horizontal scroll
 // and back/forward button events we can activate them by default
-//@line 888 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 892 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 // disable horizontal scrolling to be able to use back/forward buttons
 pref("mousewheel.horizscroll.withnokey.action",2);
 pref("mousewheel.horizscroll.withnokey.numlines",-1);
@@ -857,7 +861,7 @@ pref("mousewheel.horizscroll.withaltkey.sysnumlines",false);
 pref("mousewheel.horizscroll.withmetakey.action",2);
 pref("mousewheel.horizscroll.withmetakey.numlines",-1);
 pref("mousewheel.horizscroll.withmetakey.sysnumlines",false);
-//@line 905 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 909 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 
 pref("profile.confirm_automigration",true);
 // profile.migration_behavior determines how the profiles root is set
@@ -1000,15 +1004,15 @@ pref("dom.max_script_run_time", 10);
 
 pref("svg.enabled", true);
 
-//@line 1378 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 1382 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 
-//@line 1570 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 1574 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 
-//@line 1759 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 1763 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 
-//@line 1848 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 1852 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 
-//@line 1851 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 1855 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 // Handled differently under Mac/Windows
 pref("network.hosts.smtp_server", "localhost");
 pref("network.hosts.pop_server", "pop");
@@ -1081,7 +1085,7 @@ pref("font.allow_double_byte_special_chars", true);
 
 // ar
 
-//@line 1924 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 1928 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 
 pref("font.name.serif.el", "serif");
 pref("font.name.sans-serif.el", "sans-serif");
@@ -1140,7 +1144,7 @@ pref("font.name.sans-serif.zh-HK", "sans-serif");
 pref("font.name.monospace.zh-HK", "monospace");
 
 // zh-TW
-//@line 2043 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 2047 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 
 pref("font.default.ar", "sans-serif");
 pref("font.size.variable.ar", 16);
@@ -1358,15 +1362,15 @@ pref("print.postscript.nativefont.zh-CN",          "");
 pref("print.postscript.nativefont.zh-TW",          "");
 pref("print.postscript.nativefont.zh-HK",          "");
 
-//@line 2263 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 2267 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 
-//@line 2331 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 2335 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 
-//@line 2357 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 2361 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 
-//@line 2377 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 2381 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 
-//@line 2385 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 2389 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 
-//@line 2387 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
+//@line 2391 "/cdisk/linden/llmozlib2/build_mozilla/mozilla/modules/libpref/src/init/all.js"
 pref("network.gnomevfs.supported-protocols", "smb:,sftp:");

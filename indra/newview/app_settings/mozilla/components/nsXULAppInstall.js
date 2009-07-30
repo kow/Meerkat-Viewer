@@ -1,5 +1,5 @@
 /* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-//@line 41 "/c/mozilla/xulrunner/setup/nsXULAppInstall.js"
+//@line 41 "/c/code/linden/lib/build-all-libs/mozilla/xulrunner/setup/nsXULAppInstall.js"
 
 const nsIFile             = Components.interfaces.nsIFile;
 const nsIINIParser        = Components.interfaces.nsIINIParser;
@@ -196,11 +196,11 @@ const AppInstall = {
     catch (e) { }
 
     if (aDirectory == null) {
-//@line 238 "/c/mozilla/xulrunner/setup/nsXULAppInstall.js"
+//@line 238 "/c/code/linden/lib/build-all-libs/mozilla/xulrunner/setup/nsXULAppInstall.js"
       aDirectory = getDirectoryKey("ProgF");
       if (vendor)
         aDirectory.append(vendor);
-//@line 254 "/c/mozilla/xulrunner/setup/nsXULAppInstall.js"
+//@line 254 "/c/code/linden/lib/build-all-libs/mozilla/xulrunner/setup/nsXULAppInstall.js"
     }
     else {
       aDirectory = aDirectory.clone();
@@ -211,9 +211,9 @@ const AppInstall = {
     }
 
     if (aLeafName == "") {
-//@line 268 "/c/mozilla/xulrunner/setup/nsXULAppInstall.js"
+//@line 268 "/c/code/linden/lib/build-all-libs/mozilla/xulrunner/setup/nsXULAppInstall.js"
       aLeafName = appName;
-//@line 273 "/c/mozilla/xulrunner/setup/nsXULAppInstall.js"
+//@line 273 "/c/code/linden/lib/build-all-libs/mozilla/xulrunner/setup/nsXULAppInstall.js"
     }
 
     aDirectory.append(aLeafName);
@@ -221,14 +221,14 @@ const AppInstall = {
       aDirectory.create(nsIFile.DIRECTORY_TYPE, 0755);
     }
 
-//@line 344 "/c/mozilla/xulrunner/setup/nsXULAppInstall.js"
+//@line 344 "/c/code/linden/lib/build-all-libs/mozilla/xulrunner/setup/nsXULAppInstall.js"
     extractor.copyTo(aDirectory);
 
     var xulrunnerBinary = getDirectoryKey("XCurProcD");
     xulrunnerBinary.append("xulrunner-stub.exe");
 
     xulrunnerBinary.copyTo(aDirectory, appName.toLowerCase() + ".exe");
-//@line 351 "/c/mozilla/xulrunner/setup/nsXULAppInstall.js"
+//@line 351 "/c/code/linden/lib/build-all-libs/mozilla/xulrunner/setup/nsXULAppInstall.js"
   }
 };
 

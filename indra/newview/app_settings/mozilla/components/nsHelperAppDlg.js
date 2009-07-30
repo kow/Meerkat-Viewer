@@ -1,5 +1,5 @@
 /*
-//@line 42 "/c/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
+//@line 42 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
 */
 
 /* This file implements the nsIHelperAppLauncherDialog interface.
@@ -99,9 +99,9 @@ nsUnknownContentTypeDialog.prototype = {
           if (aFolderType != "Downloads")
             throw "ASSERTION FAILED: folder type should be 'Desktop' or 'Downloads'";
         
-//@line 142 "/c/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
+//@line 142 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
           return "Pers";
-//@line 150 "/c/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
+//@line 150 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
         }
         
         function getDownloadsFolder(aFolder)
@@ -408,7 +408,7 @@ nsUnknownContentTypeDialog.prototype = {
         // want users to be able to autodownload .exe files. 
         var rememberChoice = this.dialogElement("rememberChoice");
 
-//@line 476 "/c/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
+//@line 476 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
         if (shouldntRememberChoice) {
           rememberChoice.checked = false;
           rememberChoice.disabled = true;
@@ -541,7 +541,7 @@ nsUnknownContentTypeDialog.prototype = {
         var result;
 
         // The checking is different on Windows...
-//@line 609 "/c/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
+//@line 609 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
         // Windows presents some special cases.
         // We need to prevent use of "system default" when the file is
         // executable (so the user doesn't launch nasty programs downloaded
@@ -554,7 +554,7 @@ nsUnknownContentTypeDialog.prototype = {
         
         //  Default is Ok if the file isn't executable (and vice-versa).
         return !tmpFile.isExecutable();
-//@line 627 "/c/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
+//@line 627 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
     },
     
     // Set "default" application description field.
@@ -575,9 +575,9 @@ nsUnknownContentTypeDialog.prototype = {
 
     // getPath:
     getPath: function (aFile) {
-//@line 650 "/c/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
+//@line 650 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
       return aFile.path;
-//@line 652 "/c/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
+//@line 652 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
     },
 
     // initAppAndSaveToDiskValues:
@@ -645,9 +645,9 @@ nsUnknownContentTypeDialog.prototype = {
       }
       
       // otherHandler is always disabled on Mac
-//@line 723 "/c/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
+//@line 723 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
       otherHandler.nextSibling.hidden = otherHandler.nextSibling.nextSibling.hidden = false;
-//@line 725 "/c/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
+//@line 725 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
       this.updateOKButton();
     },
 
@@ -801,7 +801,7 @@ nsUnknownContentTypeDialog.prototype = {
           // for the file to be saved to to pass to |saveToDisk| - otherwise
           // we must ask the user to pick a save name.
 
-//@line 892 "/c/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
+//@line 892 "/c/code/linden/lib/build-all-libs/mozilla/toolkit/mozapps/downloads/src/nsHelperAppDlg.js.in"
           this.mLauncher.saveToDisk(null, false);
         }
         else
