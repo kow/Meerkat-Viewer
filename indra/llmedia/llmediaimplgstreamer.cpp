@@ -88,9 +88,11 @@ LLMediaImplGStreamer () :
 	{
 		return; // error
 	}
-	
+
+#ifdef LL_WINDOWS
 	GError * error=NULL;
 	gst_plugin_load_file("lib\\gstreamer-0.10\\libgstplaybin.dll",&error);
+#endif
 
 	// instantiate a playbin element to do the hard work
 	mPlaybin = gst_element_factory_make ("playbin", "play");
