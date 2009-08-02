@@ -81,18 +81,22 @@ LLMediaImplGStreamer () :
 	DEBUGMSG("constructing media...");
 
 	setMediaDepth(4);
-
+	
 	// Create a pumpable main-loop for this media
 	mPump = g_main_loop_new (NULL, FALSE);
 	if (!mPump)
 	{
 		return; // error
 	}
+	
+	GError * error=NULL;
+	gst_plugin_load_file("lib\\gstreamer-0.10\\libgstplaybin.dll",&error);
 
 	// instantiate a playbin element to do the hard work
-	mPlaybin = llgst_element_factory_make ("playbin", "play");
+	mPlaybin = gst_element_factory_make ("playbin", "play");
 	if (!mPlaybin)
 	{
+		llerrs<<"Failed to create a playbin, aborting now"<<llendl;
 		// todo: cleanup pump
 		return; // error
 	}
@@ -197,6 +201,9 @@ startup ( LLMediaManagerData* init_data )
 		// Protect against GStreamer resetting the locale, yuck.
 		static std::string saved_locale;
 		saved_locale = setlocale(LC_ALL, NULL);
+		//putenv("GST_PLUGIN_PATH=.\\lib\\gstreamer-0.10");
+		//putenv("GST_PLUGIN_PATH=");
+
 		if (0 == llgst_init_check(NULL, NULL, NULL))
 		{
 			WARNMSG("GST init failed for unspecified reason.");

@@ -6,7 +6,6 @@ if (STANDALONE)
   include(FindPkgConfig)
 
   pkg_check_modules(GSTREAMER REQUIRED gstreamer-0.10)
-  pkg_check_modules(GSTREAMER_PLUGINS_BASE REQUIRED gstreamer-plugins-base-0.10)
 else (STANDALONE)
 if (NOT DARWIN)
   use_prebuilt_binary(gstreamer)
@@ -35,8 +34,7 @@ elseif(WINDOWS)
       gobject-2.0
       gmodule-2.0
       gthread-2.0
-	  gstreamer-0.10
-	  gstreamer-plugins-base-0.10
+      gstreamer-0.10
       glib-2.0
       )
 endif(LINUX)
