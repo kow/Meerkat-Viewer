@@ -431,11 +431,16 @@ class WindowsSetup(PlatformSetup):
         'vc90' : {
             'gen' : r'Visual Studio 9 2008',
             'ver' : r'9.0'
+            },
+        'vc100' : {
+            'gen' : r'Visual Studio 10',
+            'ver' : r'10.0'
             }
         }
     gens['vs2003'] = gens['vc71']
     gens['vs2005'] = gens['vc80']
     gens['vs2008'] = gens['vc90']
+    gens['vs2010'] = gens['vc100']
 
     def __init__(self):
         super(WindowsSetup, self).__init__()
@@ -444,7 +449,7 @@ class WindowsSetup(PlatformSetup):
 
     def _get_generator(self):
         if self._generator is None:
-            for version in 'vc71 vc80 vc90'.split():
+            for version in 'vc71 vc80 vc90 vc100'.split():
                 if self.find_visual_studio(version):
                     self._generator = version
                     print 'Building with ', self.gens[version]['gen']
