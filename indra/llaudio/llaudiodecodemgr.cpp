@@ -27,7 +27,7 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
-
+#include <iterator>
 #include "linden_common.h"
 
 #include "llaudiodecodemgr.h"
