@@ -78,6 +78,34 @@ LLMediaImplGStreamer () :
 	,mAudioSink ( NULL )
 #endif // LL_GST_SOUNDSINK
 {
+
+
+	
+	
+	GstPlugin *playbin;
+	//GstPlugin *ffmpeg;
+	
+	
+	GError *p_err = NULL;
+	playbin = gst_plugin_load_file ("./libgstplaybin.dll", &p_err);
+	if (p_err != NULL)
+	{
+		fprintf (stderr, "Unable to read file: %s\n", p_err->message);
+		g_error_free (p_err);
+	}
+	g_assert (playbin != NULL);
+
+
+	/*GError *f_err = NULL;
+	ffmpeg = gst_plugin_load_file ("./libgstffmpeg.dll", &f_err);
+	if (f_err != NULL)
+	{
+		fprintf (stderr, "Unable to read file: %s\n", f_err->message);
+		g_error_free (f_err);
+	}
+	g_assert (ffmpeg != NULL);*/
+
+
 	DEBUGMSG("constructing media...");
 
 	setMediaDepth(4);
@@ -88,7 +116,7 @@ LLMediaImplGStreamer () :
 	{
 		return; // error
 	}
-
+	
 #ifdef LL_WINDOWS
 	GError * error=NULL;
 	gst_plugin_load_file("lib\\gstreamer-0.10\\libgstplaybin.dll",&error);
