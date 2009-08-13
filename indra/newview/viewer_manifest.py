@@ -225,7 +225,7 @@ class WindowsManifest(ViewerManifest):
             self.end_prefix()
 
         # Meerkat things
-    if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
+        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
             self.path("alut.dll")
             self.path("freebl3.dll")
             self.path("iconv.dll")
@@ -248,7 +248,7 @@ class WindowsManifest(ViewerManifest):
 #                "../win_crash_logger/release/windows-crash-logger.exe",
 #                "../win_crash_logger/relwithdebinfo/windows-crash-logger.exe"),
 #                  dst="win_crash_logger.exe")
-        self.path(src=self.find_existing_file(
+            self.path(src=self.find_existing_file(
 #                "../build-VC90/win_updater/debug/windows-updater.exe",
 #                "../build-VC90/win_updater/relwithdebinfo/windows-updater.exe",
                 "../build-VC90/win_updater/release/windows-updater.exe"),
@@ -454,7 +454,7 @@ class DarwinManifest(ViewerManifest):
         # This may be desirable for the final release.  Or not.
         if ("package" in self.args['actions'] or 
             "unpacked" in self.args['actions']):
-        self.run_command([
+            self.run_command([
             'strip', '-S', 
             '"%(viewer_binary)s"' % { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Meerkat')}
             ])
