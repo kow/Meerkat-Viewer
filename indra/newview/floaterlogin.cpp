@@ -1,9 +1,7 @@
 /*
- *  floaterlogin.cpp
- *  SecondLife
- *
- *  Created by RMS on 7/15/08.
- *
+ *  floaterlogin.cpp (floatergridmanager.cpp pls)
+ *  This is Meerkats grid manager, and I accidentally finished it with the wrong name :)
+ *  -Patrick Sapinski (Monday, August 17, 2009)
  */
 
 #include "llviewerprecompiledheaders.h"
@@ -54,7 +52,7 @@ LoginFloater::LoginFloater(void (*callback)(S32 option, void* user_data),
 	}
 	
 	center();
-	LLLineEditor* edit = getChild<LLLineEditor>("password_edit");
+	LLLineEditor* edit = getChild<LLLineEditor>("avatar_password_edit");
 	if (edit) edit->setDrawAsterixes(TRUE);
 	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
 	combo->setAllowTextEntry(TRUE, 128, FALSE);
@@ -77,26 +75,6 @@ LoginFloater::LoginFloater(void (*callback)(S32 option, void* user_data),
 	{
 		combo->setCurrentByIndex( 0 );
 	}
-	
-	LLTextBox* version_text = getChild<LLTextBox>("version_text");
-	std::string version = llformat("%d.%d.%d (%d)",
-								   LL_VERSION_MAJOR,
-								   LL_VERSION_MINOR,
-								   LL_VERSION_PATCH,
-								   LL_VIEWER_BUILD );
-	version_text->setText(version);
-	
-	LLTextBox* channel_text = getChild<LLTextBox>("channel_text");
-	channel_text->setText(gSavedSettings.getString("VersionChannelName"));
-	
-	sendChildToBack(getChildView("channel_text"));
-	sendChildToBack(getChildView("version_text"));
-	sendChildToBack(getChildView("forgot_password_text"));
-	
-	setDefaultBtn("connect_btn");
-	
-
-
 }
 
 
@@ -125,9 +103,12 @@ BOOL LoginFloater::postBuild()
 	requires<LLLineEditor>("loginpage");
 	requires<LLLineEditor>("helperuri");
 	requires<LLLineEditor>("website");
+	requires<LLLineEditor>("support");
+	requires<LLLineEditor>("register");
+	requires<LLLineEditor>("password");
 	requires<LLLineEditor>("first_name");
 	requires<LLLineEditor>("last_name");
-	requires<LLLineEditor>("password");
+	requires<LLLineEditor>("avatar_password");
 	//requires<LLLineEditor>("search");
 	requires<LLButton>("btn_delete");
 	requires<LLButton>("btn_add");
@@ -136,7 +117,7 @@ BOOL LoginFloater::postBuild()
 	requires<LLButton>("btn_gridinfo");
 	requires<LLButton>("btn_help_render_compat");
 	if (!checkRequirements()) return false;
-	LLLineEditor* password_edit = getChild<LLLineEditor>("password");
+	LLLineEditor* password_edit = getChild<LLLineEditor>("avatar_password");
 	if (password_edit) password_edit->setDrawAsterixes(TRUE);
 
 	childSetAction("btn_delete", onClickDelete, this);
@@ -221,12 +202,15 @@ void LoginFloater::refresh_grids()
 			sInstance->childSetText("loginpage", gridInfo->getLoginPage());
 			sInstance->childSetText("helperuri", gridInfo->getHelperUri());
 			sInstance->childSetText("website", gridInfo->getWebSite());
+			sInstance->childSetText("support", gridInfo->getSupportUrl());
+            sInstance->childSetText("register", gridInfo->getRegisterUrl());
+            sInstance->childSetText("password", gridInfo->getPasswordUrl());
 			sInstance->childSetText("first_name", gridInfo->getFirstName());
 			sInstance->childSetText("last_name", gridInfo->getLastName());
 			if(gridInfo->getAvatarPassword().length() == 32)
-				sInstance->childSetText("password", std::string(PASSWORD_FILLER));
+				sInstance->childSetText("avatar_password", std::string(PASSWORD_FILLER));
 			else if(gridInfo->getPasswordUrl().empty())
-				sInstance->childSetText("password", std::string(""));
+				sInstance->childSetText("avatar_password", std::string(""));
 /*
             if (gridInfo->getPlatform() == HippoGridInfo::PLATFORM_SECONDLIFE) {
 			    //childSetEnabled("search", false);
@@ -251,9 +235,7 @@ void LoginFloater::refresh_grids()
 			sInstance->childSetText("website", empty);
 			sInstance->childSetText("first_name", empty);
 			sInstance->childSetText("last_name", empty);
-			sInstance->childSetText("password", empty);
-			sInstance->childSetEnabled("render_compat", true);
-			sInstance->childSetValue("render_compat", true);
+			sInstance->childSetText("avatar_password", empty);
 		}
 	} else if (sInstance->mState == ADD_NEW) {
 			llwarns << "ADD_NEW" << llendl;
@@ -266,13 +248,14 @@ void LoginFloater::refresh_grids()
 		sInstance->childSetText("loginpage", empty);
 		sInstance->childSetText("helperuri", empty);
 		sInstance->childSetText("website", empty);
+		sInstance->childSetText("support", empty);
+		sInstance->childSetText("register", empty);
+		sInstance->childSetText("password", empty);
 		sInstance->childSetText("first_name", empty);
 		sInstance->childSetText("last_name", empty);
-		sInstance->childSetText("password", empty);
+		sInstance->childSetText("avatar_password", empty);
 		//childSetEnabled("search", true);
 		//childSetText("search", empty);
-		sInstance->childSetEnabled("render_compat", true);
-		sInstance->childSetValue("render_compat", true);
 	} else if (sInstance->mState == ADD_COPY) {
 			llwarns << "ADD_COPY" << llendl;
 		sInstance->childSetText("gridnick", LLStringExplicit("<required>"));
@@ -303,17 +286,20 @@ void LoginFloater::applyChanges()
 			gridInfo->setLoginPage(childGetValue("loginpage"));
 			gridInfo->setHelperUri(childGetValue("helperuri"));
 			gridInfo->setWebSite(childGetValue("website"));
+			gridInfo->setSupportUrl(childGetValue("support"));
+            gridInfo->setRegisterUrl(childGetValue("register"));
+			gridInfo->setPasswordUrl(childGetValue("password"));
 			gridInfo->setFirstName(childGetValue("first_name"));
 			gridInfo->setLastName(childGetValue("last_name"));
 			//gridInfo->setSearchUrl(childGetValue("search"));
 			gridInfo->setRenderCompat(childGetValue("render_compat"));
 			
-			if(childGetValue("password").asString().empty())
-				gridInfo->setPasswordUrl(std::string(""));
-			else if(childGetValue("password").asString() != std::string(PASSWORD_FILLER))
+			if(childGetValue("avatar_password").asString().empty())
+				gridInfo->setAvatarPassword(std::string(""));
+			else if(childGetValue("avatar_password").asString() != std::string(PASSWORD_FILLER))
 			{
 				// store account authentication data
-				std::string auth_password = childGetValue("password");
+				std::string auth_password = childGetValue("avatar_password");
 				std::string hashed_password;
 				hashPassword(auth_password, hashed_password);
 				gridInfo->setAvatarPassword(hashed_password);
@@ -364,18 +350,21 @@ bool LoginFloater::createNewGrid()
 	grid->setLoginPage(childGetValue("loginpage"));
 	grid->setHelperUri(childGetValue("helperuri"));
 	grid->setWebSite(childGetValue("website"));
+	grid->setSupportUrl(childGetValue("support"));
+    grid->setRegisterUrl(childGetValue("register"));
+	grid->setPasswordUrl(childGetValue("password"));
 	grid->setFirstName(childGetValue("first_name"));
 	grid->setLastName(childGetValue("last_name"));
 	//grid->setSearchUrl(childGetValue("search"));
 	grid->setRenderCompat(childGetValue("render_compat"));
 	gHippoGridManager->addGrid(grid);
 	
-	if(childGetValue("password").asString().empty())
+	if(childGetValue("avatar_password").asString().empty())
 		grid->setAvatarPassword(std::string(""));
 	else
 	{
 		std::string hashed_password;
-		hashPassword(childGetValue("password"), hashed_password);
+		hashPassword(childGetValue("avatar_password"), hashed_password);
 		grid->setAvatarPassword(hashed_password);
 	}
 	
@@ -542,7 +531,7 @@ void LoginFloater::newShow(const std::string &grid, bool initialLogin,
 						void* callback_data)
 {
 	
-		llwarns << "newShow called" << llendl;
+	llwarns << "newShow called" << llendl;
 	if(NULL==sInstance) 
 	{
 		LoginFloater::sGrid = grid;
@@ -552,13 +541,14 @@ void LoginFloater::newShow(const std::string &grid, bool initialLogin,
 		llwarns << "sInstance assigned. sInstance=" << sInstance << llendl;
 	}
 
-		llwarns << "newshow called" << llendl;
-		sInstance->mCurGrid = gHippoGridManager->getCurrentGridNick();
-		refresh_grids();
+	llwarns << "newshow called" << llendl;
+	sInstance->mCurGrid = gHippoGridManager->getCurrentGridNick();
+	refresh_grids();
 
-		// we're important
-		sInstance->setFrontmost(TRUE);
-		sInstance->setFocus(TRUE);
+		sInstance->open();	/*Flawfinder: ignore*/
+	// we're important
+	//sInstance->setFrontmost(TRUE);
+	//sInstance->setFocus(TRUE);
 
 }
 
@@ -572,21 +562,7 @@ void LoginFloater::testShow(void *lies)
 void LoginFloater::testCallback(S32 option, void *user_data)
 {
 	// test callback, referenced by testShow()
-	if(LOGIN_OPTION_CONNECT == option)
-	{
-		llinfos << "this is how we connect to a METAVERSE" << llendl;
-		std::string first, last, password;
-		BOOL remember = TRUE;
-		getFields(first, last, password, remember);
-		llinfos << "first\t\tlast\t\tpassword" << llendl;
-		llinfos << first << "\t\t" << last << "\t\t" << password << llendl;
-	}
-	else if(LOGIN_OPTION_QUIT == option)
-	{
-		llinfos << "my login, she die" << llendl;
-		llinfos << ":(" << llendl;
-		close();
-	}
+	// can we delete this? -Patrick Sapinski (Monday, August 17, 2009)
 }
 
 void LoginFloater::show(const LLRect &rect, BOOL show_server, 
@@ -685,14 +661,14 @@ void LoginFloater::setFields(const std::string& firstname, const std::string& la
 		// fill it with MAX_PASSWORD characters so we get a 
 		// nice row of asterixes.
 		const std::string filler("123456789!123456");
-		sInstance->childSetText("password_edit", filler);
+		sInstance->childSetText("avatar_password_edit", filler);
 		sInstance->mIncomingPassword = filler;
 		sInstance->mMungedPassword = password;
 	}
 	else
 	{
 		// this is a normal text password
-		sInstance->childSetText("password_edit", password);
+		sInstance->childSetText("avatar_password_edit", password);
 		sInstance->mIncomingPassword = password;
 		LLMD5 pass((unsigned char *)password.c_str());
 		char munged_password[MD5HEX_STR_SIZE];
