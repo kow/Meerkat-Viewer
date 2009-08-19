@@ -46,6 +46,8 @@
 
 #include "lldirpicker.h"
 
+#include "hippoGridManager.h"
+
 class LLPrefsIMImpl : public LLPanel
 {
 public:
@@ -210,7 +212,7 @@ void LLPrefsIMImpl::apply()
 
 		gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
 
-		gDirUtilp->setPerAccountChatLogsDir(gSavedSettings.getString("FirstName"), 
+		gDirUtilp->setPerAccountChatLogsDir(gHippoGridManager->getCurrentGridNick(), gSavedSettings.getString("FirstName"), 
 											gSavedSettings.getString("LastName") );
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 		
