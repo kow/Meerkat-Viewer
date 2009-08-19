@@ -56,6 +56,7 @@
 #include "lluictrlfactory.h"
 #include "llviewerimagelist.h"
 #include "llstring.h"
+#include "llviewercontrol.h"
 
 //static
 S32 LLFloaterImagePreview::sUploadAmount = 10;
@@ -64,7 +65,7 @@ const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
-const S32 PREVIEW_TEXTURE_HEIGHT = 300;
+const S32 PREVIEW_TEXTURE_HEIGHT = 350;
 
 
 //-----------------------------------------------------------------------------
@@ -116,6 +117,8 @@ BOOL LLFloaterImagePreview::postBuild()
 
 		if (mRawImagep->getWidth() * mRawImagep->getHeight () <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF)
 			childEnable("lossless_check");
+		gSavedSettings.setBOOL("MeerkatTemporaryUpload",FALSE);
+		childSetValue("temp_check",FALSE);
 	}
 	else
 	{
