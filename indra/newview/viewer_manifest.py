@@ -235,11 +235,14 @@ class WindowsManifest(ViewerManifest):
             self.path("libgthread-2.0-0.dll")
             self.path("libgmodule-2.0-0.dll")
             self.path("libgio-2.0-0.dll")
-            self.path("libxml2.dll")
+            self.path("libxml2-2.dll")
             self.path("OpenAL32.dll")
             self.path("zlib1.dll")
-            self.path("gstreamer/*.*")
-            self.path("gstreamer/*/*")
+            self.end_prefix()
+        # Meerkat gstreamer
+        if self.prefix(src="../../libraries/i686-win32/lib/release/gstreamer", dst=""):
+            self.path("*.dll")
+            self.path("plugins/*.dll", dst="lib/gstreamer-0.10/*.dll")
             self.end_prefix()
 
 #        # pull in the crash logger and updater from other projects
