@@ -116,7 +116,7 @@ const std::string LLFilePicker::getFirstFile()
 
 const std::string LLFilePicker::getNextFile()
 {
-	if (mCurrentFile >= (S32)mFiles.size())
+	if (mCurrentFile >= getFileCount())
 	{
 		mLocked = FALSE;
 		return std::string();
@@ -129,7 +129,7 @@ const std::string LLFilePicker::getNextFile()
 
 const std::string LLFilePicker::getCurFile()
 {
-	if (mCurrentFile >= (S32)mFiles.size())
+	if (mCurrentFile >= getFileCount())
 	{
 		mLocked = FALSE;
 		return std::string();
@@ -852,7 +852,7 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
 	send_agent_resume();
 	if (error == noErr)
 	{
-		if (mFiles.size())
+		if (getFileCount())
 			success = true;
 	}
 
@@ -881,9 +881,9 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 	send_agent_resume();
 	if (error == noErr)
 	{
-		if (mFiles.size())
+		if (getFileCount())
 			success = true;
-		if (mFiles.size() > 1)
+		if (getFileCount() > 1)
 			mLocked = TRUE;
 	}
 
@@ -911,7 +911,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 	send_agent_resume();
 	if (error == noErr)
 	{
-		if (mFiles.size())
+		if (getFileCount())
 			success = true;
 	}
 
@@ -927,12 +927,38 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 // static
 void LLFilePicker::add_to_selectedfiles(gpointer data, gpointer user_data)
 {
+	// We need to run g_filename_to_utf8 in the user's locale
+	std::string saved_locale(setlocale(LC_ALL, NULL));
+	setlocale(LC_ALL, "");
+
 	LLFilePicker* picker = (LLFilePicker*) user_data;
+	GError *error = NULL;
 	gchar* filename_utf8 = g_filename_to_utf8((gchar*)data,
-						  -1, NULL, NULL, NULL);
-	picker->mFiles.push_back(std::string(filename_utf8));
-	lldebugs << "ADDED FILE " << filename_utf8 << llendl;
-	g_free(filename_utf8);
+						  -1, NULL, NULL, &error);
+	if (error)
+	{
+		// *FIXME.
+		// This condition should really be notified to the user, e.g.
+		// through a message box.  Just logging it is inappropriate.
+		
+		// g_filename_display_name is ideal, but >= glib 2.6, so:
+		// a hand-rolled hacky makeASCII which disallows control chars
+		std::string display_name;
+		for (const gchar *str = (const gchar *)data; *str; str++)
+		{
+			display_name += (char)((*str >= 0x20 && *str <= 0x7E) ? *str : '?');
+		}
+		llwarns << "g_filename_to_utf8 failed on \"" << display_name << "\": " << error->message << llendl;
+	}
+
+	if (filename_utf8)
+	{
+		picker->mFiles.push_back(std::string(filename_utf8));
+		lldebugs << "ADDED FILE " << filename_utf8 << llendl;
+		g_free(filename_utf8);
+	}
+
+
 }
 
 // static
@@ -961,8 +987,7 @@ void LLFilePicker::chooser_responder(GtkWidget *widget, gint response, gpointer 
 
 GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder, std::string context)
 {
-	if (LLWindowSDL::ll_try_gtk_init() &&
-	    ! gViewerWindow->getWindow()->getFullscreen())
+	if (LLWindowSDL::ll_try_gtk_init())
 	{
 		GtkWidget *win = NULL;
 		GtkFileChooserAction pickertype =
@@ -1175,7 +1200,7 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 		gtk_widget_show_all(GTK_WIDGET(picker));
 		gtk_main();
 
-		rtn = (mFiles.size() == 1);
+		rtn = (getFileCount() == 1);
 	}
 
 	gViewerWindow->mWindow->afterDialog();
@@ -1219,7 +1244,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
 		gtk_widget_show_all(GTK_WIDGET(picker));
 		gtk_main();
 
-		rtn = (mFiles.size() == 1);
+		rtn = (getFileCount() == 1);
 	}
 
 	gViewerWindow->mWindow->afterDialog();
