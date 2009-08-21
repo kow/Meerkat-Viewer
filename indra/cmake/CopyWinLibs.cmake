@@ -29,7 +29,7 @@ set(debug_files
     softokn3.dll 
     xul.dll 
     intl.dll 
-    libxml2.dll 
+    libxml2-2.dll 
     libgmodule-2.0-0.dll 
     js3250.dll 
     libgobject-2.0-0.dll 
@@ -78,7 +78,7 @@ set(release_files
     xul.dll 
     libglib-2.0-0.dll 
     intl.dll 
-    libxml2.dll 
+    libxml2-2.dll 
     libgmodule-2.0-0.dll 
     js3250.dll 
     libgobject-2.0-0.dll 
