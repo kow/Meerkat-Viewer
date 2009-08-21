@@ -32,7 +32,7 @@ set(debug_files
     libgstaudio-0.10.dll 
     libglib-2.0-0.dll 
     intl.dll 
-    libxml2-2.dll 
+    libxml2.dll 
     libgmodule-2.0-0.dll 
     js3250.dll 
     libgstvideo-0.10.dll 
@@ -88,7 +88,7 @@ set(release_files
     libgstaudio-0.10.dll 
     libglib-2.0-0.dll 
     intl.dll 
-    libxml2-2.dll 
+    libxml2.dll 
     libgmodule-2.0-0.dll 
     js3250.dll 
     libgstvideo-0.10.dll 
