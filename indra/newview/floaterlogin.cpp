@@ -26,9 +26,8 @@ LoginController* LoginFloater::sController = NULL;
 bool LoginFloater::sIsInitialLogin;
 std::string LoginFloater::sGrid;
 
-LoginFloater::LoginFloater(void (*callback)(S32 option, void* user_data),
-						   void *cb_data)
-:	LLFloater("floater_login"), mCallback(callback), mCallbackData(cb_data)
+LoginFloater::LoginFloater()
+:	LLFloater("floater_login")
 {
 	
 	mState = NORMAL;
@@ -95,7 +94,7 @@ void LoginFloater::close()
 
 BOOL LoginFloater::postBuild()
 {
-	requires<LLComboBox>("grid_selector");
+	requires<LLScrollListCtrl>("grid_selector");
 	requires<LLLineEditor>("gridnick");
 	requires<LLComboBox>("platform");
 	requires<LLLineEditor>("gridname");
@@ -123,6 +122,7 @@ BOOL LoginFloater::postBuild()
 	childSetAction("btn_delete", onClickDelete, this);
 	childSetAction("btn_add", onClickAdd, this);
 	childSetAction("btn_copy", onClickCopy, this);
+	childSetAction("btn_ok", onClickOk, this);
 	childSetAction("btn_apply", onClickApply, this);
 	childSetAction("set_default", onClickDefault, this);
 	childSetAction("btn_cancel", onClickCancel, this);
@@ -185,18 +185,10 @@ void LoginFloater::refresh_grids()
 	sInstance->childSetEnabled("set_default", (sInstance->mState == NORMAL) && (selectIndex > 0));
 	sInstance->childSetEnabled("gridnick", (sInstance->mState == ADD_NEW) || (sInstance->mState == ADD_COPY));
 
-
-	LLComboBox *platform = sInstance->getChild<LLComboBox>("platform");
-	platform->removeall();
-	for (int p=HippoGridInfo::PLATFORM_OTHER; p<HippoGridInfo::PLATFORM_LAST; p++)
-		platform->add(HippoGridInfo::getPlatformString(static_cast<HippoGridInfo::Platform>(p)));
-
-
 	if (sInstance->mState == NORMAL) {
 		HippoGridInfo *gridInfo = gHippoGridManager->getGrid(sInstance->mCurGrid);
 		if (gridInfo) {
 			sInstance->childSetText("gridnick", gridInfo->getGridNick());
-			platform->setCurrentByIndex(gridInfo->getPlatform());
 			//sInstance->childSetText("grid_name", gridInfo->getGridName());
 			sInstance->childSetText("loginuri", gridInfo->getLoginUri());
 			sInstance->childSetText("loginpage", gridInfo->getLoginPage());
@@ -227,7 +219,6 @@ void LoginFloater::refresh_grids()
 		}	else {
 			std::string empty = "";
 			sInstance->childSetText("gridnick", empty);
-			platform->setCurrentByIndex(HippoGridInfo::PLATFORM_OTHER);
 			sInstance->childSetText("gridname", empty);
 			sInstance->childSetText("loginuri", empty);
 			sInstance->childSetText("loginpage", empty);
@@ -242,7 +233,6 @@ void LoginFloater::refresh_grids()
 		std::string required = "<required>";
 		std::string empty = "";
 		sInstance->childSetText("gridnick", required);
-		platform->setCurrentByIndex(HippoGridInfo::PLATFORM_OTHER);
 		sInstance->childSetText("gridname", empty);
 		sInstance->childSetText("loginuri", required);
 		sInstance->childSetText("loginpage", empty);
@@ -304,8 +294,9 @@ void LoginFloater::applyChanges()
 				hashPassword(auth_password, hashed_password);
 				gridInfo->setAvatarPassword(hashed_password);
 			}
-			LLPanelLogin::setFields(gridInfo->getFirstName(), gridInfo->getLastName(),
-									gridInfo->getAvatarPassword(), true);
+			//this bug was a feature -Patrick Sapinski (Friday, August 21, 2009)
+			//LLPanelLogin::setFields(gridInfo->getFirstName(), gridInfo->getLastName(),
+			//						gridInfo->getAvatarPassword(), true);
 		} 
 		else 
 		{
@@ -446,8 +437,6 @@ void LoginFloater::setDefault()
 	}
 	gHippoGridManager->setCurrentGrid(mCurGrid);
 	gHippoGridManager->setDefaultGrid(mCurGrid);
-			llwarns << "I think me grid is " << mCurGrid << llendl;
-	//LLPanelLogin::refreshLoginPage();
 	gHippoGridManager->saveFile();
 	LLPanelLogin::addServer(LLViewerLogin::getInstance()->getGridLabel());
 }
@@ -467,14 +456,8 @@ void LoginFloater::onSelectGrid(LLUICtrl* ctrl, void *data)
 		if (self->createNewGrid()) {
 			self->mState = NORMAL;
 		} else {
-			//LLCtrlListInterface *grids = self->childGetListInterface("search_results");
-			//if (!grids) return;
-
-			//LLSD selected_value = grids->getSelectedValue();
-			//std::string sim_name = selected_value.asString();
-
-			LLComboBox *grids = self->getChild<LLComboBox>("grid_selector");
-			grids->setCurrentByIndex(grids->getItemCount() - 1);
+			//LLScrollListCtrl *grids = self->getChild<LLScrollListCtrl>("grid_selector");
+			//grids->setCurrentByIndex(grids->getItemCount() - 1);
 			return;
 		}
 	} else {
@@ -516,9 +499,22 @@ void LoginFloater::onClickCopy(void *data)
 	self->refresh_grids();
 }
 
+// static
+void LoginFloater::onClickOk(void* data)
+{
+	if(NULL==sInstance)
+		return;
+
+	sInstance->apply();
+	sInstance->close();
+}
+
 //static
 void LoginFloater::onClickApply(void *data)
 {
+	if(NULL==sInstance)
+		return;
+
 	sInstance->apply();
 }
 
@@ -578,9 +574,7 @@ void LoginFloater::refreshLocation( bool force_visible )
 	sInstance->childSetVisible("server_combo", TRUE);
 }
 
-void LoginFloater::newShow(const std::string &grid, bool initialLogin,
-						void (*callback)(S32 option, void* user_data), 
-						void* callback_data)
+void LoginFloater::newShow(const std::string &grid, bool initialLogin)
 {
 	
 	llwarns << "newShow called" << llendl;
@@ -588,7 +582,7 @@ void LoginFloater::newShow(const std::string &grid, bool initialLogin,
 	{
 		LoginFloater::sGrid = grid;
 		LoginFloater::sIsInitialLogin = initialLogin;
-		sInstance = new LoginFloater(callback, callback_data);
+		sInstance = new LoginFloater();
 		
 		llwarns << "sInstance assigned. sInstance=" << sInstance << llendl;
 	}
@@ -604,26 +598,13 @@ void LoginFloater::newShow(const std::string &grid, bool initialLogin,
 
 }
 
-void LoginFloater::testShow(void *lies)
-{
-	// this is if we want to call LoginFloater from a menu option
-	// or you know whatever
-	newShow(std::string("Test"), false, testCallback, NULL);
-}
-
-void LoginFloater::testCallback(S32 option, void *user_data)
-{
-	// test callback, referenced by testShow()
-	// can we delete this? -Patrick Sapinski (Monday, August 17, 2009)
-}
-
 void LoginFloater::show(const LLRect &rect, BOOL show_server, 
 						void (*callback)(S32 option, void* user_data), 
 						void* callback_data)
 {
 	// we don't need a grid passed in because this is old-style login
 	std::string grid = "";
-	newShow(grid, TRUE, callback, callback_data);
+	newShow(grid, TRUE);
 }
 
 void LoginFloater::setFocus(BOOL b)
@@ -643,7 +624,7 @@ void LoginFloater::setFocus(BOOL b)
 
 void LoginFloater::giveFocus()
 {
-	LLComboBox *combo = NULL;
+	LLScrollListCtrl *combo = NULL;
 	
 	if(NULL==sInstance)
 	{
@@ -653,89 +634,8 @@ void LoginFloater::giveFocus()
 	
 	// for our combo box approach, selecting the combo box is almost always
 	// the right thing to do on the floater receiving focus
-	combo = sInstance->getChild<LLComboBox>("name_combo");
+	combo = sInstance->getChild<LLScrollListCtrl>("grid_selector");
 	combo->setFocus(TRUE);
-}
-
-void LoginFloater::getFields(std::string &firstname, std::string &lastname, std::string &password,
-							 BOOL &remember)
-{
-	if (!sInstance)
-	{
-		llwarns << "Attempted getFields with no login view shown" << llendl;
-		return;
-	}
-	
-	std::string loginname = sInstance->childGetText("name_combo");
-	
-	LLStringUtil::replaceTabsWithSpaces(loginname, 1);
-	LLStringUtil::trim(loginname);
-	std::vector<std::string> loginVec;
-	boost::split(loginVec, loginname, boost::is_any_of(" "), boost::token_compress_on);
-	if(loginVec.size() == 2)
-	{
-		firstname = loginVec[0];
-		lastname = loginVec[1];
-	}
-	
-	password = sInstance->mMungedPassword;
-	remember = sInstance->childGetValue("remember_check");
-}
-
-void LoginFloater::getFields(std::string &loginname, std::string &password, BOOL &remember)
-{
-	std::string first, last, pass;
-	BOOL rem;
-	getFields(first, last, pass, rem);
-	loginname = first + " " + last;
-	password = pass;
-	remember = rem;
-}
-
-void LoginFloater::setFields(const std::string& firstname, const std::string& lastname, const std::string& password,
-							 BOOL remember)
-{
-	if (!sInstance)
-	{
-		llwarns << "Attempted setFields with no login view shown" << llendl;
-		return;
-	}
-	
-	std::string loginname = firstname + " " + lastname;
-	sInstance->childSetText("name_combo", loginname);
-	
-	// Max "actual" password length is 16 characters.
-	// Hex digests are always 32 characters.
-	if (password.length() == 32)
-	{
-		// This is a MD5 hex digest of a password.
-		// We don't actually use the password input field, 
-		// fill it with MAX_PASSWORD characters so we get a 
-		// nice row of asterixes.
-		const std::string filler("123456789!123456");
-		sInstance->childSetText("avatar_password_edit", filler);
-		sInstance->mIncomingPassword = filler;
-		sInstance->mMungedPassword = password;
-	}
-	else
-	{
-		// this is a normal text password
-		sInstance->childSetText("avatar_password_edit", password);
-		sInstance->mIncomingPassword = password;
-		LLMD5 pass((unsigned char *)password.c_str());
-		char munged_password[MD5HEX_STR_SIZE];
-		pass.hex_digest(munged_password);
-		sInstance->mMungedPassword = munged_password;
-	}
-	
-	sInstance->childSetValue("remember_check", remember);
-}
-
-void LoginFloater::setFields(const std::string &loginname, const std::string &password, BOOL remember)
-{
-	std::vector<std::string> loginVec;
-	boost::split(loginVec, loginname, boost::is_any_of(" "), boost::token_compress_on);
-	setFields(loginVec[0], loginVec[1], password, remember);
 }
 
 BOOL LoginFloater::isGridComboDirty()
@@ -791,25 +691,6 @@ void LoginFloater::addServer(const std::string& server, S32 domain_name)
 	LLComboBox* combo = sInstance->getChild<LLComboBox>("server_combo");
 	combo->add(server, LLSD(domain_name) );
 	combo->setCurrentByIndex(0);
-}
-
-void LoginFloater::accept()
-{
-	if(NULL==sInstance || NULL==sInstance->mCallback)
-		return;
-	
-	sInstance->setFocus(FALSE);
-	
-	std::string name_combo = sInstance->childGetText("name_combo");
-	if(!name_combo.empty())
-	{
-		sInstance->mCallback(LOGIN_OPTION_CONNECT, sInstance->mCallbackData);
-	}
-	else
-	{
-		// TODO: new account call goes here
-		return;
-	}
 }
 
 void LoginFloater::cancel_old()

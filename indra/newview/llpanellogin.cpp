@@ -1062,7 +1062,7 @@ void LLPanelLogin::onClickGrid(void *)
 {
 	if (sInstance && sInstance->mCallback)
 	{
-		LoginFloater::newShow(std::string("Test"), false, LoginFloater::testCallback, NULL);
+		LoginFloater::newShow(std::string("Test"), false);
 	}
 }
 
