@@ -96,7 +96,6 @@ BOOL LoginFloater::postBuild()
 {
 	requires<LLScrollListCtrl>("grid_selector");
 	requires<LLLineEditor>("gridnick");
-	requires<LLComboBox>("platform");
 	requires<LLLineEditor>("gridname");
 	requires<LLLineEditor>("loginuri");
 	requires<LLLineEditor>("loginpage");
@@ -270,7 +269,6 @@ void LoginFloater::applyChanges()
 	{
 		if (gridInfo->getGridNick() == childGetValue("gridnick").asString()) 
 		{
-			gridInfo->setPlatform(childGetValue("platform"));
 			gridInfo->setGridName(childGetValue("gridname"));
 			gridInfo->setLoginUri(childGetValue("loginuri"));
 			gridInfo->setLoginPage(childGetValue("loginpage"));
@@ -335,7 +333,6 @@ bool LoginFloater::createNewGrid()
 
 	// create new grid
 	HippoGridInfo *grid = new HippoGridInfo(gridnick);
-	grid->setPlatform(childGetValue("platform"));
 	grid->setGridName(childGetValue("gridname"));
 	grid->setLoginUri(loginuri);
 	grid->setLoginPage(childGetValue("loginpage"));
@@ -390,8 +387,6 @@ void LoginFloater::retrieveGridInfo()
 	grid->setLoginUri(loginuri);
 	if (grid->retrieveGridInfo()) {
 		if (grid->getGridNick() != "") childSetText("gridnick", grid->getGridNick());
-		if (grid->getPlatform() != HippoGridInfo::PLATFORM_OTHER)
-			getChild<LLComboBox>("platform")->setCurrentByIndex(grid->getPlatform());
 		if (grid->getGridName() != "") childSetText("gridname", grid->getGridName());
 		if (grid->getLoginUri() != "") childSetText("loginuri", grid->getLoginUri());
 		if (grid->getLoginPage() != "") childSetText("loginpage", grid->getLoginPage());
@@ -465,8 +460,6 @@ void LoginFloater::onSelectGrid(LLUICtrl* ctrl, void *data)
 		return;
 	}
 	self->mCurGrid = ctrl->getValue().asString();
-			llwarns << "I think me grid is " << self->mCurGrid << llendl;
-
 	self->refresh_grids();
 }
 
@@ -516,6 +509,7 @@ void LoginFloater::onClickApply(void *data)
 		return;
 
 	sInstance->apply();
+	refresh_grids();
 }
 
 //static
