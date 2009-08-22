@@ -1,10 +1,9 @@
 /*
- *  floaterlogin.h
- *  SecondLife
- *
- *  Created by RMS on 7/15/08.
- *
+ *  floaterlogin.h (floatergridmanager.h pls)
+ *  This is Meerkats grid manager, and I accidentally finished it with the wrong name :)
+ *  -Patrick Sapinski (Monday, August 17, 2009)
  */
+
 #ifndef PL_floaterlogin_H
 #define PL_floaterlogin_H
 
@@ -78,6 +77,7 @@ private:
 	void applyChanges();
 	bool createNewGrid();
 	void update();
+	void retrieveGridInfo();
 
 	static void onSelectGrid(LLUICtrl *ctrl, void *data);
 	static void onClickDelete(void *data);
@@ -85,6 +85,7 @@ private:
 	static void onClickCopy(void *data);
 	static void onClickApply(void *data);
 	static void onClickDefault(void *data);
+	static void onClickGridInfo(void *data);
 	static void onClickCancel(void *data);
 
 	static LoginFloater *sInstance;

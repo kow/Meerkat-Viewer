@@ -127,7 +127,7 @@ BOOL LoginFloater::postBuild()
 	childSetAction("set_default", onClickDefault, this);
 	childSetAction("btn_cancel", onClickCancel, this);
 //KOW	childSetAction("set_default", onClickDefault, this);
-//KOW	childSetAction("btn_gridinfo", onClickGridInfo, this);
+	childSetAction("btn_gridinfo", onClickGridInfo, this);
 //KOW	childSetAction("btn_help_render_compat", onClickHelpRenderCompat, this);
 
 	childSetCommitCallback("grid_selector", onSelectGrid, this);
@@ -372,6 +372,51 @@ bool LoginFloater::createNewGrid()
 	return true;
 }
 
+void LoginFloater::retrieveGridInfo()
+{
+	std::string loginuri = childGetValue("loginuri");
+	if ((loginuri == "") || (loginuri == "<required>")) {
+		//KOW gViewerWindow->alertXml("GridInfoNoLoginUri");
+		return;
+	}
+
+	HippoGridInfo *grid = 0;
+	bool cleanupGrid = false;
+	if (mState == NORMAL) {
+		grid = gHippoGridManager->getGrid(mCurGrid);
+	} else if ((mState == ADD_NEW) || (mState == ADD_COPY)) {
+		grid = new HippoGridInfo("");
+		cleanupGrid = true;
+	} else {
+		llerrs << "Illegal state " << mState << '.' << llendl;
+		return;
+	}
+	if (!grid) {
+		llerrs << "Internal error retrieving grid info." << llendl;
+		return;
+	}
+
+	grid->setLoginUri(loginuri);
+	if (grid->retrieveGridInfo()) {
+		if (grid->getGridNick() != "") childSetText("gridnick", grid->getGridNick());
+		if (grid->getPlatform() != HippoGridInfo::PLATFORM_OTHER)
+			getChild<LLComboBox>("platform")->setCurrentByIndex(grid->getPlatform());
+		if (grid->getGridName() != "") childSetText("gridname", grid->getGridName());
+		if (grid->getLoginUri() != "") childSetText("loginuri", grid->getLoginUri());
+		if (grid->getLoginPage() != "") childSetText("loginpage", grid->getLoginPage());
+		if (grid->getHelperUri() != "") childSetText("helperuri", grid->getHelperUri());
+		if (grid->getWebSite() != "") childSetText("website", grid->getWebSite());
+        if (grid->getSupportUrl() != "") childSetText("support", grid->getSupportUrl());
+        if (grid->getRegisterUrl() != "") childSetText("register", grid->getRegisterUrl());
+		if (grid->getPasswordUrl() != "") childSetText("password", grid->getPasswordUrl());
+		//if (grid->getSearchUrl() != "") childSetText("search", grid->getSearchUrl());
+	} else {
+		//KOW gViewerWindow->alertXml("GridInfoError");
+	}
+
+	if (cleanupGrid) delete grid;
+}
+
 void LoginFloater::apply()
 {
 	if (mState == NORMAL) {
@@ -482,6 +527,13 @@ void LoginFloater::onClickDefault(void *data)
 {
 	sInstance->setDefault();
 	sInstance->refresh_grids();
+}
+
+//static
+void LoginFloater::onClickGridInfo(void *data)
+{
+	//HippoPanelGrids* self = (HippoPanelGrids*)data;
+	sInstance->retrieveGridInfo();
 }
 
 //static
