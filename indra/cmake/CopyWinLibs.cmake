@@ -52,8 +52,7 @@ set(debug_files
     libgstpbutils-0.10.dll
     libgstinterfaces-0.10.dll
     iconv.dll 
-    OpenAL32.dll 
-    SDL.dll
+    OpenAL32.dll
     )
 
 copy_if_different(
