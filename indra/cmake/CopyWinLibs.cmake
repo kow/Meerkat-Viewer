@@ -45,6 +45,7 @@ set(debug_files
     plc4.dll 
     iconv.dll 
     OpenAL32.dll 
+    SDL.dll
     )
 
 copy_if_different(
@@ -92,7 +93,8 @@ set(release_files
     xpcom.dll 
     libgthread-2.0-0.dll 
     plc4.dll 
-    OpenAL32.dll 
+    OpenAL32.dll
+    SDL.dll
     )
     
 copy_if_different(

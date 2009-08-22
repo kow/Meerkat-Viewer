@@ -237,8 +237,10 @@ class WindowsManifest(ViewerManifest):
             self.path("libgio-2.0-0.dll")
             self.path("libxml2-2.dll")
             self.path("OpenAL32.dll")
+            self.path("SDL.dll") #is this requirement for gstreamer??
             self.path("zlib1.dll")
             self.end_prefix()
+            
         # Meerkat gstreamer
         if self.prefix(src="../../libraries/i686-win32/lib/release/gstreamer", dst=""):
             self.path("*.dll")
