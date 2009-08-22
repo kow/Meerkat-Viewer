@@ -8,7 +8,7 @@
     Draw Distance
   </text>
   <slider top_delta="-20" width="150" height="14" left_delta="0" follows="left|top" mouse_opaque="true"
-      name="drawslider" initial_val="64" max_val="1024" min_val="8" increment="8.0"
+      name="drawslider" initial_val="64" max_val="1024" min_val="32" increment="8.0"
       can_edit_text="false" enabled="true" decimal_digits="0" show_text="true" value="64"
            control_name="RenderFarClip" tool_tip="Draw Distance"  />
   <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"

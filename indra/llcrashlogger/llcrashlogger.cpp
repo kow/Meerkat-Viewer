@@ -178,26 +178,8 @@ void LLCrashLogger::gatherFiles()
 
 	gatherPlatformSpecificFiles();
 
-	//Use the debug log to reconstruct the URL to send the crash report to
-	if(mDebugLog.has("CurrentSimHost"))
-	{
-		mCrashHost = "https://";
-		mCrashHost += mDebugLog["CurrentSimHost"].asString();
-		mCrashHost += ":12043/crash/report";
-	}
-	else if(mDebugLog.has("GridName"))
-	{
-		// This is a 'little' hacky, but its the best simple solution.
-		std::string grid_host = mDebugLog["GridName"].asString();
-		LLStringUtil::toLower(grid_host);
-
-		mCrashHost = "https://login.";
-		mCrashHost += grid_host;
-		mCrashHost += ".lindenlab.com:12043/crash/report";
-	}
-
-	// Use login servers as the alternate, since they are already load balanced and have a known name
-	mAltCrashHost = "https://login.agni.lindenlab.com:12043/crash/report";
+	// Send Meerkat crash logs to meerkatviewer.org
+	mCrashHost = "https://meerkatviewer.org/scripts/crashreport.php";
 
 	mCrashInfo["DebugLog"] = mDebugLog;
 	mFileMap["StatsLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stats.log");
@@ -306,11 +288,6 @@ bool LLCrashLogger::sendCrashLogs()
 	if(mCrashHost != "")
 	{
 		sent = runCrashLogPost(mCrashHost, post_data, std::string("Sending to server"), 3, 5);
-	}
-
-	if(!sent)
-	{
-		sent = runCrashLogPost(mAltCrashHost, post_data, std::string("Sending to alternate server"), 3, 5);
 	}
 	
 	mSentCrashLogs = sent;

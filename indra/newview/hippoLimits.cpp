@@ -29,7 +29,7 @@ void HippoLimits::setLimits()
 void HippoLimits::setOpenSimLimits()
 {
 	mMaxAgentGroups = 100;
-	mMaxPrimScale = 256.0f;
+	mMaxPrimScale = 4096.0f;
 	mMaxHeight = 10000.0f;
 	if (gHippoGridManager->getConnectedGrid()->isRenderCompat()) {
 		llinfos << "Using rendering compatible OpenSim limits." << llendl;

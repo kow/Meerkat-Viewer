@@ -639,7 +639,7 @@ void LLPanelLogin::show(const LLRect &rect,
 	// Make sure that focus always goes here (and use the latest sInstance that was just created)
 	gFocusMgr.setDefaultKeyboardFocus(sInstance);
 
-	//KOW
+	//KOW this hackish move should refresh the grid list on the main login panel
 	LLPanelLogin::addServer(LLViewerLogin::getInstance()->getGridLabel());
 }
 
@@ -1062,7 +1062,7 @@ void LLPanelLogin::onClickGrid(void *)
 {
 	if (sInstance && sInstance->mCallback)
 	{
-		LoginFloater::newShow(std::string("Test"), false, LoginFloater::testCallback, NULL);
+		LoginFloater::newShow(std::string("Test"), false);
 	}
 }
 

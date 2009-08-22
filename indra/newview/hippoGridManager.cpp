@@ -575,6 +575,7 @@ void HippoGridManager::saveFile()
 		gridInfo[i]["website"] = grid->getWebSite();
         gridInfo[i]["support"] = grid->getSupportUrl();
 		gridInfo[i]["register"] = grid->getRegisterUrl();
+        gridInfo[i]["password"] = grid->getPasswordUrl();
         gridInfo[i]["firstname"] = grid->getFirstName();
         gridInfo[i]["lastname"] = grid->getLastName();
         gridInfo[i]["avatarpassword"] = grid->getAvatarPassword();

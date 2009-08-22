@@ -53,6 +53,7 @@ set(debug_files
     libgstinterfaces-0.10.dll
     iconv.dll 
     OpenAL32.dll 
+    SDL.dll
     )
 
 copy_if_different(

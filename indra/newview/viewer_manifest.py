@@ -154,7 +154,7 @@ class WindowsManifest(ViewerManifest):
             if self.default_grid():
                 return "Meerkat.exe"
             else:
-                return "SecondLifePreview.exe"
+                return "MeerkatPreview.exe"
         else:
             return ''.join(self.channel().split()) + '.exe'
 
@@ -358,7 +358,7 @@ class WindowsManifest(ViewerManifest):
             grid_vars_template = """
             OutFile "%(installer_file)s"
             !define INSTFLAGS "%(flags)s"
-            !define INSTNAME   "SecondLife%(channel_oneword)s"
+            !define INSTNAME   "Meerkat%(channel_oneword)s"
             !define SHORTCUT   "%(channel)s"
             !define URLNAME   "secondlife"
             !define UNINSTALL_SETTINGS 1

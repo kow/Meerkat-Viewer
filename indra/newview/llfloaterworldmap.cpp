@@ -1134,7 +1134,7 @@ void LLFloaterWorldMap::onPanBtn( void* userdata )
 // static
 void LLFloaterWorldMap::onGridManager(void*)
 {
-	LoginFloater::newShow(std::string("Test"), false, LoginFloater::testCallback, NULL);
+	LoginFloater::newShow(std::string("Test"), false);
 	//gAgent.teleportHome();
 	//gFloaterWorldMap->close();
 }
@@ -1488,9 +1488,7 @@ void LLFloaterWorldMap::teleport()
 		!grid_combo->getSelectedValue().asString().empty())
 	{
 		HippoGridInfo *gridInfo = gHippoGridManager->getGrid(grid_combo->getSelectedValue().asString());
-		//DEBUG
-
-		llwarns << "tp button current grid = " << grid_combo->getSelectedValue().asString() << llendl; 
+		
 		std::string firstName = gridInfo->getFirstName();
 		std::string lastName = gridInfo->getLastName();
 		std::string loginPassword = gridInfo->getAvatarPassword();
@@ -1503,7 +1501,6 @@ void LLFloaterWorldMap::teleport()
 		}
 		
 		gHippoGridManager->setCurrentGrid(gridInfo->getGridNick());
-		//gHippoGridManager->setDefaultGrid(gridInfo->getGridNick());
 		LLStartUp::setShouldAutoLogin(true);
 		LLViewerLogin* vl = LLViewerLogin::getInstance();
 		vl->resetURIs();
