@@ -197,7 +197,7 @@ void WINAPI GetCallStackData(const CONTEXT* context_struct, LLSD& info)
 	{
 		STACK *	Ebp;
 		PBYTE	Ret_Addr;
-		DWORD	Param[0];
+		DWORD	Param[];
 	} STACK, * PSTACK;
 
 	PSTACK	Ebp;
@@ -340,7 +340,7 @@ void WINAPI Get_Call_Stack(PEXCEPTION_POINTERS pException, LLSD& info)
 	{
 		STACK *	Ebp;
 		PBYTE	Ret_Addr;
-		DWORD	Param[0];
+		DWORD	Param[];
 	} STACK, * PSTACK;
 
 	STACK	Stack = {0, 0};
