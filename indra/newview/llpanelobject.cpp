@@ -73,6 +73,10 @@
 #include "llfirstuse.h"
 
 #include "lldrawpool.h"
+// [RLVa:KB] - Checked: 2009-07-10 (RLVa-1.0.0g)
+#include "llvoavatar.h"
+// [/RLVa:KB]
+
 
 #include "hippoLimits.h"
 //
@@ -366,6 +370,15 @@ void LLPanelObject::getState( )
 	BOOL enable_scale	= objectp->permMove() && objectp->permModify();
 	BOOL enable_rotate	= objectp->permMove() && ( (objectp->permModify() && !objectp->isAttachment()) || !gSavedSettings.getBOOL("EditLinkedParts"));
 
+	// [RLVa:KB] - Checked: 2009-07-10 (RLVa-1.0.0g)
+	if ( (rlv_handler_t::isEnabled()) && ((gRlvHandler.hasBehaviour(RLV_BHVR_UNSIT)) || (gRlvHandler.hasBehaviour(RLV_BHVR_SITTP))) )
+	{
+		LLVOAvatar* pAvatar = gAgent.getAvatarObject();
+		if ( (pAvatar) && (pAvatar->mIsSitting) && (pAvatar->getRoot() == objectp->getRootEdit()) )
+			enable_move = enable_scale = enable_rotate = FALSE;
+	}
+	// [/RLVa:KB]
+	
 	LLVector3 vec;
 	if (enable_move)
 	{
@@ -1916,6 +1929,10 @@ void LLPanelObject::clearCtrls()
 
 }
 
+// [RLVa:KB] - Checked: 2009-07-10 (RLVa-1.0.0g)
+#include "llvoavatar.h"
+// [/RLVa:KB]
+
 //
 // Static functions
 //
@@ -2049,3 +2066,4 @@ void LLPanelObject::onCommitSculptType(LLUICtrl *ctrl, void* userdata)
 
 	self->sendSculpt();
 }
+

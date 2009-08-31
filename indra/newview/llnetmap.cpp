@@ -405,7 +405,10 @@ void LLNetMap::draw()
 				pos_map = globalPosToView(pos_global);
 
 				BOOL show_as_friend = FALSE;
-				if( i < regionp->mMapAvatarIDs.count())
+				//if( i < regionp->mMapAvatarIDs.count())
+// [RLVa:KB] - Version: 1.22.11 | Alternate: Snowglobe-1.0 | Checked: 2009-07-08 (RLVa-1.0.0e) | Modified: RLVa-0.2.0b
+				if ( (i < regionp->mMapAvatarIDs.count()) && (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) )
+// [/RLVa:KB]
 				{
 					show_as_friend = is_agent_friend(regionp->mMapAvatarIDs.get(i));
 				}
@@ -590,7 +593,10 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, std::string& msg, LLRect* sticky_rec
 	LLViewerRegion*	region = LLWorld::getInstance()->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
 	if( region )
 	{
-		msg.assign( region->getName() );
+// [RLVa:KB] - Version: 1.22.11 | Checked: 2009-07-04 (RLVa-1.0.0a) | Modified: RLVa-0.2.0b
+		msg.assign( (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC)) ? region->getName() : rlv_handler_t::cstrHidden );
+// [/RLVa:KB]
+		//msg.assign( region->getName() );
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 		std::string buffer;

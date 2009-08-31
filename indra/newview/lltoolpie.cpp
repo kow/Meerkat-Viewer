@@ -165,6 +165,15 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 	// If it's a left-click, and we have a special action, do it.
 	if (useClickAction(always_show, mask, object, parent))
 	{
+// [RLVa:KB] - Checked: 2009-07-10 (RLVa-1.0.0g) | Modified: RLVa-0.2.0f
+		// Block left-click special actions (fallback code really since LLToolSelect::handleObjectSelection() wouldn't select it anyway)
+		if ( (gRlvHandler.hasBehaviour(RLV_BHVR_FARTOUCH)) &&
+			 (dist_vec_squared(gAgent.getPositionAgent(), mPick.mIntersection) > 1.5f * 1.5f) )
+		{
+			return TRUE;
+		}
+// [/RLVa:KB]
+
 		mClickAction = 0;
 		if (object && object->getClickAction()) 
 		{
@@ -334,7 +343,22 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 				//gMutePieMenu->setLabel("Mute");
 			}
 
+			//gPieAvatar->show(x, y, mPieMouseButtonDown);
+// [RLVa:KB] - Checked: 2009-07-10 (RLVa-1.0.0g) | Added: RLVa-0.2.0f
+			#ifdef RLV_EXPERIMENTAL_FARTOUCH_FEEDBACK
+				// If we have an empty selection under @fartouch=n don't show the pie menu but play the "operation block" sound
+				if ( (!gRlvHandler.hasBehaviour(RLV_BHVR_FARTOUCH)) || (!LLSelectMgr::getInstance()->getSelection()->isEmpty()) )
+				{
+			#endif // RLV_EXPERIMENTAL_FARTOUCH_FEEDBACK
 			gPieAvatar->show(x, y, mPieMouseButtonDown);
+			#ifdef RLV_EXPERIMENTAL_FARTOUCH_FEEDBACK
+		}
+				else
+				{
+					make_ui_sound("UISndInvalidOp");
+				}
+			#endif // RLV_EXPERIMENTAL_FARTOUCH_FEEDBACK
+// [/RLVa:KB]
 		}
 		else if (object->isAttachment())
 		{
@@ -360,6 +384,14 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 				//gMuteObjectPieMenu->setLabel("Mute");
 			}
 			
+// [RLVa:KB] - Checked: 2009-07-10 (RLVa-1.0.0g) | Added: RLVa-0.2.0f
+			#ifdef RLV_EXPERIMENTAL_FARTOUCH_FEEDBACK
+				// If we have an empty selection under @fartouch=n don't show the pie menu but play the "operation block" sound
+				// (not entirely accurate in case of Tools / Select Only XXX [see LLToolSelect::handleObjectSelection()]
+				if ( (!gRlvHandler.hasBehaviour(RLV_BHVR_FARTOUCH)) || (!LLSelectMgr::getInstance()->getSelection()->isEmpty()) )
+				{
+			#endif // RLV_EXPERIMENTAL_FARTOUCH_FEEDBACK
+// [/RLVa:KB]
 			gPieObject->show(x, y, mPieMouseButtonDown);
 
 			// VEFFECT: ShowPie object
@@ -369,6 +401,15 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 			effectp->setPositionGlobal(mPick.mPosGlobal);
 			effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 			effectp->setDuration(0.25f);
+// [RLVa:KB] - Checked: 2009-07-10 (RLVa-1.0.0g) | Added: RLVa-0.2.0f
+			#ifdef RLV_EXPERIMENTAL_FARTOUCH_FEEDBACK
+		}
+				else
+				{
+					make_ui_sound("UISndInvalidOp");
+	}
+			#endif // RLV_EXPERIMENTAL_FARTOUCH_FEEDBACK
+// [/RLVa:KB]
 		}
 	}
 

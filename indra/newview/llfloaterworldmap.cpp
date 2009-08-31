@@ -279,7 +279,14 @@ LLFloaterWorldMap::~LLFloaterWorldMap()
 
 	// avatar tracker will delete this for us.
 	mFriendObserver = NULL;
+// [RLVa:KB] - Checked: 2009-07-05 (RLVa-1.0.0c)
+	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWWORLDMAP))
+	{
+		return;
+	}
+// [/RLVa:KB]
 }
+
 
 
 // virtual
@@ -695,6 +702,14 @@ void LLFloaterWorldMap::trackLocation(const LLVector3d& pos_global)
 		setDefaultBtn("");
 		return;
 	}
+
+// [RLVa:KB] - Checked: 2009-07-04 (RLVa-1.0.0a)
+				if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
+				{
+					childSetValue("location", rlv_handler_t::cstrHiddenRegion);
+					mSLURL.clear();
+				}
+// [/RLVa:KB]
 	if (sim_info->mAccess == SIM_ACCESS_DOWN)
 	{
 		// Down sim. Show the blue circle of death!
@@ -711,8 +726,11 @@ void LLFloaterWorldMap::trackLocation(const LLVector3d& pos_global)
 	F32 region_x = (F32)fmod( pos_global.mdV[VX], (F64)REGION_WIDTH_METERS );
 	F32 region_y = (F32)fmod( pos_global.mdV[VY], (F64)REGION_WIDTH_METERS );
 	std::string full_name = llformat("%s (%d, %d, %d)", 
-								  sim_name.c_str(), 
-								  llround(region_x), 
+								 //								  sim_name.c_str(), 
+								 // [RLVa:KB] - Alternate: Snowglobe-1.0 | Checked: 2009-07-04 (RLVa-1.0.0a)
+								 (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC)) ? sim_name.c_str() : rlv_handler_t::cstrHiddenRegion.c_str(),
+								 // [/RLVa:KB]
+								 llround(region_x), 
 								  llround(region_y),
 								  llround((F32)pos_global.mdV[VZ]));
 
@@ -737,6 +755,14 @@ void LLFloaterWorldMap::updateLocation()
 	LLVector3d pos_global = LLTracker::getTrackedPositionGlobal();
 	if (pos_global.isExactlyZero())
 	{
+
+// [RLVa:KB] - Checked: 2009-07-04 (RLVa-1.0.0a)
+		if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
+		{
+			childSetValue("location", rlv_handler_t::cstrHiddenRegion);
+			mSLURL.clear();
+		}
+// [/RLVa:KB]
 		LLVector3d agentPos = gAgent.getPositionGlobal();
 
 		// Set to avatar's current postion if nothing is selected

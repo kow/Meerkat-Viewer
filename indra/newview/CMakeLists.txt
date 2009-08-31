@@ -448,6 +448,11 @@ set(viewer_SOURCE_FILES
     noise.cpp
     pipeline.cpp
     primbackup.cpp
+    rlvhandler.cpp
+    rlvhelper.cpp
+    rlvmultistringsearch.cpp
+    rlvextensions.cpp
+    rlvfloaterbehaviour.cpp
     )
 
 set(VIEWER_BINARY_NAME "meerkat-bin" CACHE STRING
@@ -865,6 +870,12 @@ set(viewer_HEADER_FILES
     randgauss.h
     VertexCache.h
     VorbisFramework.h
+    rlvevent.h
+    rlvhandler.h
+    rlvhelper.h
+    rlvmultistringsearch.h
+    rlvextensions.h
+    rlvfloaterbehaviour.h
     )
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
@@ -1133,6 +1144,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_region_info.xml
     skins/default/xui/en-us/floater_report_abuse.xml
     skins/default/xui/en-us/floater_report_bug.xml
+    skins/default/xui/en-us/floater_rlv_behaviour.xml
     skins/default/xui/en-us/floater_script_debug.xml
     skins/default/xui/en-us/floater_script_ed_panel.xml
     skins/default/xui/en-us/floater_script_preview.xml

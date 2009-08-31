@@ -2023,10 +2023,18 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 
-	if (facep->getViewerObject()->isSelected() && gHideSelectedObjects)
+//	if (facep->getViewerObject()->isSelected() && gHideSelectedObjects)
+//	{
+//		return;
+//	}
+// [RLVa:KB] - Checked: 2009-07-06 (RLVa-1.0.0c)
+	LLViewerObject* pObj = facep->getViewerObject();
+	if ( (pObj->isSelected() && gHideSelectedObjects) && 
+		 ((!rlv_handler_t::isEnabled()) || (!pObj->isHUDAttachment()) || (gRlvHandler.isDetachable(pObj))) )
 	{
 		return;
 	}
+// [/RVLa:KB]
 
 	//add face to drawmap
 	LLSpatialGroup::drawmap_elem_t& draw_vec = group->mDrawMap[type];	
