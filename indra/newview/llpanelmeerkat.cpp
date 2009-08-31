@@ -152,7 +152,7 @@ JCInvDropTarget * LLPanelMeerkat::mObjectDropTarget;
 
 LLPanelMeerkat::LLPanelMeerkat()
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_preferences_Meerkat.xml");
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_preferences_meerkat.xml");
 	if(sInstance)delete sInstance;
 	sInstance = this;
 }
