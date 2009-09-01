@@ -36,6 +36,7 @@
 
 extern "C" {
 #include <gst/gst.h>
+#include <gst/gstelementfactory.h>
 }
 
 #include "llmediamanager.h"
