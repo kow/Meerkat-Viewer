@@ -124,7 +124,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE
 FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDI_LL_ICON,IDC_STATIC,7,7,20,20
-    LTEXT           "Loading Second Life...",666,36,13,91,8
+    LTEXT           "Loading Meerkat...",666,36,13,91,8
 END
 
 
@@ -249,12 +249,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Open Metaverse Foundation"
             VALUE "FileDescription", "Meerkat"
-            VALUE "FileVersion", "0.1.4.151"
+            VALUE "FileVersion", "0.2.1.209"
             VALUE "InternalName", "Meerkat"
             VALUE "LegalCopyright", "Copyright © 2001-2008, Linden Research, Inc."
             VALUE "OriginalFilename", "Meerkat.exe"
             VALUE "ProductName", "Meerkat"
-            VALUE "ProductVersion", "0.1.4.151"
+            VALUE "ProductVersion", "0.2.1.209"
         END
     END
     BLOCK "VarFileInfo"
