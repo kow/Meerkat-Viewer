@@ -151,7 +151,8 @@ public:
 	void resetThumbnailImage() { mThumbnailImage = NULL ; }
 	void drawPreviewRect(S32 offset_x, S32 offset_y) ;
 
-	static void onIdle( void* snapshot_preview );
+	// Returns TRUE when snapshot generated, FALSE otherwise.
+	static BOOL onIdle( void* snapshot_preview );
 
 private:
 	LLColor4					mColor;
@@ -341,14 +342,11 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 		mSnapshotDelayTimer.start();
 		mSnapshotDelayTimer.setTimerExpirySec(delay);
 	}
-	else if(new_thumbnail)
+	if(new_thumbnail)
 	{
 		mThumbnailUpToDate = FALSE ;
 	}
-	else
-	{
-		setThumbnailImageSize() ;
-	}
+	setThumbnailImageSize();
 }
 
 void LLSnapshotLivePreview::setSnapshotQuality(S32 quality)
@@ -416,14 +414,14 @@ void LLSnapshotLivePreview::draw()
 
 		LLColor4 image_color(1.f, 1.f, 1.f, 1.f);
 		gGL.color4fv(image_color.mV);
-		LLViewerImage::bindTexture(mViewerImage[mCurImageIndex]);
+		gGL.getTexUnit(0)->bind(mViewerImage[mCurImageIndex]);
 		// calculate UV scale
 		F32 uv_width = mImageScaled[mCurImageIndex] ? 1.f : llmin((F32)mWidth[mCurImageIndex] / (F32)mViewerImage[mCurImageIndex]->getWidth(), 1.f);
 		F32 uv_height = mImageScaled[mCurImageIndex] ? 1.f : llmin((F32)mHeight[mCurImageIndex] / (F32)mViewerImage[mCurImageIndex]->getHeight(), 1.f);
 		glPushMatrix();
 		{
 			glTranslatef((F32)rect.mLeft, (F32)rect.mBottom, 0.f);
-			gGL.begin(LLVertexBuffer::QUADS);
+			gGL.begin(LLRender::QUADS);
 			{
 				gGL.texCoord2f(uv_width, uv_height);
 				gGL.vertex2i(rect.getWidth(), rect.getHeight() );
@@ -485,8 +483,8 @@ void LLSnapshotLivePreview::draw()
 				S32 y1 = 0;
 				S32 y2 = gViewerWindow->getWindowHeight();
 
-				LLGLSNoTexture no_texture;
-				gGL.begin(LLVertexBuffer::QUADS);
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+				gGL.begin(LLRender::QUADS);
 				{
 					gGL.color4f(1.f, 1.f, 1.f, 0.f);
 					gGL.vertex2i(x1, y1);
@@ -514,10 +512,10 @@ void LLSnapshotLivePreview::draw()
 
 	// draw framing rectangle
 	{
-		LLGLSNoTexture no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4f(1.f, 1.f, 1.f, 1.f);
 		LLRect outline_rect = mImageRect[mCurImageIndex];
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 		{
 			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
 			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
@@ -552,7 +550,7 @@ void LLSnapshotLivePreview::draw()
 			F32 alpha = clamp_rescale(fall_interp, 0.f, 1.f, 0.8f, 0.4f);
 			LLColor4 image_color(1.f, 1.f, 1.f, alpha);
 			gGL.color4fv(image_color.mV);
-			LLViewerImage::bindTexture(mViewerImage[old_image_index]);
+			gGL.getTexUnit(0)->bind(mViewerImage[old_image_index]);
 			// calculate UV scale
 			// *FIX get this to work with old image
 			BOOL rescale = !mImageScaled[old_image_index] && mViewerImage[mCurImageIndex].notNull();
@@ -563,7 +561,7 @@ void LLSnapshotLivePreview::draw()
 				LLRect& rect = mImageRect[old_image_index];
 				glTranslatef((F32)rect.mLeft, (F32)rect.mBottom - llround(getRect().getHeight() * 2.f * (fall_interp * fall_interp)), 0.f);
 				glRotatef(-45.f * fall_interp, 0.f, 0.f, 1.f);
-				gGL.begin(LLVertexBuffer::QUADS);
+				gGL.begin(LLRender::QUADS);
 				{
 					gGL.texCoord2f(uv_width, uv_height);
 					gGL.vertex2i(rect.getWidth(), rect.getHeight() );
@@ -719,7 +717,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
 }
 
 //static 
-void LLSnapshotLivePreview::onIdle( void* snapshot_preview )
+BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 {
 	LLSnapshotLivePreview* previewp = (LLSnapshotLivePreview*)snapshot_preview;	
 
@@ -741,7 +739,7 @@ void LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 		&& !LLToolCamera::getInstance()->hasMouseCapture(); // don't take snapshots while ALT-zoom active
 	if ( ! previewp->mSnapshotActive)
 	{
-		return;
+		return FALSE;
 	}
 
 	// time to produce a snapshot
@@ -854,7 +852,7 @@ void LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 
 			previewp->mViewerImage[previewp->mCurImageIndex] = new LLImageGL(scaled, FALSE);
 			previewp->mViewerImage[previewp->mCurImageIndex]->setMipFilterNearest(previewp->getSnapshotType() != SNAPSHOT_TEXTURE);
-			LLViewerImage::bindTexture(previewp->mViewerImage[previewp->mCurImageIndex]);
+			gGL.getTexUnit(0)->bind(previewp->mViewerImage[previewp->mCurImageIndex]);
 			previewp->mViewerImage[previewp->mCurImageIndex]->setClamp(TRUE, TRUE);
 
 			previewp->mSnapshotUpToDate = TRUE;
@@ -874,6 +872,8 @@ void LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	{
 		previewp->generateThumbnailImage() ;
 	}
+
+	return TRUE;
 }
 
 void LLSnapshotLivePreview::setSize(S32 w, S32 h)

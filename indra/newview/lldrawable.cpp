@@ -362,6 +362,7 @@ void LLDrawable::makeActive()
 		if (pcode == LLViewerObject::LL_VO_WATER ||
 			pcode == LLViewerObject::LL_VO_SURFACE_PATCH ||
 			pcode == LLViewerObject::LL_VO_PART_GROUP ||
+			pcode == LLViewerObject::LL_VO_HUD_PART_GROUP ||
 			pcode == LLViewerObject::LL_VO_CLOUDS ||
 			pcode == LLViewerObject::LL_VO_GROUND ||
 			pcode == LLViewerObject::LL_VO_SKY)
@@ -497,7 +498,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	F32 dist_squared = 0.f;
 	F32 camdist2 = (mDistanceWRTCamera * mDistanceWRTCamera);
 
-	if (damped && mDistanceWRTCamera > 0.0f)
+	if (damped && isVisible())
 	{
 		F32 lerp_amt = llclamp(LLCriticalDamp::getInterpolant(OBJECT_DAMPING_TIME_CONSTANT), 0.f, 1.f);
 		LLVector3 new_pos = lerp(old_pos, target_pos, lerp_amt);
@@ -521,11 +522,19 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		{
 			// snap to final position
 			dist_squared = 0.0f;
+			if (!isRoot())
+			{ //child prim snapping to some position, needs a rebuild
+				gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+			}
 		}
 	}
 
 	if ((mCurrentScale != target_scale) ||
-		(!isRoot() && (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED) || !mVObjp->getAngularVelocity().isExactlyZero()))
+		(!isRoot() && 
+		 (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED) || 
+		 !mVObjp->getAngularVelocity().isExactlyZero() ||
+		 target_pos != mXform.getPosition() ||
+		 target_rot != mXform.getRotation()))
 	{ //child prim moving or scale change requires immediate rebuild
 		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 	}
@@ -951,6 +960,9 @@ BOOL LLDrawable::isVisible() const
 		return TRUE;
 	}
 	
+#if 0
+	//disabling this code fixes DEV-20105.  Leaving in place in case some other bug pops up as a a result.
+	//should be safe to just always ask the spatial group for visibility.
 	if (isActive())
 	{
 		if (isRoot())
@@ -973,6 +985,7 @@ BOOL LLDrawable::isVisible() const
 		}
 	}
 	else
+#endif
 	{
 		LLSpatialGroup* group = getSpatialGroup();
 		if (group && group->isVisible())
@@ -1380,7 +1393,10 @@ BOOL LLDrawable::isAnimating() const
 	{
 		return TRUE;
 	}
-
+	if (mVObjp->getPCode() == LLViewerObject::LL_VO_HUD_PART_GROUP)
+	{
+		return TRUE;
+	}
 	if (mVObjp->getPCode() == LLViewerObject::LL_VO_CLOUDS)
 	{
 		return TRUE;

@@ -164,10 +164,10 @@ class WindowsManifest(ViewerManifest):
         # the final exe is complicated because we're not sure where it's coming from,
         # nor do we have a fixed name for the executable
         self.path(self.find_existing_file(
-		#'../build-VC90/newview/debug/meerkat-bin.exe'
-		#, '../build-VC90/newview/relwithdebinfo/meerkat-bin.exe'
-		'../build-VC90/newview/release/meerkat-bin.exe'
-		), dst=self.final_exe())
+        #'../build-VC90/newview/debug/meerkat-bin.exe'
+        #, '../build-VC90/newview/relwithdebinfo/meerkat-bin.exe'
+        '../build-VC90/newview/release/meerkat-bin.exe'
+        ), dst=self.final_exe())
         # need to get the kdu dll from any of the build directories as well
         #self.path(self.find_existing_file(
                 # *FIX:Mani we need to add support for packaging specific targets.
@@ -179,13 +179,13 @@ class WindowsManifest(ViewerManifest):
         self.path(src="licenses-win32.txt", dst="licenses.txt")
 
         self.path("featuretable.txt")
-			
+
         # For use in crash reporting (generates minidumps)
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
             self.path("dbghelp.dll")
             self.end_prefix()
 
-		#Missing DLLs, someone comment these properly.
+        #Missing DLLs, someone comment these properly.
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
             self.path("libgobject-2.0-0.dll")
             self.path("libglib-2.0-0.dll")
@@ -204,10 +204,10 @@ class WindowsManifest(ViewerManifest):
             self.end_prefix()
 
         # Mozilla appears to force a dependency on these files so we need to ship it (CP)
-	    if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-		   self.path("msvcr71.dll")
-		   self.path("msvcp71.dll")
-		   self.end_prefix()
+        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
+            self.path("msvcr71.dll")
+            self.path("msvcp71.dll")
+            self.end_prefix()
 
         # Mozilla runtime DLLs (CP)
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
@@ -236,8 +236,8 @@ class WindowsManifest(ViewerManifest):
             self.path("res/*/*")
             self.end_prefix()
 
-		# Meerkat things
-	if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
+        # Meerkat things
+        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
             self.path("alut.dll")
             self.path("freebl3.dll")
             self.path("intl.dll")
@@ -463,10 +463,10 @@ class DarwinManifest(ViewerManifest):
         # This may be desirable for the final release.  Or not.
         if ("package" in self.args['actions'] or 
             "unpacked" in self.args['actions']):
-		self.run_command([
-			'strip', '-S', 
-			'"%(viewer_binary)s"' % { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Meerkat')}
-			])
+        self.run_command([
+            'strip', '-S', 
+            '"%(viewer_binary)s"' % { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Meerkat')}
+            ])
 
 
     def package_finish(self):
@@ -497,12 +497,12 @@ class DarwinManifest(ViewerManifest):
         self.remove(sparsename, finalname)
 
         self.run_command([
-		'hdiutil', 'create', 
-		'"%(sparse)s"' % {'sparse':sparsename}, 
-		'-volname', 
-		'"%(vol)s"' % {'vol':volname}, 
-		'-fs', 'HFS+', '-type', 'SPARSE', '-megabytes', '300', '-layout', 'SPUD'
-		])
+        'hdiutil', 'create', 
+        '"%(sparse)s"' % {'sparse':sparsename}, 
+        '-volname', 
+        '"%(vol)s"' % {'vol':volname}, 
+        '-fs', 'HFS+', '-type', 'SPARSE', '-megabytes', '300', '-layout', 'SPUD'
+        ])
 
         # mount the image and get the name of the mount point and device node
         hdi_output = self.run_command(['hdiutil', 'attach', '-private', '"' + sparsename + '"'])
@@ -560,11 +560,11 @@ class DarwinManifest(ViewerManifest):
 
         print "Converting temp disk image to final disk image"
         self.run_command([
-		'hdiutil', 'convert', 
-		'"%(sparse)s"' % {'sparse':sparsename}, 
-		'-format', 'UDZO', '-imagekey', 'zlib-level=9', '-o',
-		'"%(final)s"' % {'final':finalname}
-		])
+        'hdiutil', 'convert', 
+        '"%(sparse)s"' % {'sparse':sparsename}, 
+        '-format', 'UDZO', '-imagekey', 'zlib-level=9', '-o',
+        '"%(final)s"' % {'final':finalname}
+        ])
         # get rid of the temp file
         self.package_file = finalname
         self.remove(sparsename)
@@ -619,20 +619,20 @@ class LinuxManifest(ViewerManifest):
         # temporarily move directory tree so that it has the right
         # name in the tarfile
         self.run_command(["mv", 
-		"%(dst)s" % {'dst': self.get_dst_prefix()}, 
-		"%(inst)s" % {'inst': self.build_path_of(installer_name)}])
+        "%(dst)s" % {'dst': self.get_dst_prefix()}, 
+        "%(inst)s" % {'inst': self.build_path_of(installer_name)}])
         try:
             # --numeric-owner hides the username of the builder for
             # security etc.
             self.run_command(['tar', '-C', 
-		'%(dir)s' % {'dir': self.get_build_prefix()}, 
-		'--numeric-owner', '-cjf', 
-		'%(inst_path)s.tar.bz2' % {'inst_path':self.build_path_of(installer_name)}, 
-		'%(inst_name)s' % {'inst_name': installer_name }])
+        '%(dir)s' % {'dir': self.get_build_prefix()}, 
+        '--numeric-owner', '-cjf', 
+        '%(inst_path)s.tar.bz2' % {'inst_path':self.build_path_of(installer_name)}, 
+        '%(inst_name)s' % {'inst_name': installer_name }])
         finally:
             self.run_command(["mv", 
-		"%(inst)s" % {'inst': self.build_path_of(installer_name)}, 
-		"%(dst)s" % {'dst': self.get_dst_prefix()}])
+        "%(inst)s" % {'inst': self.build_path_of(installer_name)}, 
+        "%(dst)s" % {'dst': self.get_dst_prefix()}])
 
 class Linux_i686Manifest(LinuxManifest):
     def construct(self):

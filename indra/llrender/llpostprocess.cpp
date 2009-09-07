@@ -51,12 +51,14 @@ static const float LUMINANCE_B = 0.114f;
 static const char * const XML_FILENAME = "postprocesseffects.xml";
 
 LLPostProcess::LLPostProcess(void) : 
-					sceneRenderTexture(0), noiseTexture(0),
-					tempBloomTexture(0),
 					initialized(false),  
 					mAllEffects(LLSD::emptyMap()),
 					screenW(1), screenH(1)
 {
+	mSceneRenderTexture = NULL ; 
+	mNoiseTexture = NULL ;
+	mTempBloomTexture = NULL ;
+					
 	/*  Do nothing.  Needs to be updated to use our current shader system, and to work with the move into llrender.
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
 	LL_DEBUGS2("AppInit", "Shaders") << "Loading PostProcess Effects settings from " << pathName << LL_ENDL;
@@ -110,9 +112,7 @@ LLPostProcess::LLPostProcess(void) :
 
 LLPostProcess::~LLPostProcess(void)
 {
-	glDeleteTextures(1, &sceneRenderTexture);
-	glDeleteTextures(1, &noiseTexture);
-	glDeleteTextures(1, &tempBloomTexture);
+	invalidate() ;
 }
 
 // static
@@ -157,6 +157,13 @@ void LLPostProcess::saveEffect(std::string const & effectName)
 	formatter->format(mAllEffects, effectsXML);
 	*/
 }
+void LLPostProcess::invalidate()
+{
+	mSceneRenderTexture = NULL ;
+	mNoiseTexture = NULL ;
+	mTempBloomTexture = NULL ;
+	initialized = FALSE ;
+}
 
 void LLPostProcess::apply(unsigned int width, unsigned int height)
 {
@@ -172,7 +179,7 @@ void LLPostProcess::initialize(unsigned int width, unsigned int height)
 {
 	screenW = width;
 	screenH = height;
-	createTexture(sceneRenderTexture, screenW, screenH);
+	createTexture(mSceneRenderTexture, screenW, screenH);
 	initialized = true;
 
 	checkError();
@@ -198,16 +205,20 @@ void LLPostProcess::applyShaders(void)
 	}	
 	if (tweaks.useNightVisionShader()){
 		/// If any of the above shaders have been called update the frame buffer;
-		if (tweaks.useColorFilter()){
-			copyFrameBuffer(sceneRenderTexture, screenW, screenH);
+		if (tweaks.useColorFilter())
+		{
+			GLuint tex = mSceneRenderTexture->getTexName() ;
+			copyFrameBuffer(tex, screenW, screenH);
 		}
 		applyNightVisionShader();
 		checkError();
 	}
 	if (tweaks.useBloomShader()){
 		/// If any of the above shaders have been called update the frame buffer;
-		if (tweaks.useColorFilter().asBoolean() || tweaks.useNightVisionShader().asBoolean()){
-			copyFrameBuffer(sceneRenderTexture, screenW, screenH);
+		if (tweaks.useColorFilter().asBoolean() || tweaks.useNightVisionShader().asBoolean())
+		{
+			GLuint tex = mSceneRenderTexture->getTexName() ;
+			copyFrameBuffer(tex, screenW, screenH);
 		}
 		applyBloomShader();
 		checkError();
@@ -305,7 +316,7 @@ void LLPostProcess::createNightVisionShader(void)
 	nightVisionUniforms["noiseStrength"] = 0;
 	nightVisionUniforms["lumWeights"] = 0;	
 
-	createNoiseTexture(noiseTexture);
+	createNoiseTexture(mNoiseTexture);
 }
 
 void LLPostProcess::applyBloomShader(void)
@@ -315,7 +326,7 @@ void LLPostProcess::applyBloomShader(void)
 
 void LLPostProcess::createBloomShader(void)
 {
-	createTexture(tempBloomTexture, unsigned(screenW * 0.5), unsigned(screenH * 0.5));
+	createTexture(mTempBloomTexture, unsigned(screenW * 0.5), unsigned(screenH * 0.5));
 
 	/// Create Bloom Extract Shader
 	bloomExtractUniforms["RenderTexture"] = 0;
@@ -347,7 +358,10 @@ void LLPostProcess::doEffects(void)
 	glPushClientAttrib(GL_ALL_ATTRIB_BITS);
 
 	/// Copy the screen buffer to the render texture
-	copyFrameBuffer(sceneRenderTexture, screenW, screenH);
+	{
+		GLuint tex = mSceneRenderTexture->getTexName() ;
+		copyFrameBuffer(tex, screenW, screenH);
+	}
 
 	/// Clear the frame buffer.
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -373,7 +387,7 @@ void LLPostProcess::doEffects(void)
 
 void LLPostProcess::copyFrameBuffer(GLuint & texture, unsigned int width, unsigned int height)
 {
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texture);
+	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, texture);
 	glCopyTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, 0, 0, width, height, 0);
 }
 
@@ -478,16 +492,14 @@ void LLPostProcess::changeOrthogonal(unsigned int width, unsigned int height)
 	viewOrthogonal(width, height);
 }
 
-void LLPostProcess::createTexture(GLuint & texture, unsigned int width, unsigned int height)
+void LLPostProcess::createTexture(LLPointer<LLImageGL>& texture, unsigned int width, unsigned int height)
 {
-	if (texture != 0){
-		glDeleteTextures(1, &texture);
-	}
-
 	std::vector<GLubyte> data(width * height * 4, 0);
 
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texture);
+	texture = new LLImageGL(FALSE) ;	
+	if(texture->createGLTexture())
+	{
+		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, texture->getTexName());
 	glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 4, width, height, 0,
 		GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
 	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
@@ -495,13 +507,10 @@ void LLPostProcess::createTexture(GLuint & texture, unsigned int width, unsigned
 	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
+}
 
-void LLPostProcess::createNoiseTexture(GLuint & texture)
+void LLPostProcess::createNoiseTexture(LLPointer<LLImageGL>& texture)
 {
-	if (texture != 0){
-		glDeleteTextures(1, &texture);
-	}
-	glGenTextures(1, &texture);
 
 	std::vector<GLubyte> buffer(NOISE_SIZE * NOISE_SIZE);
 	for (unsigned int i = 0; i < NOISE_SIZE; i++){
@@ -509,12 +518,16 @@ void LLPostProcess::createNoiseTexture(GLuint & texture)
 			buffer[(i * NOISE_SIZE) + k] = (GLubyte)((double) rand() / ((double) RAND_MAX + 1.f) * 255.f);
 		}
 	}
-	glBindTexture(GL_TEXTURE_2D, texture);
+	texture = new LLImageGL(FALSE) ;
+	if(texture->createGLTexture())
+	{
+		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texture->getTexName());
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, NOISE_SIZE, NOISE_SIZE, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &buffer[0]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
 }
 
 bool LLPostProcess::checkError(void)

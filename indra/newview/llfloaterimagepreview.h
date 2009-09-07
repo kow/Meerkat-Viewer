@@ -129,7 +129,7 @@ protected:
 	S32				mLastMouseY;
 	LLRect			mPreviewRect;
 	LLRectf			mPreviewImageRect;
-	GLuint			mGLName;
+	LLPointer<LLImageGL> mImagep ;
 
 	static S32		sUploadAmount;
 };

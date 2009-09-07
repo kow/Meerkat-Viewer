@@ -133,16 +133,17 @@ F32 LLVOPartGroup::getPartSize(S32 idx)
 	return 0.f;
 }
 
+LLVector3 LLVOPartGroup::getCameraPosition() const
+{
+	return gAgent.getCameraPositionAgent();
+}
+
 BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 {
 	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_PARTICLES);
 
 	dirtySpatialGroup();
 
- 	LLVector3 at;
-	LLVector3 position_agent;
-	LLVector3 camera_agent = LLViewerCamera::getInstance()->getOrigin();
-	
 	S32 num_parts = mViewerPartGroupp->getCount();
 	LLFace *facep;
 	LLSpatialGroup* group = drawable->getSpatialGroup();
@@ -179,6 +180,8 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 	F32 pixel_meter_ratio = LLViewerCamera::getInstance()->getPixelMeterRatio();
 	pixel_meter_ratio *= pixel_meter_ratio;
 
+	LLViewerPartSim::checkParticleCount(mViewerPartGroupp->mParticles.size()) ;
+
 	S32 count=0;
 	mDepth = 0.f;
 	S32 i = 0 ;
@@ -187,7 +190,7 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 		const LLViewerPart *part = mViewerPartGroupp->mParticles[i];
 
 		LLVector3 part_pos_agent(part->mPosAgent);
-		at = part_pos_agent - camera_agent;
+		LLVector3 at(part_pos_agent - LLViewerCamera::getInstance()->getOrigin());
 
 		F32 camera_dist_squared = at.lengthSquared();
 		F32 inv_camera_dist_squared;
@@ -278,7 +281,7 @@ void LLVOPartGroup::getGeometry(S32 idx,
 
 	
 	LLVector3 part_pos_agent(part.mPosAgent);
-	LLVector3 camera_agent = gAgent.getCameraPositionAgent();
+	LLVector3 camera_agent = getCameraPosition(); 
 	LLVector3 at = part_pos_agent - camera_agent;
 	LLVector3 up, right;
 
@@ -353,6 +356,13 @@ LLParticlePartition::LLParticlePartition()
 	mBufferUsage = GL_DYNAMIC_DRAW_ARB;
 	mSlopRatio = 0.f;
 	mLODPeriod = 1;
+}
+
+LLHUDParticlePartition::LLHUDParticlePartition() :
+	LLParticlePartition()
+{
+	mDrawableType = LLPipeline::RENDER_TYPE_HUD;
+	mPartitionType = LLViewerRegion::PARTITION_HUD_PARTICLE;
 }
 
 void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count)
@@ -480,3 +490,24 @@ F32 LLParticlePartition::calcPixelArea(LLSpatialGroup* group, LLCamera& camera)
 	return 1024.f;
 }
 
+U32 LLVOHUDPartGroup::getPartitionType() const
+{ 
+	// Commenting out and returning PARTITION_NONE because DEV-16909 
+	// (SVC-2396: Particles not handled properly as hud) didn't work completely 
+	// so this disables HUD particles until they can be fixed properly. -MG
+	//return LLViewerRegion::PARTITION_HUD_PARTICLE; 
+	return LLViewerRegion::PARTITION_NONE;
+}
+
+LLDrawable* LLVOHUDPartGroup::createDrawable(LLPipeline *pipeline)
+{
+	pipeline->allocDrawable(this);
+	mDrawable->setLit(FALSE);
+	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_HUD);
+	return mDrawable;
+}
+
+LLVector3 LLVOHUDPartGroup::getCameraPosition() const
+{
+	return LLVector3(-1,0,0);
+}

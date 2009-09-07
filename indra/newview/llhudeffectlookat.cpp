@@ -504,14 +504,14 @@ void LLHUDEffectLookAt::render()
 {
 	if (sDebugLookAt && mSourceObject.notNull())
 	{
-		LLGLSNoTexture gls_no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		LLVector3 target = mTargetPos + ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->mHeadp->getWorldPosition();
 		glMatrixMode(GL_MODELVIEW);
 		gGL.pushMatrix();
 		gGL.translatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
 		glScalef(0.3f, 0.3f, 0.3f);
-		gGL.begin(LLVertexBuffer::LINES);
+		gGL.begin(LLRender::LINES);
 		{
 			LLColor3 color = (*mAttentions)[mTargetType].mColor;
 			gGL.color3f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE]);
@@ -535,7 +535,7 @@ void LLHUDEffectLookAt::render()
 			LLGLState gls_alpha(GL_ALPHA_TEST, TRUE);
 			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 			gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-			gGL.getTexUnit(0)->enable();
+			gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 
 			// Well.. after that nasty complex try at somehow getting it to work initialising all sorts of stuff
 			// It seems to work and fix the previous bug of merely displaying untextured cubes, 
@@ -596,7 +596,7 @@ void LLHUDEffectLookAt::render()
 //draws a beacon at target, with rotation, text, color, and beacon size.
 void LLHUDEffectLookAt::drawBeacon(LLVector3 target, LLQuaternion grid_rotation, std::string text, LLColor4 color, F32 size)
 {
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	glMatrixMode(GL_MODELVIEW);
 	gGL.pushMatrix();
@@ -607,7 +607,7 @@ void LLHUDEffectLookAt::drawBeacon(LLVector3 target, LLQuaternion grid_rotation,
 	glRotatef(angle_radians * RAD_TO_DEG, x, y, z);
 
 	glScalef(0.3f, 0.3f, 0.3f);
-	gGL.begin(LLVertexBuffer::LINES);
+	gGL.begin(LLRender::LINES);
 	{
 		gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], color.mV[VALPHA]);
 		gGL.vertex3f(-size, 0.f, 0.f);
@@ -628,7 +628,7 @@ void LLHUDEffectLookAt::drawBeacon(LLVector3 target, LLQuaternion grid_rotation,
 	LLGLState gls_alpha(GL_ALPHA_TEST, TRUE);
 	//gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], color.mV[VALPHA]);
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-	gGL.getTexUnit(0)->enable();
+	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();

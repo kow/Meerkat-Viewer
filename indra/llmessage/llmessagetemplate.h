@@ -34,6 +34,7 @@
 
 #include "lldarray.h"
 #include "message.h" // TODO: babbage: Remove...
+#include "llstat.h"
 #include "llmsgvariabletype.h"
 #include "llstl.h"
 #include <list>

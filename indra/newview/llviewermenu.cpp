@@ -409,6 +409,7 @@ void force_error_llerror(void *);
 void force_error_bad_memory_access(void *);
 void force_error_infinite_loop(void *);
 void force_error_software_exception(void *);
+void force_error_driver_crash(void *);
 
 void handle_stopall(void*);
 //void handle_hinge(void*);
@@ -938,6 +939,7 @@ void init_client_menu(LLMenuGL* menu)
 		sub->append(new LLMenuItemCallGL("Force LLError And Crash", &force_error_llerror));
         sub->append(new LLMenuItemCallGL("Force Bad Memory Access", &force_error_bad_memory_access));
 		sub->append(new LLMenuItemCallGL("Force Infinite Loop", &force_error_infinite_loop));
+		sub->append(new LLMenuItemCallGL("Force Driver Crash", &force_error_driver_crash));
 		// *NOTE:Mani this isn't handled yet... sub->append(new LLMenuItemCallGL("Force Software Exception", &force_error_unhandled_exception)); 
 		sub->createJumpKeys();
 		menu->appendMenu(sub);
@@ -1152,10 +1154,6 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
 											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FOG, KEY_F6, MASK_ALT|MASK_CONTROL));
-	sub_menu->append(new LLMenuItemCheckGL("Palletized Textures",
-											&LLPipeline::toggleRenderDebugFeature, NULL,
-											&LLPipeline::toggleRenderDebugFeatureControl,
-											(void*)LLPipeline::RENDER_DEBUG_FEATURE_PALETTE, KEY_F7, MASK_ALT|MASK_CONTROL));
 	sub_menu->append(new LLMenuItemCheckGL("Test FRInfo",
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
@@ -1206,9 +1204,6 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->append(new LLMenuItemCheckGL("Face Area (sqrt(A))",&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_FACE_AREA));
-	sub_menu->append(new LLMenuItemCheckGL("Pick Render",	&LLPipeline::toggleRenderDebug, NULL,
-													&LLPipeline::toggleRenderDebugControl,
-													(void*)LLPipeline::RENDER_DEBUG_PICKING));
 	sub_menu->append(new LLMenuItemCheckGL("Lights",	&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_LIGHTS));
@@ -1227,9 +1222,7 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->append(new LLMenuItemCheckGL("Sculpt",	&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_SCULPTED));
-	
-	sub_menu->append(new LLMenuItemToggleGL("Show Select Buffer", &gDebugSelect));
-
+		
 	sub_menu->append(new LLMenuItemCallGL("Vectorize Perf Test", &run_vectorize_perf_test));
 
 	sub_menu = new LLMenuGL("Render Tests");
@@ -1351,9 +1344,9 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemCallGL("Reload Vertex Shader", &reload_vertex_shader, NULL));
 	menu->append(new LLMenuItemToggleGL("Animation Info", &LLVOAvatar::sShowAnimationDebug));
 	menu->append(new LLMenuItemCallGL("Slow Motion Animations", &slow_mo_animations, NULL));
-	menu->append(new LLMenuItemCheckGL( "Show 'Look At' Beacons",	&menu_toggle_control, NULL, &menu_check_control, (void*)"_GEMINI_ShowLookAt"));
-	menu->append(new LLMenuItemCheckGL( "Show Joint Beacons",	&menu_toggle_control, NULL, &menu_check_control, (void*)"MeerkatJointBeacons"));
-	menu->append(new LLMenuItemCheckGL( "Show Attachment Beacons",	&menu_toggle_control, NULL, &menu_check_control, (void*)"MeerkatAttachmentBeacons"));
+	menu->append(new LLMenuItemToggleGL("Show 'Look At' Beacons", &LLHUDEffectLookAt::sDebugLookAt));
+	menu->append(new LLMenuItemCheckGL( "Show Joint Beacons", menu_toggle_control, NULL, menu_check_control, (void*)"MeerkatJointBeacons"));
+	menu->append(new LLMenuItemCheckGL( "Show Attachment Beacons",	menu_toggle_control, NULL, menu_check_control, (void*)"MeerkatAttachmentBeacons"));
 	menu->append(new LLMenuItemToggleGL("Show Point At", &LLHUDEffectPointAt::sDebugPointAt));
 	menu->append(new LLMenuItemToggleGL("Debug Joint Updates", &LLVOAvatar::sJointDebug));
 	menu->append(new LLMenuItemToggleGL("Disable LOD", &LLViewerJoint::sDisableLOD));
@@ -1751,7 +1744,7 @@ class LLViewCommunicate : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-        if (LLFloaterChatterBox::getInstance()->getFloaterCount() == 0)
+		if (LLFloaterChatterBox::getInstance()->getFloaterCount() == 0)
 		{
 			LLFloaterMyFriends::toggleInstance();
 		}
@@ -5080,13 +5073,20 @@ class LLToolsLookAtSelection : public view_listener_t
 			LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - selection_bbox.getCenterAgent();
 			obj_to_cam.normVec();
 
+			LLUUID object_id;
+			if (LLSelectMgr::getInstance()->getSelection()->getPrimaryObject())
+			{
+				object_id = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->mID;
+			}
 			if (zoom)
 			{
-				gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), LLSelectMgr::getInstance()->getSelectionCenterGlobal(), LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->mID );
+				gAgent.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), 
+												LLSelectMgr::getInstance()->getSelectionCenterGlobal(), 
+												object_id );
 			}
 			else
 			{
-				gAgent.setFocusGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal(), LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()->mID );
+				gAgent.setFocusGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal(), object_id );
 			}
 		}
 		return true;
@@ -6217,10 +6217,10 @@ namespace
 
 void queue_actions(LLFloaterScriptQueue* q, const std::string& noscriptmsg, const std::string& nomodmsg)
 {
-	// Apply until an object fails
 	QueueObjects func(q);
-	const bool firstonly = true;
-	bool fail = LLSelectMgr::getInstance()->getSelection()->applyToObjects(&func, firstonly);
+	LLSelectMgr *mgr = LLSelectMgr::getInstance();
+	LLObjectSelectionHandle selectHandle = mgr->getSelection();
+	bool fail = selectHandle->applyToObjects(&func);
 	if(fail)
 	{
 		if ( !func.scripted )
@@ -6245,60 +6245,67 @@ void queue_actions(LLFloaterScriptQueue* q, const std::string& noscriptmsg, cons
 	}
 }
 
-class LLToolsSelectedScriptAction : public view_listener_t
+void handle_compile_queue(std::string to_lang)
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	LLFloaterCompileQueue* queue;
+	if (to_lang == "mono")
 	{
-		std::string action = userdata.asString();
-		LLFloaterScriptQueue* queue = NULL;
-		if (action == "compile mono")
-		{
-			queue = LLFloaterCompileQueue::create(TRUE);
-		}
-		if (action == "compile lsl")
-		{
-			queue = LLFloaterCompileQueue::create(FALSE);
-		}
-		else if (action == "reset")
-		{
-			queue = LLFloaterResetQueue::create();
-		}
-		else if (action == "start")
-		{
-			queue = LLFloaterRunQueue::create();
-		}
-		else if (action == "stop")
-		{
-			queue = LLFloaterNotRunQueue::create();
-		}
-		if (!queue)
-		{
-			return true;
-		}
-
-		queue_actions(queue, "CannotRecompileSelectObjectsNoScripts", "CannotRecompileSelectObjectsNoPermission");
-
-		return true;
+		queue = LLFloaterCompileQueue::create(TRUE);
 	}
-};
+	else
+	{
+		queue = LLFloaterCompileQueue::create(FALSE);
+	}
+	queue_actions(queue, "CannotRecompileSelectObjectsNoScripts", "CannotRecompileSelectObjectsNoPermission");
+}
 
-void handle_reset_selection(void*)
+void handle_reset_selection(void)
 {
 	LLFloaterResetQueue* queue = LLFloaterResetQueue::create();
 	queue_actions(queue, "CannotResetSelectObjectsNoScripts", "CannotResetSelectObjectsNoPermission");
 }
 
-void handle_set_run_selection(void*)
+void handle_set_run_selection(void)
 {
 	LLFloaterRunQueue* queue = LLFloaterRunQueue::create();
 	queue_actions(queue, "CannotSetRunningSelectObjectsNoScripts", "CannotSerRunningSelectObjectsNoPermission");
 }
 
-void handle_set_not_run_selection(void*)
+void handle_set_not_run_selection(void)
 {
 	LLFloaterNotRunQueue* queue = LLFloaterNotRunQueue::create();
 	queue_actions(queue, "CannotSetRunningNotSelectObjectsNoScripts", "CannotSerRunningNotSelectObjectsNoPermission");
 }
+
+class LLToolsSelectedScriptAction : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		std::string action = userdata.asString();
+		if (action == "compile mono")
+		{
+			handle_compile_queue("mono");
+		}
+		if (action == "compile lsl")
+		{
+			handle_compile_queue("lsl");
+		}
+		else if (action == "reset")
+		{
+			handle_reset_selection();
+		}
+		else if (action == "start")
+		{
+			handle_set_run_selection();
+		}
+		else if (action == "stop")
+		{
+			handle_set_not_run_selection();
+		}
+		return true;
+	}
+};
+
 
 class LLToolsSetBulkPerms : public view_listener_t
 {
@@ -6345,13 +6352,7 @@ void handle_selected_texture_info(void*)
 			S32 height = img->getHeight();
 			S32 width = img->getWidth();
 			S32 components = img->getComponents();
-			std::string image_id_string;
- 			if (gAgent.isGodlike())
- 			{
- 				image_id_string = image_id.asString() + " ";
- 			}
- 			msg = llformat("%s%dx%d %s on face ",
- 								image_id_string.c_str(),
+			msg = llformat("%dx%d %s on face ",
 								width,
 								height,
 								(components == 4 ? "alpha" : "opaque"));
@@ -7143,6 +7144,11 @@ void force_error_infinite_loop(void *)
 void force_error_software_exception(void *)
 {
     LLAppViewer::instance()->forceErrorSoftwareException();
+}
+
+void force_error_driver_crash(void *)
+{
+    LLAppViewer::instance()->forceErrorDriverCrash();
 }
 
 class LLToolsUseSelectionForGrid : public view_listener_t

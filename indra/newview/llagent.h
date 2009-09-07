@@ -149,7 +149,7 @@ public:
 
 	// Called whenever the agent moves.  Puts camera back in default position,
 	// deselects items, etc.
-	void			resetView(BOOL reset_camera = TRUE);
+	void			resetView(BOOL reset_camera = TRUE, BOOL change_camera = FALSE);
 
 	// Called on camera movement, to allow the camera to be unlocked from the 
 	// default position behind the avatar.

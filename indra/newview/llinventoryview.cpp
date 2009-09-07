@@ -516,16 +516,6 @@ void LLInventoryView::init(LLInventoryModel* inventory)
 		recent_items_panel->getFilter()->markDefault();
 		recent_items_panel->setSelectCallback(onSelectionChange, recent_items_panel);
 	}
-	
-	LLInventoryPanel* worn_items_panel = getChild<LLInventoryPanel>("Worn Items");
-	if (worn_items_panel)
-	{
-		worn_items_panel->setSortOrder(gSavedSettings.getU32("InventorySortOrder"));
-		worn_items_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-		worn_items_panel->getFilter()->markDefault();
-		worn_items_panel->setFilterWorn(true);
-		worn_items_panel->setSelectCallback(onSelectionChange, worn_items_panel);
-	}
 
 	// Now load the stored settings from disk, if available.
 	std::ostringstream filterSaveName;
@@ -568,8 +558,6 @@ BOOL LLInventoryView::postBuild()
 {
 	childSetTabChangeCallback("inventory filter tabs", "All Items", onFilterSelected, this);
 	childSetTabChangeCallback("inventory filter tabs", "Recent Items", onFilterSelected, this);
-	childSetTabChangeCallback("inventory filter tabs", "Worn Items", onFilterSelected, this);
- 	
 	//panel->getFilter()->markDefault();
 	return TRUE;
 }
@@ -592,15 +580,6 @@ LLInventoryView::~LLInventoryView( void )
 	if (recent_items_panel)
 	{
 		LLInventoryFilter* filter = recent_items_panel->getFilter();
-		LLSD filterState;
-		filter->toLLSD(filterState);
-		filterRoot[filter->getName()] = filterState;
-	}
-
-	LLInventoryPanel* worn_items_panel = getChild<LLInventoryPanel>("Worn Items");
-	if (worn_items_panel)
-	{
-		LLInventoryFilter* filter = worn_items_panel->getFilter();
 		LLSD filterState;
 		filter->toLLSD(filterState);
 		filterRoot[filter->getName()] = filterState;
@@ -1160,7 +1139,7 @@ std::string get_item_icon_name(LLAssetType::EType asset_type,
 		{
 			idx = BODYPART_ICON_NAME;
 		}
-		switch(LLInventoryItem::II_FLAGS_WEARABLES_MASK & attachment_point)
+		switch(attachment_point)
 		{
 		case WT_SHAPE:
 			idx = BODYPART_SHAPE_ICON_NAME;
@@ -1374,11 +1353,6 @@ void LLInventoryPanel::setFilterPermMask(PermissionMask filter_perm_mask)
 void LLInventoryPanel::setFilterSubString(const std::string& string)
 {
 	mFolders->getFilter()->setFilterSubString(string);
-}
-
-void LLInventoryPanel::setFilterWorn(bool worn)
-{
-	mFolders->getFilter()->setFilterWorn(worn);
 }
 
 void LLInventoryPanel::setSortOrder(U32 order)

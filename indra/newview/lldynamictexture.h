@@ -60,8 +60,11 @@ public:
 	virtual void preRender(BOOL clear_depth = TRUE);
 	virtual BOOL render();
 	virtual void postRender(BOOL success);
-	virtual void bindTexture();
-	virtual void unbindTexture();
+
+	virtual void restoreGLTexture() ;
+	virtual void destroyGLTexture() ;
+
+	LLImageGL* getTexture(void) const { return mTexture; }
 
 	static BOOL	updateAllInstances();
 

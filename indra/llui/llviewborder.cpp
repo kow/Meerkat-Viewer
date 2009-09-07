@@ -111,7 +111,7 @@ void LLViewBorder::draw()
 
 void LLViewBorder::drawOnePixelLines()
 {
-	LLGLSNoTexture uiNoTexture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	LLColor4 top_color = mHighlightLight;
 	LLColor4 bottom_color = mHighlightLight;
@@ -158,7 +158,7 @@ void LLViewBorder::drawOnePixelLines()
 
 void LLViewBorder::drawTwoPixelLines()
 {
-	LLGLSNoTexture no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	
 	LLColor4 focus_color = gFocusMgr.getFocusColor();
 
@@ -248,7 +248,7 @@ void LLViewBorder::drawTextureTrapezoid( F32 degrees, S32 width, S32 length, F32
 		gGL.translatef(start_x, start_y, 0.f);
 		glRotatef( degrees, 0, 0, 1 );
 
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 		{
 			//      width, width   /---------\ length-width, width		//
 			//	   			      /           \							//

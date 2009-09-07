@@ -827,7 +827,7 @@ void LLFolderViewItem::draw()
 	// mShowSingleSelection is FALSE
 	if( mIsSelected )
 	{
-		LLGLSNoTexture gls_no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		LLColor4 bg_color = sHighlightBgColor;
 		//const S32 TRAILING_PAD = 5;  // It just looks better with this.
 		if (!mIsCurSelection)
@@ -882,7 +882,7 @@ void LLFolderViewItem::draw()
 	}
 	if (mDragAndDropTarget)
 	{
-		LLGLSNoTexture gls_no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gl_rect_2d(
 			0, 
 			getRect().getHeight(), 
@@ -4496,7 +4496,6 @@ LLInventoryFilter::LLInventoryFilter(const std::string& name) :
 
 	mSubStringMatchOffset = 0;
 	mFilterSubString.clear();
-	mFilterWorn = false;
 	mFilterGeneration = 0;
 	mMustPassGeneration = S32_MAX;
 	mMinRequiredGeneration = 0;
@@ -4528,12 +4527,9 @@ BOOL LLInventoryFilter::check(LLFolderViewItem* item)
 		earliest = 0;
 	}
 	LLFolderViewEventListener* listener = item->getListener();
-	const LLUUID& item_id = listener->getUUID();
 	mSubStringMatchOffset = mFilterSubString.size() ? item->getSearchableLabel().find(mFilterSubString) : std::string::npos;
 	BOOL passed = (0x1 << listener->getInventoryType() & mFilterOps.mFilterTypes || listener->getInventoryType() == LLInventoryType::IT_NONE)
 					&& (mFilterSubString.size() == 0 || mSubStringMatchOffset != std::string::npos)
-					&& (mFilterWorn == false || gAgent.isWearingItem(item_id) ||
-						gAgent.getAvatarObject() && gAgent.getAvatarObject()->isWearingAttachment(item_id))
 					&& ((listener->getPermissionMask() & mFilterOps.mPermissions) == mFilterOps.mPermissions)
 					&& (listener->getCreationDate() >= earliest && listener->getCreationDate() <= mFilterOps.mMaxDate);
 	return passed;
@@ -4554,7 +4550,6 @@ BOOL LLInventoryFilter::isNotDefault()
 {
 	return mFilterOps.mFilterTypes != mDefaultFilterOps.mFilterTypes 
 		|| mFilterSubString.size() 
-		|| mFilterWorn
 		|| mFilterOps.mPermissions != mDefaultFilterOps.mPermissions
 		|| mFilterOps.mMinDate != mDefaultFilterOps.mMinDate 
 		|| mFilterOps.mMaxDate != mDefaultFilterOps.mMaxDate
@@ -4565,7 +4560,6 @@ BOOL LLInventoryFilter::isActive()
 {
 	return mFilterOps.mFilterTypes != 0xffffffff 
 		|| mFilterSubString.size() 
-		|| mFilterWorn
 		|| mFilterOps.mPermissions != PERM_NONE 
 		|| mFilterOps.mMinDate != time_min()
 		|| mFilterOps.mMaxDate != time_max()
@@ -4984,12 +4978,6 @@ std::string LLInventoryFilter::getFilterText()
 	{
 		mFilterText += " - Since Logoff";
 	}
-	
-	if (getFilterWorn())
-	{
-		mFilterText += " - Worn";
-	}
-
 	return mFilterText;
 }
 
