@@ -85,7 +85,7 @@ public:
 
 	// ---------- The following fucntions lock/unlock mDataMutex ----------
 	BOOL getExists(const LLUUID &file_id, const LLAssetType::EType file_type);
-	S32  getSize(const LLUUID &file_id, const LLAssetType::EType file_type);
+	S32	 getSize(const LLUUID &file_id, const LLAssetType::EType file_type);
 
 	BOOL checkAvailable(S32 max_size);
 	

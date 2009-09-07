@@ -3203,6 +3203,10 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	// for long teleports shifting objects garbles the view at the target region
 	if (shift_vector.lengthSquared() > 6.5e10f)
 		shift_vector = LLVector3::zero;
+	// don't shift objects, if teleporting more than about 1000 sims, as
+	// for long teleports shifting objects garbles the view at the target region
+	if (shift_vector.lengthSquared() > 6.5e10f)
+		shift_vector = LLVector3::zero;
 	gAgent.setRegion(regionp);
 	gObjectList.shiftObjects(shift_vector);
 	gAssetStorage->setUpstream(msg->getSender());

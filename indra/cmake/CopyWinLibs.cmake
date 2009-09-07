@@ -44,7 +44,7 @@ set(debug_files
     libgthread-2.0-0.dll 
     plc4.dll 
     iconv.dll 
-    OpenAL32.dll 
+    OpenAL32.dll
     SDL.dll
     )
 

@@ -179,7 +179,7 @@ class WindowsManifest(ViewerManifest):
         self.path(src="licenses-win32.txt", dst="licenses.txt")
 
         self.path("featuretable.txt")
-            
+
         # For use in crash reporting (generates minidumps)
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
             self.path("dbghelp.dll")
@@ -193,9 +193,9 @@ class WindowsManifest(ViewerManifest):
 
         # Mozilla appears to force a dependency on these files so we need to ship it (CP)
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-           self.path("msvcr71.dll")
-           self.path("msvcp71.dll")
-           self.end_prefix()
+            self.path("msvcr71.dll")
+            self.path("msvcp71.dll")
+            self.end_prefix()
 
         # Mozilla runtime DLLs (CP)
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
@@ -459,10 +459,10 @@ class DarwinManifest(ViewerManifest):
         # This may be desirable for the final release.  Or not.
         if ("package" in self.args['actions'] or 
             "unpacked" in self.args['actions']):
-            self.run_command([
-            'strip', '-S', 
-            '"%(viewer_binary)s"' % { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Meerkat')}
-            ])
+        	self.run_command([
+            	'strip', '-S', 
+            	'"%(viewer_binary)s"' % { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Meerkat')}
+            	])
 
 
     def package_finish(self):

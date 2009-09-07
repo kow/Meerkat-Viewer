@@ -563,6 +563,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mFetchTimer.reset();
 	}
 	
+	if (mImagePriority <= 0.0f)
+	{
+		if (mState < WRITE_TO_CACHE)
+		{
+			return true; // cancel request
+		}
+	}
+	
 	if (mState == INIT)
 	{
 		mRequestedDiscard = -1;
@@ -708,7 +716,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mFetcher->lockQueue();
 			mFetcher->removeFromNetworkQueue(this);
 			mFetcher->unlockQueue();
-			if (!mFormattedImage->getDataSize())
+			if (mFormattedImage.isNull() || !mFormattedImage->getDataSize())
 			{
 				// processSimulatorPackets() failed
 // 				llwarns << "processSimulatorPackets() failed to load buffer" << llendl;
@@ -1050,9 +1058,15 @@ void LLTextureFetchWorker::removeFromCache()
 
 bool LLTextureFetchWorker::processSimulatorPackets()
 {
+	if (mFormattedImage.isNull() || mRequestedSize < 0)
+	{
+		// not sure how we got here, but not a valid state, abort!
+		mFormattedImage = NULL;
+		return true;
+	}
+	
 	if (mLastPacket >= mFirstPacket)
 	{
-		llassert_always(mFormattedImage) ;
 		S32 buffer_size = mFormattedImage->getDataSize();
 		for (S32 i = mFirstPacket; i<=mLastPacket; i++)
 		{
@@ -1060,7 +1074,6 @@ bool LLTextureFetchWorker::processSimulatorPackets()
 			buffer_size += mPackets[i]->mSize;
 		}
 		bool have_all_data = mLastPacket >= mTotalPackets-1;
-		llassert_always(mRequestedSize > 0);
 		if (buffer_size >= mRequestedSize || have_all_data)
 		{
 			/// We have enough (or all) data
@@ -1227,7 +1240,12 @@ void LLTextureFetchWorker::callbackDecoded(bool success)
 
 bool LLTextureFetchWorker::decodeImage()
 {
-	llassert_always(mImageWorker);
+	if(!mImageWorker)
+	{
+		//LLTextureFetchWorker is aborted, skip image decoding.
+		return true ;
+	}
+
 	bool res = true;
 	if (mRawImage.isNull())
 	{

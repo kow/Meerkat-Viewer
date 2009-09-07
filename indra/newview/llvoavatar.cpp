@@ -250,6 +250,11 @@ static F32 calc_bouncy_animation(F32 x)
 	return -(cosf(x * F_PI * 2.5f - F_PI_BY_TWO))*(0.4f + x * -0.1f) + x * 1.3f;
 }
 
+BOOL LLLineSegmentCapsuleIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& p1, const LLVector3& p2, const F32& radius, LLVector3& result)
+{
+	return FALSE;
+}
+
 //-----------------------------------------------------------------------------
 // Static Data
 //-----------------------------------------------------------------------------
@@ -289,6 +294,10 @@ BOOL LLVOAvatar::sJointDebug = FALSE;
 
 S32 LLVOAvatar::sCurJoint = 0;
 S32 LLVOAvatar::sCurVolume = 0;
+F32 LLVOAvatar::sUnbakedTime = 0.f;
+F32 LLVOAvatar::sUnbakedUpdateTime = 0.f;
+F32 LLVOAvatar::sGreyTime = 0.f;
+F32 LLVOAvatar::sGreyUpdateTime = 0.f;
 
 struct LLAvatarTexData
 {
@@ -765,7 +774,7 @@ LLVOAvatar::LLVOAvatar(
 	mRippleTimeLast = 0.f;
 
 	mShadowImagep = gImageList.getImageFromFile("foot_shadow.j2c");
-	mShadowImagep->bind();
+	gGL.getTexUnit(0)->bind(mShadowImagep.get());
 	mShadowImagep->setClamp(TRUE, TRUE);
 	
 	mInAir = FALSE;
@@ -1074,11 +1083,29 @@ void LLVOAvatar::deleteLayerSetCaches()
 	if( mLowerBodyLayerSet )	mLowerBodyLayerSet->deleteCaches();
 	if( mEyesLayerSet )			mEyesLayerSet->deleteCaches();
 	if( mSkirtLayerSet )		mSkirtLayerSet->deleteCaches();
+
+	if(mUpperMaskTexName)
+	{
+		glDeleteTextures(1, (GLuint*)&mUpperMaskTexName);
+		mUpperMaskTexName = 0 ;
+	}
+	if(mHeadMaskTexName)
+	{
+		glDeleteTextures(1, (GLuint*)&mHeadMaskTexName);
+		mHeadMaskTexName = 0 ;
+	}
+	if(mLowerMaskTexName)
+	{
+		glDeleteTextures(1, (GLuint*)&mLowerMaskTexName);
+		mLowerMaskTexName = 0 ;
+	}
 }
 
 // static 
-BOOL LLVOAvatar::areAllNearbyInstancesBaked()
+BOOL LLVOAvatar::areAllNearbyInstancesBaked(S32& grey_avatars)
 {
+	BOOL res = TRUE;
+	grey_avatars = 0;
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 		iter != LLCharacter::sInstances.end(); ++iter)
 	{
@@ -1088,17 +1115,16 @@ BOOL LLVOAvatar::areAllNearbyInstancesBaked()
 			continue;
 		}
 		else
-		if( inst->getPixelArea() < MIN_PIXEL_AREA_FOR_COMPOSITE )
-		{
-			return TRUE;  // Assumes sInstances is sorted by pixel area.
-		}
-		else
 		if( !inst->isFullyBaked() )
 		{
-			return FALSE;
+			res = FALSE;
+			if (inst->mHasGrey)
+		{
+				++grey_avatars;
+		}
 		}
 	}
-	return TRUE;
+	return res;
 }
 
 // static 
@@ -1581,6 +1607,96 @@ void LLVOAvatar::getSpatialExtents(LLVector3& newMin, LLVector3& newMax)
 	newMax += buffer;
 }
 
+//-----------------------------------------------------------------------------
+// renderCollisionVolumes()
+//-----------------------------------------------------------------------------
+void LLVOAvatar::renderCollisionVolumes()
+{
+	for (S32 i = 0; i < mNumCollisionVolumes; i++)
+	{
+		mCollisionVolumes[i].renderCollision();
+	}
+
+	if (mNameText.notNull())
+	{
+		LLVector3 unused;
+		mNameText->lineSegmentIntersect(LLVector3(0,0,0), LLVector3(0,0,1), unused, TRUE);
+	}
+}
+
+BOOL LLVOAvatar::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
+									  S32 face,
+									  BOOL pick_transparent,
+									  S32* face_hit,
+									  LLVector3* intersection,
+									  LLVector2* tex_coord,
+									  LLVector3* normal,
+									  LLVector3* bi_normal
+		)
+{
+
+	if (mIsSelf && !gAgent.needsRenderAvatar() || !LLPipeline::sPickAvatar)
+	{
+		return FALSE;
+	}
+
+	if (lineSegmentBoundingBox(start, end))
+	{
+		for (S32 i = 0; i < mNumCollisionVolumes; ++i)
+		{
+			mCollisionVolumes[i].updateWorldMatrix();
+
+			glh::matrix4f mat((F32*) mCollisionVolumes[i].getXform()->getWorldMatrix().mMatrix);
+			glh::matrix4f inverse = mat.inverse();
+			glh::matrix4f norm_mat = inverse.transpose();
+
+			glh::vec3f p1(start.mV);
+			glh::vec3f p2(end.mV);
+
+			inverse.mult_matrix_vec(p1);
+			inverse.mult_matrix_vec(p2);
+
+			LLVector3 position;
+			LLVector3 norm;
+
+			if (linesegment_sphere(LLVector3(p1.v), LLVector3(p2.v), LLVector3(0,0,0), 1.f, position, norm))
+			{
+				glh::vec3f res_pos(position.mV);
+				mat.mult_matrix_vec(res_pos);
+				
+				norm.normalize();
+				glh::vec3f res_norm(norm.mV);
+				norm_mat.mult_matrix_dir(res_norm);
+
+				if (intersection)
+				{
+					*intersection = LLVector3(res_pos.v);
+				}
+
+				if (normal)
+				{
+					*normal = LLVector3(res_norm.v);
+				}
+
+				return TRUE;
+			}
+		}
+	}
+	
+	LLVector3 position;
+	if (mNameText.notNull() && mNameText->lineSegmentIntersect(start, end, position))
+	{
+		if (intersection)
+		{
+			*intersection = position;
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 
 //-----------------------------------------------------------------------------
 // parseSkeletonFile()
@@ -1698,10 +1814,6 @@ BOOL LLVOAvatar::buildSkeleton(LLVOAvatarSkeletonInfo *info)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 
-	//this can get called with null info on startup sometimes
-	if (!info)
-		return FALSE;
-	
 	//-------------------------------------------------------------------------
 	// allocate joints
 	//-------------------------------------------------------------------------
@@ -4485,7 +4597,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 		LLVector3 collide_point = slaved_pos;
 		collide_point.mV[VZ] -= foot_plane_normal.mV[VZ] * (dist_from_plane + COLLISION_TOLERANCE - FOOT_COLLIDE_FUDGE);
 
-		gGL.begin(LLVertexBuffer::LINES);
+		gGL.begin(LLRender::LINES);
 		{
 			F32 SQUARE_SIZE = 0.2f;
 			gGL.color4f(1.f, 0.f, 0.f, 1.f);
@@ -4632,7 +4744,7 @@ U32 LLVOAvatar::renderFootShadows()
 	LLGLDepthTest test(GL_TRUE, GL_FALSE);
 	//render foot shadows
 	LLGLEnable blend(GL_BLEND);
-	mShadowImagep->bind();
+	gGL.getTexUnit(0)->bind(mShadowImagep.get());
 	glColor4fv(mShadow0Facep->getRenderColor().mV);
 	mShadow0Facep->renderIndexed(foot_mask);
 	glColor4fv(mShadow1Facep->getRenderColor().mV);
@@ -4678,8 +4790,8 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color)
 	color.mV[3] = (U8) (alpha*255);
 	
 	gGL.color4ubv(color.mV);
-	mImpostor.bindTexture();
-	gGL.begin(LLVertexBuffer::QUADS);
+	gGL.getTexUnit(0)->bind(&mImpostor);
+	gGL.begin(LLRender::QUADS);
 	gGL.texCoord2f(0,0);
 	gGL.vertex3fv((pos+left-up).mV);
 	gGL.texCoord2f(1,0);
@@ -4692,17 +4804,6 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color)
 	gGL.flush();
 
 	return 6;
-}
-
-//-----------------------------------------------------------------------------
-// renderCollisionVolumes()
-//-----------------------------------------------------------------------------
-void LLVOAvatar::renderCollisionVolumes()
-{
-	for (S32 i = 0; i < mNumCollisionVolumes; i++)
-	{
-		mCollisionVolumes[i].renderCollision();
-	}
 }
 
 //------------------------------------------------------------------------
@@ -4739,23 +4840,23 @@ void LLVOAvatar::updateTextures(LLAgent &agent)
 	{
 		if( head_baked && ! mHeadBakedLoaded )
 		{
-			getTEImage( TEX_HEAD_BAKED )->bind();
+			gGL.getTexUnit(0)->bind(getTEImage( TEX_HEAD_BAKED ));
 		}
 		if( upper_baked && ! mUpperBakedLoaded )
 		{
-			getTEImage( TEX_UPPER_BAKED )->bind();
+			gGL.getTexUnit(0)->bind(getTEImage( TEX_UPPER_BAKED ));
 		}
 		if( lower_baked && ! mLowerBakedLoaded )
 		{
-			getTEImage( TEX_LOWER_BAKED )->bind();
+			gGL.getTexUnit(0)->bind(getTEImage( TEX_LOWER_BAKED ));
 		}
 		if( eyes_baked && ! mEyesBakedLoaded )
 		{
-			getTEImage( TEX_EYES_BAKED )->bind();
+			gGL.getTexUnit(0)->bind(getTEImage( TEX_EYES_BAKED ));
 		}
 		if( skirt_baked && ! mSkirtBakedLoaded )
 		{
-			getTEImage( TEX_SKIRT_BAKED )->bind();
+			gGL.getTexUnit(0)->bind(getTEImage( TEX_SKIRT_BAKED ));
 		}
 	}
 
@@ -4786,6 +4887,7 @@ void LLVOAvatar::updateTextures(LLAgent &agent)
 
 	mMaxPixelArea = 0.f;
 	mMinPixelArea = 99999999.f;
+	mHasGrey = FALSE; // debug
 	for (U32 i = 0; i < getNumTEs(); i++)
 	{
 		LLViewerImage *imagep = getTEImage(i);
@@ -4944,9 +5046,9 @@ void LLVOAvatar::updateTextures(LLAgent &agent)
 void LLVOAvatar::addLocalTextureStats( LLVOAvatar::ELocTexIndex idx, LLViewerImage* imagep,
 									   F32 texel_area_ratio, BOOL render_avatar, BOOL covered_by_baked )
 {
-	if (!covered_by_baked &&
-		render_avatar && // always true if mIsSelf
-		mLocalTexture[ idx ].notNull() && mLocalTexture[idx]->getID() != IMG_DEFAULT_AVATAR)
+	if (!covered_by_baked && render_avatar) // render_avatar is always true if mIsSelf
+	{
+		if (mLocalTexture[ idx ].notNull() && mLocalTexture[idx]->getID() != IMG_DEFAULT_AVATAR)
 	{	
 		F32 desired_pixels;
 		if( mIsSelf )
@@ -4959,7 +5061,20 @@ void LLVOAvatar::addLocalTextureStats( LLVOAvatar::ELocTexIndex idx, LLViewerIma
 			desired_pixels = llmin(mPixelArea, (F32)LOCTEX_IMAGE_AREA_OTHER );
 			imagep->setBoostLevel(LLViewerImage::BOOST_AVATAR);
 		}
-		imagep->addTextureStats( desired_pixels, texel_area_ratio );
+			imagep->addTextureStats( desired_pixels / texel_area_ratio );
+			if (imagep->getDiscardLevel() < 0)
+			{
+				mHasGrey = TRUE; // for statistics gathering
+			}
+		}
+		else
+		{
+			if (mLocalTexture[idx]->getID() == IMG_DEFAULT_AVATAR)
+			{
+				// texture asset is missing
+				mHasGrey = TRUE; // for statistics gathering
+			}
+		}
 	}
 }
 
@@ -4968,7 +5083,7 @@ void LLVOAvatar::addBakedTextureStats( LLViewerImage* imagep, F32 pixel_area, F3
 {
 	mMaxPixelArea = llmax(pixel_area, mMaxPixelArea);
 	mMinPixelArea = llmin(pixel_area, mMinPixelArea);
-	imagep->addTextureStats(pixel_area, texel_area_ratio);
+	imagep->addTextureStats(pixel_area / texel_area_ratio);
 	imagep->setBoostLevel(boost_level);
 }
 
@@ -5161,15 +5276,12 @@ BOOL LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, BOOL 
 					//}
 					//else
 					{
-						if(gSavedSettings.getBOOL("PlayTypingSound"))
-						{
 							LLUUID sound_id = LLUUID(gSavedSettings.getString("UISndTyping"));
 							gAudiop->triggerSound(sound_id, getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_SFX, char_pos_global);
 						}
 					}
 				}
 			}
-		}
 		else if (anim_id == ANIM_AGENT_SIT_GROUND_CONSTRAINED)
 		{
 			mIsSitting = TRUE;
@@ -6064,7 +6176,9 @@ BOOL LLVOAvatar::loadMeshNodes()
 
 		//	llinfos << "Parsing mesh data for " << type << "..." << llendl;
 
-		mesh->setColor( 0.8f, 0.8f, 0.8f, 1.0f );
+		// If this isn't set to white (1.0), avatars will *ALWAYS* be darker than their surroundings.
+		// Do not touch!!!
+		mesh->setColor( 1.0f, 1.0f, 1.0f, 1.0f );
 
 		LLPolyMesh *poly_mesh = NULL;
 
@@ -7363,7 +7477,7 @@ BOOL LLVOAvatar::bindScratchTexture( LLGLenum format )
 	GLuint gl_name = getScratchTexName( format, &texture_bytes );
 	if( gl_name )
 	{
-		LLImageGL::bindExternalTexture( gl_name, 0, GL_TEXTURE_2D );
+		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, gl_name);
 		stop_glerror();
 
 		F32* last_bind_time = LLVOAvatar::sScratchTexLastBindTime.getIfThere( format );
@@ -7421,7 +7535,7 @@ LLGLuint LLVOAvatar::getScratchTexName( LLGLenum format, U32* texture_bytes )
 		glGenTextures(1, &name );
 		stop_glerror();
 
-		LLImageGL::bindExternalTexture( name, 0, GL_TEXTURE_2D ); 
+		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, name);
 		stop_glerror();
 
 		glTexImage2D(
@@ -7436,7 +7550,7 @@ LLGLuint LLVOAvatar::getScratchTexName( LLGLenum format, U32* texture_bytes )
 		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 		stop_glerror();
 
-		LLImageGL::unbindTexture(0, GL_TEXTURE_2D); 
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		stop_glerror();
 
 		LLVOAvatar::sScratchTexNames.addData( format, new LLGLuint( name ) );
@@ -9048,7 +9162,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerImage *src_vi,
 			glGenTextures(1, (GLuint*) &gl_name );
 			stop_glerror();
 
-			LLImageGL::bindExternalTexture( gl_name, 0, GL_TEXTURE_2D ); 
+			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, gl_name);
 			stop_glerror();
 
 			glTexImage2D(
@@ -9454,9 +9568,26 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 		}
 	}
 
-	if( LLVOAvatar::areAllNearbyInstancesBaked() )
+	S32 grey_avatars = 0;
+	if( LLVOAvatar::areAllNearbyInstancesBaked(grey_avatars) )
 	{
 		LLVOAvatar::deleteCachedImages();
+	}
+	else
+	{
+		if (gFrameTimeSeconds != sUnbakedUpdateTime) // only update once per frame
+		{
+			sUnbakedUpdateTime = gFrameTimeSeconds;
+			sUnbakedTime += gFrameIntervalSeconds;
+		}
+		if (grey_avatars > 0)
+		{
+			if (gFrameTimeSeconds != sGreyUpdateTime) // only update once per frame
+			{
+				sGreyUpdateTime = gFrameTimeSeconds;
+				sGreyTime += gFrameIntervalSeconds;
+			}
+		}
 	}
 }
 

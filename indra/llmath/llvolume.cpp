@@ -1650,9 +1650,13 @@ void LLPathParams::copyParams(const LLPathParams &params)
 	setSkew(params.getSkew());
 }
 
+S32 profile_delete_lock = 1 ; 
 LLProfile::~LLProfile()
 {
-	
+	if(profile_delete_lock)
+	{
+		llerrs << "LLProfile should not be deleted here!" << llendl ;
+	}
 }
 
 
@@ -1709,7 +1713,11 @@ LLVolume::~LLVolume()
 {
 	sNumMeshPoints -= mMesh.size();
 	delete mPathp;
+
+	profile_delete_lock = 0 ;
 	delete mProfilep;
+	profile_delete_lock = 1 ;
+
 	mPathp = NULL;
 	mProfilep = NULL;
 	mVolumeFaces.clear();
@@ -1754,17 +1762,46 @@ BOOL LLVolume::generate()
 		mLODScaleBias.setVec(0.6f, 0.6f, 0.6f);
 	}
 	
+	//********************************************************************
+	//debug info, to be removed
+	if((U32)(mPathp->mPath.size() * mProfilep->mProfile.size()) > (1u << 20))
+	{
+		llinfos << "sizeS: " << mPathp->mPath.size() << " sizeT: " << mProfilep->mProfile.size() << llendl ;
+		llinfos << "path_detail : " << path_detail << " split: " << split << " profile_detail: " << profile_detail << llendl ;
+		llinfos << mParams << llendl ;
+		llinfos << "more info to check if mProfilep is deleted or not." << llendl ;
+		llinfos << mProfilep->mNormals.size() << " : " << mProfilep->mFaces.size() << " : " << mProfilep->mEdgeNormals.size() << " : " << mProfilep->mEdgeCenters.size() << llendl ;
+
+		llerrs << "LLVolume corrupted!" << llendl ;
+	}
+	//********************************************************************
+
 	BOOL regenPath = mPathp->generate(mParams.getPathParams(), path_detail, split);
 	BOOL regenProf = mProfilep->generate(mParams.getProfileParams(), mPathp->isOpen(),profile_detail, split);
 
 	if (regenPath || regenProf ) 
 	{
-		sNumMeshPoints -= mMesh.size();
-		mMesh.resize(mProfilep->mProfile.size() * mPathp->mPath.size());
-		sNumMeshPoints += mMesh.size();
-
 		S32 sizeS = mPathp->mPath.size();
 		S32 sizeT = mProfilep->mProfile.size();
+
+		//********************************************************************
+		//debug info, to be removed
+		if((U32)(sizeS * sizeT) > (1u << 20))
+		{
+			llinfos << "regenPath: " << (S32)regenPath << " regenProf: " << (S32)regenProf << llendl ;
+			llinfos << "sizeS: " << sizeS << " sizeT: " << sizeT << llendl ;
+			llinfos << "path_detail : " << path_detail << " split: " << split << " profile_detail: " << profile_detail << llendl ;
+			llinfos << mParams << llendl ;
+			llinfos << "more info to check if mProfilep is deleted or not." << llendl ;
+			llinfos << mProfilep->mNormals.size() << " : " << mProfilep->mFaces.size() << " : " << mProfilep->mEdgeNormals.size() << " : " << mProfilep->mEdgeCenters.size() << llendl ;
+
+			llerrs << "LLVolume corrupted!" << llendl ;
+		}
+		//********************************************************************
+
+		sNumMeshPoints -= mMesh.size();
+		mMesh.resize(sizeT * sizeS);
+		sNumMeshPoints += mMesh.size();
 
 		//generate vertex positions
 
@@ -2004,10 +2041,10 @@ void LLVolume::sculptGeneratePlaceholder()
 
 //ZWAGOTH
 // create the vertices from the map
-void LLVolume::sculptGenerateMapVertices(U16 sculpt_width,
-										 U16 sculpt_height,
-										 S8 sculpt_components,
-										 const U8* sculpt_data,
+void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, 
+										 U16 sculpt_height, 
+										 S8 sculpt_components, 
+										 const U8* sculpt_data, 
 										 U8 sculpt_type,
 										 BOOL is_flexible)
 {
