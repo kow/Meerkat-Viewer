@@ -36,7 +36,6 @@
 
 extern "C" {
 #include <gst/gst.h>
-#include <gst/gstelementfactory.h>
 }
 
 #include "llmediamanager.h"
@@ -96,7 +95,7 @@ LLMediaImplGStreamer () :
 #endif
 
 	// instantiate a playbin element to do the hard work
-	mPlaybin = gst_element_factory_make ("playbin", "play");
+	mPlaybin = llgst_element_factory_make ("playbin", "play");
 	if (!mPlaybin)
 	{
 		llerrs<<"Failed to create a playbin, aborting now"<<llendl;
