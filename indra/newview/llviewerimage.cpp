@@ -153,7 +153,7 @@ void LLViewerImage::updateClass(const F32 velocity, const F32 angular_velocity)
 	sTotalTextureMemory = LLImageGL::sGlobalTextureMemory;//in bytes
 	sMaxBoundTextureMem = gImageList.getMaxResidentTexMem();//in MB	
 	sMaxTotalTextureMem = gImageList.getMaxTotalTextureMem() ;//in MB
-	
+
 	if ((sBoundTextureMemory >> 20) >= sMaxBoundTextureMem ||
 		(sTotalTextureMemory >> 20) >= sMaxTotalTextureMem)
 	{
@@ -686,8 +686,8 @@ F32 LLViewerImage::maxDecodePriority()
 void LLViewerImage::setDecodePriority(F32 priority)
 {
 	llassert(!mInImageList);
-		mDecodePriority = priority;
-	}
+	mDecodePriority = priority;
+}
 
 void LLViewerImage::setBoostLevel(S32 level)
 {
@@ -761,7 +761,7 @@ bool LLViewerImage::updateFetch()
 		else
 		{
 			mFetchState = LLAppViewer::getTextureFetch()->getFetchState(mID, mDownloadProgress, mRequestedDownloadPriority,
-													   mFetchPriority, mFetchDeltaTime, mRequestDeltaTime);
+																		mFetchPriority, mFetchDeltaTime, mRequestDeltaTime);
 		}
 		
 		// We may have data ready regardless of whether or not we are finished (e.g. waiting on write)
@@ -1186,28 +1186,28 @@ bool LLViewerImage::bindError(S32 stage) const
 	{
 		return false;
 	}
-		
+
 	bool res = true;
 	
-		// On failure to bind, what should we set the currently bound texture to?
-		if (mIsMissingAsset && !sMissingAssetImagep.isNull() && (this != (LLImageGL *)sMissingAssetImagep))
-		{
+	// On failure to bind, what should we set the currently bound texture to?
+	if (mIsMissingAsset && !sMissingAssetImagep.isNull() && (this != (LLImageGL *)sMissingAssetImagep))
+	{
 		res = gGL.getTexUnit(stage)->bind(sMissingAssetImagep.get());
-		}
-		if (!res && !sDefaultImagep.isNull() && (this != (LLImageGL *)sDefaultImagep))
-		{
-			// use default if we've got it
+	}
+	if (!res && !sDefaultImagep.isNull() && (this != (LLImageGL *)sDefaultImagep))
+	{
+		// use default if we've got it
 		res = gGL.getTexUnit(stage)->bind(sDefaultImagep.get());
-		}
-		if (!res && !sNullImagep.isNull() && (this != (LLImageGL *)sNullImagep))
-		{
+	}
+	if (!res && !sNullImagep.isNull() && (this != (LLImageGL *)sNullImagep))
+	{
 		res = gGL.getTexUnit(stage)->bind(sNullImagep.get());
-		}
- 		if (!res)
-		{
+	}
+	if (!res)
+	{
 		llwarns << "LLViewerImage::bindError failed." << llendl;
-		}
-		stop_glerror();
+	}
+	stop_glerror();
 	return res;
 }
 
