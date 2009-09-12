@@ -1,6 +1,10 @@
 ; First is default
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
 
+; Language selection dialog
+LangString InstallerLanguageTitle  ${LANG_ENGLISH} "Installer Language"
+LangString SelectInstallerLanguage  ${LANG_ENGLISH} "Please select the language of the installer"
+
 ; subtitle on license text caption
 LangString LicenseSubTitleUpdate ${LANG_ENGLISH} " Update"
 LangString LicenseSubTitleSetup ${LANG_ENGLISH} " Setup"
@@ -34,9 +38,13 @@ LangString CheckAdministratorUnInstMB ${LANG_ENGLISH} 'You appear to be using a 
 ; checkifalreadycurrent
 LangString CheckIfCurrentMB ${LANG_ENGLISH} "It appears that Meerkat ${VERSION_LONG} is already installed.$\n$\nWould you like to install it again?"
 
-; closeMeerkat function (install)
-LangString CloseMeerkatInstDP ${LANG_ENGLISH} "Waiting for Meerkat to shut down..."
-LangString CloseMeerkatInstMB ${LANG_ENGLISH} "Meerkat can't be installed while it is already running.$\n$\nFinish what you're doing then select OK to close Meerkat and continue.$\nSelect CANCEL to cancel installation."
+; closesecondlife function (install)
+LangString CloseMeerkatInstDP ${LANG_ENGLISH} "Waiting for Second Life to shut down..."
+LangString CloseMeerkatInstMB ${LANG_ENGLISH} "Second Life can't be installed while it is already running.$\n$\nFinish what you're doing then select OK to close Second Life and continue.$\nSelect CANCEL to cancel installation."
+
+; closesecondlife function (uninstall)
+LangString CloseMeerkatUnInstDP ${LANG_ENGLISH} "Waiting for Second Life to shut down..."
+LangString CloseMeerkatUnInstMB ${LANG_ENGLISH} "Second Life can't be uninstalled while it is already running.$\n$\nFinish what you're doing then select OK to close Second Life and continue.$\nSelect CANCEL to cancel."
 
 ; closeMeerkat function (uninstall)
 LangString CloseMeerkatUnInstDP ${LANG_ENGLISH} "Waiting for Meerkat to shut down..."

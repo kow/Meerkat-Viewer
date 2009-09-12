@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
- * Copyright (c) 2002-2008, Linden Research, Inc.
+ * Copyright (c) 2002-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -1172,18 +1172,6 @@ S32 LLVFS::storeData(const LLUUID &file_id, const LLAssetType::EType file_type, 
 	}
 }
  
-//BDW Does nothing as of yet.
-BOOL exportFile(const LLUUID &file_id, const LLAssetType::EType file_type, std::string filename)
-{
-  return false;
-}
-
-//BDW  Does nothing as of yet.
-BOOL importFile(const LLUUID &file_id, const LLAssetType::EType file_type, std::string filename)
-{
-  return false;
-}
-
 void LLVFS::incLock(const LLUUID &file_id, const LLAssetType::EType file_type, EVFSLock lock)
 {
 	lockData();

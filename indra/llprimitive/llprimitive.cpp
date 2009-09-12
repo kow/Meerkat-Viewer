@@ -958,10 +958,10 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 	
 	U32 new_face_mask = mVolumep->mFaceMask;
 	if (old_face_mask != new_face_mask) 
-		{
-	setNumTEs(mVolumep->getNumFaces());
-			}
-
+	{
+		setNumTEs(mVolumep->getNumFaces());
+	}	
+	
 	return TRUE;
 }
 

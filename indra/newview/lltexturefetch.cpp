@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2000&license=viewergpl$
  * 
- * Copyright (c) 2000-2008, Linden Research, Inc.
+ * Copyright (c) 2000-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -562,7 +562,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	{
 		mFetchTimer.reset();
 	}
-	
+
 	if (mImagePriority <= 0.0f)
 	{
 		if (mState < WRITE_TO_CACHE)
@@ -1070,7 +1070,7 @@ bool LLTextureFetchWorker::processSimulatorPackets()
 		S32 buffer_size = mFormattedImage->getDataSize();
 		for (S32 i = mFirstPacket; i<=mLastPacket; i++)
 		{
-			llassert_always(mPackets[i]) ;
+			llassert_always(mPackets[i]);
 			buffer_size += mPackets[i]->mSize;
 		}
 		bool have_all_data = mLastPacket >= mTotalPackets-1;
@@ -1659,7 +1659,7 @@ void LLTextureFetch::sendRequestListToSimulators()
 				S32 packet = req->mLastPacket + 1;
 				gMessageSystem->nextBlockFast(_PREHASH_RequestImage);
 				gMessageSystem->addUUIDFast(_PREHASH_Image, req->mID);
-				gMessageSystem->addS8Fast(_PREHASH_DiscardLevel, (S8)req->mSimRequestedDiscard);
+				gMessageSystem->addS8Fast(_PREHASH_DiscardLevel, (S8)req->mDesiredDiscard);
 				gMessageSystem->addF32Fast(_PREHASH_DownloadPriority, req->mImagePriority);
 				gMessageSystem->addU32Fast(_PREHASH_Packet, packet);
 				gMessageSystem->addU8Fast(_PREHASH_Type, req->mType);

@@ -33,11 +33,11 @@
 #define LL_LLVERSIONVIEWER_H
 
 const S32 LL_VERSION_MAJOR = 0;
-const S32 LL_VERSION_MINOR = 2;
-const S32 LL_VERSION_PATCH = 2;
-const S32 LL_VERSION_BUILD = 211;
+const S32 LL_VERSION_MINOR = 3;
+const S32 LL_VERSION_PATCH = 0;
+const S32 LL_VERSION_BUILD = 0;
 
-const char * const LL_CHANNEL = "Meerkat Release";
+const char * const LL_CHANNEL = "Meerkat Release Candidate";
 
 
 #ifdef LL_WINDOWS

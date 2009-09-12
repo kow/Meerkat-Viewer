@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -64,11 +64,6 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <deque>
-#include <functional>
-#include <set>
-
-
 
 #ifdef LL_WINDOWS
 #pragma warning (3 : 4702) // we like level 3, not 4

@@ -9,7 +9,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -55,7 +55,7 @@ class LLTexUnit
 {
 	friend class LLRender;
 public:
-	typedef enum 
+	typedef enum
 	{
 		TT_TEXTURE = 0,			// Standard 2D Texture
 		TT_RECT_TEXTURE,	// Non power of 2 texture
@@ -133,8 +133,8 @@ public:
 	// Enables this texture unit for the given texture type (automatically disables any previously enabled texture type)
 	void enable(eTextureType type); 
 	// Disables the current texture unit
-	void disable(void);
-
+	void disable(void);	
+	
 	// Binds the LLImageGL to this texture unit 
 	// (automatically enables the unit for the LLImageGL's texture type)
 	bool bind(const LLImageGL* texture, bool forceBind = false);
@@ -161,7 +161,7 @@ public:
 
 	// NOTE: If *_COLOR enums are passed to src1 or src2, the corresponding *_ALPHA enum will be used instead.
 	inline void setTextureAlphaBlend(eTextureBlendOp op, eTextureBlendSrc src1, eTextureBlendSrc src2 = TBS_PREV_ALPHA)
-	{ setTextureCombiner(op, src1, src2, true); }	
+	{ setTextureCombiner(op, src1, src2, true); }
 
 	static U32 getInternalType(eTextureType type);
 
@@ -302,18 +302,18 @@ public:
 
 private:
 	bool				mDirty;
-	U32 mCount;
-	U32 mMode;
-	U32 mCurrTextureUnitIndex;
+	U32				mCount;
+	U32				mMode;
+	U32				mCurrTextureUnitIndex;
 	bool				mCurrColorMask[4];
 	eCompareFunc			mCurrAlphaFunc;
 	F32				mCurrAlphaFuncVal;
 
-	LLPointer<LLVertexBuffer> mBuffer;
-	LLStrider<LLVector3> mVerticesp;
-	LLStrider<LLVector2> mTexcoordsp;
-	LLStrider<LLColor4U> mColorsp;
-	std::vector<LLTexUnit*> mTexUnits;
+	LLPointer<LLVertexBuffer>	mBuffer;
+	LLStrider<LLVector3>		mVerticesp;
+	LLStrider<LLVector2>		mTexcoordsp;
+	LLStrider<LLColor4U>		mColorsp;
+	std::vector<LLTexUnit*>		mTexUnits;
 	LLTexUnit*			mDummyTexUnit;
 };
 

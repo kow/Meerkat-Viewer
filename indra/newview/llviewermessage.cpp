@@ -1420,7 +1420,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	BOOL is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat);
 	BOOL is_linden = LLMuteList::getInstance()->isLinden(name);
 	BOOL is_owned_by_me = FALSE;
-
+	
 	LLUUID computed_session_id = LLIMMgr::computeSessionID(dialog,from_id);
 	
 	chat.mMuted = is_muted && !is_linden;
@@ -1445,7 +1445,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		message = decrypted_msg;
 	}
 
-	//Handle IRC styled /me messages.
+		//Handle IRC styled /me messages.
 	std::string prefix = message.substr(0, 4);
 	if (prefix == "/me " || prefix == "/me'")
 	{
@@ -1654,7 +1654,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		// Don't show dialog, just do IM
 		if (!gAgent.isGodlike()
 				&& gAgent.getRegion()->isPrelude() 
-			&& to_id.isNull() )
+				&& to_id.isNull() )
 		{
 			// do nothing -- don't distract newbies in
 			// Prelude with global IMs
@@ -1906,7 +1906,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 		}
 		break;
-
 	case IM_GROUP_INVITATION:
 		{
 			//if (!is_linden && (is_busy || is_muted))
@@ -2213,12 +2212,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				else
 				{
 					// [/RLVa:KB]
-					// *TODO:translate -> [FIRST] [LAST] (maybe)
-					LLLureInfo* info = new LLLureInfo(from_id, session_id, FALSE);
-					args["[NAME]"] = name;
-					args["[MESSAGE]"] = message;
-					LLNotifyBox::showXml("OfferTeleport", args,
-										 lure_callback, (void*)info);
+				// *TODO:translate -> [FIRST] [LAST] (maybe)
+				LLLureInfo* info = new LLLureInfo(from_id, session_id, FALSE);
+				args["[NAME]"] = name;
+				args["[MESSAGE]"] = message;
+				LLNotifyBox::showXml("OfferTeleport", args,
+									 lure_callback, (void*)info);
 					// [RLVa:KB] - Version: 1.22.11 | Checked: 2009-07-07 (RLVa-1.0.0d) | Modified: RLVa-0.2.0b
 				}
 				// [/RLVa:KB]
@@ -2649,7 +2648,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		}
 		// [/RLVa:KB]
 		
- 		BOOL ircstyle = FALSE;
+		BOOL ircstyle = FALSE;
 
 		// Look for IRC-style emotes here so chatbubbles work
 		std::string prefix = mesg.substr(0, 4);
@@ -2789,7 +2788,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			case CHAT_TYPE_SHOUT:
 				verb = " " + LLTrans::getString("shout") + " ";
 				break;
-				case CHAT_TYPE_START:
+			case CHAT_TYPE_START:
 			case CHAT_TYPE_STOP:
 				LL_WARNS("Messaging") << "Got chat type start/stop in main chat processing." << LL_ENDL;
 				break;
@@ -2858,7 +2857,7 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 	{
 		gViewerWindow->setProgressCancelButtonVisible(TRUE, std::string("Cancel")); // *TODO: Translate
 	}
-	
+
 	// Freeze the UI and show progress bar
 	// Note: could add data here to differentiate between normal teleport and death.
 
@@ -4796,7 +4795,7 @@ void notify_cautioned_script_question(LLScriptQuestionCBData* cbdata, S32 orig_q
 			if (viewregion)
 			{
 				// got the region, so include the region and 3d coordinates of the object
-				notice.setArg("[REGIONNAME]", viewregion->getName());
+				notice.setArg("[REGIONNAME]", viewregion->getName());				
 				// [RLVa:KB] - Checked: 2009-07-04 (RLVa-1.0.0a)
 				if ( (rlv_handler_t::isEnabled()) && (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC)) )
 				{
@@ -5006,7 +5005,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		args["[QUESTIONS]"] = script_question;
 
 		LLScriptQuestionCBData *cbdata = new LLScriptQuestionCBData(taskid, itemid, sender, questions, object_name, owner_name);
-		
+
 		// check whether cautions are even enabled or not
 		// [RLVa:KB] - Version: 1.22.11 | Checked: 2009-07-10 (RLVa-1.0.0g) | Modified: RLVa-0.2.0e
 		S32 rlvQuestionsOther = questions;
@@ -5719,13 +5718,12 @@ void process_initiate_download(LLMessageSystem* msg, void**)
 	std::string viewer_filename;
 	msg->getString("FileData", "SimFilename", sim_filename);
 	msg->getString("FileData", "ViewerFilename", viewer_filename);
-    
-    if (!gXferManager->validateFileForRequest(viewer_filename))
+
+	if (!gXferManager->validateFileForRequest(viewer_filename))
 	{
 		llwarns << "SECURITY: Unauthorized download to local file " << viewer_filename << llendl;
 		return;
 	}
-    
 	gXferManager->requestFile(viewer_filename,
 		sim_filename,
 		LL_PATH_NONE,

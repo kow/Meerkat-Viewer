@@ -1,6 +1,10 @@
 ; First is default
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\German.nlf"
 
+; Language selection dialog
+LangString InstallerLanguageTitle  ${LANG_GERMAN} "Installationssprache"
+LangString SelectInstallerLanguage  ${LANG_GERMAN} "Bitte wählen Sie die Installationssprache"
+
 ; subtitle on license text caption (setup new version or update current one
 LangString LicenseSubTitleUpdate ${LANG_GERMAN} " Update"
 LangString LicenseSubTitleSetup ${LANG_GERMAN} " Setup"

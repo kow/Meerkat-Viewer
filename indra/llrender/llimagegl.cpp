@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -194,6 +194,7 @@ void LLImageGL::destroyGL(BOOL save_state)
 	{
 		gGL.getTexUnit(stage)->unbind(LLTexUnit::TT_TEXTURE);
 	}
+	
 	for (std::set<LLImageGL*>::iterator iter = sImageList.begin();
 		 iter != sImageList.end(); iter++)
 	{
@@ -208,6 +209,7 @@ void LLImageGL::destroyGL(BOOL save_state)
 					glimage->mSaveData = NULL ;
 				}
 			}
+
 			glimage->destroyGLTexture();
 			stop_glerror();
 		}
@@ -452,11 +454,11 @@ void LLImageGL::updateBindStats(void) const
 			mLastBindTime = sLastFrameTime;
 		}
 	}
-		}
+}
 
 //virtual
 bool LLImageGL::bindError(const S32 stage) const
-		{
+{
 	return false;
 }
 
@@ -465,6 +467,7 @@ bool LLImageGL::bindDefaultImage(const S32 stage) const
 {
 	return false;
 }
+
 
 void LLImageGL::setExplicitFormat( LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, BOOL swap_bytes )
 {
@@ -541,7 +544,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 						
 					glTexImage2D(mTarget, gl_level, mFormatInternal, w, h, 0, mFormatPrimary, GL_UNSIGNED_BYTE, (GLvoid*)data_in);
 					updatePickMask(w, h, data_in);
-					
+
 					if(mFormatSwapBytes)
 					{
 						glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
@@ -788,7 +791,6 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 		stop_glerror();
 		mGLTextureCreated = true;
 	}
-	
 	return TRUE;
 }
 
@@ -956,7 +958,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 #endif
 	}
 
-	mCurrentDiscardLevel = discard_level;
+	mCurrentDiscardLevel = discard_level;	
 
 	setImage(data_in, data_hasmips);
 
@@ -1078,7 +1080,7 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 		// No mip data smaller than current discard level
 		return FALSE;
 	}
-
+	
 	S32 width = getWidth(discard_level);
 	S32 height = getHeight(discard_level);
 	S32 ncomponents = getComponents();
@@ -1162,7 +1164,7 @@ void LLImageGL::destroyGLTexture()
 {
 	if (mTexName != 0)
 	{
-	stop_glerror();
+		stop_glerror();
 
 		for (int i = 0; i < gGLManager.mNumTextureUnits; i++)
 		{
@@ -1267,7 +1269,7 @@ void LLImageGL::setMipFilterNearest(BOOL mag_nearest, BOOL min_nearest)
 			}
 		}
 		stop_glerror();
-	}
+	}	
 }
 
 BOOL LLImageGL::getIsResident(BOOL test_now)
@@ -1433,6 +1435,7 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 }
 
 //----------------------------------------------------------------------------
+
 
 // Manual Mip Generation
 /*

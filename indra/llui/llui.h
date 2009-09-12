@@ -141,13 +141,6 @@ inline void gl_rect_2d_offset_local( const LLRect& rect, S32 pixel_offset, BOOL 
 	gl_rect_2d_offset_local( rect.mLeft, rect.mTop, rect.mRight, rect.mBottom, pixel_offset, filled );
 }
 
-// No longer used
-// Initializes translation table
-// void init_tr();
-
-// Returns a string from the string table in the correct language
-// std::string tr(const std::string& english_chars);
-
 // Used to hide the flashing text cursor when window doesn't have focus.
 extern BOOL gShowTextEditCursor;
 

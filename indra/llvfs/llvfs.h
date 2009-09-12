@@ -54,6 +54,7 @@ enum EVFSLock
 	VFSLOCK_OPEN = 0,
 	VFSLOCK_READ = 1,
 	VFSLOCK_APPEND = 2,
+
 	VFSLOCK_COUNT = 3
 };
 
@@ -96,11 +97,8 @@ public:
 		const LLUUID &new_id, const LLAssetType::EType &new_type);
 	void removeFile(const LLUUID &file_id, const LLAssetType::EType file_type);
 
-	S32  getData(const LLUUID &file_id, const LLAssetType::EType file_type, U8 *buffer, S32 location, S32 length);
-	S32  storeData(const LLUUID &file_id, const LLAssetType::EType file_type, const U8 *buffer, S32 location, S32 length);
-	BOOL exportFile(const LLUUID &file_id, const LLAssetType::EType file_type, std::string filename);
-	BOOL importFile(const LLUUID &file_id, const LLAssetType::EType file_type, std::string filename);
-
+	S32 getData(const LLUUID &file_id, const LLAssetType::EType file_type, U8 *buffer, S32 location, S32 length);
+	S32 storeData(const LLUUID &file_id, const LLAssetType::EType file_type, const U8 *buffer, S32 location, S32 length);
 
 	void incLock(const LLUUID &file_id, const LLAssetType::EType file_type, EVFSLock lock);
 	void decLock(const LLUUID &file_id, const LLAssetType::EType file_type, EVFSLock lock);

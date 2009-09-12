@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -174,14 +174,15 @@ private:
 	U16      mWidth;
 	U16      mHeight;	
 	S8       mCurrentDiscardLevel;
+
 protected:
 	LLGLenum mTarget;		// Normally GL_TEXTURE2D, sometimes something else (ex. cube maps)
 	LLTexUnit::eTextureType mBindTarget;	// Normally TT_TEXTURE, sometimes something else (ex. cube maps)
-
+	
 	LLGLboolean mIsResident;
-
+	
 	S8 mComponents;
-	S8 mMaxDiscardLevel;
+	S8 mMaxDiscardLevel;	
 	S8 mDontDiscard;			// Keep full res version of this image (for UI, etc)
 
 	S8 mClampS;					// Need to save clamp state
@@ -211,7 +212,6 @@ public:
 	static U32 sBindCount;					// Tracks number of texture binds for current frame
 	static U32 sUniqueCount;				// Tracks number of unique texture binds for current frame
 	static BOOL sGlobalUseAnisotropic;
-
 #if DEBUG_MISS
 	BOOL mMissed; // Missed on last bind?
 	BOOL getMissed() const { return mMissed; };

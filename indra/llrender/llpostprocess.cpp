@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2007&license=viewergpl$
  * 
- * Copyright (c) 2007-2008, Linden Research, Inc.
+ * Copyright (c) 2007-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -231,9 +231,9 @@ void LLPostProcess::applyColorFilterShader(void)
 	gPostColorFilterProgram.bind();
 
 	gGL.getTexUnit(0)->activate();
-	glEnable(GL_TEXTURE_RECTANGLE_ARB);	
+	gGL.getTexUnit(0)->enable(LLTexUnit::TT_RECT_TEXTURE);
 
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, sceneRenderTexture);
+	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, sceneRenderTexture);
 
 	getShaderUniforms(colorFilterUniforms, gPostColorFilterProgram.mProgramObject);
 	glUniform1iARB(colorFilterUniforms["RenderTexture"], 0);
@@ -275,16 +275,16 @@ void LLPostProcess::applyNightVisionShader(void)
 	gPostNightVisionProgram.bind();
 
 	gGL.getTexUnit(0)->activate();
-	glEnable(GL_TEXTURE_RECTANGLE_ARB);	
+	gGL.getTexUnit(0)->enable(LLTexUnit::TT_RECT_TEXTURE);
 
 	getShaderUniforms(nightVisionUniforms, gPostNightVisionProgram.mProgramObject);
-	glBindTexture(GL_TEXTURE_RECTANGLE_ARB, sceneRenderTexture);
+	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, sceneRenderTexture);
 	glUniform1iARB(nightVisionUniforms["RenderTexture"], 0);
 
 	gGL.getTexUnit(1)->activate();
-	glEnable(GL_TEXTURE_2D);	
+	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);	
 
-	glBindTexture(GL_TEXTURE_2D, noiseTexture);
+	gGL.getTexUnit(1)->bindManual(LLTexUnit::TT_TEXTURE, noiseTexture);
 	glUniform1iARB(nightVisionUniforms["NoiseTexture"], 1);
 
 	
@@ -494,39 +494,39 @@ void LLPostProcess::changeOrthogonal(unsigned int width, unsigned int height)
 
 void LLPostProcess::createTexture(LLPointer<LLImageGL>& texture, unsigned int width, unsigned int height)
 {
-	std::vector<GLubyte> data(width * height * 4, 0);
+	std::vector<GLubyte> data(width * height * 4, 0) ;
 
 	texture = new LLImageGL(FALSE) ;	
 	if(texture->createGLTexture())
 	{
 		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_RECT_TEXTURE, texture->getTexName());
-	glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 4, width, height, 0,
-		GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
-	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-}
+		glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 4, width, height, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+		glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
 }
 
 void LLPostProcess::createNoiseTexture(LLPointer<LLImageGL>& texture)
-{
-
+{	
 	std::vector<GLubyte> buffer(NOISE_SIZE * NOISE_SIZE);
 	for (unsigned int i = 0; i < NOISE_SIZE; i++){
 		for (unsigned int k = 0; k < NOISE_SIZE; k++){
 			buffer[(i * NOISE_SIZE) + k] = (GLubyte)((double) rand() / ((double) RAND_MAX + 1.f) * 255.f);
 		}
 	}
+
 	texture = new LLImageGL(FALSE) ;
 	if(texture->createGLTexture())
 	{
 		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texture->getTexName());
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, NOISE_SIZE, NOISE_SIZE, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &buffer[0]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, NOISE_SIZE, NOISE_SIZE, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &buffer[0]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 }
 

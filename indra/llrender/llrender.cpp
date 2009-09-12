@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -32,6 +32,7 @@
 #include "linden_common.h"
 
 #include "llrender.h"
+
 #include "llvertexbuffer.h"
 #include "llcubemap.h"
 #include "llimagegl.h"
@@ -209,7 +210,7 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 	if (cubeMap != NULL)
 	{
 		if (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
-{
+		{
 			activate();
 			enable(LLTexUnit::TT_CUBE_MAP);
 			mCurrTexture = cubeMap->mImages[0]->getTexName();
@@ -219,7 +220,7 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 			return true;
 		}
 		else
-	{
+		{
 			llwarns << "Using cube map without extension!" << llendl
 		}
 	}
@@ -233,7 +234,7 @@ bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
 	gGL.flush();
 
 	if (bindDepth)
-{
+	{
 		bindManual(renderTarget->getUsage(), renderTarget->getDepth());
 	}
 	else
@@ -278,8 +279,8 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 	if (mIndex < 0) return;
 
 	if (true)
-{
-	activate();
+	{
+		activate();
 
 		glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_S, sGLAddressMode[mode]);
 		glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_T, sGLAddressMode[mode]);
@@ -454,7 +455,7 @@ void LLTexUnit::setTextureCombiner(eTextureBlendOp op, eTextureBlendSrc src1, eT
 	}
 	else 
 	{
-		// Set enums to ALPHA ones
+		// Set enums to RGB ones
 		comb_enum = GL_COMBINE_RGB_ARB;
 		src0_enum = GL_SOURCE0_RGB_ARB;
 		src1_enum = GL_SOURCE1_RGB_ARB;
@@ -595,7 +596,7 @@ LLRender::LLRender()
 	mBuffer->getVertexStrider(mVerticesp);
 	mBuffer->getTexCoordStrider(mTexcoordsp);
 	mBuffer->getColorStrider(mColorsp);
-
+	
 	mTexUnits.reserve(LL_NUM_TEXTURE_LAYERS);
 	for (U32 i = 0; i < LL_NUM_TEXTURE_LAYERS; i++)
 	{

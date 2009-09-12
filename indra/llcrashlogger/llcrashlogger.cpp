@@ -207,12 +207,14 @@ void LLCrashLogger::gatherFiles()
 	}
 
 	if(mCrashInPreviousExec)
+	{
 		// Replace the log file ext with .old, since the 
 		// instance that launched this process has overwritten
 		// SecondLife.log
 		std::string log_filename = mFileMap["SecondLifeLog"];
 		log_filename.replace(log_filename.size() - 4, 4, ".old");
 		mFileMap["SecondLifeLog"] = log_filename;
+	}
 
 	gatherPlatformSpecificFiles();
 

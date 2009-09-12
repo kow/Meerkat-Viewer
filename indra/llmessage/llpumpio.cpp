@@ -6,7 +6,7 @@
  *
  * $LicenseInfo:firstyear=2004&license=viewergpl$
  * 
- * Copyright (c) 2004-2008, Linden Research, Inc.
+ * Copyright (c) 2004-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -41,6 +41,7 @@
 #include "llapr.h"
 #include "llmemtype.h"
 #include "llstl.h"
+#include "llstat.h"
 
 // These should not be enabled in production, but they can be
 // intensely useful during development for finding certain kinds of
@@ -526,7 +527,10 @@ void LLPumpIO::pump(const S32& poll_timeout)
 		//llinfos << "polling" << llendl;
 		S32 count = 0;
 		S32 client_id = 0;
-		apr_pollset_poll(mPollset, poll_timeout, &count, &poll_fd);
+        {
+            LLPerfBlock polltime("pump_poll");
+            apr_pollset_poll(mPollset, poll_timeout, &count, &poll_fd);
+        }
 		PUMP_DEBUG;
 		for(S32 ii = 0; ii < count; ++ii)
 		{
@@ -545,7 +549,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
 	//lldebugs << "Running chain count: " << mRunningChains.size() << llendl;
 	running_chains_t::iterator run_chain = mRunningChains.begin();
 	bool process_this_chain = false;
-	while( run_chain != mRunningChains.end() )
+	for(; run_chain != mRunningChains.end(); )
 	{
 		PUMP_DEBUG;
 		if((*run_chain).mInit

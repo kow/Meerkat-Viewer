@@ -116,7 +116,8 @@ class PlatformSetup(object):
 #				'-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON '
                 '-DSTANDALONE:BOOL=%(standalone)s '
                 '-DUNATTENDED:BOOL=%(unattended)s '
-                '-G %(generator)r %(opts)s %(dir)r' % args)
+                '-G %(generator)r %(opts)s %(dir)r'
+                % args)
 
     def run(self, command, name=None):
         '''Run a program.  If the program fails, raise an exception.'''
