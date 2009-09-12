@@ -157,7 +157,7 @@ class WindowsManifest(ViewerManifest):
             else:
                 return "MeerkatPreview.exe"
         else:
-            print 'Meerkat' + ''.join(self.channel().split()) + '.exe'
+            print ''.join(self.channel().split()) + '.exe'
             time.sleep(10)
             return ''.join(self.channel().split()) + '.exe'
 
