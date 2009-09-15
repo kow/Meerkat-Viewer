@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -1281,10 +1281,6 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		llwarns << "can't read hand pose" << llendl;
 		return FALSE;
 	}
-	if(word > LLHandMotion::NUM_HAND_POSES)
-	{
-		return FALSE;
-	}
 	mJointMotionList->mHandPose = (LLHandMotion::eHandPose)word;
 
 	//-------------------------------------------------------------------------
@@ -1427,10 +1423,6 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 
 				LLQuaternion::Order ro = StringToOrder("ZYX");
 				rot_key.mRotation = mayaQ(rot_angles.mV[VX], rot_angles.mV[VY], rot_angles.mV[VZ], ro);
-				if(!(rot_key.mRotation.isFinite()))
-				{
-					return FALSE;
-				}
 			}
 			else
 			{
@@ -1503,10 +1495,6 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			if (old_version)
 			{
 				success = dp.unpackVector3(pos_key.mPosition, "pos");
-				if(!(pos_key.mPosition.isFinite()))
-				{
-					return FALSE;
-				}
 			}
 			else
 			{
@@ -1571,13 +1559,6 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				return FALSE;
 			}
 			constraintp->mChainLength = (S32) byte;
-
-			if((U32)constraintp->mChainLength > mJointMotionList->getNumJointMotions())
-			{
-				delete constraintp;
-				return FALSE;
-			}
-
 
 			if (!dp.unpackU8(byte, "constraint_type"))
 			{
@@ -1703,10 +1684,6 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 						constraintp->mJointStateIndices[i] = (S32)j;
 						break;
 					}
-				}
-				if (constraintp->mJointStateIndices[i] == -1)
-				{
-					return FALSE;
 				}
 			}
 

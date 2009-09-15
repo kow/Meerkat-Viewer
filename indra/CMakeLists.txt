@@ -5,13 +5,13 @@
 # with the version specified
 
 # The "cmake -E touch" command was released with 2.4.8.
-cmake_minimum_required(VERSION 2.4.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
 # This makes cmake 2.6 not complain about a version
 # 2.4 compatibility mode
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 OLD)
-endif(COMMAND cmake_policy)
+#if(COMMAND cmake_policy)
+#  cmake_policy(SET CMP0003 OLD)
+#endif(COMMAND cmake_policy)
 
 project(Meerkat)
 

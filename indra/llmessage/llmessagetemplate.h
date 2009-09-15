@@ -34,6 +34,7 @@
 
 #include "lldarray.h"
 #include "message.h" // TODO: babbage: Remove...
+#include "llstat.h"
 #include "llmsgvariabletype.h"
 #include "llstl.h"
 #include <list>
@@ -330,7 +331,7 @@ public:
 	~LLMessageTemplate()
 	{
 		for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePointer());
-}
+	}
 
 	void addBlock(LLMessageBlock *blockp)
 	{
@@ -390,27 +391,7 @@ public:
 		return mDeprecation;
 	}
 	
-//	void setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
-	/**
-	 * @brief Adds a handler
-	 * This function adds a new handler to be called when the message arrives.
-	 * Repeated additions of the same handler function will be ignored.
-	 * @note delHandlerFunc() must be called to remove the registration
-	 * @param handler Function to call
-	 * @param user_data User specified data to pass to the function
-	 */
-	void addHandlerFunc(message_handler_func_t handler, void **user_data)	
-	{
-		LLMessageTemplateHandlerEntry h(handler, user_data);
-
-		if ( std::find(mHandlers.begin(), mHandlers.end(), h ) != mHandlers.end() )
-		{
-			return;
-		}
-
-		mHandlers.push_back( h );
-	}
-
+	//	void setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
 	/**
 	 * @brief Sets a handler
 	 * This function sets a handler to be called when the message arrives.
@@ -430,6 +411,26 @@ public:
 		{
 			llwarns << "code has reset handler for \"" << mName << "\" by setting it to NULL." << llendl;
 		}
+	}
+
+	/**
+	 * @brief Adds a handler
+	 * This function adds a new handler to be called when the message arrives.
+	 * Repeated additions of the same handler function will be ignored.
+	 * @note delHandlerFunc() must be called to remove the registration
+	 * @param handler Function to call
+	 * @param user_data User specified data to pass to the function
+	 */
+	void addHandlerFunc(message_handler_func_t handler, void **user_data)	
+	{
+		LLMessageTemplateHandlerEntry h(handler, user_data);
+
+		if ( std::find(mHandlers.begin(), mHandlers.end(), h ) != mHandlers.end() )
+		{
+			return;
+		}
+
+		mHandlers.push_back( h );
 	}
 
 	/**
@@ -470,7 +471,7 @@ public:
 		}
 		else
 		{
-            //LLPerfBlock msg_cb_time("msg_cb", mName);
+			LLPerfBlock msg_cb_time("msg_cb", mName);
 			std::for_each(mHandlers.begin(), mHandlers.end(), callHandler(msgsystem));
 			return TRUE;
 		}

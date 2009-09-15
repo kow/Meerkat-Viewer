@@ -49,10 +49,20 @@ if (WINDOWS)
       )
      
   if(MSVC80 OR MSVC90)
+    set(CMAKE_CXX_FLAGS_RELEASE
+      "${CMAKE_CXX_FLAGS_RELEASE} -D_SECURE_STL=0 -D_HAS_ITERATOR_DEBUGGING=0"
+      CACHE STRING "C++ compiler release options" FORCE)
+   
     add_definitions(
       /Zc:wchar_t-
       )
   endif (MSVC80 OR MSVC90)
+  
+  if(MSVC90)
+    add_definitions(
+      /MP4
+      )
+  endif (MSVC90)
   
   # Are we using the crummy Visual Studio KDU build workaround?
   if (NOT VS_DISABLE_FATAL_WARNINGS)

@@ -38,8 +38,9 @@
 #include "llkeyboard.h"
 #include "lldir.h"
 #include "llframetimer.h"
+#include "lltrans.h"
 
-#if LL_LINUX
+#if LL_LINUX || LL_SOLARIS
 # include "llfilepicker.h"
 #endif
 
@@ -263,7 +264,7 @@ void LLDirPicker::reset()
 	mDir.clear();
 }
 
-#elif LL_LINUX
+#elif LL_LINUX || LL_SOLARIS
 
 LLDirPicker::LLDirPicker() 
 {
@@ -293,7 +294,7 @@ BOOL LLDirPicker::getDir(std::string* filename)
 
 		if (picker)
 		{		   
-		   gtk_window_set_title(GTK_WINDOW(picker), "Choose Directory");
+		   gtk_window_set_title(GTK_WINDOW(picker), LLTrans::getString("choose_the_directory").c_str());
 		   gtk_widget_show_all(GTK_WIDGET(picker));
 		   gtk_main();
 		   return (!mFilePicker->getFirstFile().empty());

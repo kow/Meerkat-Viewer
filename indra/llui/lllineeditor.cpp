@@ -1125,7 +1125,7 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 
 	// handle uparrow if we have a history enabled line editor.
 	case KEY_UP:
-		if( mHaveHistory && ( !mIgnoreArrowKeys || MASK_CONTROL == mask ) )
+		if( mHaveHistory && ( MASK_CONTROL == mask ) )
 		{
 			if( mCurrentHistoryLine > 0 )
 			{
@@ -1142,7 +1142,7 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 
 	// handle downarrow if we have a history enabled line editor
 	case KEY_DOWN:
-		if( mHaveHistory && ( !mIgnoreArrowKeys || MASK_CONTROL == mask ) )
+		if( mHaveHistory  && ( MASK_CONTROL == mask ) )
 		{
 			if( !mLineHistory.empty() && mCurrentHistoryLine < mLineHistory.size() - 1 )
 			{
@@ -1423,7 +1423,7 @@ void LLLineEditor::draw()
 #else // the old programmer art.
 	// drawing solids requires texturing be disabled
 	{
-		LLGLSNoTexture no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		// draw background for text
 		if( !mReadOnly )
 		{

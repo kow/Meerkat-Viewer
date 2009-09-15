@@ -130,6 +130,7 @@ public:
 	void setUpdateStats(BOOL b)			{ mUpdateStats = b; }
 
 	S32	getMaxResidentTexMem() const	{ return mMaxResidentTexMem; }
+	S32 getMaxTotalTextureMem() const   { return mMaxTotalTextureMem;}
 	S32 getNumImages()					{ return mImageList.size(); }
 
 	void updateMaxResidentTexMem(S32 mem);
@@ -171,6 +172,7 @@ private:
 
 	BOOL mUpdateStats;
 	S32	mMaxResidentTexMem;
+	S32 mMaxTotalTextureMem;
 	LLFrameTimer mForceDecodeTimer;
 	
 public:

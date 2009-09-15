@@ -33,6 +33,8 @@ import sys
 import os.path
 import re
 import tarfile
+import time
+
 viewer_dir = os.path.dirname(__file__)
 # add llmanifest library to our path so we don't have to muck with PYTHONPATH
 sys.path.append(os.path.join(viewer_dir, '../lib/python/indra/util'))
@@ -65,7 +67,6 @@ class ViewerManifest(LLManifest):
             self.path("*.xml")
             self.path("*.tga")
             self.end_prefix("character")
-
 
         # Include our fonts
         if self.prefix(src="fonts"):
@@ -156,6 +157,8 @@ class WindowsManifest(ViewerManifest):
             else:
                 return "MeerkatPreview.exe"
         else:
+            print ''.join(self.channel().split()) + '.exe'
+            time.sleep(10)
             return ''.join(self.channel().split()) + '.exe'
 
 
@@ -179,11 +182,9 @@ class WindowsManifest(ViewerManifest):
         self.path(src="licenses-win32.txt", dst="licenses.txt")
 
         self.path("featuretable.txt")
-            
+
         # For use in crash reporting (generates minidumps)
-        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-            self.path("dbghelp.dll")
-            self.end_prefix()
+        self.path("dbghelp.dll")
 
 
         # For textures
@@ -193,9 +194,10 @@ class WindowsManifest(ViewerManifest):
 
         # Mozilla appears to force a dependency on these files so we need to ship it (CP)
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-           self.path("msvcr71.dll")
-           self.path("msvcp71.dll")
-           self.end_prefix()
+            self.path("msvcr80.dll")
+            self.path("msvcp80.dll")
+            self.path("Microsoft.VC80.CRT.manifest")
+            self.end_prefix()
 
         # Mozilla runtime DLLs (CP)
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
@@ -224,6 +226,10 @@ class WindowsManifest(ViewerManifest):
             self.path("res/*/*")
             self.end_prefix()
 
+        # Mozilla hack to get it to accept newer versions of msvc*80.dll than are listed in manifest
+        # necessary as llmozlib2-vc80.lib refers to an old version of msvc*80.dll - can be removed when new version of llmozlib is built - Nyx
+        # The config file name needs to match the exe's name.
+        self.path("Meerkat.exe.config", dst=self.final_exe() + ".config")
         # Meerkat things
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
             self.path("alut.dll")
@@ -279,9 +285,9 @@ class WindowsManifest(ViewerManifest):
             if installed_dir != out_path:
                 if install:
                     out_path = installed_dir
-                    result += 'SetOutPath ' + ' "' + out_path + '" ' + '\n'
+                    result += 'SetOutPath ' + out_path + '\n'
             if install:
-                result += 'File ' + ' "' + pkg_file +'" ' + '\n'
+                result += 'File ' + pkg_file + '\n'
             else:
                 result += 'Delete ' + wpath(os.path.join('$INSTDIR', rel_file)) + '\n'
         # at the end of a delete, just rmdir all the directories
@@ -459,10 +465,10 @@ class DarwinManifest(ViewerManifest):
         # This may be desirable for the final release.  Or not.
         if ("package" in self.args['actions'] or 
             "unpacked" in self.args['actions']):
-            self.run_command([
-            'strip', '-S', 
-            '"%(viewer_binary)s"' % { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Meerkat')}
-            ])
+        	self.run_command([
+            	'strip', '-S', 
+            	'"%(viewer_binary)s"' % { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Meerkat')}
+            	])
 
 
     def package_finish(self):
@@ -484,8 +490,7 @@ class DarwinManifest(ViewerManifest):
                 pass
         else:
             # first look, etc
-            #imagename = imagename + '_' + self.channel_oneword().upper()
-            pass
+            imagename = imagename + '_' + self.channel_oneword().upper()
 
         sparsename = imagename + ".sparseimage"
         finalname = imagename + ".dmg"
@@ -526,9 +531,6 @@ class DarwinManifest(ViewerManifest):
 
         if not os.path.exists (self.src_path_of(dmg_template)):
             dmg_template = os.path.join ('installers', 'darwin', 'release-dmg')
-
-        # To reinstate the linden scripting guide, add this to the list below:
-        #            "lsl_guide.html":"Linden Scripting Language Guide.html",
 
         for s,d in {self.get_dst_prefix():app_name + ".app",
                     #os.path.join(dmg_template, "_VolumeIcon.icns"): ".VolumeIcon.icns",
@@ -663,8 +665,6 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libSDL-1.2.so.0")
             self.path("libELFIO.so")
             self.path("libopenjpeg.so.2")
-            #self.path("libtcmalloc.so.0") - bugged
-            #self.path("libstacktrace.so.0") - probably bugged
 #            self.path("libllkdu.so", "../bin/libllkdu.so") # llkdu goes in bin for some reason
             self.end_prefix("lib")
 

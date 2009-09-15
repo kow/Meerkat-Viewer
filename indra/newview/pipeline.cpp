@@ -221,6 +221,7 @@ void display_update_camera();
 
 S32		LLPipeline::sCompiles = 0;
 
+BOOL	LLPipeline::sPickAvatar = TRUE;
 BOOL	LLPipeline::sDynamicLOD = TRUE;
 BOOL	LLPipeline::sShowHUDAttachments = TRUE;
 BOOL	LLPipeline::sRenderPhysicalBeacons = TRUE;
@@ -455,7 +456,7 @@ void LLPipeline::resizeScreenTexture()
 		}
 	
 		mScreen.release();
-		mScreen.allocate(resX, resY, GL_RGBA, TRUE, GL_TEXTURE_RECTANGLE_ARB);		
+		mScreen.allocate(resX, resY, GL_RGBA, TRUE, LLTexUnit::TT_RECT_TEXTURE);		
 
 		llinfos << "RESIZED SCREEN TEXTURE: " << resX << "x" << resY << llendl;
 	}
@@ -557,7 +558,7 @@ void LLPipeline::createGLBuffers()
 
 			for (U32 j = 0; j < 3; j++)
 			{
-				glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, mBlurCubeTexture[j]);
+				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_CUBE_MAP, mBlurCubeTexture[j]);
 				glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -587,7 +588,7 @@ void LLPipeline::createGLBuffers()
 		GLuint resX = gViewerWindow->getWindowDisplayWidth();
 		GLuint resY = gViewerWindow->getWindowDisplayHeight();
 		
-		mScreen.allocate(resX, resY, GL_RGBA, TRUE, GL_TEXTURE_RECTANGLE_ARB);
+		mScreen.allocate(resX, resY, GL_RGBA, TRUE, LLTexUnit::TT_RECT_TEXTURE);
 	}
 }
 
@@ -1213,7 +1214,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	LLVertexBuffer::unbind();
 	LLGLDisable blend(GL_BLEND);
 	LLGLDisable test(GL_ALPHA_TEST);
-	LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	gGL.setColorMask(false, false);
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
@@ -1358,7 +1359,7 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 	}
 	LLGLDisable blend(GL_BLEND);
 	LLGLDisable test(GL_ALPHA_TEST);
-	LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
 	if (LLPipeline::sUseOcclusion > 1)
@@ -2374,7 +2375,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		sUnderWaterRender = FALSE;
 	}
 
-	LLViewerImage::sDefaultImagep->bind(0);
+	gGL.getTexUnit(0)->bind(LLViewerImage::sDefaultImagep);
 	LLViewerImage::sDefaultImagep->setClamp(FALSE, FALSE);
 	
 	//////////////////////////////////////////////
@@ -2610,11 +2611,11 @@ void LLPipeline::renderDebug()
 		// Debug composition layers
 		F32 x, y;
 
-		LLGLSNoTexture gls_no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		if (gAgent.getRegion())
 		{
-			gGL.begin(LLVertexBuffer::POINTS);
+			gGL.begin(LLRender::POINTS);
 			// Draw the composition layer for the region that I'm in.
 			for (x = 0; x <= 260; x++)
 			{
@@ -2660,6 +2661,7 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 
 	LLGLSDefault gls_default;
 	LLGLSObjectSelect gls_object_select;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDepthTest gls_depth(GL_TRUE,GL_TRUE);
 	disableLights();
 	
@@ -4009,6 +4011,7 @@ BOOL LLPipeline::getRenderHighlights(void*)
 }
 
 LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, const LLVector3& end,
+														BOOL pick_transparent,												
 														S32* face_hit,
 														LLVector3* intersection,         // return the intersection point
 														LLVector2* tex_coord,            // return the texture coordinates of the intersection point
@@ -4018,6 +4021,12 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 {
 	LLDrawable* drawable = NULL;
 
+	LLVector3 local_end = end;
+
+	LLVector3 position;
+
+	sPickAvatar = FALSE; //LLToolMgr::getInstance()->inBuildMode() ? FALSE : TRUE;
+	
 	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
@@ -4025,24 +4034,124 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector3& start, 
 
 		for (U32 j = 0; j < LLViewerRegion::NUM_PARTITIONS; j++)
 		{
-			if ((j == LLViewerRegion::PARTITION_VOLUME) || (j == LLViewerRegion::PARTITION_BRIDGE))  // only check these partitions for now
+			if ((j == LLViewerRegion::PARTITION_VOLUME) || 
+				(j == LLViewerRegion::PARTITION_BRIDGE) || 
+				(j == LLViewerRegion::PARTITION_TERRAIN) ||
+				(j == LLViewerRegion::PARTITION_TREE) ||
+				(j == LLViewerRegion::PARTITION_GRASS))  // only check these partitions for now
 			{
 				LLSpatialPartition* part = region->getSpatialPartition(j);
-				if (part)
+				if (part && hasRenderType(part->mDrawableType))
 				{
-					LLDrawable* hit = part->lineSegmentIntersect(start, end, face_hit, intersection, tex_coord, normal, bi_normal);
+					LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, face_hit, &position, tex_coord, normal, bi_normal);
 					if (hit)
 					{
 						drawable = hit;
+						local_end = position;						
 					}
 				}
 			}
 		}
 	}
+	
+	if (!sPickAvatar)
+	{
+		//save hit info in case we need to restore
+		//due to attachment override
+		LLVector3 local_normal;
+		LLVector3 local_binormal;
+		LLVector2 local_texcoord;
+		S32 local_face_hit = -1;
+
+		if (face_hit)
+		{ 
+			local_face_hit = *face_hit;
+		}
+		if (tex_coord)
+		{
+			local_texcoord = *tex_coord;
+		}
+		if (bi_normal)
+		{
+			local_binormal = *bi_normal;
+		}
+		if (normal)
+		{
+			local_normal = *normal;
+		}
+				
+		const F32 ATTACHMENT_OVERRIDE_DIST = 0.1f;
+
+		//check against avatars
+		sPickAvatar = TRUE;
+		for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+				iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+		{
+			LLViewerRegion* region = *iter;
+
+			LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_BRIDGE);
+			if (part && hasRenderType(part->mDrawableType))
+			{
+				LLDrawable* hit = part->lineSegmentIntersect(start, local_end, pick_transparent, face_hit, &position, tex_coord, normal, bi_normal);
+				if (hit)
+				{
+					if (!drawable || 
+						!drawable->getVObj()->isAttachment() ||
+						(position-local_end).magVec() > ATTACHMENT_OVERRIDE_DIST)
+					{ //avatar overrides if previously hit drawable is not an attachment or 
+					  //attachment is far enough away from detected intersection
+						drawable = hit;
+						local_end = position;						
+					}
+					else
+					{ //prioritize attachments over avatars
+						position = local_end;
+
+						if (face_hit)
+						{
+							*face_hit = local_face_hit;
+						}
+						if (tex_coord)
+						{
+							*tex_coord = local_texcoord;
+						}
+						if (bi_normal)
+						{
+							*bi_normal = local_binormal;
+						}
+						if (normal)
+						{
+							*normal = local_normal;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	//check all avatar nametags (silly, isn't it?)
+	for (std::vector< LLCharacter* >::iterator iter = LLCharacter::sInstances.begin();
+		iter != LLCharacter::sInstances.end();
+		++iter)
+	{
+		LLVOAvatar* av = (LLVOAvatar*) *iter;
+		if (av->mNameText.notNull() && av->mNameText->lineSegmentIntersect(start, local_end, position))
+		{
+			drawable = av->mDrawable;
+			local_end = position;
+		}
+	}
+
+	if (intersection)
+	{
+		*intersection = position;
+	}
+
 	return drawable ? drawable->getVObj().get() : NULL;
 }
 
 LLViewerObject* LLPipeline::lineSegmentIntersectInHUD(const LLVector3& start, const LLVector3& end,
+													  BOOL pick_transparent,													
 													  S32* face_hit,
 													  LLVector3* intersection,         // return the intersection point
 													  LLVector2* tex_coord,            // return the texture coordinates of the intersection point
@@ -4057,14 +4166,26 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInHUD(const LLVector3& start, co
 	{
 		LLViewerRegion* region = *iter;
 
+		BOOL toggle = FALSE;
+		if (!hasRenderType(LLPipeline::RENDER_TYPE_HUD))
+		{
+			toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
+			toggle = TRUE;
+		}
+
 		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_HUD);
 		if (part)
 		{
-			LLDrawable* hit = part->lineSegmentIntersect(start, end, face_hit, intersection, tex_coord, normal, bi_normal);
+			LLDrawable* hit = part->lineSegmentIntersect(start, end, pick_transparent, face_hit, intersection, tex_coord, normal, bi_normal);
 			if (hit)
 			{
 				drawable = hit;
 			}
+		}
+
+		if (toggle)
+		{
+			toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
 		}
 	}
 	return drawable ? drawable->getVObj().get() : NULL;
@@ -4219,7 +4340,8 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam)
 
 	LLPipeline::sReflectionRender = TRUE;
 
-	cube_map->bind();
+	gGL.getTexUnit(cube_map->getStage())->bind(cube_map);
+	gGL.getTexUnit(0)->activate();
 	GLint width;
 	glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB, 0, GL_TEXTURE_WIDTH, &width);
 	if (width != res)
@@ -4231,8 +4353,10 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam)
 			glTexImage2D(gl_cube_face[i], 0, GL_RGBA, res, res, 0, GL_RGBA, GL_FLOAT, NULL); 
 		}
 	}
-	glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, 0);
-	cube_map->disable();
+	gGL.getTexUnit(cube_map->getStage())->unbind(LLTexUnit::TT_CUBE_MAP);
+	gGL.getTexUnit(cube_map->getStage())->disable();
+	gGL.getTexUnit(0)->activate();
+	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 
 	BOOL toggle_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
 	if (toggle_ui)
@@ -4276,7 +4400,7 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam)
 	gPipeline.calcNearbyLights(cube_cam);
 
 	stop_glerror();
-	LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mCubeFrameBuffer);
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
 										GL_RENDERBUFFER_EXT, mCubeDepth);		
@@ -4432,7 +4556,8 @@ void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out)
 	glPushMatrix();
 
 	cube_out->enableTexture(0);
-	cube_out->bind();
+	gGL.getTexUnit(cube_out->getStage())->bind(cube_out);
+	gGL.getTexUnit(0)->activate();
 	GLint width;
 	glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB, 0, GL_TEXTURE_WIDTH, &width);
 	if (width != res)
@@ -4444,8 +4569,8 @@ void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out)
 			glTexImage2D(gl_cube_face[i], 0, GL_RGBA, res, res, 0, GL_RGBA, GL_FLOAT, NULL); 
 		}
 	}
-	glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, 0);
-
+	gGL.getTexUnit(cube_out->getStage())->unbind(LLTexUnit::TT_CUBE_MAP);
+	gGL.getTexUnit(0)->activate();
 	glViewport(0, 0, res, res);
 	LLGLEnable blend(GL_BLEND);
 	
@@ -4473,16 +4598,17 @@ void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out)
 
 		if (j == 0)
 		{
-			cube_in->bind();
+			gGL.getTexUnit(cube_in->getStage())->bind(cube_in);
 		}
 		else
 		{
-			glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, mBlurCubeTexture[j-1]);
+			gGL.getTexUnit(cube_in->getStage())->bindManual(LLTexUnit::TT_CUBE_MAP, mBlurCubeTexture[j-1]);
 		}
+		gGL.getTexUnit(0)->activate();
 
 		stop_glerror();
 
-		LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mBlurCubeBuffer[j]);
 		stop_glerror();
 
@@ -4511,7 +4637,7 @@ void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out)
 
 	stop_glerror();
 
-	glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, 0);
+	gGL.getTexUnit(cube_in->getStage())->unbind(LLTexUnit::TT_CUBE_MAP);
 	
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	gGL.setColorMask(true, false);
@@ -4520,7 +4646,8 @@ void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out)
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
-	cube_in->disableTexture();
+	gGL.getTexUnit(cube_in->getStage())->disable();
+	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 	gViewerWindow->setupViewport();
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
@@ -4588,7 +4715,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 
 	if (for_snapshot)
 	{
-		mGlow[1].bindTexture();
+		gGL.getTexUnit(0)->bind(&mGlow[1]);
 		{
 			//LLGLEnable stencil(GL_STENCIL_TEST);
 			//glStencilFunc(GL_NOTEQUAL, 255, 0xFFFFFFFF);
@@ -4597,7 +4724,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 			LLGLEnable blend(GL_BLEND);
 			gGL.setSceneBlendType(LLRender::BT_ADD);
 			tc2.setVec(1,1);				
-			gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
+			gGL.begin(LLRender::TRIANGLE_STRIP);
 			gGL.color4f(1,1,1,1);
 			gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
 			gGL.vertex2f(-1,-1);
@@ -4647,15 +4774,15 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 		LLGLEnable test(GL_ALPHA_TEST);
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 		gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
-		LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
 		
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_TEXTURE_RECTANGLE_ARB);
-		mScreen.bindTexture();
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);		
+		gGL.getTexUnit(0)->disable();
+		gGL.getTexUnit(0)->enable(LLTexUnit::TT_RECT_TEXTURE);
+		gGL.getTexUnit(0)->bind(&mScreen);
 
 		gGL.color4f(1,1,1,1);
 		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
-		gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
+		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
 		gGL.vertex2f(-1,-1);
 		
@@ -4669,8 +4796,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 		gGL.vertex2f(1,1);
 		gGL.end();
 		
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_TEXTURE_RECTANGLE_ARB);
+		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 
 		mGlow[2].flush();
 	}
@@ -4700,7 +4826,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 
 	for (S32 i = 0; i < kernel; i++)
 	{
-		LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		{
 			LLFastTimer ftm(LLFastTimer::FTM_RENDER_BLOOM_FBO);
 			mGlow[i%2].bindTarget();
@@ -4709,11 +4835,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 			
 		if (i == 0)
 		{
-			mGlow[2].bindTexture();
+			gGL.getTexUnit(0)->bind(&mGlow[2]);
 		}
 		else
 		{
-			mGlow[(i-1)%2].bindTexture();
+			gGL.getTexUnit(0)->bind(&mGlow[(i-1)%2]);
 		}
 
 		if (i%2 == 0)
@@ -4725,7 +4851,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 			gGlowProgram.uniform2f("glowDelta", 0, delta);
 		}
 
-		gGL.begin(LLVertexBuffer::TRIANGLE_STRIP);
+		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
 		gGL.vertex2f(-1,-1);
 		
@@ -4858,11 +4984,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 		//tex unit 0
 		gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_COLOR);
 		
-		mGlow[1].bindTexture();
+		gGL.getTexUnit(0)->bind(&mGlow[1]);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glTexCoordPointer(2, GL_FLOAT, 0, uv0);
 		gGL.getTexUnit(1)->activate();
-		glEnable(GL_TEXTURE_RECTANGLE_ARB);
+		gGL.getTexUnit(1)->enable(LLTexUnit::TT_RECT_TEXTURE);
 		
 		//tex unit 1
 		gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_ADD, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
@@ -4873,12 +4999,13 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 
 		glVertexPointer(2, GL_FLOAT, 0, v);
 		
-		mScreen.bindTexture();
+		gGL.getTexUnit(1)->bind(&mScreen);
+		gGL.getTexUnit(1)->activate();
 		
 		LLGLEnable multisample(GL_MULTISAMPLE_ARB);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		
-		glDisable(GL_TEXTURE_RECTANGLE_ARB);
+		gGL.getTexUnit(1)->disable();
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		gGL.getTexUnit(1)->setTextureBlendType(LLTexUnit::TB_MULT);
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
@@ -4958,7 +5085,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{	//generate planar reflection map
-			LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			glClearColor(0,0,0,0);
 			gGL.setColorMask(true, true);
 			mWaterRef.bindTarget();
@@ -5063,7 +5190,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			}
 			LLViewerCamera::updateFrustumPlanes(camera);
 
-			LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			LLColor4& col = LLDrawPoolWater::sWaterFogColor;
 			glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
 			gGL.setColorMask(true, true);
@@ -5240,10 +5367,10 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		resY != avatar->mImpostor.getHeight())
 	{
 		avatar->mImpostor.allocate(resX,resY,GL_RGBA,TRUE);
-		avatar->mImpostor.bindTexture();
+		gGL.getTexUnit(0)->bind(&avatar->mImpostor);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	}
 
 	{
@@ -5280,13 +5407,13 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		}
 		
 		gGL.setSceneBlendType(LLRender::BT_ADD);
-		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 
 		gGL.color4f(1,1,1,1);
 		gGL.color4ub(64,64,64,255);
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 		gGL.vertex3fv((pos+left-up).mV);
 		gGL.vertex3fv((pos-left-up).mV);
 		gGL.vertex3fv((pos-left+up).mV);

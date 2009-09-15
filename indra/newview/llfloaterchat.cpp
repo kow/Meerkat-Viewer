@@ -385,7 +385,7 @@ void LLFloaterChat::addChat(const LLChat& chat,
 			chat.mChatType == CHAT_TYPE_DEBUG_MSG
 			&& !gSavedSettings.getBOOL("ScriptErrorsAsChat");
 
-// [RLVa:KB] - Checked: 2009-07-08 (RLVa-1.0.0e)
+	// [RLVa:KB] - Checked: 2009-07-08 (RLVa-1.0.0e)
 	if (rlv_handler_t::isEnabled())
 	{
 		// TODO-RLVa: we might cast too broad a net by filtering here, needs testing
@@ -407,7 +407,7 @@ void LLFloaterChat::addChat(const LLChat& chat,
 			rlvChat.mRlvNamesFiltered = TRUE;
 		}
 	}
-// [/RLVa:KB]
+	// [/RLVa:KB]
 
 #if LL_LCD_COMPILE
 	// add into LCD displays

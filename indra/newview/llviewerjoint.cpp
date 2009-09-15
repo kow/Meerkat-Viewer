@@ -149,7 +149,7 @@ void LLViewerJoint::setValid( BOOL valid, BOOL recursive )
 // 	//----------------------------------------------------------------
 // 	if (mComponents & SC_AXES)
 // 	{
-// 		gGL.begin(LLVertexBuffer::LINES);
+// 		gGL.begin(LLRender::LINES);
 // 		gGL.color3f( 1.0f, 0.0f, 0.0f );
 // 		gGL.vertex3f( 0.0f,            0.0f, 0.0f );
 // 		gGL.vertex3f( 0.1f, 0.0f, 0.0f );
@@ -171,7 +171,7 @@ void LLViewerJoint::setValid( BOOL valid, BOOL recursive )
 // 	{
 // 		gGL.color3f( 1.0f, 1.0f, 0.0f );
 
-// 		gGL.begin(LLVertexBuffer::TRIANGLES);
+// 		gGL.begin(LLRender::TRIANGLES);
 
 // 		// joint top half
 // 		glNormal3f(nc, nc, nc);
@@ -362,7 +362,7 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass )
 // 	// render the bone
 // 	gGL.color3f( 0.5f, 0.5f, 0.0f );
 
-// 	gGL.begin(LLVertexBuffer::TRIANGLES);
+// 	gGL.begin(LLRender::TRIANGLES);
 
 // 	gGL.vertex3f( length,     0.0f,       0.0f);
 // 	gGL.vertex3f( 0.0f,       boneSize,  0.0f);

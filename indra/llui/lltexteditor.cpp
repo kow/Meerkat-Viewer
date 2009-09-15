@@ -260,7 +260,7 @@ LLTextEditor::LLTextEditor(
 	mIsSelecting( FALSE ),
 	mSelectionStart( 0 ),
 	mSelectionEnd( 0 ),
-	mScrolledToBottom( FALSE ),
+	mScrolledToBottom( TRUE ),
 	mOnScrollEndCallback( NULL ),
 	mOnScrollEndData( NULL ),
 	mCursorColor(		LLUI::sColorsGroup->getColor( "TextCursorColor" ) ),
@@ -277,14 +277,16 @@ LLTextEditor::LLTextEditor(
 	mCommitOnFocusLost( FALSE ),
 	mHideScrollbarForShortDocs( FALSE ),
 	mTakesNonScrollClicks( TRUE ),
-	mTrackBottom( TRUE ),
+	mTrackBottom( FALSE ),
 	mAllowEmbeddedItems( allow_embedded_items ),
 	mAcceptCallingCardNames(FALSE),
 	mHandleEditKeysDirectly( FALSE ),
 	mMouseDownX(0),
 	mMouseDownY(0),
 	mLastSelectionX(-1),
-	mLastSelectionY(-1)
+	mLastSelectionY(-1),
+	mReflowNeeded(FALSE),
+	mScrollNeeded(FALSE)
 {
 	mSourceID.generate();
 
@@ -468,6 +470,13 @@ void LLTextEditor::updateLineStartList(S32 startpos)
 		mScrollbar->setVisible(!short_doc);
 	}
 
+	// if scrolled to bottom, stay at bottom
+	// unless user is selecting text
+	// do this after updating page size
+	if (mScrolledToBottom && mTrackBottom && !hasMouseCapture())
+	{
+		endOfDoc();
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -511,8 +520,7 @@ void LLTextEditor::setText(const LLStringExplicit &utf8str)
 	setCursorPos(0);
 	deselect();
 
-	updateLineStartList();
-	updateScrollFromCursor();
+	needsReflow();
 
 	resetDirty();
 }
@@ -529,8 +537,7 @@ void LLTextEditor::setWText(const LLWString &wtext)
 	setCursorPos(0);
 	deselect();
 
-	updateLineStartList();
-	updateScrollFromCursor();
+	needsReflow();
 
 	resetDirty();
 }
@@ -568,8 +575,7 @@ void LLTextEditor::setWordWrap(BOOL b)
 	setCursorPos(0);
 	deselect();
 	
-	updateLineStartList();
-	updateScrollFromCursor();
+	needsReflow();
 }
 
 
@@ -781,14 +787,14 @@ void LLTextEditor::getSegmentAndOffset( S32 startpos, S32* segidxp, S32* offsetp
 	*offsetp = startpos - (*seg_iter)->getStart();
 }
 
-const LLTextSegment*	LLTextEditor::getPreviousSegment()
+const LLTextSegment*	LLTextEditor::getPreviousSegment() const
 {
 	// find segment index at character to left of cursor (or rightmost edge of selection)
 	S32 idx = llmax(0, getSegmentIdxAtOffset(mCursorPos) - 1);
 	return idx >= 0 ? mSegments[idx] : NULL;
 }
 
-void LLTextEditor::getSelectedSegments(std::vector<const LLTextSegment*>& segments)
+void LLTextEditor::getSelectedSegments(std::vector<const LLTextSegment*>& segments) const
 {
 	S32 left = hasSelection() ? llmin(mSelectionStart, mSelectionEnd) : mCursorPos;
 	S32 right = hasSelection() ? llmax(mSelectionStart, mSelectionEnd) : mCursorPos;
@@ -875,13 +881,12 @@ void LLTextEditor::setCursor(S32 row, S32 column)
 	}
 	doc += column;
 	setCursorPos(doc - mWText.c_str());
-	updateScrollFromCursor();
 }
 
 void LLTextEditor::setCursorPos(S32 offset)
 {
 	mCursorPos = llclamp(offset, 0, (S32)getLength());
-	updateScrollFromCursor();
+	needsScroll();
 	// reset desired x cursor position
 	mDesiredXPixel = -1;
 }
@@ -1222,8 +1227,6 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 
 			setCursorAtLocalPos( x, y, TRUE );
 			mSelectionEnd = mCursorPos;
-			
-			updateScrollFromCursor();
 		}
 
 		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" << llendl;		
@@ -1839,8 +1842,7 @@ void LLTextEditor::cut()
 	gClipboard.copyFromSubstring( mWText, left_pos, length, mSourceID );
 	deleteSelection( FALSE );
 
-	updateLineStartList();
-	updateScrollFromCursor();
+	needsReflow();
 }
 
 BOOL LLTextEditor::canCopy() const
@@ -1910,8 +1912,7 @@ void LLTextEditor::paste()
 	setCursorPos(mCursorPos + insert(mCursorPos, clean_string, FALSE));
 	deselect();
 
-	updateLineStartList();
-	updateScrollFromCursor();
+	needsReflow();
 }
 
 
@@ -2235,9 +2236,9 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 
 			if(text_may_have_changed)
 			{
-				updateLineStartList();
+				needsReflow();
 			}
-			updateScrollFromCursor();
+			needsScroll();
 		}
 	}
 
@@ -2280,8 +2281,7 @@ BOOL LLTextEditor::handleUnicodeCharHere(llwchar uni_char)
 			// Most keystrokes will make the selection box go away, but not all will.
 			deselect();
 
-			updateLineStartList();
-			updateScrollFromCursor();
+			needsReflow();
 		}
 	}
 
@@ -2339,8 +2339,7 @@ void LLTextEditor::doDelete()
 		}
 	}
 
-	updateLineStartList();
-	updateScrollFromCursor();
+	needsReflow();
 }
 
 //----------------------------------------------------------------------------
@@ -2383,8 +2382,7 @@ void LLTextEditor::undo()
 
 		setCursorPos(pos);
 
-	updateLineStartList();
-	updateScrollFromCursor();
+	needsReflow();
 }
 
 BOOL LLTextEditor::canRedo() const
@@ -2426,8 +2424,7 @@ void LLTextEditor::redo()
 		
 		setCursorPos(pos);
 
-	updateLineStartList();
-	updateScrollFromCursor();
+	needsReflow();
 }
 
 void LLTextEditor::onFocusReceived()
@@ -2594,7 +2591,7 @@ void LLTextEditor::drawSelectionBackground()
 		BOOL selection_visible = (left_visible_pos <= selection_right) && (selection_left <= right_visible_pos);
 		if( selection_visible )
 		{
-			LLGLSNoTexture no_texture;
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			const LLColor4& color = mReadOnly ? mReadOnlyBgColor : mWriteableBgColor;
 			F32 alpha = hasFocus() ? 1.f : 0.5f;
 			gGL.color4f( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], alpha );
@@ -2729,7 +2726,7 @@ void LLTextEditor::drawCursor()
 					}
 				}
 				
-				LLGLSNoTexture no_texture;
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 				gGL.color4fv( mCursorColor.mV );
 				
@@ -3100,6 +3097,20 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 
 void LLTextEditor::draw()
 {
+	// do on-demand reflow 
+	if (mReflowNeeded)
+	{
+		updateLineStartList();
+		mReflowNeeded = FALSE;
+	}
+
+	// then update scroll position, as cursor may have moved
+	if (mScrollNeeded)
+	{
+		updateScrollFromCursor();
+		mScrollNeeded = FALSE; 
+	}
+
 	{
 		LLLocalClipRect clip(LLRect(0, getRect().getHeight(), getRect().getWidth() - (mScrollbar->getVisible() ? SCROLLBAR_SIZE : 0), 0));
 
@@ -3118,10 +3129,9 @@ void LLTextEditor::draw()
 		mBorder->setKeyboardFocusHighlight( gFocusMgr.getKeyboardFocus() == this);// && !mReadOnly);
 	}
 	
+	LLView::draw();  // Draw children (scrollbar and border)
 	// remember if we are supposed to be at the bottom of the buffer
 	mScrolledToBottom = isScrolledToBottom();
-
-	LLView::draw();  // Draw children (scrollbar and border)
 }
 
 
@@ -3311,7 +3321,7 @@ void LLTextEditor::setCursorAndScrollToEnd()
 {
 	deselect();
 	endOfDoc();
-	updateScrollFromCursor();
+	needsScroll();
 }
 
 void LLTextEditor::getLineAndColumnForPosition( S32 position, S32* line, S32* col, BOOL include_wordwrap )
@@ -3438,7 +3448,7 @@ void LLTextEditor::reshape(S32 width, S32 height, BOOL called_from_parent)
 	// up-to-date mTextRect
 	updateTextRect();
 	
-	updateLineStartList();
+	needsReflow();
 
 	// propagate shape information to scrollbar
 	mScrollbar->setDocSize( getLineCount() );
@@ -3446,14 +3456,6 @@ void LLTextEditor::reshape(S32 width, S32 height, BOOL called_from_parent)
 	S32 line_height = llround( mGLFont->getLineHeight() );
 	S32 page_lines = mTextRect.getHeight() / line_height;
 	mScrollbar->setPageSize( page_lines );
-
-	// if scrolled to bottom, stay at bottom
-	// unless user is editing text
-	// do this after updating page size
-	if (mScrolledToBottom && mTrackBottom && !hasFocus())
-	{
-		endOfDoc();
-	}
 }
 
 void LLTextEditor::autoIndent()
@@ -3500,8 +3502,7 @@ void LLTextEditor::insertText(const std::string &new_text)
 
 	setCursorPos(mCursorPos + insert( mCursorPos, utf8str_to_wstring(new_text), FALSE ));
 	
-	updateLineStartList();
-	updateScrollFromCursor();
+	needsReflow();
 
 	setEnabled( enabled );
 }
@@ -3600,7 +3601,7 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 		mSegments.push_back(segment);
 	}
 	
-	updateLineStartList(old_length);
+	needsReflow();
 	
 	// Set the cursor and scroll position
 	// Maintain the scroll position unless the scroll was at the end of the doc (in which 
@@ -3612,7 +3613,7 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 			// maintain an existing non-active selection
 			mSelectionStart = selection_start;
 			mSelectionEnd = selection_end;
-		}	
+		}
 		endOfDoc();
 	}
 	else if( selection_start != selection_end )
@@ -3639,14 +3640,6 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 	{
 		blockUndo();
 	}
-
-	// if scrolled to bottom, stay at bottom
-	// unless user is editing text
-	// do this after updating page size
-	if (mScrolledToBottom && mTrackBottom && !hasFocus())
-	{
-		endOfDoc();
-	}
 }
 
 void LLTextEditor::removeTextFromEnd(S32 num_chars)
@@ -3661,7 +3654,10 @@ void LLTextEditor::removeTextFromEnd(S32 num_chars)
 	mSelectionEnd = llclamp(mSelectionEnd, 0, len);
 
 	pruneSegments();
+	
+	// pruneSegments will invalidate mLineStartList.
 	updateLineStartList();
+	needsScroll();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -3759,8 +3755,7 @@ BOOL LLTextEditor::tryToRevertToPristineState()
 			}
 		}
 
-		updateLineStartList();
-		updateScrollFromCursor();
+		needsReflow();
 	}
 
 	return isPristine(); // TRUE => success
@@ -4066,9 +4061,7 @@ BOOL LLTextEditor::importBuffer(const char* buffer, S32 length )
 	setCursorPos(0);
 	deselect();
 
-	updateLineStartList();
-	updateScrollFromCursor();
-
+	needsReflow();
 	return success;
 }
 
@@ -4260,34 +4253,32 @@ S32 LLTextEditor::findHTMLToken(const std::string &line, S32 pos, BOOL reverse) 
 	std::string openers=" \t\n('\"[{<>";
 	std::string closers=" \t\n)'\"]}><;";
 
-	S32 m2 = 0;
-	S32 retval = 0;
-	
 	if (reverse)
 	{
-		
-		for (retval=pos; retval >= 0; retval--)
+		for (int index=pos; index >= 0; index--)
 		{
-			m2 = openers.find(line.substr(retval,1));
+			char c = line[index];
+			S32 m2 = openers.find(c);
 			if (m2 >= 0)
 			{
-				break;
+				return index+1;
 			}
 		}
-		return retval+1;
+		return 0; // index is -1, don't want to return that. 
 	} 
 	else
 	{
 		
-		for (retval=pos; retval<(S32)line.length(); retval++)
+		for (int index=pos; index<(S32)line.length(); index++)
 		{
-			m2 = closers.find(line.substr(retval,1));
+			char c = line[index];
+			S32 m2 = closers.find(c);
 			if (m2 >= 0)
 			{
-				break;
+				return index;
 			}
 		} 
-		return retval;
+		return line.length();
 	}
 }
 
@@ -4476,9 +4467,8 @@ void LLTextEditor::updatePreedit(const LLWString &preedit_string,
 
 	mPreeditStandouts = preedit_standouts;
 
-	updateLineStartList();
+	needsReflow();
 	setCursorPos(insert_preedit_at + caret_position);
-	// updateScrollFromCursor();
 
 	// Update of the preedit should be caused by some key strokes.
 	mKeystrokeTimer.reset();

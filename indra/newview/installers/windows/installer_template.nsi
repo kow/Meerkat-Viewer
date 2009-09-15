@@ -1,9 +1,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; secondlife setup.nsi
-;; Copyright 2004-2007, Linden Research, Inc.
-;; For info, see http://www.nullsoft.com/free/nsis/
+;; Copyright 2004-2008, Linden Research, Inc.
 ;;
-;; NSIS 2.22 or higher required
+;; NSIS Unicode 2.38.1 or higher required
+;; http://www.scratchpaper.com/
+;;
 ;; Author: James Cook, Don Kjer, Callum Prentice
 ;;
 ;;
@@ -12,23 +13,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Detect NSIS compiler version
-!define "NSIS${NSIS_VERSION}"
-!ifdef "NSISv2.02" | "NSISv2.03" | "NSISv2.04" | "NSISv2.05" | "NSISv2.06"
-    ;; before 2.07 defaulted lzma to solid (whole file)
-    SetCompressor lzma
-!else
-    ;; after 2.07 required /solid for whole file compression
-    SetCompressor /solid lzma
-!endif
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Compiler flags
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 SetOverwrite on				; overwrite files
 SetCompress auto			; compress iff saves space
+SetCompressor /solid lzma	; compress whole installer as one block
 SetDatablockOptimize off	; only saves us 0.1%, not worth it
 XPStyle on                  ; add an XP manifest to the installer
+RequestExecutionLevel admin	; on Vista we must be admin because we write to Program Files
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project flags
@@ -43,8 +35,26 @@ XPStyle on                  ; add an XP manifest to the installer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 !include "%%SOURCE%%\installers\windows\lang_de.nsi"
 !include "%%SOURCE%%\installers\windows\lang_en-us.nsi"
+!include "%%SOURCE%%\installers\windows\lang_es.nsi"
+!include "%%SOURCE%%\installers\windows\lang_fr.nsi"
 !include "%%SOURCE%%\installers\windows\lang_ja.nsi"
+!include "%%SOURCE%%\installers\windows\lang_it.nsi"
 !include "%%SOURCE%%\installers\windows\lang_ko.nsi"
+!include "%%SOURCE%%\installers\windows\lang_nl.nsi"
+!include "%%SOURCE%%\installers\windows\lang_pt-br.nsi"
+!include "%%SOURCE%%\installers\windows\lang_zh.nsi"
+
+# *TODO: Move these into the language files themselves
+LangString LanguageCode ${LANG_GERMAN}   "de"
+LangString LanguageCode ${LANG_ENGLISH}  "en"
+LangString LanguageCode ${LANG_SPANISH}  "es"
+LangString LanguageCode ${LANG_FRENCH}   "fr"
+LangString LanguageCode ${LANG_JAPANESE} "ja"
+LangString LanguageCode ${LANG_ITALIAN}  "it"
+LangString LanguageCode ${LANG_KOREAN}   "ko"
+LangString LanguageCode ${LANG_DUTCH}    "nl"
+LangString LanguageCode ${LANG_PORTUGUESEBR} "pt"
+LangString LanguageCode ${LANG_SIMPCHINESE}  "zh"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tweak for different servers/builds (this placeholder is replaced by viewer_manifest.py)
@@ -67,11 +77,7 @@ AutoCloseWindow false					; after all files install, close window
 
 InstallDir "$PROGRAMFILES\${INSTNAME}"
 InstallDirRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\${INSTNAME}" ""
-!ifdef UPDATE
-DirText $(DirectoryChooseTitle) $(DirectoryChooseUpdate)
-!else
 DirText $(DirectoryChooseTitle) $(DirectoryChooseSetup)
-!endif
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -80,141 +86,42 @@ DirText $(DirectoryChooseTitle) $(DirectoryChooseSetup)
 Var INSTPROG
 Var INSTEXE
 Var INSTFLAGS
-Var LANGFLAGS
 Var INSTSHORTCUT
+Var COMMANDLINE         ; command line passed to this installer, set in .onInit
+Var SHORTCUT_LANG_PARAM ; "--set InstallLanguage de", passes language to viewer
 
-;;; Function definitions should go before file includes, because the NSIS package
-;;; is a single stream of bytecodes + file data.  So if your function definitions are at
-;;; the end of the file it has to decompress the whole thing before it can call a function. JC
+;;; Function definitions should go before file includes, because calls to
+;;; DLLs like LangDLL trigger an implicit file include, so if that call is at
+;;; the end of this script NSIS has to decompress the whole installer before 
+;;; it can call the DLL function. JC
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; PostInstallExe
-; This just runs any post installation scripts.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function PostInstallExe
-push $0
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "PostInstallExe"
-  ;MessageBox MB_OK '$0'
-  ExecWait '$0'
-pop $0
-FunctionEnd
+!include "FileFunc.nsh"     ; For GetParameters, GetOptions
+!insertmacro GetParameters
+!insertmacro GetOptions
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; CheckStartupParameters
-; Sets INSTFLAGS, INSTPROG, and INSTEXE.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function CheckStartupParams
-push $0
-push $R0
-
-  ; Look for a registry entry with info about where to update.
-  Call GetProgramName
-  pop $R0
-  StrCpy $INSTPROG "$R0"
-  StrCpy $INSTEXE "$R0.exe"
-
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" ""
-  ; If key doesn't exist, skip install
-  IfErrors ABORT
-  StrCpy $INSTDIR "$0"
-
-  ; We now have a directory to install to.  Get the startup parameters and shortcut as well.
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Flags"
-  IfErrors +2
-  StrCpy $INSTFLAGS "$0"
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Shortcut"
-  IfErrors +2
-  StrCpy $INSTSHORTCUT "$0"
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Exe"
-  IfErrors +2
-  StrCpy $INSTEXE "$0"
-  Goto FINISHED
-
-ABORT:
-  MessageBox MB_OK $(CheckStartupParamsMB)
-  Quit
-
-FINISHED:
-  ;MessageBox MB_OK "INSTPROG: $INSTPROG, INSTEXE: $INSTEXE, INSTFLAGS: $INSTFLAGS"
-pop $R0
-pop $0
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function un.CheckStartupParams
-push $0
-push $R0
-
-  ; Look for a registry entry with info about where to update.
-  Call un.GetProgramName
-  pop $R0
-  StrCpy $INSTPROG "$R0"
-  StrCpy $INSTEXE "$R0.exe"
-
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" ""
-  ; If key doesn't exist, skip install
-  IfErrors ABORT
-  StrCpy $INSTDIR "$0"
-
-  ; We now have a directory to install to.  Get the startup parameters and shortcut as well.
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Flags"
-  IfErrors +2
-  StrCpy $INSTFLAGS "$0"
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Shortcut"
-  IfErrors +2
-  StrCpy $INSTSHORTCUT "$0"
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Exe"
-  IfErrors +2
-  StrCpy $INSTEXE "$0"
-  Goto FINISHED
-
-ABORT:
-  MessageBox MB_OK $(CheckStartupParamsMB)
-  Quit
-
-FINISHED:
-  ;MessageBox MB_OK "INSTPROG: $INSTPROG, INSTEXE: $INSTEXE, INSTFLAGS: $INSTFLAGS"
-pop $R0
-pop $0
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; After install completes, offer readme file
+;;; After install completes, launch app
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInstSuccess
-	MessageBox MB_YESNO \
-	$(InstSuccesssQuestion) /SD IDYES IDNO NoReadme
-		; Assumes SetOutPath $INSTDIR
-		Exec '"$INSTDIR\$INSTEXE" $INSTFLAGS'
-	NoReadme:
+    Push $R0	# Option value, unused
+    ${GetOptions} $COMMANDLINE "/AUTOSTART" $R0
+    # If parameter was there (no error) just launch
+    # Otherwise ask
+    IfErrors label_ask_launch label_launch
+    
+label_ask_launch:
+    # Don't launch by default when silent
+    IfSilent label_no_launch
+	MessageBox MB_YESNO $(InstSuccesssQuestion) \
+        IDYES label_launch IDNO label_no_launch
+        
+label_launch:
+	# Assumes SetOutPath $INSTDIR
+	Exec '"$INSTDIR\$INSTEXE" $INSTFLAGS $SHORTCUT_LANG_PARAM'
+label_no_launch:
+	Pop $R0
 FunctionEnd
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Remove old NSIS version. Modifies no variables.
-; Does NOT delete the LindenWorld directory, or any
-; user files in that directory.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function RemoveNSIS
-  Push $0
-  ; Grab the installation directory of the old version
-  DetailPrint $(RemoveOldNSISVersion)
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" ""
-
-  ; If key doesn't exist, skip uninstall
-  IfErrors NO_NSIS
-  
-  ; Clean up old newview.exe file
-  Delete "$INSTDIR\newview.exe"
-
-  ; Intentionally don't delete the stuff in
-  ; Documents and Settings, so we keep the user's settings
-
-  NO_NSIS:
-  Pop $0
-FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Make sure we're not on Windows 98 / ME
@@ -242,28 +149,28 @@ FunctionEnd
 ; Make sure the user can install/uninstall
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckIfAdministrator
-		DetailPrint $(CheckAdministratorInstDP)
-         UserInfo::GetAccountType
-         Pop $R0
-         StrCmp $R0 "Admin" is_admin
-         MessageBox MB_OK $(CheckAdministratorInstMB)
-         Quit
-is_admin:
-         Return
+    DetailPrint $(CheckAdministratorInstDP)
+    UserInfo::GetAccountType
+    Pop $R0
+    StrCmp $R0 "Admin" lbl_is_admin
+        MessageBox MB_OK $(CheckAdministratorInstMB)
+        Quit
+lbl_is_admin:
+    Return
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.CheckIfAdministrator
-	DetailPrint $(CheckAdministratorUnInstDP)
-         UserInfo::GetAccountType
-         Pop $R0
-         StrCmp $R0 "Admin" is_admin
-         MessageBox MB_OK $(CheckAdministratorUnInstMB)
-         Quit
-is_admin:
-         Return
+    DetailPrint $(CheckAdministratorUnInstDP)
+    UserInfo::GetAccountType
+    Pop $R0
+    StrCmp $R0 "Admin" lbl_is_admin
+        MessageBox MB_OK $(CheckAdministratorUnInstMB)
+        Quit
+lbl_is_admin:
+    Return
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -499,7 +406,7 @@ FunctionEnd
 ;
 Function un.RemovePassword
 
-DetailPrint "Removing Meerkat password"
+DetailPrint "Removing password"
 
 SetShellVarContext current
 Delete "$APPDATA\Meerkat\user_settings\password.dat"
@@ -577,7 +484,6 @@ StrCpy $INSTFLAGS ""
 StrCpy $INSTPROG "${INSTNAME}"
 StrCpy $INSTEXE "${INSTEXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"
-Call un.CheckStartupParams              ; Figure out where, what and how to uninstall.
 Call un.CheckIfAdministrator		; Make sure the user can install/uninstall
 
 ; uninstall for all users (if you change this, change it in the install as well)
@@ -589,7 +495,6 @@ Call un.CloseMeerkat
 ; Clean up registry keys (these should all be !defines somewhere)
 DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG"
 DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG"
-DeleteRegKey HKEY_LOCAL_MACHINE "Software\Open Metaverse Foundation\Installer Language" 
 
 ; Clean up shortcuts
 Delete "$SMPROGRAMS\$INSTSHORTCUT\*.*"
@@ -613,123 +518,6 @@ Call un.ProgramFiles
 
 SectionEnd 				; end of uninstall section
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; (From the NSIS wiki, DK)
-; GetParameterValue
-;
-; Usage:
-; !insertmacro GetParameterValue "/L=" "1033"
-; pop $R0
-;
-; Returns on top of stack
-;
-; Example command lines:
-; foo.exe /S /L=1033 /D=C:\Program Files\Foo
-; or:
-; foo.exe /S "/L=1033" /D="C:\Program Files\Foo"
-; gpv "/L=" "1033"
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
- !macro GetParameterValue SWITCH DEFAULT
-   Push $0
-   Push $1
-   Push $2
-   Push $3
-   Push $4
-
- ;$CMDLINE='"My Setup\Setup.exe" /L=1033 /S'
-   Push "$CMDLINE"
-   Push '${SWITCH}"'
-   !insertmacro StrStr
-   Pop $0
-   StrCmp "$0" "" gpv_notquoted
- ;$0='/L="1033" /S'
-   StrLen $2 "$0"
-   Strlen $1 "${SWITCH}"
-   IntOp $1 $1 + 1
-   StrCpy $0 "$0" $2 $1
- ;$0='1033" /S'
-   Push "$0"
-   Push '"'
-   !insertmacro StrStr
-   Pop $1
-   StrLen $2 "$0"
-   StrLen $3 "$1"
-   IntOp $4 $2 - $3
-   StrCpy $0 $0 $4 0
-   Goto gpv_done
-
-   gpv_notquoted:
-   Push "$CMDLINE"
-   Push "${SWITCH}"
-   !insertmacro StrStr
-   Pop $0
-   StrCmp "$0" "" gpv_done
- ;$0='/L="1033" /S'
-   StrLen $2 "$0"
-   Strlen $1 "${SWITCH}"
-   StrCpy $0 "$0" $2 $1
- ;$0=1033 /S'
-   Push "$0"
-   Push ' '
-   !insertmacro StrStr
-   Pop $1
-   StrLen $2 "$0"
-   StrLen $3 "$1"
-   IntOp $4 $2 - $3
-   StrCpy $0 $0 $4 0
-   Goto gpv_done
-
-   gpv_done:
-   StrCmp "$0" "" 0 +2
-   StrCpy $0 "${DEFAULT}"
-
-   Pop $4
-   Pop $3
-   Pop $2
-   Pop $1
-   Exch $0
- !macroend
-
-; And I had to modify StrStr a tiny bit.
-; Possible upgrade switch the goto's to use ${__LINE__}
-
-!macro STRSTR
-  Exch $R1 ; st=haystack,old$R1, $R1=needle
-  Exch    ; st=old$R1,haystack
-  Exch $R2 ; st=old$R1,old$R2, $R2=haystack
-  Push $R3
-  Push $R4
-  Push $R5
-  StrLen $R3 $R1
-  StrCpy $R4 0
-  ; $R1=needle
-  ; $R2=haystack
-  ; $R3=len(needle)
-  ; $R4=cnt
-  ; $R5=tmp
- ;  loop;
-    StrCpy $R5 $R2 $R3 $R4
-    StrCmp $R5 $R1 +4
-    StrCmp $R5 "" +3
-    IntOp $R4 $R4 + 1
-    Goto -4
- ;  done;
-  StrCpy $R1 $R2 "" $R4
-  Pop $R5
-  Pop $R4
-  Pop $R3
-  Pop $R2
-  Exch $R1
-!macroend
-
-Function GetProgramName
-  !insertmacro GetParameterValue "/P=" "Meerkat"
-FunctionEnd
-
-Function un.GetProgramName
-  !insertmacro GetParameterValue "/P=" "Meerkat"
-FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; (From the NSIS documentation, JC)
@@ -886,42 +674,59 @@ FunctionEnd
 ;;  entry to the language ID selector below
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInit
+    Push $0
+    ${GetParameters} $COMMANDLINE              ; get our command line
+    ${GetOptions} $COMMANDLINE "/LANGID=" $0   ; /LANGID=1033 implies US English
+    ; If no language (error), then proceed
+    IfErrors lbl_check_silent
+    ; No error means we got a language, so use it
+    StrCpy $LANGUAGE $0
+    Goto lbl_return
 
-	; read the language from registry (ok if not there) and set langauge menu
-	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\${INSTNAME}" "InstallerLanguage"
+lbl_check_silent:
+    ; For silent installs, no language prompt, use default
+    IfSilent lbl_return
+    
+	; If we currently have a version of SL installed, default to the language of that install
+    ; Otherwise don't change $LANGUAGE and it will default to the OS UI language.
+	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
+    IfErrors lbl_build_menu
 	StrCpy $LANGUAGE $0
 
+lbl_build_menu:
 	Push ""
-	Push ${LANG_ENGLISH}
-	Push English
-	Push ${LANG_GERMAN}
-	Push German
-	Push ${LANG_JAPANESE}
-	Push Japanese
-	Push ${LANG_KOREAN}
-	Push Korean
+    # Use separate file so labels can be UTF-16 but we can still merge changes
+    # into this ASCII file. JC
+    !include "%%SOURCE%%\installers\windows\language_menu.nsi"
+    
 	Push A ; A means auto count languages for the auto count to work the first empty push (Push "") must remain
-	LangDLL::LangDialog "Installer Language" "Please select the language of the installer"
-	Pop $LANGUAGE
-	StrCmp $LANGUAGE "cancel" 0 +2
+	LangDLL::LangDialog $(InstallerLanguageTitle) $(SelectInstallerLanguage)
+	Pop $0
+	StrCmp $0 "cancel" 0 +2
 		Abort
+    StrCpy $LANGUAGE $0
 
 	; save language in registry		
 	WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\${INSTNAME}" "InstallerLanguage" $LANGUAGE
+lbl_return:
+    Pop $0
+    Return
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.onInit
-
-	; read language from registry and set for ininstaller
+	; read language from registry and set for uninstaller
+    ; Key will be removed on successful uninstall
 	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\${INSTNAME}" "InstallerLanguage"
+    IfErrors lbl_end
 	StrCpy $LANGUAGE $0
-
+lbl_end:
+    Return
 FunctionEnd
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Sections
+;;; MAIN SECTION
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Section ""						; (default section)
 
@@ -933,15 +738,10 @@ StrCpy $INSTPROG "${INSTNAME}"
 StrCpy $INSTEXE "${INSTEXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"
 
-IfSilent +2
-Goto NOT_SILENT
-  Call CheckStartupParams                 ; Figure out where, what and how to install.
-NOT_SILENT:
 Call CheckWindowsVersion		; warn if on Windows 98/ME
 Call CheckIfAdministrator		; Make sure the user can install/uninstall
 Call CheckIfAlreadyCurrent		; Make sure that we haven't already installed this version
 Call CloseMeerkat			; Make sure we're not running
-Call RemoveNSIS					; Check for old NSIS install to remove
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Don't remove cache files during a regular install, removing the inventory cache on upgrades results in lots of damage to the servers.
@@ -966,28 +766,29 @@ Call RemoveOldReleaseNotes
 ;; This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
 %%INSTALL_FILES%%
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; If this is a silent update, we don't need to re-create these shortcuts or registry entries.
-IfSilent POST_INSTALL
+# Pass the installer's language to the client to use as a default
+StrCpy $SHORTCUT_LANG_PARAM "--set InstallLanguage $(LanguageCode)"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Shortcuts in start menu
 CreateDirectory	"$SMPROGRAMS\$INSTSHORTCUT"
 SetOutPath "$INSTDIR"
 CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT.lnk" \
-				"$INSTDIR\$INSTEXE" "$INSTFLAGS"
+				"$INSTDIR\$INSTEXE" "$INSTFLAGS $SHORTCUT_LANG_PARAM"
 
-                
+
 CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\Uninstall $INSTSHORTCUT.lnk" \
-				'"$INSTDIR\uninst.exe"' '/P="$INSTPROG"'
+				'"$INSTDIR\uninst.exe"' ''
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Other shortcuts
 SetOutPath "$INSTDIR"
-CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS"
-CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS"
+CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" \
+        "$INSTDIR\$INSTEXE" "$INSTFLAGS $SHORTCUT_LANG_PARAM"
+CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" \
+        "$INSTDIR\$INSTEXE" "$INSTFLAGS $SHORTCUT_LANG_PARAM"
 CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" \
-				'"$INSTDIR\uninst.exe"' '/P="$INSTPROG"'
+				'"$INSTDIR\uninst.exe"' ''
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -998,22 +799,17 @@ WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "F
 WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Shortcut" "$INSTSHORTCUT"
 WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\$INSTPROG" "Exe" "$INSTEXE"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayName" "$INSTPROG (remove only)"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "UninstallString" '"$INSTDIR\uninst.exe" /P="$INSTPROG"'
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "UninstallString" '"$INSTDIR\uninst.exe"'
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Write URL registry info
 WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "(default)" "URL:Second Life"
 WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "URL Protocol" ""
 WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" '"$INSTDIR\$INSTEXE"'
+;; URL param must be last item passed to viewer, it ignores subsequent params
+;; to avoid parameter injection attacks.
 WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" '"$INSTDIR\$INSTEXE" $INSTFLAGS -url "%1"'
 
-Goto WRITE_UNINST
-
-POST_INSTALL:
-; Run a post-executable script if necessary.
-Call PostInstallExe
-
-WRITE_UNINST:
 ; write out uninstaller
 WriteUninstaller "$INSTDIR\uninst.exe"
 

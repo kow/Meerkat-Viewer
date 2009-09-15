@@ -142,7 +142,7 @@ void LLAgent::renderAutoPilotTarget()
 		gGL.pushMatrix();
 
 		// not textured
-		LLGLSNoTexture no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		// lovely green
 		glColor4f(0.f, 1.f, 1.f, 1.f);
@@ -383,10 +383,11 @@ void LLCompass::draw()
 
 	if (mBkgndTexture)
 	{
-		mBkgndTexture->bind();
+		gGL.getTexUnit(0)->bind(mBkgndTexture.get());
+
 		gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 		
 		gGL.texCoord2f(1.f, 1.f);
 		gGL.vertex2i(width, height);
@@ -409,10 +410,10 @@ void LLCompass::draw()
 	
 	if (mTexture)
 	{
-		mTexture->bind();
+		gGL.getTexUnit(0)->bind(mTexture.get());
 		gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 		
 		gGL.texCoord2f(1.f, 1.f);
 		gGL.vertex2i(width, height);
@@ -454,9 +455,9 @@ void LLHorizontalCompass::draw()
 		F32 left = center - COMPASS_RANGE;
 		F32 right = center + COMPASS_RANGE;
 
-		mTexture->bind();
+		gGL.getTexUnit(0)->bind(mTexture.get());
 		gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f );
-		gGL.begin( LLVertexBuffer::QUADS );
+		gGL.begin( LLRender::QUADS );
 
 		gGL.texCoord2f(right, 1.f);
 		gGL.vertex2i(width, height);
@@ -475,7 +476,7 @@ void LLHorizontalCompass::draw()
 
 	// Draw the focus line
 	{
-		LLGLSNoTexture gls_no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4fv( mFocusColor.mV );
 		gl_line_2d( half_width, 0, half_width, height );
 	}
@@ -493,7 +494,7 @@ void LLWind::renderVectors()
 
 	F32 region_width_meters = LLWorld::getInstance()->getRegionWidthInMeters();
 
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.pushMatrix();
 	LLVector3 origin_agent;
 	origin_agent = gAgent.getPosAgentFromGlobal(mOriginGlobal);
@@ -507,11 +508,11 @@ void LLWind::renderVectors()
 			gGL.pushMatrix();
 			gGL.translatef((F32)i * region_width_meters/mSize, (F32)j * region_width_meters/mSize, 0.0);
 			gGL.color3f(0,1,0);
-			gGL.begin(LLVertexBuffer::POINTS);
+			gGL.begin(LLRender::POINTS);
 				gGL.vertex3f(0,0,0);
 			gGL.end();
 			gGL.color3f(1,0,0);
-			gGL.begin(LLVertexBuffer::LINES);
+			gGL.begin(LLRender::LINES);
 				gGL.vertex3f(x * 0.1f, y * 0.1f ,0.f);
 				gGL.vertex3f(x, y, 0.f);
 			gGL.end();
@@ -529,7 +530,7 @@ void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
 								   const LLVector3d &east_north_top_global )
 {
 	LLGLSUIDefault gls_ui;
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDepthTest gls_depth(GL_TRUE);
 
 	LLVector3 west_south_bottom_agent = gAgent.getPosAgentFromGlobal(west_south_bottom_global);
@@ -560,7 +561,7 @@ void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
 	gGL.color4f(1.f, 1.f, 0.f, 1.f);
 
 	// Cheat and give this the same pick-name as land
-	gGL.begin(LLVertexBuffer::LINES);
+	gGL.begin(LLRender::LINES);
 
 	gGL.vertex3f(west, north, nw_bottom);
 	gGL.vertex3f(west, north, nw_top);
@@ -577,7 +578,7 @@ void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
 	gGL.end();
 
 	gGL.color4f(1.f, 1.f, 0.f, 0.2f);
-	gGL.begin(LLVertexBuffer::QUADS);
+	gGL.begin(LLRender::QUADS);
 
 	gGL.vertex3f(west, north, nw_bottom);
 	gGL.vertex3f(west, north, nw_top);
@@ -644,7 +645,7 @@ void LLViewerParcelMgr::renderParcel(LLParcel* parcel )
 		gGL.color4f(0.f, 1.f, 1.f, 1.f);
 
 		// Cheat and give this the same pick-name as land
-		gGL.begin(LLVertexBuffer::LINES);
+		gGL.begin(LLRender::LINES);
 
 		gGL.vertex3f(west, north, nw_bottom);
 		gGL.vertex3f(west, north, nw_top);
@@ -661,7 +662,7 @@ void LLViewerParcelMgr::renderParcel(LLParcel* parcel )
 		gGL.end();
 
 		gGL.color4f(0.f, 1.f, 1.f, 0.2f);
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 
 		gGL.vertex3f(west, north, nw_bottom);
 		gGL.vertex3f(west, north, nw_top);
@@ -787,7 +788,7 @@ void LLViewerParcelMgr::renderHighlightSegments(const U8* segments, LLViewerRegi
 	bool has_segments = false;
 
 	LLGLSUIDefault gls_ui;
-	LLGLSNoTexture gls_no_texture;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDepthTest gls_depth(GL_TRUE);
 
 	gGL.color4f(1.f, 1.f, 0.f, 0.2f);
@@ -814,7 +815,7 @@ void LLViewerParcelMgr::renderHighlightSegments(const U8* segments, LLViewerRegi
 				if (!has_segments)
 				{
 					has_segments = true;
-					gGL.begin(LLVertexBuffer::QUADS);
+					gGL.begin(LLRender::QUADS);
 				}
 				renderOneSegment(x1, y1, x2, y2, PARCEL_POST_HEIGHT, SOUTH_MASK, regionp);
 			}
@@ -830,7 +831,7 @@ void LLViewerParcelMgr::renderHighlightSegments(const U8* segments, LLViewerRegi
 				if (!has_segments)
 				{
 					has_segments = true;
-					gGL.begin(LLVertexBuffer::QUADS);
+					gGL.begin(LLRender::QUADS);
 				}
 				renderOneSegment(x1, y1, x2, y2, PARCEL_POST_HEIGHT, WEST_MASK, regionp);
 			}
@@ -878,14 +879,14 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 	
 	if (use_pass && (mCollisionBanned == BA_NOT_ON_LIST))
 	{
-		LLViewerImage::bindTexture(mPassImage);
+		gGL.getTexUnit(0)->bind(mPassImage);
 	}
 	else
 	{
-		LLViewerImage::bindTexture(mBlockedImage);
+		gGL.getTexUnit(0)->bind(mBlockedImage);
 	}
 
-	gGL.begin(LLVertexBuffer::QUADS);
+	gGL.begin(LLRender::QUADS);
 
 	for (y = 0; y < STRIDE; y++)
 	{
@@ -1039,10 +1040,10 @@ void LLViewerObjectList::renderObjectBeacons()
 	LLGLSUIDefault gls_ui;
 
 	{
-		LLGLSNoTexture gls_ui_no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		S32 last_line_width = -1;
-		// gGL.begin(LLVertexBuffer::LINES); // Always happens in (line_width != last_line_width)
+		// gGL.begin(LLRender::LINES); // Always happens in (line_width != last_line_width)
 		
 		for (S32 i = 0; i < mDebugBeacons.count(); i++)
 		{
@@ -1059,7 +1060,7 @@ void LLViewerObjectList::renderObjectBeacons()
 				}
 				glLineWidth( (F32)line_width );
 				last_line_width = line_width;
-				gGL.begin(LLVertexBuffer::LINES);
+				gGL.begin(LLRender::LINES);
 			}
 
 			const LLVector3 &thisline = debug_beacon.mPositionAgent;
@@ -1077,11 +1078,11 @@ void LLViewerObjectList::renderObjectBeacons()
 	}
 
 	{
-		LLGLSNoTexture gls_ui_no_texture;
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		LLGLDepthTest gls_depth(GL_TRUE);
 		
 		S32 last_line_width = -1;
-		// gGL.begin(LLVertexBuffer::LINES); // Always happens in (line_width != last_line_width)
+		// gGL.begin(LLRender::LINES); // Always happens in (line_width != last_line_width)
 		
 		for (S32 i = 0; i < mDebugBeacons.count(); i++)
 		{
@@ -1097,7 +1098,7 @@ void LLViewerObjectList::renderObjectBeacons()
 				}
 				glLineWidth( (F32)line_width );
 				last_line_width = line_width;
-				gGL.begin(LLVertexBuffer::LINES);
+				gGL.begin(LLRender::LINES);
 			}
 
 			const LLVector3 &thisline = debug_beacon.mPositionAgent;

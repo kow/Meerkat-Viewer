@@ -498,7 +498,7 @@ LLAgent::~LLAgent()
 //-----------------------------------------------------------------------------
 // resetView()
 //-----------------------------------------------------------------------------
-void LLAgent::resetView(BOOL reset_camera)
+void LLAgent::resetView(BOOL reset_camera, BOOL change_camera)
 {
 	if (mAutoPilot)
 	{
@@ -522,6 +522,30 @@ void LLAgent::resetView(BOOL reset_camera)
 		// Hide all popup menus
 		gMenuHolder->hideMenus();
 	}
+
+	if (change_camera && !gSavedSettings.getBOOL("FreezeTime"))
+	{
+		changeCameraToDefault();
+		
+		if (LLViewerJoystick::getInstance()->getOverrideCamera())
+		{
+			handle_toggle_flycam();
+		}
+
+		// reset avatar mode from eventual residual motion
+		if (LLToolMgr::getInstance()->inBuildMode())
+		{
+			LLViewerJoystick::getInstance()->moveAvatar(true);
+		}
+
+		gFloaterTools->close();
+		
+		gViewerWindow->showCursor();
+
+		// Switch back to basic toolset
+		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+	}
+
 
 	if (reset_camera && !gSavedSettings.getBOOL("FreezeTime"))
 	{
@@ -1983,6 +2007,8 @@ void LLAgent::cameraPanIn(F32 meters)
 	mFocusGlobal = mFocusTargetGlobal;
 	// don't enforce zoom constraints as this is the only way for users to get past them easily
 	updateFocusOffset();
+	// NOTE: panning movements expect the camera to move exactly with the focus target, not animated behind -Nyx
+	mCameraSmoothingLastPositionGlobal = calcCameraPositionTargetGlobal();
 }
 
 //-----------------------------------------------------------------------------
@@ -2001,6 +2027,8 @@ void LLAgent::cameraPanLeft(F32 meters)
 	
 	cameraZoomIn(1.f);
 	updateFocusOffset();
+	// NOTE: panning movements expect the camera to move exactly with the focus target, not animated behind - Nyx
+	mCameraSmoothingLastPositionGlobal = calcCameraPositionTargetGlobal();
 }
 
 //-----------------------------------------------------------------------------
@@ -2019,6 +2047,8 @@ void LLAgent::cameraPanUp(F32 meters)
 
 	cameraZoomIn(1.f);
 	updateFocusOffset();
+	// NOTE: panning movements expect the camera to move exactly with the focus target, not animated behind -Nyx
+	mCameraSmoothingLastPositionGlobal = calcCameraPositionTargetGlobal();
 }
 
 //-----------------------------------------------------------------------------

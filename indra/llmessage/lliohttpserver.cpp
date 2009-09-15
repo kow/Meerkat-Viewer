@@ -6,7 +6,7 @@
  *
  * $LicenseInfo:firstyear=2005&license=viewergpl$
  * 
- * Copyright (c) 2005-2008, Linden Research, Inc.
+ * Copyright (c) 2005-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -47,6 +47,7 @@
 #include "llpumpio.h"
 #include "llsd.h"
 #include "llsdserialize_xml.h"
+#include "llstat.h"
 #include "llstl.h"
 #include "lltimer.h"
 
@@ -171,22 +172,26 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		std::string verb = context[CONTEXT_REQUEST][CONTEXT_VERB];
 		if(verb == HTTP_VERB_GET)
 		{
+            LLPerfBlock getblock("http_get");   
 			mNode.get(LLHTTPNode::ResponsePtr(mResponse), context);
 		}
 		else if(verb == HTTP_VERB_PUT)
 		{
+            LLPerfBlock putblock("http_put");
 			LLSD input;
 			LLSDSerialize::fromXML(input, istr);
 			mNode.put(LLHTTPNode::ResponsePtr(mResponse), context, input);
 		}
 		else if(verb == HTTP_VERB_POST)
 		{
+            LLPerfBlock postblock("http_post");
 			LLSD input;
 			LLSDSerialize::fromXML(input, istr);
 			mNode.post(LLHTTPNode::ResponsePtr(mResponse), context, input);
 		}
 		else if(verb == HTTP_VERB_DELETE)
 		{
+            LLPerfBlock delblock("http_delete");
 			mNode.del(LLHTTPNode::ResponsePtr(mResponse), context);
 		}		
 		else if(verb == HTTP_VERB_OPTIONS)

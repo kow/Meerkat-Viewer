@@ -69,7 +69,8 @@ void LLDrawPoolGround::render(S32 pass)
 	}	
 	
 	LLGLSPipelineSkyBox gls_skybox;
-	LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
 	LLGLClampToFarClip far_clip(glh_get_current_projection());

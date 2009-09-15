@@ -56,6 +56,12 @@
 #pragma warning (disable : 4702) // warning C4702: unreachable code
 #endif
 
+#include <algorithm>
+#include <deque>
+#include <functional>
+#include <map>
+#include <set>
+
 #ifdef LL_WINDOWS
 #pragma warning (3 : 4702) // we like level 3, not 4
 #endif

@@ -91,7 +91,7 @@ U32 LLViewerJointAttachment::drawShape( F32 pixelArea, BOOL first_pass )
 		LLGLDisable cull_face(GL_CULL_FACE);
 		
 		gGL.color4f(1.f, 1.f, 1.f, 1.f);
-		gGL.begin(LLVertexBuffer::QUADS);
+		gGL.begin(LLRender::QUADS);
 		{
 			gGL.vertex3f(-0.1f, 0.1f, 0.f);
 			gGL.vertex3f(-0.1f, -0.1f, 0.f);
@@ -138,6 +138,8 @@ void LLViewerJointAttachment::setupDrawable(LLDrawable* drawablep)
 		{
 			childp->mDrawable->setState(LLDrawable::USE_BACKLIGHT);
 			gPipeline.markTextured(childp->mDrawable); // face may need to change draw pool to/from POOL_HUD
+			gPipeline.markMoved(childp->mDrawable);
+
 			if(mIsHUDAttachment)
 			{
 				for (S32 face_num = 0; face_num < childp->mDrawable->getNumFaces(); face_num++)
