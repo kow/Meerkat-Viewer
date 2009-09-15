@@ -30,8 +30,6 @@
  */
 
 // Utilities functions the user interface needs
-
-//#include "llviewerprecompiledheaders.h"
 #include "linden_common.h"
 
 #include <string>
@@ -1674,6 +1672,7 @@ std::string LLUI::getLanguage()
 	}
 	return language;
 }
+
 //static
 std::string LLUI::locateSkin(const std::string& filename)
 {

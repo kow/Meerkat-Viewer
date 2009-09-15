@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
- * Copyright (c) 2002-2008, Linden Research, Inc.
+ * Copyright (c) 2002-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -1319,7 +1319,7 @@ void LLFloater::onClickEdit(void *userdata)
 	self->mEditing = self->mEditing ? FALSE : TRUE;
 }
 
-// static
+// static 
 LLFloater* LLFloater::getClosableFloaterFromFocus()
 {
 	LLFloater* focused_floater = NULL;
@@ -1353,7 +1353,7 @@ LLFloater* LLFloater::getClosableFloaterFromFocus()
 	}
 
 	return NULL;
-	}
+}
 
 // static
 void LLFloater::closeFocusedFloater()

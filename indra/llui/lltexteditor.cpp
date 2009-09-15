@@ -1008,7 +1008,7 @@ void LLTextEditor::indentSelectedLines( S32 spaces )
 		}
 		else
 		{
-			while( right < getLength() && (text[right] != '\n') )
+			while( (text[right] != '\n') && (right <= getLength() ) )
 			{
 				right++;
 			}
@@ -1320,6 +1320,8 @@ BOOL LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 			
 			setCursorAtLocalPos( x, y, TRUE );
 			endSelection();
+
+			updateScrollFromCursor();
 		}
 		
 		if( !hasSelection() )
@@ -3611,7 +3613,7 @@ void LLTextEditor::appendText(const std::string &new_text, bool allow_undo, bool
 			// maintain an existing non-active selection
 			mSelectionStart = selection_start;
 			mSelectionEnd = selection_end;
-		}	
+		}
 		endOfDoc();
 	}
 	else if( selection_start != selection_end )
