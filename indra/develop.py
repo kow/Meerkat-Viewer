@@ -443,6 +443,8 @@ class WindowsSetup(PlatformSetup):
     gens['vs2008'] = gens['vc90']
     gens['vs2010'] = gens['vc100']
 
+    environment = ''
+
     def __init__(self):
         super(WindowsSetup, self).__init__()
         self._generator = None
@@ -457,7 +459,7 @@ class WindowsSetup(PlatformSetup):
                     break
             else:
                 print >> sys.stderr, 'Cannot find a Visual Studio installation, testing for express editions'
-                for version in 'vc80 vc90 vc100 vc71'.split():
+                for version in 'vc90 vc80 vc100 vc71'.split():
                     if self.find_visual_studio_express(version):
                         self._generator = version
                         print 'Building with ', self.gens[version]['gen'] , "Express edition"
@@ -540,32 +542,19 @@ class WindowsSetup(PlatformSetup):
 
 
     def get_build_cmd(self):
-        if self.incredibuild:
+	if self.incredibuild:
             config = self.build_type
             if self.gens[self.generator]['ver'] in [ r'8.0', r'9.0' ]:
                 config = '\"%s|Win32\"' % config
 
             return "buildconsole Meerkat.sln /build %s" % config
 
-            environment = self.find_visual_studio()
-            if environment == '':
-                environment = self.find_visual_studio_express()
-            if environment == '':
-                 print >> sys.stderr, "Something went very wrong during build stage, could not find a Visual Studio?"
-            else:
-                 print >> sys.stderr, "\nSolution generation complete, as you are using an express edition the final\n stages will need to be completed by hand"
-                 build_dirs=self.build_dirs();
-                 print >> sys.stderr, "Solution can now be found in:", build_dirs[0]
-                 print >> sys.stderr, "Set meerkat-bin as startup project"
-                 print >> sys.stderr, "Set build target as Release or RelWithDbgInfo"
-                 print >> sys.stderr, "and remember to set the working directory for meerkat bin in the project preferences to indra/newview"
-                 print >> sys.stderr, "NOT indra/build-win32/newview which is the implicit default"
-
-                 exit(0)
+	if self.environment == '':
+	    exit(0)
 
         # devenv.com is CLI friendly, devenv.exe... not so much.
         return ('"%sdevenv.com" Meerkat.sln /build %s' % 
-                (environment, self.build_type))
+                (self.find_visual_studio(), self.build_type))
 
     # this override of run exists because the PlatformSetup version
     # uses Unix/Mac only calls. Freakin' os module!
@@ -588,9 +577,18 @@ class WindowsSetup(PlatformSetup):
                              + os.path.join(build_dir,'Meerkat.sln') \
                              + ' --config RelWithDebInfo' \
                              + ' --startup meerkat-bin'
-                print 'Running %r in %r' % (vstool_cmd, os.getcwd())
-                self.run(vstool_cmd)        
-        
+		self.environment = self.find_visual_studio()
+		if self.environment != '':
+			print 'Running %r in %r' % (vstool_cmd, os.getcwd())
+			self.run(vstool_cmd)        
+		else:
+			print >> sys.stderr, "\nSolution generation complete, as you are using an express edition the final\nstages will need to be completed by hand"
+			build_dirs=self.build_dirs();
+			print >> sys.stderr, "Solution can now be found in:", build_dirs[0]
+			print >> sys.stderr, "Set meerkat-bin as startup project"
+			print >> sys.stderr, "Set build target as Release or RelWithDbgInfo"
+			print >> sys.stderr, "Remember to set the working directory for meerkat bin in the project preferences to indra/newview NOT indra/build-win32/newview which is the implicit default"
+		
     def run_build(self, opts, targets):
         cwd = os.getcwd()
         build_cmd = self.get_build_cmd()
