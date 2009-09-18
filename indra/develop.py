@@ -456,8 +456,15 @@ class WindowsSetup(PlatformSetup):
                     print 'Building with ', self.gens[version]['gen']
                     break
             else:
-                print >> sys.stderr, 'Cannot find a Visual Studio installation!'
-                eys.exit(1)
+                print >> sys.stderr, 'Cannot find a Visual Studio installation, testing for express editions'
+                for version in 'vc80 vc90 vc100 vc71'.split():
+                    if self.find_visual_studio_express(version):
+                        self._generator = version
+                        print 'Building with ', self.gens[version]['gen'] , "Express edition"
+                        break
+                else:
+                    print >> sys.stderr, 'Cannot find any Visual Studio installation'
+                    eys.exit(1)
         return self._generator
 
     def _set_generator(self, gen):
@@ -508,6 +515,29 @@ class WindowsSetup(PlatformSetup):
         except WindowsError, err:
             print >> sys.stderr, "Didn't find ", self.gens[gen]['gen']
             return ''
+        
+    def find_visual_studio_express(self, gen=None):
+        if gen is None:
+            gen = self._generator
+        gen = gen.lower()
+        try:
+            import _winreg
+            key_str = (r'SOFTWARE\Microsoft\VCEXpress\%s\Setup\VC' %
+                       self.gens[gen]['ver'])
+            value_str = (r'ProductDir')
+            print ('Reading VS environment from HKEY_LOCAL_MACHINE\%s\%s' %
+                   (key_str, value_str))
+            print key_str
+
+            reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
+            key = _winreg.OpenKey(reg, key_str)
+            value = _winreg.QueryValueEx(key, value_str)[0]+"IDE"
+            print 'Found: %s' % value
+            return value
+        except WindowsError, err:
+            print >> sys.stderr, "Didn't find ", self.gens[gen]['gen']
+            return ''
+
 
     def get_build_cmd(self):
         if self.incredibuild:
@@ -517,9 +547,25 @@ class WindowsSetup(PlatformSetup):
 
             return "buildconsole Meerkat.sln /build %s" % config
 
+            environment = self.find_visual_studio()
+            if environment == '':
+                environment = self.find_visual_studio_express()
+            if environment == '':
+                 print >> sys.stderr, "Something went very wrong during build stage, could not find a Visual Studio?"
+            else:
+                 print >> sys.stderr, "\nSolution generation complete, as you are using an express edition the final\n stages will need to be completed by hand"
+                 build_dirs=self.build_dirs();
+                 print >> sys.stderr, "Solution can now be found in:", build_dirs[0]
+                 print >> sys.stderr, "Set meerkat-bin as startup project"
+                 print >> sys.stderr, "Set build target as Release or RelWithDbgInfo"
+                 print >> sys.stderr, "and remember to set the working directory for meerkat bin in the project preferences to indra/newview"
+                 print >> sys.stderr, "NOT indra/build-win32/newview which is the implicit default"
+
+                 exit(0)
+
         # devenv.com is CLI friendly, devenv.exe... not so much.
         return ('"%sdevenv.com" Meerkat.sln /build %s' % 
-                (self.find_visual_studio(), self.build_type))
+                (environment, self.build_type))
 
     # this override of run exists because the PlatformSetup version
     # uses Unix/Mac only calls. Freakin' os module!
