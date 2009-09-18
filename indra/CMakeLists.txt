@@ -7,11 +7,16 @@
 # The "cmake -E touch" command was released with 2.4.8.
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
-# This makes cmake 2.6 not complain about a version
-# 2.4 compatibility mode
-#if(COMMAND cmake_policy)
-#  cmake_policy(SET CMP0003 OLD)
-#endif(COMMAND cmake_policy)
+# Eventually the third-party support modules (cmake/*.cmake) should
+# know the full path to all libraries.  Until that happens we need
+# per-configuration link directory "libraries/<arch>/lib/debug" for
+# Debug and "libraries/<arch>/lib/release" for Release,
+# RelWithDebInfo, and MinSizeRel.  CMake 2.6 does not directly support
+# per-configuration link directory specification.  However, we can set
+# CMP0003 to OLD and link to one library (apr) on a per-configuration
+# basis to convince CMake to add the proper link directory.  This line
+# can be removed when we use full paths for all libraries.
+cmake_policy(SET CMP0003 OLD)
 
 project(Meerkat)
 
