@@ -558,3 +558,4 @@ void LLToolBar::onClickAvatarList(void*)
 {
 	LLFloaterAvatarList::toggle(NULL);
 }
+
