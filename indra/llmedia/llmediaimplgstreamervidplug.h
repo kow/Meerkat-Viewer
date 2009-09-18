@@ -42,6 +42,12 @@ extern "C" {
 
 G_BEGIN_DECLS
 
+//Hack as i really don't want to have to link to gstreamer.lib just for the sake
+//of a single symbol that is dragged in via the gst.h header, so we redef it to the 
+//dynamicly loaded version
+#undef gst_type_register_static_full
+#define gst_type_register_static_full llgst_type_register_static_full
+
 /* #defines don't like whitespacey bits */
 #define GST_TYPE_SLVIDEO \
   (gst_slvideo_get_type())

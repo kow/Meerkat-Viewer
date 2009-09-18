@@ -40,3 +40,19 @@ LL_GST_SYM(true, gst_element_seek, bool, GstElement *, gdouble, GstFormat, GstSe
 LL_GST_SYM(false, gst_segtrap_set_enabled, void, gboolean enabled);
 LL_GST_SYM(false, gst_message_parse_buffering, void, GstMessage *message, gint *percent);
 LL_GST_SYM(false, gst_message_parse_info, void, GstMessage *message, GError **gerror, gchar **debug);
+
+// Some extra things MK introduced
+LL_GST_SYM(true, gst_plugin_load_file,GstPlugin *,const gchar *filename, GError ** gerror);
+LL_GST_SYM(true, gst_type_register_static_full,GType,GType parent_type,
+                                                         const gchar *type_name,
+                                                         guint class_size,
+                                                         GBaseInitFunc base_init,
+                                                         GBaseFinalizeFunc base_finalize,
+                                                         GClassInitFunc class_init,
+                                                         GClassFinalizeFunc class_finalize,
+                                                         gconstpointer class_data,
+                                                         guint instance_size,
+                                                         guint16 n_preallocs,
+                                                         GInstanceInitFunc instance_init,
+                                                         const GTypeValueTable *value_table,
+                                                         GTypeFlags flags);
