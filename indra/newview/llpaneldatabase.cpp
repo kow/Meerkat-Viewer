@@ -145,3 +145,4 @@ void LLPanelDatabase::onPickAvatar(const std::vector<std::string>& names,
 	self->mAvatarName = names[0];
 	self->mAvatarKey = ids[0];
 }
+
