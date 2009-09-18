@@ -34,7 +34,6 @@ elseif(WINDOWS)
       gobject-2.0
       gmodule-2.0
       gthread-2.0
-      gstreamer-0.10
       glib-2.0
       )
 endif(LINUX)

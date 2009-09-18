@@ -254,6 +254,7 @@ libgsteffectv.dll
 libgstequalizer.dll
 libgstfaac.dll
 libgstfaad.dll
+libgstffmpeg.dll
 libgstffmpegcolorspace.dll
 libgstffmpeggpl.dll
 libgstflv.dll
