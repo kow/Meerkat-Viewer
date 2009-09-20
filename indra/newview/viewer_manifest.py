@@ -428,7 +428,7 @@ class DarwinManifest(ViewerManifest):
                 if self.default_channel() and self.default_grid():
                     self.path("secondlife.icns")
                 else:
-                    self.path("secondlife_firstlook.icns", "secondlife.icns")
+                    self.path("secondlife.icns")
                 
                 # Translations
                 self.path("English.lproj")
@@ -465,10 +465,10 @@ class DarwinManifest(ViewerManifest):
         # This may be desirable for the final release.  Or not.
         if ("package" in self.args['actions'] or 
             "unpacked" in self.args['actions']):
-        	self.run_command([
-            	'strip', '-S', 
-            	'"%(viewer_binary)s"' % { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Meerkat')}
-            	])
+            self.run_command([
+                'strip', '-S', 
+                '"%(viewer_binary)s"' % { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Meerkat')}
+                ])
 
 
     def package_finish(self):
@@ -498,12 +498,12 @@ class DarwinManifest(ViewerManifest):
         self.remove(sparsename, finalname)
 
         self.run_command([
-        'hdiutil', 'create', 
-        '"%(sparse)s"' % {'sparse':sparsename}, 
-        '-volname', 
-        '"%(vol)s"' % {'vol':volname}, 
-        '-fs', 'HFS+', '-type', 'SPARSE', '-megabytes', '300', '-layout', 'SPUD'
-        ])
+                        'hdiutil', 'create', 
+                        '"%(sparse)s"' % {'sparse':sparsename}, 
+                        '-volname', 
+                        '"%(vol)s"' % {'vol':volname}, 
+                        '-fs', 'HFS+', '-type', 'SPARSE', '-megabytes', '300', '-layout', 'SPUD'
+                        ])
 
         # mount the image and get the name of the mount point and device node
         hdi_output = self.run_command(['hdiutil', 'attach', '-private', '"' + sparsename + '"'])
@@ -558,11 +558,11 @@ class DarwinManifest(ViewerManifest):
 
         print "Converting temp disk image to final disk image"
         self.run_command([
-        'hdiutil', 'convert', 
-        '"%(sparse)s"' % {'sparse':sparsename}, 
-        '-format', 'UDZO', '-imagekey', 'zlib-level=9', '-o',
-        '"%(final)s"' % {'final':finalname}
-        ])
+                        'hdiutil', 'convert', 
+                        '"%(sparse)s"' % {'sparse':sparsename}, 
+                        '-format', 'UDZO', '-imagekey', 'zlib-level=9', '-o',
+                        '"%(final)s"' % {'final':finalname}
+                        ])
         # get rid of the temp file
         self.package_file = finalname
         self.remove(sparsename)
@@ -606,31 +606,34 @@ class LinuxManifest(ViewerManifest):
 
                 # Fix access permissions
                 self.run_command("""
-                find %(dst)s -type d | xargs --no-run-if-empty chmod 755;
-                find %(dst)s -type f -perm 0700 | xargs --no-run-if-empty chmod 0755;
-                find %(dst)s -type f -perm 0500 | xargs --no-run-if-empty chmod 0555;
-                find %(dst)s -type f -perm 0600 | xargs --no-run-if-empty chmod 0644;
-                find %(dst)s -type f -perm 0400 | xargs --no-run-if-empty chmod 0444;
-                true""" %  {'dst':self.get_dst_prefix() })
+                                find %(dst)s -type d | xargs --no-run-if-empty chmod 755;
+                                find %(dst)s -type f -perm 0700 | xargs --no-run-if-empty chmod 0755;
+                                find %(dst)s -type f -perm 0500 | xargs --no-run-if-empty chmod 0555;
+                                find %(dst)s -type f -perm 0600 | xargs --no-run-if-empty chmod 0644;
+                                find %(dst)s -type f -perm 0400 | xargs --no-run-if-empty chmod 0444;
+                                true""" %  {'dst':self.get_dst_prefix() })
         self.package_file = installer_name + '.tar.bz2'
 
         # temporarily move directory tree so that it has the right
         # name in the tarfile
         self.run_command(["mv", 
-        "%(dst)s" % {'dst': self.get_dst_prefix()}, 
-        "%(inst)s" % {'inst': self.build_path_of(installer_name)}])
+                        "%(dst)s" % {'dst': self.get_dst_prefix()}, 
+                        "%(inst)s" % {'inst': self.build_path_of(installer_name)}
+                        ])
         try:
             # --numeric-owner hides the username of the builder for
             # security etc.
             self.run_command(['tar', '-C', 
-        '%(dir)s' % {'dir': self.get_build_prefix()}, 
-        '--numeric-owner', '-cjf', 
-        '%(inst_path)s.tar.bz2' % {'inst_path':self.build_path_of(installer_name)}, 
-        '%(inst_name)s' % {'inst_name': installer_name }])
+                            '%(dir)s' % {'dir': self.get_build_prefix()}, 
+                            '--numeric-owner', '-cjf', 
+                            '%(inst_path)s.tar.bz2' % {'inst_path':self.build_path_of(installer_name)}, 
+                            '%(inst_name)s' % {'inst_name': installer_name }
+                            ])
         finally:
             self.run_command(["mv", 
-        "%(inst)s" % {'inst': self.build_path_of(installer_name)}, 
-        "%(dst)s" % {'dst': self.get_dst_prefix()}])
+                            "%(inst)s" % {'inst': self.build_path_of(installer_name)}, 
+                            "%(dst)s" % {'dst': self.get_dst_prefix()}
+                            ])
 
 class Linux_i686Manifest(LinuxManifest):
     def construct(self):
