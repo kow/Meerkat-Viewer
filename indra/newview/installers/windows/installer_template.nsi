@@ -689,7 +689,7 @@ lbl_check_silent:
     
 	; If we currently have a version of SL installed, default to the language of that install
     ; Otherwise don't change $LANGUAGE and it will default to the OS UI language.
-	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
+	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Open Metaverse Foundation\${INSTNAME}" "InstallerLanguage"
     IfErrors lbl_build_menu
 	StrCpy $LANGUAGE $0
 
