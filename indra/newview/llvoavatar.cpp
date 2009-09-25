@@ -1814,6 +1814,11 @@ BOOL LLVOAvatar::buildSkeleton(LLVOAvatarSkeletonInfo *info)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 
+	//this can get called with null info on startup sometimes
+	if (!info)
+		return FALSE;
+	
+
 	//-------------------------------------------------------------------------
 	// allocate joints
 	//-------------------------------------------------------------------------
