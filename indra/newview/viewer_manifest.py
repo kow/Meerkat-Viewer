@@ -33,7 +33,6 @@ import sys
 import os.path
 import re
 import tarfile
-import time
 
 viewer_dir = os.path.dirname(__file__)
 # add llmanifest library to our path so we don't have to muck with PYTHONPATH
@@ -157,8 +156,6 @@ class WindowsManifest(ViewerManifest):
             else:
                 return "MeerkatPreview.exe"
         else:
-            print ''.join(self.channel().split()) + '.exe'
-            time.sleep(10)
             return ''.join(self.channel().split()) + '.exe'
 
 
@@ -285,9 +282,9 @@ class WindowsManifest(ViewerManifest):
             if installed_dir != out_path:
                 if install:
                     out_path = installed_dir
-                    result += 'SetOutPath ' + out_path + '\n'
+                    result += 'SetOutPath ' + ' "' + out_path + '" ' + '\n'
             if install:
-                result += 'File ' + pkg_file + '\n'
+                result += 'File ' + ' "' + pkg_file +'" ' + '\n'
             else:
                 result += 'Delete ' + wpath(os.path.join('$INSTDIR', rel_file)) + '\n'
         # at the end of a delete, just rmdir all the directories
@@ -382,7 +379,7 @@ class WindowsManifest(ViewerManifest):
                 "%%INSTALL_FILES%%":self.nsi_file_commands(True),
                 "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
-        NSIS_path = r'"C:\\Program Files\\NSIS\\makensis.exe"'
+        NSIS_path = r'"C:\\Program Files\\NSIS\\Unicode\\makensis.exe"'
         self.run_command(NSIS_path + ' "' + self.dst_path_of(tempfile) + '" ')
         # self.remove(self.dst_path_of(tempfile))
         self.created_path(self.dst_path_of(installer_file))
