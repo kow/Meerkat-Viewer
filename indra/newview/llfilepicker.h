@@ -110,7 +110,7 @@ public:
 		FFSAVE_J2C = 12,
 		FFSAVE_PNG = 13,
 		FFSAVE_JPEG = 14,
-		FFSAVE_INV = 15,
+		FFSAVE_HPA = 15,
 		FFSAVE_TEXT = 16,
 	};
 
