@@ -594,7 +594,7 @@ version 2.0
 // global x,y,z.  Otherwise, use center of the AABB.
 // reliable
 {
-	PlacesReply Low 30 Trusted Zerocoded
+	PlacesReply Low 30 Trusted Zerocoded UDPDeprecated
 	{
 		AgentData		Single
 		{	AgentID		LLUUID		}
@@ -619,6 +619,7 @@ version 2.0
 		{	SnapshotID		LLUUID			}
 		{	Dwell			F32				}
 		{	Price			S32				}
+		//{	ProductSKU		Variable	1	}
 	}
 }
 
@@ -723,6 +724,10 @@ version 2.0
 		{	Auction			BOOL		}
 		{	Dwell			F32			}
 	}
+	{
+		StatusData            Variable
+		{	Status		U32		}
+	}
 }
 
 // DirPeopleReply
@@ -766,6 +771,10 @@ version 2.0
 		{	Date		Variable	1	}
 		{	UnixTime	U32				}
 		{	EventFlags	U32				}
+	}
+	{
+		StatusData Variable
+		{	Status		U32			}
 	}
 }
 
@@ -851,6 +860,10 @@ version 2.0
 		{	CreationDate	U32			}
 		{	ExpirationDate	U32			}
 		{	PriceForListing	S32			}
+	}
+	{
+		StatusData Variable
+		{	Status			U32		}
 	}
 }
 
@@ -1036,7 +1049,7 @@ version 2.0
 // dataserver -> simulator -> viewer
 // reliable
 {
-	DirLandReply Low 50 Trusted Zerocoded
+	DirLandReply Low 50 Trusted Zerocoded UDPDeprecated
 	{
 		AgentData			Single
 		{	AgentID			LLUUID	}
@@ -1053,6 +1066,7 @@ version 2.0
 		{	ForSale			BOOL		}
 		{	SalePrice		S32			}
 		{	ActualArea		S32			}
+		//{	ProductSKU		Variable 1	}
 	}
 }
 
@@ -1389,7 +1403,7 @@ version 2.0
 // called when all of the information has been collected and readied for 
 // the agent.
 {
-	TeleportFinish Low 69 Trusted Unencoded
+	TeleportFinish Low 69 Trusted Unencoded UDPBlackListed
 	{
 		Info		Single
 		{	AgentID			LLUUID			}
@@ -1465,7 +1479,7 @@ version 2.0
 	}
 }
 
-// TeleportFailed somehwere->sim->viewer
+// TeleportFailed somewhere->sim->viewer
 // announce failure of teleport request
 {
 	TeleportFailed Low 74 Trusted Unencoded
@@ -1473,6 +1487,11 @@ version 2.0
 		Info		Single
 		{	AgentID		LLUUID			}
 		{	Reason		Variable	1	}  // string
+	}
+	{
+		AlertInfo			Variable
+		{	Message			Variable	1	}	// string id
+		{	ExtraParams		Variable	1	}	// llsd extra parameters
 	}
 }
 
@@ -2589,6 +2608,10 @@ version 2.0
 		{	East			F32		}
 		{	North			F32		}
 	}
+	{
+		ModifyBlockExtended Variable
+		{   BrushSize       F32 }
+	}
 }
 
 
@@ -2806,6 +2829,11 @@ version 2.0
 		AlertData			Single
 		{	Message			Variable	1	}
 	}
+	{
+		AlertInfo			Variable
+		{	Message			Variable	1	}
+		{	ExtraParams		Variable	1	}
+	}
 }
 
 // Send an AlertMessage to the named agent.
@@ -2942,6 +2970,14 @@ version 2.0
 		{	UseEstateSun		BOOL		}
 		{	SunHour				F32			}	// last value set by estate or region controls JC
 	}
+	{
+		RegionInfo2		Single
+		{	ProductSKU			Variable 1	}	// string
+		{	ProductName			Variable 1	}	// string
+		{	MaxAgents32			U32			}	// Identical to RegionInfo.MaxAgents but allows greater range
+		{	HardMaxAgents		U32			}
+		{	HardMaxObjects		U32			}
+	}
 }
 
 // GodUpdateRegionInfo
@@ -3058,6 +3094,14 @@ version 2.0
 	{
 		RegionInfo2	Single
 		{	RegionID		LLUUID	}
+	}
+	{
+		RegionInfo3	Single
+		{	CPUClassID				S32		}
+		{	CPURatio				S32		}
+		{	ColoName				Variable	1	}	// string
+		{	ProductSKU				Variable	1	}	// string
+		{	ProductName				Variable	1	}	// string
 	}
 }
 
@@ -3296,7 +3340,7 @@ version 2.0
 // CrossedRegion - new way to tell a viewer it has gone across a region 
 // boundary
 {
-	CrossedRegion Medium 7 Trusted Unencoded
+	CrossedRegion Medium 7 Trusted Unencoded UDPBlackListed
 	{
 		AgentData		Single
 		{	AgentID			LLUUID	}
@@ -3334,7 +3378,7 @@ version 2.0
 // EnableSimulator - Preps a viewer to receive data from a simulator
 
 {
-	EnableSimulator Low 151 Trusted Unencoded
+	EnableSimulator Low 151 Trusted Unencoded UDPBlackListed
 	{
 		SimulatorInfo	Single
 		{	Handle		U64	}
@@ -8701,7 +8745,7 @@ version 2.0
 
 // spaceserver -> simulator
 {
-	RpcScriptRequestInboundForward Low 416 Trusted Unencoded
+	RpcScriptRequestInboundForward Low 416 Trusted Unencoded UDPDeprecated
 	{
 		DataBlock Single
 		{	RPCServerIP	IPADDR }
@@ -8851,5 +8895,42 @@ version 2.0
 		ObjectData		Variable
 		{	ObjectLocalID	U32		}
 		{	IncludeInSearch	BOOL	}
+	}
+}
+
+
+// This message is sent from viewer -> simulator when the viewer wants
+// to rez an object out of inventory back to its position before it
+// last moved into the inventory
+{
+	RezRestoreToWorld Low 425 NotTrusted Unencoded UDPDeprecated
+	{
+		AgentData		Single
+		{	AgentID		LLUUID  }
+		{	SessionID	LLUUID	}
+	}
+	{
+		InventoryData			Single
+		{	ItemID				LLUUID	}
+		{	FolderID			LLUUID	}
+		{	CreatorID			LLUUID	}	// permissions
+		{	OwnerID				LLUUID	}	// permissions
+		{	GroupID				LLUUID	}	// permissions
+		{	BaseMask			U32	}	// permissions
+		{	OwnerMask			U32	}	// permissions
+		{	GroupMask			U32	}	// permissions
+		{	EveryoneMask		U32	}	// permissions
+		{	NextOwnerMask		U32	}	// permissions
+		{	GroupOwned			BOOL	}	// permissions
+		{	TransactionID		LLUUID	}
+		{	Type				S8	}
+		{	InvType				S8	}
+		{	Flags				U32	}
+		{	SaleType			U8	}
+		{	SalePrice			S32	}
+		{	Name				Variable	1	}
+		{	Description			Variable	1	}
+		{	CreationDate		S32	}
+		{	CRC				U32	}
 	}
 }
