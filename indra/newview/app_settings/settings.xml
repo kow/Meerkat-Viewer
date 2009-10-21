@@ -1,6 +1,28 @@
 <?xml version="1.0" ?>
 <llsd>
-<map>
+  <map>
+    <key>InventorySearchType</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls what type of inventory search we perform.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowPartialSearchResults</key>
+    <map>
+      <key>Comment</key>
+      <string>Toggles whether to search using partial search filters on normal (name, desc, creator) searches.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>RestrainedLife</key>
   <map>
     <key>Comment</key>
@@ -4839,6 +4861,17 @@
       <key>Value</key>
       <integer>410</integer>
     </map>
+    <key>MiniMapPrimMaxRadius</key>
+    <map>
+      <key>Comment</key>
+      <string>Radius of the largest prim to show on the MiniMap. Increasing beyond 256 may cause client lag.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>256.0</real>
+    </map>
     <key>MiniMapRotate</key>
     <map>
       <key>Comment</key>
@@ -5903,6 +5936,17 @@
       <key>Value</key>
       <integer>35</integer>
     </map>
+    <key>RenderAvatarInvisible</key>
+    <map>
+      <key>Comment</key>
+      <string>Set your avatar as Invisible</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderAvatarVP</key>
     <map>
       <key>Comment</key>
@@ -5913,6 +5957,101 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+
+    <key>RenderShadowGaussian</key>
+    <map>
+      <key>Comment</key>
+      <string>Gaussian coefficients for the two shadow/SSAO blurring passes (z component unused).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>2.0</real>
+        <real>2.0</real>
+        <real>0.0</real>
+      </array>
+    </map>
+
+    <key>RenderShadowNearDist</key>
+    <map>
+      <key>Comment</key>
+      <string>Near clip plane of shadow camera (affects precision of depth shadows).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>256</real>
+        <real>256</real>
+        <real>256</real>
+      </array>
+    </map>
+    <key>RenderShadowClipPlanes</key>
+    <map>
+      <key>Comment</key>
+      <string>Near clip plane split distances for shadow map frusta.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>4.0</real>
+        <real>8.0</real>
+        <real>24.0</real>
+      </array>
+    </map>
+    <key>RenderSSAOScale</key>
+    <map>
+      <key>Comment</key>
+      <string>Scaling factor for the area to sample for occluders (pixels at 1 meter away, inversely varying with distance)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>500.0</real>
+    </map>
+    <key>RenderSSAOMaxScale</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum screen radius for sampling (pixels)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>60</integer>
+    </map>
+    <key>RenderSSAOFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Occlusion sensitivity factor for ambient occlusion (larger is more)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.30</real>
+    </map>
+    <key>RenderSSAOEffect</key>
+    <map>
+      <key>Comment</key>
+      <string>Multiplier for (1) value and (2) saturation (HSV definition), for areas which are totally occluded.  Blends with original color for partly-occluded areas.  (Third component is unused.)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>0.40</real>
+        <real>1.00</real>
+        <real>0.00</real>
+      </array>
     </map>
     <key>RenderBumpmapMinDistanceSquared</key>
     <map>
@@ -5980,6 +6119,61 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RenderDelayCreation</key>
+    <map>
+      <key>Comment</key>
+      <string>Throttle creation of drawables.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderAnimateRes</key>
+    <map>
+      <key>Comment</key>
+      <string>Animate rezing prims.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderAnimateTrees</key>
+    <map>
+      <key>Comment</key>
+      <string>Use GL matrix ops to animate tree branches.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderDeferredAlphaSoften</key>
+    <map>
+      <key>Comment</key>
+      <string>Scalar for softening alpha surfaces (for soft particles).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.75</real>
+    </map>
+    <key>RenderDeferredNoise</key>
+    <map>
+      <key>Comment</key>
+      <string>Noise scalar to hide banding in deferred render.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>4</real>
+    </map>
     <key>RenderDeferred</key>
     <map>
       <key>Comment</key>
@@ -5990,6 +6184,61 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>RenderDeferredSunShadow</key>
+    <map>
+      <key>Comment</key>
+      <string>Generate shadows from the sun.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>RenderDeferredSunWash</key>
+    <map>
+      <key>Comment</key>
+      <string>Amount local lights are washed out by sun.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
+    </map>
+    <key>RenderShadowNoise</key>
+    <map>
+      <key>Comment</key>
+      <string>Magnitude of noise on shadow samples.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>-0.0001</real>
+    </map>
+    <key>RenderShadowBlurSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Scale of shadow softening kernel.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.7</real>
+    </map>
+    <key>RenderShadowBlurSamples</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of samples to take for each pass of shadow blur (value range 1-16).  Actual number of samples is value * 2 - 1.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <real>5</real>
     </map>
     <key>RenderDynamicLOD</key>
     <map>
@@ -6307,6 +6556,17 @@
       <key>Value</key>
       <integer>4096</integer>
     </map>
+    <key>RenderMaxNodeSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum size of a single node's vertex data (in KB).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>4096</integer>
+    </map>
     <key>RenderMaxVBOSize</key>
     <map>
       <key>Comment</key>
@@ -6416,6 +6676,17 @@
       <string>U32</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>RenderShaderLightingMaxLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Max lighting level to use in the shader (class 3 is default, 2 is less lights, 1 is sun/moon only.  Works around shader compiler bugs on certain platforms.)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>3</integer>
     </map>
     <key>RenderShaderLODThreshold</key>
     <map>
@@ -7148,6 +7419,19 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShowAdultEvents</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of find events that are flagged as adult</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ShowMatureFindAll</key>
     <map>
       <key>Comment</key>
@@ -7443,7 +7727,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>default</string>
+      <string>meerkat</string>
     </map>
     <key>SkyAmbientScale</key>
     <map>
@@ -9577,6 +9861,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+     <key>RenderDelayVBUpdate</key>
+    <map>
+      <key>Comment</key>
+      <string>Delay vertex buffer updates until just before rendering</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>RenderDelayVBUpdate</key>
+    <map>
+      <key>Comment</key>
+      <string>Delay vertex buffer updates until just before rendering</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>UseStartScreen</key>
     <map>
       <key>Comment</key>
@@ -10540,21 +10846,19 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
-  <key>KeepAppearance</key>
+  <key>WarnConfirmQuit</key>
   <map>
     <key>Comment</key>
-    <string>Keep appearance across grid teleport</string>
-    <key>Persist</key>
-    <integer>1</integer>
+    <string>Enables ConfirmQuit warning dialog</string>
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <string>0</string>
+    <integer>0</integer>
   </map>
-  <key>CheckForGridUpdates</key>
+  <key>ExportTGATextures</key>
   <map>
     <key>Comment</key>
-    <string>Check for grid info updates on the web server</string>
+    <string>Export TGA Textures during prim backup</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -10562,20 +10866,47 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
-  <key>FloaterPrimImport</key>
+  <key>ExportJ2CTextures</key>
   <map>
     <key>Comment</key>
-    <string>Rectangle for import/export</string>
+    <string>Export J2C Textures during prim backup</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>FloaterPrimExport</key>
+  <map>
+    <key>Comment</key>
+    <string>Export floater position/size</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Rect</string>
     <key>Value</key>
     <array>
-      <integer>0</integer>
-      <integer>25</integer>
-      <integer>400</integer>
-      <integer>0</integer>
+      <integer>20</integer>
+      <integer>220</integer>
+      <integer>360</integer>
+      <integer>70</integer>
+    </array>
+  </map>
+  <key>FloaterPrimImport</key>
+  <map>
+    <key>Comment</key>
+    <string>Export floater position/size</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Rect</string>
+    <key>Value</key>
+    <array>
+      <integer>20</integer>
+      <integer>220</integer>
+      <integer>360</integer>
+      <integer>70</integer>
     </array>
   </map>
   <key>MeerkatDoubleClickTeleport</key>
@@ -11748,5 +12079,38 @@
     <key>Value</key>
     <real>40</real>
   </map>
+      <key>LogTextureDownloadsToViewerLog</key>
+    <map>
+      <key>Comment</key>
+      <string>Send texture download details to the viewer log</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>LogTextureDownloadsToSimulator</key>
+    <map>
+      <key>Comment</key>
+      <string>Send a digest of texture info to the sim</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TextureLoggingThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies the byte threshold at which texture download data should be sent to the sim.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
 </map>
 </llsd>
