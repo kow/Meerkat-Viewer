@@ -5,7 +5,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -18,7 +18,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -58,6 +59,7 @@ class LLCheckBoxCtrl;
 class LLSpinCtrl;
 class LLScrollableContainerView;
 class LLTextBox;
+class LLComboBox;
 class LLIconCtrl;
 class LLSaveFolderState;
 class LLSearchEditor;
@@ -108,6 +110,9 @@ public:
 	U32 getFilterPermMask() const { return mFolders->getFilterPermissions(); }
 	void setFilterSubString(const std::string& string);
 	const std::string getFilterSubString() { return mFolders->getFilterSubString(); }
+	void setFilterWorn(bool worn);
+	bool getFilterWorn() const { return mFolders->getFilterWorn(); }
+
 	void setSortOrder(U32 order);
 	U32 getSortOrder() { return mFolders->getSortOrder(); }
 	void setSinceLogoff(BOOL sl);
@@ -269,6 +274,10 @@ public:
 	static void onFoldersByName(void *user_data);
 	static BOOL checkFoldersByName(void *user_data);
 	static void onSearchEdit(const std::string& search_string, void* user_data );
+
+    static void onQuickFilterCommit(LLUICtrl* ctrl, void* user_data);
+    static void refreshQuickFilter(LLUICtrl* ctrl);
+
 	static void onFilterSelected(void* userdata, bool from_click);
 	static void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action, void* data);
 
@@ -289,6 +298,7 @@ protected:
 
 protected:
 	LLSearchEditor*				mSearchEditor;
+	LLComboBox*						mQuickFilterCombo;
 	LLTabContainer*				mFilterTabs;
 	LLHandle<LLFloater>				mFinderHandle;
 	LLInventoryPanel*			mActivePanel;

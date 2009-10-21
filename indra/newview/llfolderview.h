@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -194,6 +195,9 @@ public:
 	void setFilterSubString(const std::string& string);
 	const std::string getFilterSubString(BOOL trim = FALSE);
 
+	void setFilterWorn(bool worn) { mFilterWorn = worn; }
+	bool getFilterWorn() const { return mFilterWorn; }
+
 	void setFilterPermissions(PermissionMask perms);
 	PermissionMask getFilterPermissions() const { return mFilterOps.mPermissions; }
 
@@ -255,6 +259,7 @@ protected:
 	filter_ops		mDefaultFilterOps;
 	std::string::size_type	mSubStringMatchOffset;
 	std::string		mFilterSubString;
+	bool			mFilterWorn;
 	U32				mOrder;
 	const std::string	mName;
 	S32				mFilterGeneration;
@@ -332,6 +337,16 @@ protected:
 
 	std::string					mLabel;
 	std::string					mSearchableLabel;
+
+	std::string					mLabelCreator;
+	std::string					mSearchableLabelCreator;
+
+	std::string					mLabelDesc;
+	std::string					mSearchableLabelDesc;
+
+	std::string					mLabelAll;
+	std::string					mSearchableLabelAll;
+
 	std::string					mType;
 	S32							mLabelWidth;
 	U32							mCreationDate;
@@ -458,7 +473,7 @@ public:
 	// viewed. This method will ask the viewed object itself.
 	const std::string& getName( void ) const;
 
-	const std::string& getSearchableLabel( void ) const;
+	const std::string& getSearchableLabel( U32 search_type ) const;
 
 	// This method returns the label displayed on the view. This
 	// method was primarily added to allow sorting on the folder
@@ -743,6 +758,7 @@ public:
 
 	LLInventoryFilter* getFilter() { return &mFilter; }
 	const std::string getFilterSubString(BOOL trim = FALSE);
+	bool getFilterWorn() const { return mFilter.getFilterWorn(); }
 	U32 getFilterTypes() const { return mFilter.getFilterTypes(); }
 	PermissionMask getFilterPermissions() const { return mFilter.getFilterPermissions(); }
 	LLInventoryFilter::EFolderShow getShowFolderState() { return mFilter.getShowFolderState(); }
