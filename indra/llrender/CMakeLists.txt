@@ -9,6 +9,7 @@ include(LLImage)
 include(LLMath)
 include(LLRender)
 include(LLWindow)
+include(LLXML)
 
 include_directories(
     ${FREETYPE_INCLUDE_DIRS}

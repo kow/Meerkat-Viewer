@@ -206,7 +206,7 @@ void LLFloaterAuction::onClickSnapshot(void* data)
 
 		self->mImage = new LLImageGL((LLImageRaw*)raw, FALSE);
 		gGL.getTexUnit(0)->bind(self->mImage);
-		self->mImage->setClamp(TRUE, TRUE);
+		self->mImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	else
 	{

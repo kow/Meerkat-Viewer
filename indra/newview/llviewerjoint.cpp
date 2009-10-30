@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -241,8 +242,10 @@ void LLViewerJoint::setValid( BOOL valid, BOOL recursive )
 //--------------------------------------------------------------------
 // render()
 //--------------------------------------------------------------------
-U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass )
+U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
 {
+	stop_glerror();
+
 	U32 triangle_count = 0;
 
 	//----------------------------------------------------------------
@@ -256,9 +259,13 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass )
 		// if object is transparent, defer it, otherwise
 		// give the joint subclass a chance to draw itself
 		//----------------------------------------------------------------
-		if ( gRenderForSelect )
+		if ( gRenderForSelect || is_dummy )
 		{
-			triangle_count += drawShape( pixelArea, first_pass );
+			triangle_count += drawShape( pixelArea, first_pass, is_dummy );
+		}
+		else if (LLPipeline::sShadowRender)
+		{
+			triangle_count += drawShape(pixelArea, first_pass, is_dummy );
 		}
 		else if ( isTransparent() && !LLPipeline::sReflectionRender)
 		{
@@ -270,18 +277,18 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass )
 				// first pass renders without writing to the z buffer
 				{
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-					triangle_count += drawShape( pixelArea, first_pass);
+					triangle_count += drawShape( pixelArea, first_pass, is_dummy );
 				}
 				// second pass writes to z buffer only
 				gGL.setColorMask(false, false);
 				{
-					triangle_count += drawShape( pixelArea, FALSE );
+					triangle_count += drawShape( pixelArea, FALSE, is_dummy  );
 				}
 				// third past respects z buffer and writes color
 				gGL.setColorMask(true, false);
 				{
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-					triangle_count += drawShape( pixelArea, FALSE );
+					triangle_count += drawShape( pixelArea, FALSE, is_dummy  );
 				}
 			}
 			else
@@ -290,12 +297,12 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass )
 				glCullFace(GL_FRONT);
 				{
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-					triangle_count += drawShape( pixelArea, first_pass );
+					triangle_count += drawShape( pixelArea, first_pass, is_dummy  );
 				}
 				// Render Outside (write to the Z buffer)
 				glCullFace(GL_BACK);
 				{
-					triangle_count += drawShape( pixelArea, FALSE );
+					triangle_count += drawShape( pixelArea, FALSE, is_dummy  );
 				}
 			}
 		}
@@ -316,7 +323,7 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass )
 		F32 jointLOD = joint->getLOD();
 		if (pixelArea >= jointLOD || sDisableLOD)
 		{
-			triangle_count += joint->render( pixelArea );
+			triangle_count += joint->render( pixelArea, TRUE, is_dummy );
 
 			if (jointLOD != DEFAULT_LOD)
 			{
@@ -397,7 +404,7 @@ BOOL LLViewerJoint::isTransparent()
 //--------------------------------------------------------------------
 // drawShape()
 //--------------------------------------------------------------------
-U32 LLViewerJoint::drawShape( F32 pixelArea, BOOL first_pass )
+U32 LLViewerJoint::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
 {
 	return 0;
 }
@@ -507,6 +514,16 @@ void LLViewerJoint::setVisible(BOOL visible, BOOL recursive)
 	}
 }
 
+
+void LLViewerJoint::setMeshesToChildren()
+{
+	removeAllChildren();
+	for (std::vector<LLViewerJointMesh*>::iterator iter = mMeshParts.begin();
+		iter != mMeshParts.end(); iter++)
+	{
+		addChild((LLViewerJointMesh *) *iter);
+	}
+}
 //-----------------------------------------------------------------------------
 // LLViewerJointCollisionVolume()
 //-----------------------------------------------------------------------------
@@ -524,14 +541,69 @@ LLViewerJointCollisionVolume::LLViewerJointCollisionVolume(const std::string &na
 void LLViewerJointCollisionVolume::renderCollision()
 {
 	updateWorldMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+	
+	gGL.pushMatrix();
 	glMultMatrixf( &mXform.getWorldMatrix().mMatrix[0][0] );
 
-	glColor3f( 0.f, 0.f, 1.f );
-	gSphere.render();
+	gGL.color3f( 0.f, 0.f, 1.f );
+	
+	gGL.begin(LLRender::LINES);
+	
+	LLVector3 v[] = 
+	{
+		LLVector3(1,0,0),
+		LLVector3(-1,0,0),
+		LLVector3(0,1,0),
+		LLVector3(0,-1,0),
 
-	glPopMatrix();
+		LLVector3(0,0,-1),
+		LLVector3(0,0,1),
+	};
+
+	//sides
+	gGL.vertex3fv(v[0].mV); 
+	gGL.vertex3fv(v[2].mV);
+
+	gGL.vertex3fv(v[0].mV); 
+	gGL.vertex3fv(v[3].mV);
+
+	gGL.vertex3fv(v[1].mV); 
+	gGL.vertex3fv(v[2].mV);
+
+	gGL.vertex3fv(v[1].mV); 
+	gGL.vertex3fv(v[3].mV);
+
+
+	//top
+	gGL.vertex3fv(v[0].mV); 
+	gGL.vertex3fv(v[4].mV);
+
+	gGL.vertex3fv(v[1].mV); 
+	gGL.vertex3fv(v[4].mV);
+
+	gGL.vertex3fv(v[2].mV); 
+	gGL.vertex3fv(v[4].mV);
+
+	gGL.vertex3fv(v[3].mV); 
+	gGL.vertex3fv(v[4].mV);
+
+
+	//bottom
+	gGL.vertex3fv(v[0].mV); 
+	gGL.vertex3fv(v[5].mV);
+
+	gGL.vertex3fv(v[1].mV); 
+	gGL.vertex3fv(v[5].mV);
+
+	gGL.vertex3fv(v[2].mV); 
+	gGL.vertex3fv(v[5].mV);
+
+	gGL.vertex3fv(v[3].mV); 
+	gGL.vertex3fv(v[5].mV);
+
+	gGL.end();
+
+	gGL.popMatrix();
 }
 
 LLVector3 LLViewerJointCollisionVolume::getVolumePos(LLVector3 &offset)

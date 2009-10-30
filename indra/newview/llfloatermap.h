@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -36,35 +37,29 @@
 
 class LLNetMap;
 
-//
-// Classes
-//
-class LLFloaterMap
-:	public LLFloater
+class LLFloaterMap :
+	public LLFloater,
+	public LLFloaterSingleton<LLFloaterMap>
 {
+	friend class LLUISingleton<LLFloaterMap, VisibilityPolicy<LLFloater> >;
 public:
-	LLFloaterMap(const std::string& name);
 	virtual ~LLFloaterMap();
 
-	static void		toggle(void*);
+	static void* createPanelMiniMap(void* data);
 
-	/*virtual*/ void	setVisible(BOOL visible);
+	BOOL postBuild();
+
 	/*virtual*/ void	draw();
+	/*virtual*/ void	onOpen();
 	/*virtual*/ void	onClose(bool app_quitting);
 	/*virtual*/ BOOL	canClose();
-// [RLVa:KB] - Version: 1.22.11 | Checked: 2009-07-05 (RLVa-1.0.0c)
+// [RLVa:KB] - Version: 1.23.4 | Checked: 2009-07-05 (RLVa-1.0.0c)
     /*virtual*/ void    open();
 // [/RLVa:KB]
 
-protected:
-	LLNetMap*		mMap;
+private:
+	LLFloaterMap(const LLSD& key = LLSD());
+	LLNetMap*		mPanelMap;
 };
-
-
-//
-// Globals
-//
-
-extern LLFloaterMap *gFloaterMap;
 
 #endif  // LL_LLFLOATERMAP_H

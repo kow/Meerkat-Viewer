@@ -537,6 +537,19 @@ namespace LLStringFn
 	 * Works with US ASCII and UTF-8 encoded strings.  JC
 	 */
 	std::string strip_invalid_xml(const std::string& input);
+
+
+	/**
+	 * @brief Replace all control characters (0 <= c < 0x20) with replacement in
+	 * string.   This is safe for utf-8
+	 *
+	 * @param [in,out] string the to modify. out value is the string
+	 * with zero non-printable characters.
+	 * @param The replacement character. use LL_UNKNOWN_CHAR if unsure.
+	 */
+	void replace_ascii_controlchars(
+		std::basic_string<char>& string,
+		char replacement);
 }
 
 ////////////////////////////////////////////////////////////

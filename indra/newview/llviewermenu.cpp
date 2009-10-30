@@ -212,8 +212,8 @@
 
 #include "lltexlayer.h"
 
-#include "primbackup.h"
 
+using namespace LLVOAvatarDefines;
 void init_client_menu(LLMenuGL* menu);
 void init_server_menu(LLMenuGL* menu);
 
@@ -1304,7 +1304,7 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	item = new LLMenuItemCheckGL("Disable Textures", menu_toggle_variable, NULL, menu_check_variable, (void*)&LLViewerImage::sDontLoadVolumeTextures);
 	menu->append(item);
 	
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if 1 //ndef LL_RELEASE_FOR_DOWNLOAD
 	item = new LLMenuItemCheckGL("HTTP Get Textures", menu_toggle_control, NULL, menu_check_control, (void*)"ImagePipelineUseHTTP");
 	menu->append(item);
 #endif
@@ -1334,8 +1334,6 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	
 	menu->createJumpKeys();
 }
-
-extern BOOL gDebugAvatarRotation;
 
 void init_debug_avatar_menu(LLMenuGL* menu)
 {
@@ -1371,9 +1369,9 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemCallGL("Reload Vertex Shader", &reload_vertex_shader, NULL));
 	menu->append(new LLMenuItemToggleGL("Animation Info", &LLVOAvatar::sShowAnimationDebug));
 	menu->append(new LLMenuItemCallGL("Slow Motion Animations", &slow_mo_animations, NULL));
-	menu->append(new LLMenuItemToggleGL("Show 'Look At' Beacons", &LLHUDEffectLookAt::sDebugLookAt));
-	menu->append(new LLMenuItemCheckGL( "Show Joint Beacons", menu_toggle_control, NULL, menu_check_control, (void*)"MeerkatJointBeacons"));
-	menu->append(new LLMenuItemCheckGL( "Show Attachment Beacons",	menu_toggle_control, NULL, menu_check_control, (void*)"MeerkatAttachmentBeacons"));
+	menu->append(new LLMenuItemCheckGL( "Show 'Look At' Beacons",	&menu_toggle_control, NULL, &menu_check_control, (void*)"_GEMINI_ShowLookAt"));
+	menu->append(new LLMenuItemCheckGL( "Show Joint Beacons",	menu_toggle_control, NULL, &menu_check_control, (void*)"MeerkatJointBeacons"));
+	menu->append(new LLMenuItemCheckGL( "Show Attachment Beacons",	menu_toggle_control, NULL, &menu_check_control, (void*)"MeerkatAttachmentBeacons"));
 	menu->append(new LLMenuItemToggleGL("Show Point At", &LLHUDEffectPointAt::sDebugPointAt));
 	menu->append(new LLMenuItemToggleGL("Debug Joint Updates", &LLVOAvatar::sJointDebug));
 	menu->append(new LLMenuItemToggleGL("Disable LOD", &LLViewerJoint::sDisableLOD));
@@ -1381,9 +1379,15 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 	//menu->append(new LLMenuItemToggleGL("Show Attachment Points", &LLVOAvatar::sShowAttachmentPoints));
 	//diabling collision plane due to DEV-14477 -brad
 	//menu->append(new LLMenuItemToggleGL("Show Collision Plane", &LLVOAvatar::sShowFootPlane));
-	menu->append(new LLMenuItemToggleGL("Show Collision Skeleton", &LLVOAvatar::sShowCollisionVolumes));
-	menu->append(new LLMenuItemToggleGL( "Display Agent Target", &LLAgent::sDebugDisplayTarget));
-	menu->append(new LLMenuItemToggleGL( "Debug Rotation", &gDebugAvatarRotation));
+	menu->append(new LLMenuItemCheckGL("Show Collision Skeleton",
+									   &LLPipeline::toggleRenderDebug, NULL,
+									   &LLPipeline::toggleRenderDebugControl,
+									   (void*)LLPipeline::RENDER_DEBUG_AVATAR_VOLUME));
+	menu->append(new LLMenuItemCheckGL("Display Agent Target",
+									   &LLPipeline::toggleRenderDebug, NULL,
+									   &LLPipeline::toggleRenderDebugControl,
+									   (void*)LLPipeline::RENDER_DEBUG_AGENT_TARGET));
+	menu->append(new LLMenuItemToggleGL( "Debug Rotation", &LLVOAvatar::sDebugAvatarRotation));
 	menu->append(new LLMenuItemCallGL("Dump Attachments", handle_dump_attachments));
 	menu->append(new LLMenuItemCallGL("Rebake Textures", handle_rebake_textures, NULL, NULL, 'R', MASK_ALT | MASK_CONTROL ));
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -1395,11 +1399,12 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 
 void init_debug_baked_texture_menu(LLMenuGL* menu)
 {
-	menu->append(new LLMenuItemCallGL("Iris", handle_grab_texture, enable_grab_texture, (void*) LLVOAvatar::TEX_EYES_BAKED));
-	menu->append(new LLMenuItemCallGL("Head", handle_grab_texture, enable_grab_texture, (void*) LLVOAvatar::TEX_HEAD_BAKED));
-	menu->append(new LLMenuItemCallGL("Upper Body", handle_grab_texture, enable_grab_texture, (void*) LLVOAvatar::TEX_UPPER_BAKED));
-	menu->append(new LLMenuItemCallGL("Lower Body", handle_grab_texture, enable_grab_texture, (void*) LLVOAvatar::TEX_LOWER_BAKED));
-	menu->append(new LLMenuItemCallGL("Skirt", handle_grab_texture, enable_grab_texture, (void*) LLVOAvatar::TEX_SKIRT_BAKED));
+	menu->append(new LLMenuItemCallGL("Iris", handle_grab_texture, enable_grab_texture, (void*) TEX_EYES_BAKED));
+	menu->append(new LLMenuItemCallGL("Head", handle_grab_texture, enable_grab_texture, (void*) TEX_HEAD_BAKED));
+	menu->append(new LLMenuItemCallGL("Upper Body", handle_grab_texture, enable_grab_texture, (void*) TEX_UPPER_BAKED));
+	menu->append(new LLMenuItemCallGL("Lower Body", handle_grab_texture, enable_grab_texture, (void*) TEX_LOWER_BAKED));
+	menu->append(new LLMenuItemCallGL("Skirt", handle_grab_texture, enable_grab_texture, (void*) TEX_SKIRT_BAKED));
+	menu->append(new LLMenuItemCallGL("Hair", handle_grab_texture, enable_grab_texture, (void*) TEX_HAIR_BAKED));
 	menu->createJumpKeys();
 }
 
@@ -2353,7 +2358,7 @@ class LLObjectExport : public view_listener_t
 
 		if (!avatar)
 		{
-			primbackup::getInstance()->pre_export_object();
+//			FloaterExport::getInstance()->pre_export_object();
 		}
 
 		return true;
@@ -2374,7 +2379,7 @@ class LLObjectImport : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		primbackup::getInstance()->import_object(FALSE);
+//		primbackup::getInstance()->import_object(FALSE);
 		return true;
 	}
 };
@@ -2383,7 +2388,7 @@ class LLObjectImportUpload : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		primbackup::getInstance()->import_object(TRUE);
+//		primbackup::getInstance()->import_object(TRUE);
 		return true;
 	}
 };
@@ -3035,9 +3040,8 @@ void set_god_level(U8 god_level)
 	// Some classifieds change visibility on god mode
 	LLFloaterDirectory::requestClassifieds();
 
-	// God mode changes sim visibility
-	LLWorldMap::getInstance()->reset();
-	LLWorldMap::getInstance()->setCurrentLayer(0);
+	// God mode changes region visibility
+	LLWorldMap::getInstance()->reloadItems(true);
 
 	// inventory in items may change in god mode
 	gObjectList.dirtyAllObjectInventory();
@@ -3240,12 +3244,10 @@ class LLEditEnableCustomizeAvatar : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLVOAvatar* avatar = gAgent.getAvatarObject();
-
-		bool enabled = ((avatar && avatar->isFullyLoaded()) &&
-				   (gAgent.getWearablesLoaded()));
-
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(enabled);
+		bool new_value = (gAgent.getAvatarObject() && 
+						  gAgent.getAvatarObject()->isFullyLoaded() &&
+						  gAgent.areWearablesLoaded());
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
 };
@@ -5200,22 +5202,6 @@ void toggle_debug_menus(void*)
 }
 
 
-void toggle_map( void* user_data )
-{
-	// Toggle the item
-	BOOL checked = gSavedSettings.getBOOL( static_cast<char*>(user_data) );
-	gSavedSettings.setBOOL( static_cast<char*>(user_data), !checked );
-	if (checked)
-	{
-		gFloaterMap->close();
-	}
-	else
-	{
-		gFloaterMap->open();		/* Flawfinder: ignore */	
-	}
-}
-
-
 // LLUUID gExporterRequestID;
 // std::string gExportDirectory;
 
@@ -5708,7 +5694,7 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "appearance")
 		{
-			if (gAgent.getWearablesLoaded())
+			if (gAgent.areWearablesLoaded())
 			{
 				gAgent.changeCameraToCustomizeAvatar();
 			}
@@ -5759,7 +5745,7 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "mini map")
 		{
-			LLFloaterMap::toggle(NULL);
+			LLFloaterMap::toggleInstance();
 		}
 		else if (floater_name == "stat bar")
 		{
@@ -6849,7 +6835,13 @@ void handle_selected_texture_info(void*)
 			S32 height = img->getHeight();
 			S32 width = img->getWidth();
 			S32 components = img->getComponents();
-			msg = llformat("%dx%d %s on face ",
+			std::string image_id_string;
+ 			if (gAgent.isGodlike())
+ 			{
+ 				image_id_string = image_id.asString() + " ";
+ 			}
+ 			msg = llformat("%s%dx%d %s on face ",
+ 								image_id_string.c_str(),
 								width,
 								height,
 								(components == 4 ? "alpha" : "opaque"));
@@ -7525,7 +7517,7 @@ void handle_debug_avatar_textures(void*)
 
 void handle_grab_texture(void* data)
 {
-	LLVOAvatar::ETextureIndex index = (LLVOAvatar::ETextureIndex)((intptr_t)data);
+	ETextureIndex index = (ETextureIndex)((intptr_t)data);
 	LLVOAvatar* avatar = gAgent.getAvatarObject();
 	if ( avatar )
 	{
@@ -7539,20 +7531,23 @@ void handle_grab_texture(void* data)
 			std::string name = "Baked ";
 			switch (index)
 			{
-			case LLVOAvatar::TEX_EYES_BAKED:
+			case TEX_EYES_BAKED:
 				name.append("Iris");
 				break;
-			case LLVOAvatar::TEX_HEAD_BAKED:
+			case TEX_HEAD_BAKED:
 				name.append("Head");
 				break;
-			case LLVOAvatar::TEX_UPPER_BAKED:
+			case TEX_UPPER_BAKED:
 				name.append("Upper Body");
 				break;
-			case LLVOAvatar::TEX_LOWER_BAKED:
+			case TEX_LOWER_BAKED:
 				name.append("Lower Body");
 				break;
-			case LLVOAvatar::TEX_SKIRT_BAKED:
+			case TEX_SKIRT_BAKED:
 				name.append("Skirt");
+				break;
+			case TEX_HAIR_BAKED:
+				name.append("Hair");
 				break;
 			default:
 				name.append("Unknown");
@@ -7615,7 +7610,7 @@ void handle_grab_texture(void* data)
 
 BOOL enable_grab_texture(void* data)
 {
-	LLVOAvatar::ETextureIndex index = (LLVOAvatar::ETextureIndex)((intptr_t)data);
+	ETextureIndex index = (ETextureIndex)((intptr_t)data);
 	LLVOAvatar* avatar = gAgent.getAvatarObject();
 	if ( avatar )
 	{

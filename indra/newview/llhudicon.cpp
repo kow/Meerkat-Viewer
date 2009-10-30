@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 
- * Copyright (c) 2006-2008, Linden Research, Inc.
+ * Copyright (c) 2006-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -183,7 +184,7 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 void LLHUDIcon::setImage(LLViewerImage* imagep)
 {
 	mImagep = imagep;
-	mImagep->setClamp(TRUE, TRUE);
+	mImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
 
 void LLHUDIcon::setScale(F32 fraction_of_fov)
@@ -316,7 +317,7 @@ LLHUDIcon* LLHUDIcon::handlePick(S32 pick_id)
 	return NULL;
 }
 
- //static
+//static
 LLHUDIcon* LLHUDIcon::lineSegmentIntersectAll(const LLVector3& start, const LLVector3& end, LLVector3* intersection)
 {
 	icon_instance_t::iterator icon_it;

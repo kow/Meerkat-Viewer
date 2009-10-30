@@ -4076,7 +4076,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 
 	avatarp->mSignaledAnimations.clear();
 	
-	if (avatarp->mIsSelf)
+	if (avatarp->isSelf())
 	{
 		LLUUID object_id;
 
@@ -5240,7 +5240,7 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 	gAgent.slamLookAt(look_at);
 
 	// likewise make sure the camera is behind the avatar
-	gAgent.resetView(TRUE);
+	gAgent.resetView(TRUE, TRUE);
 
 	// send camera update to new region
 	gAgent.updateCamera();

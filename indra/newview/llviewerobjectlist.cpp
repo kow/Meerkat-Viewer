@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -74,10 +75,11 @@
 
 #include "llappviewer.h"
 
-#include "primbackup.h"
-
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
+
+#include "importtracker.h"
+extern ImportTracker gImportTracker;
 
 void dialog_refresh_all();
 
@@ -165,15 +167,37 @@ U64 LLViewerObjectList::getIndex(const U32 local_id,
 
 BOOL LLViewerObjectList::removeFromLocalIDTable(const LLViewerObject &object)
 {
-	U32 local_id = object.mLocalID;
-	LLHost region_host = object.getRegion()->getHost();
-	U32 ip = region_host.getAddress();
-	U32 port = region_host.getPort();
-	U64 ipport = (((U64)ip) << 32) | (U64)port;
-	U32 index = sIPAndPortToIndex[ipport];
-
-	U64	indexid = (((U64)index) << 32) | (U64)local_id;
-	return sIndexAndLocalIDToUUID.erase(indexid) > 0 ? TRUE : FALSE;
+	if(object.getRegion())
+	{
+		U32 local_id = object.mLocalID;
+		LLHost region_host = object.getRegion()->getHost();
+		U32 ip = region_host.getAddress();
+		U32 port = region_host.getPort();
+		U64 ipport = (((U64)ip) << 32) | (U64)port;
+		U32 index = sIPAndPortToIndex[ipport];
+		
+		// llinfos << "Removing object from table, local ID " << local_id << ", ip " << ip << ":" << port << llendl;
+		
+		U64	indexid = (((U64)index) << 32) | (U64)local_id;
+		
+		std::map<U64, LLUUID>::iterator iter = sIndexAndLocalIDToUUID.find(indexid);
+		if (iter == sIndexAndLocalIDToUUID.end())
+		{
+			return FALSE;
+		}
+		
+		// Found existing entry
+		if (iter->second == object.getID())
+		{   // Full UUIDs match, so remove the entry
+			sIndexAndLocalIDToUUID.erase(iter);
+			return TRUE;
+		}
+		// UUIDs did not match - this would zap a valid entry, so don't erase it
+		//llinfos << "Tried to erase entry where id in table (" 
+		//		<< iter->second	<< ") did not match object " << object.getID() << llendl;
+	}
+	
+	return FALSE ;
 }
 
 void LLViewerObjectList::setUUIDAndLocal(const LLUUID &id,
@@ -194,6 +218,9 @@ void LLViewerObjectList::setUUIDAndLocal(const LLUUID &id,
 	U64	indexid = (((U64)index) << 32) | (U64)local_id;
 
 	sIndexAndLocalIDToUUID[indexid] = id;
+	
+	//llinfos << "Adding object to table, full ID " << id
+	//	<< ", local ID " << local_id << ", ip " << ip << ":" << port << llendl;
 }
 
 S32 gFullObjectUpdates = 0;
@@ -219,11 +246,6 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 
 	updateActive(objectp);
 
-	if(!just_created)
-		primbackup::getInstance()->prim_update(objectp);
-	
-
-
 	if (just_created) 
 	{
 		gPipeline.addObject(objectp);
@@ -237,6 +259,20 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	// so that the drawable parent is set properly
 	findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
 	
+	LLVector3 pScale=objectp->getScale();
+	if(objectp->permYouOwner())
+	{
+		if(objectp->permModify() && objectp->permCopy() && objectp->permTransfer())
+		{
+			if (gImportTracker.getState() != ImportTracker::IDLE && objectp)
+			{
+				if((gImportTracker.getState() == ImportTracker::WAND && just_created && objectp->mCreateSelected) || (pScale.mV[VX] == 0.52345f && pScale.mV[VY] == 0.52346f && pScale.mV[VZ] == 0.52347f
+					&& gImportTracker.getState() == ImportTracker::BUILDING))
+				gImportTracker.get_update(objectp->mLocalID, just_created, objectp->mCreateSelected);
+			}
+		}
+	}
+
 	// If we're just wandering around, don't create new objects selected.
 	if (just_created 
 		&& update_type != OUT_TERSE_IMPROVED 
@@ -244,8 +280,8 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	{
 		if ( LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance() )
 		{
-			//llinfos << "DEBUG selecting " << objectp->mID << " " 
-			//		<< objectp->mLocalID << llendl;
+			// llinfos << "DEBUG selecting " << objectp->mID << " " 
+			// << objectp->mLocalID << llendl;
 			LLSelectMgr::getInstance()->selectObjectAndFamily(objectp);
 			dialog_refresh_all();
 		}
@@ -253,9 +289,6 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 		objectp->mCreateSelected = false;
 		gViewerWindow->getWindow()->decBusyCount();
 		gViewerWindow->getWindow()->setCursor( UI_CURSOR_ARROW );
-
-		primbackup::getInstance()->newprim(objectp);
-
 	}
 }
 
@@ -292,7 +325,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		{
 			size = mesgsys->getReceiveSize();
 		}
-//		llinfos << "Received terse " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
+		// llinfos << "Received terse " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
 	}
 	else
 	{
@@ -306,7 +339,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			size = mesgsys->getReceiveSize();
 		}
 
-//		llinfos << "Received " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
+		// llinfos << "Received " << num_objects << " in " << size << " byte (" << size/num_objects << ")" << llendl;
 		gFullObjectUpdates += num_objects;
 	}
 
@@ -316,7 +349,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 
 	if (!regionp)
 	{
-		llwarns << "Object update from unknown region!" << llendl;
+		llwarns << "Object update from unknown region! " << region_handle << llendl;
 		return;
 	}
 
@@ -355,7 +388,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			U8							compbuffer[2048];
 			S32							uncompressed_length = 2048;
 			S32							compressed_length;
-			
 			compressed_dp.reset();
 
 			U32 flags = 0;
@@ -396,7 +428,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 								 gMessageSystem->getSenderPort());
 				if (fullid.isNull())
 				{
-					//llwarns << "update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << llendl;
+					// llwarns << "update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << ":" << gMessageSystem->getSenderPort() << llendl;
 					mNumUnknownUpdates++;
 				}
 			}
@@ -410,7 +442,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 							gMessageSystem->getSenderPort());
 			if (fullid.isNull())
 			{
-				//llwarns << "update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << llendl;
+				// llwarns << "update for unknown localid " << local_id << " host " << gMessageSystem->getSender() << llendl;
 				mNumUnknownUpdates++;
 			}
 		}
@@ -418,19 +450,43 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		{
 			mesgsys->getUUIDFast(_PREHASH_ObjectData, _PREHASH_FullID, fullid, i);
 			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
-		//	llinfos << "Full Update, obj " << local_id << ", global ID" << fullid << "from " << mesgsys->getSender() << llendl;
+			// llinfos << "Full Update, obj " << local_id << ", global ID" << fullid << "from " << mesgsys->getSender() << llendl;
 		}
 		objectp = findObject(fullid);
 
 		// This looks like it will break if the local_id of the object doesn't change
 		// upon boundary crossing, but we check for region id matching later...
-		if (objectp && (objectp->mLocalID != local_id))
+		// Reset object local id and region pointer if things have changed
+		if (objectp && 
+			((objectp->mLocalID != local_id) ||
+			 (objectp->getRegion() != regionp)))
 		{
+			//if (objectp->getRegion())
+			//{
+			//	llinfos << "Local ID change: Removing object from table, local ID " << objectp->mLocalID 
+			//			<< ", id from message " << local_id << ", from " 
+			//			<< LLHost(objectp->getRegion()->getHost().getAddress(), objectp->getRegion()->getHost().getPort())
+			//			<< ", full id " << fullid 
+			//			<< ", objects id " << objectp->getID()
+			//			<< ", regionp " << (U32) regionp << ", object region " << (U32) objectp->getRegion()
+			//			<< llendl;
+			//}
 			removeFromLocalIDTable(*objectp);
 			setUUIDAndLocal(fullid,
 							local_id,
 							gMessageSystem->getSenderIP(),
 							gMessageSystem->getSenderPort());
+			
+			if (objectp->mLocalID != local_id)
+			{    // Update local ID in object with the one sent from the region
+				objectp->mLocalID = local_id;
+			}
+			
+			if (objectp->getRegion() != regionp)
+			{    // Object changed region, so update it
+				objectp->setRegion(regionp);
+				objectp->updateRegion(regionp); // for LLVOAvatar
+			}
 		}
 
 		if (!objectp)
@@ -439,7 +495,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			{
 				if (update_type == OUT_TERSE_IMPROVED)
 				{
-					//	llinfos << "terse update for an unknown object:" << fullid << llendl;
+					// llinfos << "terse update for an unknown object:" << fullid << llendl;
 					continue;
 				}
 			}
@@ -450,7 +506,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			{
 				if (update_type != OUT_FULL)
 				{
-// 					llinfos << "terse update for an unknown object:" << fullid << llendl;
+					// llinfos << "terse update for an unknown object:" << fullid << llendl;
 					continue;
 				}
 
@@ -460,7 +516,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			if (mDeadObjects.find(fullid) != mDeadObjects.end())
 			{
 				mNumDeadObjectUpdates++;
-				//llinfos << "update for a dead object:" << fullid << llendl;
+				// llinfos << "update for a dead object:" << fullid << llendl;
 				continue;
 			}
 #endif
@@ -472,20 +528,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			}
 			justCreated = TRUE;
 			mNumNewObjects++;
-		}
-		else
-		{
-			if (objectp->getRegion() != regionp)
-			{
-				// Object has changed region!  Update lookup tables, set region pointer.
-				removeFromLocalIDTable(*objectp);
-				setUUIDAndLocal(fullid,
-								local_id,
-								gMessageSystem->getSenderIP(),
-								gMessageSystem->getSenderPort());
-				objectp->setRegion(regionp);
-			}
-			objectp->updateRegion(regionp); // for LLVOAvatar
 		}
 
 
@@ -607,7 +649,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 
 			//  Update distance & gpw 
 			objectp->setPixelAreaAndAngle(agent); // Also sets the approx. pixel area
-			objectp->updateTextures(agent);	// Update the image levels of textures for this object.
+			objectp->updateTextures();	// Update the image levels of textures for this object.
 		}
 	}
 
@@ -802,6 +844,14 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 	// Remove from object map so noone can look it up.
 
 	mUUIDObjectMap.erase(objectp->mID);
+	
+	//if (objectp->getRegion())
+	//{
+	//	llinfos << "cleanupReferences removing object from table, local ID " << objectp->mLocalID << ", ip " 
+	//				<< objectp->getRegion()->getHost().getAddress() << ":" 
+	//				<< objectp->getRegion()->getHost().getPort() << llendl;
+	//}	
+	
 	removeFromLocalIDTable(*objectp);
 
 	if (objectp->onActiveList())
@@ -832,8 +882,15 @@ void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 
 	for (S32 i = 0; i < drawablep->getNumFaces(); i++)
 	{
-		LLViewerObject* objectp = drawablep->getFace(i)->getViewerObject();
-		mSelectPickList.erase(objectp);
+		LLFace* facep = drawablep->getFace(i) ;
+		if(facep)
+		{
+			   LLViewerObject* objectp = facep->getViewerObject();
+			   if(objectp)
+			   {
+					   mSelectPickList.erase(objectp);
+			   }
+		}
 	}
 }
 
@@ -908,7 +965,7 @@ void LLViewerObjectList::killAllObjects()
 	if (!mMapObjects.empty())
 	{
 		llwarns << "Some objects still on map object list!" << llendl;
-		mActiveObjects.clear();
+		mMapObjects.clear();
 	}
 }
 
@@ -1024,6 +1081,7 @@ void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 	LLColor4 group_own_below_water_color = 
 						gColors.getColor( "NetMapGroupOwnBelowWater" );
 
+	F32 max_radius = gSavedSettings.getF32("MiniMapPrimMaxRadius");
 
 	for (S32 i = 0; i < mMapObjects.count(); i++)
 	{
@@ -1038,6 +1096,11 @@ void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 		// LLWorld::getInstance()->getWaterHeight();
 
 		F32 approx_radius = (scale.mV[VX] + scale.mV[VY]) * 0.5f * 0.5f * 1.3f;  // 1.3 is a fudge
+
+		// Limit the size of megaprims so they don't blot out everything on the minimap.
+		// Attempting to draw very large megaprims also causes client lag.
+		// See DEV-17370 and SNOW-79 for details.
+		approx_radius = llmin(approx_radius, max_radius);
 
 		LLColor4U color = above_water_color;
 		if( objectp->permYouOwner() )
@@ -1109,7 +1172,7 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 
 		std::vector<LLDrawable*> pick_drawables;
 
-		for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 		{
 			LLViewerRegion* region = *iter;

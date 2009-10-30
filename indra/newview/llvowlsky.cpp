@@ -319,7 +319,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 		mFanVerts->allocateBuffer(getFanNumVerts(), getFanNumIndices(), TRUE);
 
 		BOOL success = mFanVerts->getVertexStrider(vertices)
-			&& mFanVerts->getTexCoordStrider(texCoords)
+			&& mFanVerts->getTexCoord0Strider(texCoords)
 			&& mFanVerts->getIndexStrider(indices);
 
 		if(!success) 
@@ -379,7 +379,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 
 			// lock the buffer
 			BOOL success = segment->getVertexStrider(vertices)
-				&& segment->getTexCoordStrider(texCoords)
+				&& segment->getTexCoord0Strider(texCoords)
 				&& segment->getIndexStrider(indices);
 
 			if(!success) 
@@ -442,7 +442,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 	mStripsVerts->allocateBuffer(temp2->getNumVerts(), temp2->getNumIndices(), TRUE);
 	
 	success = mStripsVerts->getVertexStrider(vertices)
-		&& mStripsVerts->getTexCoordStrider(texCoords)
+		&& mStripsVerts->getTexCoord0Strider(texCoords)
 		&& mStripsVerts->getIndexStrider(indices);
 
 	LLStrider<LLVector3> v;

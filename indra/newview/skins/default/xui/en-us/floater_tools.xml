@@ -79,6 +79,9 @@
 	<check_box bottom_delta="-15" follows="left|top" font="SansSerifSmall" height="16"
 	     initial_value="false" label="Select Texture" left="4" mouse_opaque="true"
 	     name="radio select face" radio_style="true" width="114" />
+  <check_box bottom_delta="-15" follows="left|top" font="SansSerifSmall" height="16"
+   initial_value="false" label="Stretch Texture" left="4" mouse_opaque="true"
+   name="radio stretch texture" radio_style="true" width="114" />
 	<check_box bottom_delta="-19" control_name="EditLinkedParts" follows="left|top"
 	     font="SansSerifSmall" height="16" initial_value="false"
 	     label="Edit linked parts" left="4" mouse_opaque="true"
@@ -1197,6 +1200,9 @@
 			<button bottom="-360" follows="left|top" font="SansSerifSmall" halign="center"
 			     height="16" label="Align" label_selected="Align" left="112"
 			     mouse_opaque="true" name="button align" scale_image="TRUE" width="68" />
+      <button bottom="-360" follows="left|top" font="SansSerifSmall" halign="center"
+			     height="16" label="button 1" label_selected="button 1" left="142"
+			     mouse_opaque="true" name="button_1" scale_image="TRUE" width="68" />
 		</panel>
 		<panel border="true" bottom="-383" follows="left|top|right|bottom" height="367"
 		     label="Content" left="1" mouse_opaque="false" name="Contents" width="270">

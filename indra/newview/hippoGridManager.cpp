@@ -472,7 +472,7 @@ void HippoGridManager::parseUrl(const char *url, bool mergeIfNewer)
 	}
 
 	LLSD gridInfo = response["body"];
-	parseData(gridInfo, mergeIfNewer);
+	parseData(gridInfo, mergeIfNewer); 
 }
 
 void HippoGridManager::parseFile(const std::string &fileName, bool mergeIfNewer)

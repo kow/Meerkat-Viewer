@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2003&license=viewergpl$
  * 
- * Copyright (c) 2003-2008, Linden Research, Inc.
+ * Copyright (c) 2003-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -49,7 +50,6 @@ class LLInventoryModel;
 class LLInventoryObserver;
 class LLItemInfo;
 class LLTabContainer;
-class LLWorldMapView;
 
 class LLFloaterWorldMap : public LLFloater
 {
@@ -97,7 +97,7 @@ public:
 	static const LLUUID& getHomeID() { return sHomeID; }
 
 	// A z_attenuation of 0.0f collapses the distance into the X-Y plane
-	F32			getDistanceToDestination(const LLVector3d& pos_global, F32 z_attenuation = 0.5f) const;
+	F32				getDistanceToDestination(const LLVector3d& pos_global, F32 z_attenuation = 0.5f) const;
 
 	void			clearLocationSelection(BOOL clear_ui = FALSE);
 	void			clearAvatarSelection(BOOL clear_ui = FALSE);
@@ -114,7 +114,7 @@ public:
 	// teleport to the tracked item, if there is one
 	void			teleport();
 
-protected:
+private:
 	static void		onPanBtn( void* userdata );
 	
 	static void		onGridManager(void* data);
@@ -127,8 +127,6 @@ protected:
 	static void		onAvatarComboPrearrange( LLUICtrl* ctrl, void* data );
 	static void		onAvatarComboCommit( LLUICtrl* ctrl, void* data );
 
-	static void		onCommitBackground(void* data, bool from_click);
-
 	static void		onComboTextEntry( LLLineEditor* ctrl, void* data );
 	static void		onSearchTextEntry( LLLineEditor* ctrl, void* data );
 
@@ -139,7 +137,7 @@ protected:
 	static void		onShowAgentBtn(void*);
 	static void		onCopySLURL(void*);
 
-	static void onCheckEvents(LLUICtrl* ctrl, void*);
+	static void		onCheckEvents(LLUICtrl* ctrl, void*);
 
 	void			centerOnTarget(BOOL animate);
 	void			updateLocation();
@@ -166,10 +164,10 @@ protected:
 
 	void			cacheLandmarkPosition();
 
-protected:
-	LLTabContainer*	mTabs;
+private:
+	LLPanel*			mPanel;		// Panel displaying the map
 
-	// Sets gMapScale, in pixels per region
+	// Ties to LLWorldMapView::sMapScale, in pixels per region
 	F32						mCurZoomVal;
 	LLFrameTimer			mZoomTimer;
 

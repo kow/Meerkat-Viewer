@@ -713,7 +713,7 @@ void LLPanelRegionGeneralInfo::onClickManageTelehub(void* data)
 // strings[3] = 'Y' - allow land sale, 'N' - not
 // strings[4] = agent limit
 // strings[5] = object bonus
-// strings[6] = sim access (0 = unknown, 13 = PG, 21 = Mature)
+// strings[6] = sim access (0 = unknown, 13 = PG, 21 = Mature, 42 = Adult)
 // strings[7] = restrict pushobject
 // strings[8] = 'Y' - allow parcel subdivide, 'N' - not
 // strings[9] = 'Y' - block parcel search, 'N' - allow
@@ -732,9 +732,7 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		body["allow_land_resell"] = childGetValue("allow_land_resell_check");
 		body["agent_limit"] = childGetValue("agent_limit_spin");
 		body["prim_bonus"] = childGetValue("object_bonus_spin");
-		// the combo box stores strings "Mature" and "PG", but we have to convert back to a number, 
-		// because the sim doesn't know from strings for this stuff
-		body["sim_access"] = LLViewerRegion::stringToAccess(childGetValue("access_combo").asString());
+		body["sim_access"] = childGetValue("access_combo");
 		body["restrict_pushobject"] = childGetValue("restrict_pushobject");
 		body["allow_parcel_changes"] = childGetValue("allow_parcel_changes_check");
 		body["block_parcel_search"] = childGetValue("block_parcel_search_check");
@@ -766,8 +764,7 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		buffer = llformat("%f", value);
 		strings.push_back(strings_t::value_type(buffer));
 
-		U8 access = LLViewerRegion::stringToAccess(childGetValue("access_combo").asString());
-		buffer = llformat("%d", (S32)access);
+		buffer = llformat("%d", childGetValue("access_combo").asInteger());
 		strings.push_back(strings_t::value_type(buffer));
 
 		buffer = llformat("%s", (childGetValue("restrict_pushobject").asBoolean() ? "Y" : "N"));
@@ -778,17 +775,14 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 
 		LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 		sendEstateOwnerMessage(gMessageSystem, "setregioninfo", invoice, strings);
-
-		LLViewerRegion* region = gAgent.getRegion();
-		if (region && access != region->getSimAccess() )
-		{
-			gViewerWindow->alertXml("RegionMaturityChange");
-		}
 	}
 
-
-	//integers_t integers;
-
+	// if we changed access levels, tell user about it
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region && (childGetValue("access_combo").asInteger() != region->getSimAccess()) )
+	{
+		gViewerWindow->alertXml("RegionMaturityChange");
+	}	
 
 	return TRUE;
 }

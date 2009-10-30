@@ -67,7 +67,7 @@ void LLMapLayerResponder::result(const LLSD& result)
 		new_layer.LayerImageID = layer_data["ImageID"];
 		new_layer.LayerImage = gImageList.getImage(new_layer.LayerImageID, MIPMAP_TRUE, FALSE);
 		gGL.getTexUnit(0)->bind(new_layer.LayerImage.get());
-		new_layer.LayerImage->setClamp(TRUE, TRUE);
+		new_layer.LayerImage->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 		
 		new_layer.LayerExtents.mLeft = layer_data["Left"];
 		new_layer.LayerExtents.mRight = layer_data["Right"];
@@ -164,7 +164,7 @@ void LLMapLayerResponder::result(const LLSD& result)
 				siminfo->mMapImageID[agent_flags] = image_id;
 				siminfo->mCurrentImage = gImageList.getImage(siminfo->mMapImageID[LLWorldMap::getInstance()->mCurrentMap], MIPMAP_TRUE, FALSE);
 				gGL.getTexUnit(0)->bind(siminfo->mCurrentImage.get());
-				siminfo->mCurrentImage->setClamp(TRUE, TRUE);
+				siminfo->mCurrentImage->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 			
 				if (siminfo->mMapImageID[2].notNull())
 				{

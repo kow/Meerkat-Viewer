@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -110,14 +111,13 @@ LLWorld::LLWorld() :
 	
 	mDefaultWaterTexturep = new LLViewerImage(raw, FALSE);
 	gGL.getTexUnit(0)->bind(mDefaultWaterTexturep.get());
-	mDefaultWaterTexturep->setClamp(TRUE, TRUE);
+	mDefaultWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 }
 
 
 void LLWorld::destroyClass()
 {
-	mHoleWaterObjects.clear();
 	gObjectList.destroy();
 	for(region_list_t::iterator region_it = mRegionList.begin(); region_it != mRegionList.end(); )
 	{
@@ -872,7 +872,7 @@ void LLWorld::updateWaterObjects()
 													 y + rwidth/2,
 													 256.f+DEFAULT_WATER_HEIGHT));
 				waterp->setScale(LLVector3((F32)rwidth, (F32)rwidth, 512.f));
-				gPipeline.addObject(waterp);
+				gPipeline.createObject(waterp);
 				mHoleWaterObjects.push_back(waterp);
 			}
 		}
@@ -923,7 +923,7 @@ void LLWorld::updateWaterObjects()
 			waterp = mEdgeWaterObjects[dir];
 			waterp->setUseTexture(FALSE);
 			waterp->setIsEdgePatch(TRUE);
-			gPipeline.addObject(waterp);
+			gPipeline.createObject(waterp);
 		}
 
 		waterp->setRegion(gAgent.getRegion());
@@ -947,7 +947,7 @@ void LLWorld::updateWaterObjects()
 
 void LLWorld::shiftRegions(const LLVector3& offset)
 {
-	for (region_list_t::iterator i = getRegionList().begin(); i != getRegionList().end(); ++i)
+	for (region_list_t::const_iterator i = getRegionList().begin(); i != getRegionList().end(); ++i)
 	{
 		LLViewerRegion* region = *i;
 		region->updateRenderMatrix();
@@ -1133,8 +1133,8 @@ void send_agent_pause()
 	gAgentPauseSerialNum++;
 	gMessageSystem->addU32Fast(_PREHASH_SerialNum, gAgentPauseSerialNum);
 
-	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->mActiveRegionList.begin();
-		 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+		 iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		gMessageSystem->sendReliable(regionp->getHost());
@@ -1163,8 +1163,8 @@ void send_agent_resume()
 	gMessageSystem->addU32Fast(_PREHASH_SerialNum, gAgentPauseSerialNum);
 	
 
-	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->mActiveRegionList.begin();
-		 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+		 iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		gMessageSystem->sendReliable(regionp->getHost());
@@ -1197,6 +1197,7 @@ static LLVector3d unpackLocalToGlobalPosition(U32 compact_local, const LLVector3
 	pos_global += region_origin;
 	return pos_global;
 }
+
 void LLWorld::getAvatars(std::vector<LLUUID>* avatar_ids, std::vector<LLVector3d>* positions, const LLVector3d& relative_to, F32 radius) const
 {
 	if(avatar_ids != NULL)
@@ -1230,6 +1231,8 @@ void LLWorld::getAvatars(std::vector<LLUUID>* avatar_ids, std::vector<LLVector3d
 		}
 	}
 }
+
+
 LLHTTPRegistration<LLEstablishAgentCommunication>
 	gHTTPRegistrationEstablishAgentCommunication(
 							"/message/EstablishAgentCommunication");

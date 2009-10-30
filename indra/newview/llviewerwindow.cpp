@@ -100,7 +100,6 @@
 #include "llfloatereditui.h" // HACK JAMESDEBUG for ui editor
 #include "llfloaterland.h"
 #include "llfloaterinspect.h"
-#include "llfloatermap.h"
 #include "llfloaternamedesc.h"
 #include "llfloaterpreference.h"
 #include "llfloatersnapshot.h"
@@ -116,6 +115,7 @@
 #include "llhudview.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
+#include "llimageworker.h"
 #include "llinventoryview.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
@@ -185,7 +185,6 @@
 #include "llpostprocess.h"
 
 #if LL_WINDOWS
-#include "llwindebug.h"
 #include <tchar.h> // For Unicode conversion methods
 #endif
 
@@ -443,7 +442,7 @@ public:
 			if (gPipeline.mBatchCount > 0)
 			{
 				addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", gPipeline.mMinBatchSize, gPipeline.mMaxBatchSize, 
-					gPipeline.mMeanBatchSize));
+					gPipeline.mTrianglesDrawn/gPipeline.mBatchCount));
 
 				gPipeline.mMinBatchSize = gPipeline.mMaxBatchSize;
 				gPipeline.mMaxBatchSize = 0;
@@ -460,9 +459,13 @@ public:
 			
 			ypos += y_inc;
 
+			addText(xpos,ypos, llformat("%d Lights visible", LLPipeline::sVisibleLightCount));
+			
+			ypos += y_inc;
+
 			LLVertexBuffer::sBindCount = LLImageGL::sBindCount = 
 				LLVertexBuffer::sSetCount = LLImageGL::sUniqueCount = 
-				gPipeline.mNumVisibleNodes = 0;
+				gPipeline.mNumVisibleNodes = LLPipeline::sVisibleLightCount = 0;
 		}
 		if (gSavedSettings.getBOOL("DebugShowColor"))
 		{
@@ -1511,6 +1514,7 @@ LLViewerWindow::LLViewerWindow(
 
 	// Init the image list.  Must happen after GL is initialized and before the images that
 	// LLViewerWindow needs are requested.
+	LLImageGL::initClass(LLViewerImageBoostLevel::MAX_GL_IMAGE_CATEGORY) ;
 	gImageList.init();
 	LLViewerImage::initClass();
 	gBumpImageList.init();
@@ -1841,16 +1845,6 @@ void LLViewerWindow::initWorldUI()
 		gHoverView = new LLHoverView(std::string("gHoverView"), full_window);
 		gHoverView->setVisible(TRUE);
 		mRootView->addChild(gHoverView);
-
-		//
-		// Map
-		//
-		// TODO: Move instance management into class
-		gFloaterMap = new LLFloaterMap(std::string("Map"));
-		gFloaterMap->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-
-		// keep onscreen
-		gFloaterView->adjustToFitScreen(gFloaterMap, FALSE);
 		
 		gIMMgr = LLIMMgr::getInstance();
 
@@ -1937,7 +1931,6 @@ void LLViewerWindow::shutdownViews()
 	gFloaterView		= NULL;
 	gMorphView			= NULL;
 
-	gFloaterMap	= NULL;
 	gHUDView = NULL;
 
 	gNotifyBoxView = NULL;
@@ -4004,6 +3997,10 @@ void LLViewerWindow::playSnapshotAnimAndSound()
 
 BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL do_rebuild, ESnapshotType type)
 {
+	return rawSnapshot(raw, preview_width, preview_height, FALSE, FALSE, show_ui, do_rebuild, type);
+	
+	// *TODO below code was broken in deferred pipeline
+	/*
 	if ((!raw) || preview_width < 10 || preview_height < 10)
 	{
 		return FALSE;
@@ -4035,7 +4032,7 @@ BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 p
 	LLVOAvatar::updateFreezeCounter(1) ; //pause avatar updating for one frame
 	
 	S32 w = preview_width ;
-	S32 h = preview_height ;	
+	S32 h = preview_height ;
 	LLVector2 display_scale = mDisplayScale ;
 	mDisplayScale.setVec((F32)w / mWindowRect.getWidth(), (F32)h / mWindowRect.getHeight()) ;
 	LLRect window_rect = mWindowRect;
@@ -4136,7 +4133,7 @@ BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 p
 	
 	gSavedSettings.setS32("RenderName", render_name);	
 	
-	return TRUE;
+	return TRUE;*/
 }
 
 // Saves the image from the screen to the specified filename and path.
@@ -4203,7 +4200,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 					
 					snapshot_width = image_width;
 					snapshot_height = image_height;
-					target.allocate(snapshot_width, snapshot_height, GL_RGBA, TRUE, LLTexUnit::TT_RECT_TEXTURE, TRUE);
+					target.allocate(snapshot_width, snapshot_height, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, TRUE);
 					window_width = snapshot_width;
 					window_height = snapshot_height;
 					scale_factor = 1.f;
@@ -4609,7 +4606,7 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		gGLManager.mIsDisabled = TRUE;
 		stop_glerror();
 		
-		llinfos << "Remaining allocated texture memory: " << LLImageGL::sGlobalTextureMemory << " bytes" << llendl;
+		llinfos << "Remaining allocated texture memory: " << LLImageGL::sGlobalTextureMemoryInBytes << " bytes" << llendl;
 	}
 }
 

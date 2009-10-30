@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -63,6 +64,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewercamera.h"
 #include "llviewerstats.h"
+#include "importtracker.h"
 
 const LLVector3 DEFAULT_OBJECT_SCALE(0.5f, 0.5f, 0.5f);
 
@@ -198,8 +200,22 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 
 	// Set params for new object based on its PCode.
 	LLQuaternion	rotation;
-	LLVector3		scale = DEFAULT_OBJECT_SCALE;
+	LLVector3		scale = LLVector3(
+		gSavedSettings.getF32("EmeraldBuildPrefs_Xsize"),
+		gSavedSettings.getF32("EmeraldBuildPrefs_Ysize"),
+		gSavedSettings.getF32("EmeraldBuildPrefs_Zsize"));
+	
 	U8				material = LL_MCODE_WOOD;
+	if(gSavedSettings.getString("EmeraldBuildPrefs_Material")== "Stone") material = LL_MCODE_STONE;
+	if(gSavedSettings.getString("EmeraldBuildPrefs_Material")== "Metal") material = LL_MCODE_METAL;
+	if(gSavedSettings.getString("EmeraldBuildPrefs_Material")== "Wood") material = LL_MCODE_WOOD;
+	if(gSavedSettings.getString("EmeraldBuildPrefs_Material")== "Flesh") material = LL_MCODE_FLESH;
+	if(gSavedSettings.getString("EmeraldBuildPrefs_Material")== "Rubber") material = LL_MCODE_RUBBER;
+	if(gSavedSettings.getString("EmeraldBuildPrefs_Material")== "Plastic") material = LL_MCODE_PLASTIC;
+		
+
+	
+
 	BOOL			create_selected = FALSE;
 	LLVolumeParams	volume_params;
 	
@@ -245,17 +261,18 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 	gMessageSystem->addU8Fast(_PREHASH_Material,	material);
 
 	U32 flags = 0;		// not selected
-	if (use_physics)
+	if (use_physics || gSavedSettings.getBOOL("EmeraldBuildPrefs_Physical"))
 	{
 		flags |= FLAGS_USE_PHYSICS;
 	}
-	//if (create_selected)
-// [RLVa:KB] - Checked: 2009-07-04 (RLVa-1.0.0b) | Added: RLVa-1.0.0b
+//	if (create_selected)
+// [RLVa:KB] - Alternate: Emerald-370 | Checked: 2009-07-04 (RLVa-1.0.0b) | Added: RLVa-1.0.0b
 	if ( (create_selected) && (!gRlvHandler.hasBehaviour(RLV_BHVR_EDIT)) )
 // [/RLVa:KB]
 	{
 		flags |= FLAGS_CREATE_SELECTED;
 	}
+	
 	gMessageSystem->addU32Fast(_PREHASH_AddFlags, flags );
 
 	LLPCode volume_pcode;	// ...PCODE_VOLUME, or the original on error
@@ -430,7 +447,8 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 	
 	// Pack in name value pairs
 	gMessageSystem->sendReliable(regionp->getHost());
-
+	//lgg set flag to set texture here
+	gImportTracker.expectRez();
 	// Spawns a message, so must be after above send
 	if (create_selected)
 	{

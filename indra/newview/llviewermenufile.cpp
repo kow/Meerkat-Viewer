@@ -69,6 +69,8 @@
 // system libraries
 #include <boost/tokenizer.hpp>
 
+#include "importtracker.h"
+
 typedef LLMemberListener<LLView> view_listener_t;
 
 
@@ -344,6 +346,46 @@ void upload_error(const std::string& error_message, const std::string& label, co
 	}
 	LLFilePicker::instance().reset();						
 }
+
+extern ImportTracker gImportTracker;
+
+class ImportLinkset : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		const std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_XML);
+	
+		if (filename.empty())
+			return true;
+	
+		llifstream importer(filename);
+		LLSD data;
+		LLSDSerialize::fromXMLDocument(data, importer);
+	
+		if (gImportTracker.getState() != ImportTracker::IDLE)
+		{
+			gImportTracker.clear();
+			gImportTracker.cleargroups();
+		}
+		LLSD data2=data;
+		LLSD header=data2["Header"];
+		//if(header.isDefined())
+		//{
+			//if(header["Version"].asInteger() == 2)
+			//{
+				//LLSD obj_llsd=data["Objects"];
+				//gImportTracker.prepare(obj_llsd);
+				gImportTracker.importer(filename, NULL);
+			//}
+			//else
+				//gImportTracker.import(data);
+		//}
+		//else
+			//gImportTracker.import(data);
+		return true;
+	}
+};
+
 
 class LLFileEnableCloseWindow : public view_listener_t
 {
@@ -782,8 +824,9 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 		uuid = tid.makeAssetID(gAgent.getSecureSessionID());
 		// copy this file into the vfs for upload
 		S32 file_size;
-		apr_file_t* fp = ll_apr_file_open(filename, LL_APR_RB, &file_size);
-		if (fp)
+		LLAPRFile infile ;
+		infile.open(filename, LL_APR_RB, LLAPRFile::local, &file_size);
+		if (infile.getFileHandle())
 		{
 			LLVFile file(gVFS, uuid, asset_type, LLVFile::WRITE);
 
@@ -791,11 +834,10 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 
 			const S32 buf_size = 65536;
 			U8 copy_buf[buf_size];
-			while ((file_size = ll_apr_file_read(fp, copy_buf, buf_size)))
+			while ((file_size = infile.read(copy_buf, buf_size)))
 			{
 				file.write(copy_buf, file_size);
 			}
-			apr_file_close(fp);
 		}
 		else
 		{
@@ -1089,6 +1131,7 @@ void init_menu_file()
 	(new LLFileUploadSound())->registerListener(gMenuHolder, "File.UploadSound");
 	(new LLFileUploadAnim())->registerListener(gMenuHolder, "File.UploadAnim");
 	(new LLFileUploadBulk())->registerListener(gMenuHolder, "File.UploadBulk");
+	(new ImportLinkset())->registerListener(gMenuHolder, "File.ImportLinkset");
 	(new LLFileCloseWindow())->registerListener(gMenuHolder, "File.CloseWindow");
 	(new LLFileCloseAllWindows())->registerListener(gMenuHolder, "File.CloseAllWindows");
 	(new LLFileEnableCloseWindow())->registerListener(gMenuHolder, "File.EnableCloseWindow");

@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -58,6 +59,7 @@
 #include "llviewerwindow.h"		// *TODO: remove, only used for width/height
 #include "llworld.h"
 #include "llfeaturemanager.h"
+#include "llviewernetwork.h"
 #if LL_LCD_COMPILE
 #include "lllcd.h"
 #endif
@@ -349,7 +351,6 @@ void LLViewerStats::addToMessage(LLSD &body) const
 // Moving them here, but not merging them into LLViewerStats yet.
 void reset_statistics()
 {
-	gPipeline.resetFrameStats();	// Reset per-frame statistics.
 	if (LLSurface::sTextureUpdateTime)
 	{
 		LLSurface::sTexelsUpdatedPerSecStat.addValue(0.001f*(LLSurface::sTexelsUpdated / LLSurface::sTextureUpdateTime));
@@ -364,8 +365,8 @@ void output_statistics(void*)
 	llinfos << "Number of orphans: " << gObjectList.getOrphanCount() << llendl;
 	llinfos << "Number of dead objects: " << gObjectList.mNumDeadObjects << llendl;
 	llinfos << "Num images: " << gImageList.getNumImages() << llendl;
-	llinfos << "Texture usage: " << LLImageGL::sGlobalTextureMemory << llendl;
-	llinfos << "Texture working set: " << LLImageGL::sBoundTextureMemory << llendl;
+	llinfos << "Texture usage: " << LLImageGL::sGlobalTextureMemoryInBytes << llendl;
+	llinfos << "Texture working set: " << LLImageGL::sBoundTextureMemoryInBytes << llendl;
 	llinfos << "Raw usage: " << LLImageRaw::sGlobalRawMemory << llendl;
 	llinfos << "Formatted usage: " << LLImageFormatted::sGlobalFormattedMemory << llendl;
 	llinfos << "Zombie Viewer Objects: " << LLViewerObject::getNumZombieObjects() << llendl;
@@ -501,12 +502,18 @@ extern U32  gVisCompared;
 extern U32  gVisTested;
 
 std::map<S32,LLFrameTimer> gDebugTimers;
+std::map<S32,std::string> gDebugTimerLabel;
+
+void init_statistics()
+{
+	// Label debug timers
+	gDebugTimerLabel[0] = "Texture";
+}
 
 void update_statistics(U32 frame_count)
 {
 	gTotalWorldBytes += gVLManager.getTotalBytes();
 	gTotalObjectBytes += gObjectBits / 8;
-	gTotalTextureBytes += LLViewerImageList::sTextureBits / 8;
 
 	// make sure we have a valid time delta for this frame
 	if (gFrameIntervalSeconds > 0.f)
@@ -558,7 +565,6 @@ void update_statistics(U32 frame_count)
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
 	LLViewerStats::getInstance()->mLayersKBitStat.addValue(layer_bits/1024.f);
 	LLViewerStats::getInstance()->mObjectKBitStat.addValue(gObjectBits/1024.f);
-	LLViewerStats::getInstance()->mTextureKBitStat.addValue(LLViewerImageList::sTextureBits/1024.f);
 	LLViewerStats::getInstance()->mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
 	LLViewerStats::getInstance()->mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
@@ -572,8 +578,6 @@ void update_statistics(U32 frame_count)
 		gDebugTimers[0].unpause();
 	}
 	
-	LLViewerStats::getInstance()->mTexturePacketsStat.addValue(LLViewerImageList::sTexturePackets);
-
 	{
 		static F32 visible_avatar_frames = 0.f;
 		static F32 avg_visible_avatars = 0;
@@ -593,8 +597,20 @@ void update_statistics(U32 frame_count)
 	gObjectBits = 0;
 //	gDecodedBits = 0;
 
-	LLViewerImageList::sTextureBits = 0;
-	LLViewerImageList::sTexturePackets = 0;
+	// Only update texture stats ones per second so that they are less noisy
+	{
+		static const F32 texture_stats_freq = 1.f;
+		static LLFrameTimer texture_stats_timer;
+		if (texture_stats_timer.getElapsedTimeF32() >= texture_stats_freq)
+		{
+			LLViewerStats::getInstance()->mTextureKBitStat.addValue(LLViewerImageList::sTextureBits/1024.f);
+			LLViewerStats::getInstance()->mTexturePacketsStat.addValue(LLViewerImageList::sTexturePackets);
+			gTotalTextureBytes += LLViewerImageList::sTextureBits / 8;
+			LLViewerImageList::sTextureBits = 0;
+			LLViewerImageList::sTexturePackets = 0;
+			texture_stats_timer.reset();
+		}
+	}
 
 #if LL_LCD_COMPILE
 	bool LCDenabled = gLcdScreen->Enabled();
@@ -659,7 +675,7 @@ void send_stats()
 	time(&ltime);
 	F32 run_time = F32(LLFrameTimer::getElapsedSeconds());
 
-	agent["start_time"] = ltime - run_time;
+	agent["start_time"] = S32(ltime - S32(run_time));
 
 	// The first stat set must have a 0 run time if it doesn't actually
 	// contain useful data in terms of FPS, etc.  We use half the
@@ -771,3 +787,4 @@ void send_stats()
 	LLViewerStats::getInstance()->addToMessage(body);
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());
 }
+

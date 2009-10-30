@@ -41,7 +41,7 @@ public:
 	{
 		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
 							LLVertexBuffer::MAP_NORMAL |
-							LLVertexBuffer::MAP_TEXCOORD
+							LLVertexBuffer::MAP_TEXCOORD0
 	};
 
 	BOOL addFace(LLFace* face);

@@ -763,6 +763,8 @@ void LLPanelDisplay::onApplyResolution(LLUICtrl* src, void* user_data)
 
 void LLPanelDisplay::applyResolution()
 {
+
+	gGL.flush();
 	char aspect_ratio_text[ASPECT_RATIO_STR_LEN];		/*Flawfinder: ignore*/
 	if (mCtrlAspectRatio->getCurrentIndex() == -1)
 	{

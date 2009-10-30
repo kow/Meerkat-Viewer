@@ -506,7 +506,7 @@ Recommended Settings are:
         Use the New Objects settings from:
       </text>
       <radio_group bottom="-30" draw_border="false" enabled="false" follows="left|top" height="20" left="200" mouse_opaque="true"
-        name="EmBuildPrefsHttp_toggle" control_name="MeerkatBuildPrefs_Http" width="160">
+        name="EmBuildPrefsHttp_toggle" control_name="EmeraldBuildPrefs_Http" width="160">
         <radio_item type="string" length="1" bottom="-20" enabled="true" height="16" left="0" mouse_opaque="true" name="local" width="98" tool_tip="Use the local new objects settings from below.">
           Local
         </radio_item>
@@ -538,25 +538,25 @@ Recommended Settings are:
       <spinner bottom="-100" decimal_digits="5" follows="left|top" height="16"
 			     increment="0.05" label="X size" label_width="40"
 			     left="10" max_val="10" min_val="0.01" mouse_opaque="true"
-			     name="X size" width="110" control_name="MeerkatBuildPrefs_Xsize" />
+			     name="X size" width="110" control_name="EmeraldBuildPrefs_Xsize" />
       <spinner bottom_delta="-20" decimal_digits="5" follows="left|top" height="16"
                increment="0.05" label="Y size" label_width="40"
                left_delta="0" max_val="10" min_val="0.01" mouse_opaque="true"
-               name="Y size" width="110" control_name="MeerkatBuildPrefs_Ysize" />
+               name="Y size" width="110" control_name="EmeraldBuildPrefs_Ysize" />
       <spinner bottom_delta="-20" decimal_digits="5" follows="left|top" height="16"
                increment="0.05" label="Z size" label_width="40"
                left_delta="0" max_val="10" min_val="0.01" mouse_opaque="true"
-               name="Z size" width="110" control_name="MeerkatBuildPrefs_Zsize" />
+               name="Z size" width="110" control_name="EmeraldBuildPrefs_Zsize" />
       <check_box bottom="-90" enabled="true" follows="left|top" font="SansSerifSmall" height="16"
         label="Phantom" left="140" mouse_opaque="true"
-        name="EmPhantomToggle" radio_style="false" width="100" control_name="MeerkatBuildPrefs_Phantom" />
+        name="EmPhantomToggle" radio_style="false" width="100" control_name="EmeraldBuildPrefs_Phantom" />
       <check_box bottom_delta="-20" enabled="true" follows="left|top" font="SansSerifSmall" height="16"
         label="Physical" left_delta="0" mouse_opaque="true"
-        name="EmPhysicalToggle" radio_style="false" width="100" control_name="MeerkatBuildPrefs_Physical" />
+        name="EmPhysicalToggle" radio_style="false" width="100" control_name="EmeraldBuildPrefs_Physical" />
       <check_box bottom_delta="-20" enabled="true" follows="left|top" font="SansSerifSmall" height="16"
         label="Temporary" left_delta="0" mouse_opaque="true"
-        name="EmTemporaryToggle" radio_style="false" width="100" control_name="MeerkatBuildPrefs_Temporary" />
-      <combo_box allow_text_entry="false" bottom_delta="-20" left_delta="1" follows="left|top" height="18" left="10" max_chars="20" mouse_opaque="true" name="material" width="87" control_name="MeerkatBuildPrefs_Material">
+        name="EmTemporaryToggle" radio_style="false" width="100" control_name="EmeraldBuildPrefs_Temporary" />
+      <combo_box allow_text_entry="false" bottom_delta="-20" left_delta="1" follows="left|top" height="18" left="10" max_chars="20" mouse_opaque="true" name="material" width="87" control_name="EmeraldBuildPrefs_Material">
         <combo_item name="Stone" value="Stone">Stone</combo_item>
         <combo_item name="Metal" value="Metal">Metal</combo_item>
         <combo_item name="Glass" value="Glass">Glass</combo_item>
@@ -567,26 +567,26 @@ Recommended Settings are:
       </combo_box>
       <texture_picker allow_no_texture="false" bottom="-155" can_apply_immediately="true"
            default_image_name="Default" follows="left|top" height="80" label="Texture"
-           left="250" mouse_opaque="true" name="texture control" control_name="MeerkatBuildPrefs_Texture"
+           left="250" mouse_opaque="true" name="texture control" control_name="EmeraldBuildPrefs_Texture"
            tool_tip="Click to choose a picture" width="64" />
       <color_swatch border_color="0.45098, 0.517647, 0.607843, 1" bottom_delta="0"
            can_apply_immediately="true" color="1, 1, 1, 1" follows="left|top"
            height="80" label="Color" left_delta="75" mouse_opaque="true"
-           name="colorswatch" tool_tip="Click to open Color Picker" width="64" control_name="MeerkatBuildPrefs_Color" />
+           name="colorswatch" tool_tip="Click to open Color Picker" width="64" control_name="EmeraldBuildPrefs_Color" />
       <spinner bottom="-90" decimal_digits="0" follows="left|top" height="16"
                increment="1" label="Alpha" label_width="40"
                left_delta="70" max_val="100" min_val="0" mouse_opaque="true"
-               name="alpha" width="90" control_name="MeerkatBuildPrefs_Alpha" />
+               name="alpha" width="90" control_name="EmeraldBuildPrefs_Alpha" />
       <spinner bottom_delta="-20" enabled="true" decimal_digits="2" follows="left|top" height="16"
                increment="0.05" label="Glow" label_width="40"
                left_delta="0" max_val="1" min_val="0" mouse_opaque="true"
-               name="glow" width="90" control_name="MeerkatBuildPrefs_Glow" />
+               name="glow" width="90" control_name="EmeraldBuildPrefs_Glow" />
       <check_box bottom_delta="-20" enabled="true" follows="left|top" font="SansSerifSmall" height="16"
         label="Full Bright" left_delta="0" mouse_opaque="true"
-        name="EmFBToggle" radio_style="false" width="100" control_name="MeerkatBuildPrefs_FullBright" />
+        name="EmFBToggle" radio_style="false" width="100" control_name="EmeraldBuildPrefs_FullBright" />
       <combo_box allow_text_entry="false" bottom_delta="-20" follows="left|top" height="18"
 			     left_delta="0" max_chars="20" mouse_opaque="true" name="combobox shininess" tool_tip="Set the amount of shine for the object"
-			     width="90" control_name="MeerkatBuildPrefs_Shiny">
+			     width="90" control_name="EmeraldBuildPrefs_Shiny">
         <combo_item name="None" value="None">
           None
         </combo_item>
@@ -603,7 +603,7 @@ Recommended Settings are:
       <check_box bottom_delta="-30" enabled="false"
            follows="left|top" font="SansSerifSmall" height="16" initial_value="false"
            label="Embed an item into the newly created object" left="20" mouse_opaque="true"
-           name="MeerkatBuildPrefs_EmbedItem" radio_style="false" width="270" />
+           name="EmeraldBuildPrefs_EmbedItem" radio_style="false" width="270" />
       <view_border blevel_style="in" bottom_delta="-20" follows="left|top" height="16" left_delta="0"
 			     mouse_opaque="false" name="im_give_drop_target_rect" width="400" />
       <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
@@ -634,19 +634,19 @@ Recommended Settings are:
       <spinner bottom_delta="-25" decimal_digits="5" follows="left|top" height="16"
 			     increment="0.05" label="X pos" label_width="40"
 			     left="10" mouse_opaque="true" max_val="256" min_val="-256"
-			     name="X pos" width="120" control_name="MeerkatBuildPrefs_PivotX" />
+			     name="X pos" width="120" control_name="EmeraldBuildPrefs_PivotX" />
       <spinner bottom_delta="-20" decimal_digits="5" follows="left|top" height="16"
                increment="0.05" label="Y pos" label_width="40"
                left_delta="0" mouse_opaque="true" max_val="256" min_val="-256"
-               name="Y pos" width="120" control_name="MeerkatBuildPrefs_PivotY" />
+               name="Y pos" width="120" control_name="EmeraldBuildPrefs_PivotY" />
       <spinner bottom_delta="-20" decimal_digits="5" follows="left|top" height="16"
                increment="0.05" label="Z pos" label_width="40"
                left_delta="0" mouse_opaque="true" max_val="256" min_val="-256"
-               name="Z pos" width="120" control_name="MeerkatBuildPrefs_PivotZ" />
+               name="Z pos" width="120" control_name="EmeraldBuildPrefs_PivotZ" />
       <check_box bottom_delta="-20" enabled="true" follows="left|top" font="SansSerifSmall" height="16"
         label="Values are percent" left_delta="-5" mouse_opaque="true"
 	tool_tip="Default settings are Percentages and every axis set at 50"
-        name="EmPivotPercToggle" radio_style="false" width="100" control_name="MeerkatBuildPrefs_PivotIsPercent" />
+        name="EmPivotPercToggle" radio_style="false" width="100" control_name="EmeraldBuildPrefs_PivotIsPercent" />
       <check_box bottom_delta="60" enabled="true"
            follows="left|top" font="SansSerifSmall" height="16" initial_value="true"
            label="Enable the highlighting of selected prims (Restart Required)" left_delta="140" mouse_opaque="true"
@@ -655,7 +655,7 @@ Recommended Settings are:
            follows="left|top" font="SansSerifSmall" height="16" initial_value="false"
            label="Show axis arrow on root prim position" left_delta="0" mouse_opaque="true"
 	tool_tip="Default behaviour is to show the axis on the center of mass of a linkset. If enabled, the axis will be shown on the root prim of the linkset instead."
-           name="EmBuildPrefsActualRoot_toggle" control_name="MeerkatBuildPrefs_ActualRoot" radio_style="false" width="270" />
+           name="EmBuildPrefsActualRoot_toggle" control_name="EmeraldBuildPrefs_ActualRoot" radio_style="false" width="270" />
     </panel>
   </tab_container>
 </panel>

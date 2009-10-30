@@ -176,5 +176,13 @@
 	<string name="whisper">whispers:</string>
 	<string name="shout">shouts:</string>
 
+	<!-- Sim Access labels -->
+	<string name="SIM_ACCESS_PG">PG</string>
+	<string name="SIM_ACCESS_MATURE">Mature</string>
+	<string name="SIM_ACCESS_ADULT">Adult</string>
+	<string name="SIM_ACCESS_DOWN">Offline</string>
+	<string name="SIM_ACCESS_MIN">Unknown</string>
+	
+
 </strings>
 

@@ -176,6 +176,17 @@
         <real>1.0</real>
       </array>
     </map>
+    <key>AlertedUnsupportedHardware</key>
+    <map>
+      <key>Comment</key>
+      <string>Set if there's unsupported hardware and we've already done a notification.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>AllowIdleAFK</key>
     <map>
       <key>Comment</key>
@@ -451,6 +462,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>AuditTexture</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable texture auditting.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
     <key>AutoAcceptNewInventory</key>
     <map>
       <key>Comment</key>
@@ -681,17 +703,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>AvatarCompositeLimit</key>
-    <map>
-      <key>Comment</key>
-      <string>Maximum number of avatars to display appearance changes on the fly</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>5</integer>
     </map>
     <key>AvatarFeathering</key>
     <map>
@@ -1027,6 +1038,171 @@
       <key>Value</key>
       <real>16.0</real>
     </map>
+    <key>BulkChangeIncludeAnimations</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect animations</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeBodyParts</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect body parts</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeClothing</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect clothing</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeGestures</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect gestures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeLandmarks</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect landmarks</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeNotecards</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect notecards</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeObjects</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect objects</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeScripts</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect scripts</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeSounds</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect sounds</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeIncludeTextures</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect textures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BulkChangeEveryoneCopy</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk changed objects can be copied by everyone</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>BulkChangeNextOwnerCopy</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk changed objects can be copied by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>BulkChangeNextOwnerModify</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk changed objects can be modified by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>BulkChangeNextOwnerTransfer</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk changed objects can be resold or given away by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>BulkChangeShareWithGroup</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk changed objects are shared with the currently active group</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ButtonFlashCount</key>
     <map>
       <key>Comment</key>
@@ -1137,6 +1313,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>CameraAngle</key>
+    <map>
+      <key>Comment</key>
+      <string>Camera field of view angle (Radians)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.047197551</real>
+    </map>
     <key>CameraOffset</key>
     <map>
       <key>Comment</key>
@@ -1177,6 +1364,17 @@
         <real>0.0</real>
         <real>0.75</real>
       </array>
+    </map>
+    <key>CameraOffsetScale</key>
+    <map>
+      <key>Comment</key>
+      <string>Scales the default offset</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
     </map>
     <key>CameraPosOnLogout</key>
     <map>
@@ -1363,7 +1561,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ClothingBtnState</key>
+	<key>ClothingBtnState</key>
     <map>
       <key>Comment</key>
       <string />
@@ -1385,6 +1583,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CmdLineAgentURI</key>
+    <map>
+      <key>Comment</key>
+      <string>URL of agent host to connect to in Agent Domain.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map> 
     <key>CmdLineGridChoice</key>
     <map>
       <key>Comment</key>
@@ -1419,6 +1628,17 @@
       <array>
         <string />
       </array>
+    </map>
+    <key>CmdLineRegionURI</key>
+    <map>
+      <key>Comment</key>
+      <string>URL of region to connect to through Agent Domain.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
     </map>
     <key>ColorPaletteEntry01</key>
     <map>
@@ -2157,6 +2377,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>DebugPluginDisableTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable the code which watches for plugins that are crashed or hung</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DebugShowColor</key>
     <map>
       <key>Comment</key>
@@ -2179,7 +2410,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DebugShowTime</key>
+  <key>DebugShowRenderMatrices</key>
+  <map>
+    <key>Comment</key>
+    <string>Display values of current view and projection matrices.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>DebugShowTime</key>
     <map>
       <key>Comment</key>
       <string>Show depth buffer contents</string>
@@ -2189,6 +2431,600 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>DebugStatModeFPS</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeBandwidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModePacketLoss</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatMode</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeKTrisDrawnFr</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeKTrisDrawnSec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeTotalObjs</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeNewObjs</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeTextureCount</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeRawCount</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeGLMem</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeFormattedMem</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeRawMem</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeBoundMem</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModePacketsIn</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModePacketsOut</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeObjects</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeTexture</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeAsset</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeLayers</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeActualIn</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeActualOut</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeVFSPendingOps</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeTimeDialation</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimFPS</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModePhysicsFPS</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModePinnedObjects</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeLowLODObjects</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeMemoryAllocated</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeAgentUpdatesSec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeMainAgents</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeChildAgents</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimObjects</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimActiveObjects</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimActiveScripts</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimScriptEvents</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimInPPS</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimOutPPS</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimPendingDownloads</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>SimPendingUploads</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimTotalUnackedBytes</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimFrameMsec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimNetMsec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimSimPhysicsMsec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimSimOtherMsec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimAgentMsec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimImagesMsec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimScriptMsec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimSpareMsec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimSimPhysicsStepMsec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimSimPhysicsShapeUpdateMsec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimSimPhysicsOtherMsec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimSleepMsec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>DebugStatModeSimPumpIOMsec</key>
+    <map>
+      <key>Comment</key>
+      <string>Mode of stat in Statistics floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
     </map>
     <key>DebugViews</key>
     <map>
@@ -2353,7 +3189,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <real>1.0</real>
+      <integer>1</integer>
     </map>
     <key>Disregard96DefaultDrawDistance</key>
     <map>
@@ -2364,7 +3200,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <real>1.0</real>
+      <integer>1</integer>
     </map>
     <key>DoubleClickAutoPilot</key>
     <map>
@@ -2481,6 +3317,210 @@
         <real>1.0</real>
       </array>
     </map>
+    <key>EmeraldBuildPrefs_Xsize</key>
+    <map>
+      <key>Comment</key>
+      <string>Default Size For New Objects to be created X</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
+    </map>
+    <key>EmeraldBuildPrefs_Ysize</key>
+    <map>
+      <key>Comment</key>
+      <string>Default Size For New Objects to be created Y</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
+    </map>
+    <key>EmeraldBuildPrefs_Zsize</key>
+    <map>
+      <key>Comment</key>
+      <string>Default Size For New Objects to be created Z</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
+    </map>
+    <key>EmeraldBuildPrefs_Phantom</key>
+    <map>
+      <key>Comment</key>
+      <string>Default Setting For New Objects to be created, phantom flag</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EmeraldBuildPrefs_Temporary</key>
+    <map>
+      <key>Comment</key>
+      <string>Default Setting For New Objects to be created, temp flag</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EmeraldBuildPrefs_Physical</key>
+    <map>
+      <key>Comment</key>
+      <string>Default Setting For New Objects to be created, physical flag</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EmeraldBuildPrefs_Material</key>
+    <map>
+      <key>Comment</key>
+      <string>Default Setting For New Objects to be created, physical flag</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>Wood</string>
+    </map>
+    <key>EmeraldBuildPrefs_Color</key>
+    <map>
+      <key>Comment</key>
+      <string>Color of new objects textures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
+    <key>EmeraldBuildPrefs_Texture</key>
+    <map>
+      <key>Comment</key>
+      <string>Texture used as 'Default' for new object created</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>89556747-24cb-43ed-920b-47caed15465f</string>
+    </map>
+    <key>EmeraldBuildPrefs_Alpha</key>
+    <map>
+      <key>Comment</key>
+      <string>Default Alpha For New Objects to be created</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>EmeraldBuildPrefs_Glow</key>
+    <map>
+      <key>Comment</key>
+      <string>Default Glow For New Objects to be created</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>EmeraldBuildPrefs_FullBright</key>
+    <map>
+      <key>Comment</key>
+      <string>Default Setting For New Objects to be created, whether textures are full bright</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EmeraldBuildPrefs_Shiny</key>
+    <map>
+      <key>Comment</key>
+      <string>Shiny level used as 'Default' for new objects created</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>None</string>
+    </map>
+    <key>EmeraldBuildPrefs_PivotX</key>
+    <map>
+      <key>Comment</key>
+      <string>Pivot point on the X axis</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>50</real>
+    </map>
+    <key>EmeraldBuildPrefs_PivotY</key>
+    <map>
+      <key>Comment</key>
+      <string>Pivot point on the Y axis</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>50</real>
+    </map>
+    <key>EmeraldBuildPrefs_PivotZ</key>
+    <map>
+      <key>Comment</key>
+      <string>Pivot point on the Z axis</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>50</real>
+    </map>
+    <key>EmeraldBuildPrefs_PivotIsPercent</key>
+    <map>
+      <key>Comment</key>
+      <string>Consider the Pivot points values as a percentage</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EmeraldBuildPrefs_ActualRoot</key>
+    <map>
+      <key>Comment</key>
+      <string>Show the axis on the actual root of a linkset instead of mass center</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+
     <key>EnableRippleWater</key>
     <map>
       <key>Comment</key>
@@ -2535,6 +3575,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>175</integer>
+    </map>
+    <key>EveryoneCopy</key>
+      <map>
+        <key>Comment</key>
+        <string>Everyone can copy the newly created objects</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
     </map>
     <key>FPSLogFrequency</key>
     <map>
@@ -2720,7 +3771,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>FloaterActiveSpeakersSortColumn</key>
     <map>
@@ -2743,9 +3794,9 @@
       <string>Rect</string>
       <key>Value</key>
       <array>
-        <integer>50</integer>
+        <integer>0</integer>
         <integer>220</integer>
-        <integer>450</integer>
+        <integer>700</integer>
         <integer>0</integer>
       </array>
     </map>
@@ -2759,9 +3810,9 @@
       <string>Rect</string>
       <key>Value</key>
       <array>
-        <integer>50</integer>
-        <integer>220</integer>
-        <integer>450</integer>
+        <integer>0</integer>
+        <integer>240</integer>
+        <integer>700</integer>
         <integer>0</integer>
       </array>
     </map>
@@ -2797,6 +3848,22 @@
         <integer>0</integer>
       </array>
     </map>
+    <key>FloaterBeaconsRect</key>
+    <map>
+        <key>Comment</key>
+        <string>Rectangle for beacon and highlight controls</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Rect</string>
+        <key>Value</key>
+        <array>
+            <integer>200</integer>
+            <integer>250</integer>
+            <integer>250</integer>
+            <integer>200</integer>
+    </array>
+  </map>
     <key>FloaterBuildOptionsRect</key>
     <map>
       <key>Comment</key>
@@ -2951,9 +4018,9 @@
       <string>Rect</string>
       <key>Value</key>
       <array>
-        <integer>50</integer>
-        <integer>450</integer>
-        <integer>300</integer>
+        <integer>0</integer>
+        <integer>646</integer>
+        <integer>275</integer>
         <integer>0</integer>
       </array>
     </map>
@@ -2967,9 +4034,9 @@
       <string>Rect</string>
       <key>Value</key>
       <array>
-        <integer>50</integer>
+        <integer>0</integer>
         <integer>150</integer>
-        <integer>650</integer>
+        <integer>600</integer>
         <integer>0</integer>
       </array>
     </map>
@@ -3232,7 +4299,24 @@
         <integer>0</integer>
       </array>
     </map>
-    <key>FloaterOpenObjectRect</key>
+  
+  <key>FloaterObjectIMInfo</key>
+  <map>
+    <key>Comment</key>
+    <string>Rectangle for floater object im info windows</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Rect</string>
+    <key>Value</key>
+    <array>
+      <integer>0</integer>
+      <integer>300</integer>
+      <integer>300</integer>
+      <integer>0</integer>
+    </array>
+  </map>
+  <key>FloaterOpenObjectRect</key>
     <map>
       <key>Comment</key>
       <string>Rectangle for Open Object window</string>
@@ -3262,6 +4346,22 @@
         <integer>150</integer>
         <integer>400</integer>
         <integer>0</integer>
+      </array>
+    </map>
+    <key>FloaterPermPrefsRect</key>
+    <map>
+      <key>Comment</key>
+      <string>Rectangle for initial permissions preferences</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Rect</string>
+      <key>Value</key>
+      <array>
+        <integer>200</integer>
+        <integer>250</integer>
+        <integer>250</integer>
+        <integer>200</integer>
       </array>
     </map>
     <key>FloaterRegionInfo</key>
@@ -3310,6 +4410,22 @@
         <integer>200</integer>
         <integer>200</integer>
         <integer>400</integer>
+      </array>
+    </map>
+    <key>FloaterStatisticsRect</key>
+    <map>
+      <key>Comment</key>
+      <string>Rectangle for chat history</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Rect</string>
+      <key>Value</key>
+      <array>
+        <integer>0</integer>
+        <integer>400</integer>
+        <integer>250</integer>
+        <integer>0</integer>
       </array>
     </map>
     <key>FloaterTeleportHistoryRect</key>
@@ -3748,6 +4864,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ForceMandatoryUpdate</key>
+    <map>
+      <key>Comment</key>
+      <string>For QA: On next startup, forces the auto-updater to run</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ForwardBtnRect</key>
     <map>
       <key>Comment</key>
@@ -4053,6 +5180,17 @@
         <real>1.0</real>
       </array>
     </map>
+    <key>IMInChatConsole</key>
+    <map>
+      <key>Comment</key>
+      <string>Copy IM into chat console</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>IMInChatHistory</key>
     <map>
       <key>Comment</key>
@@ -4108,17 +5246,17 @@
       <key>Value</key>
       <real>0.0</real>
     </map>
-	<key>InstallLanguage</key>
-	<map>
-		<key>Comment</key>
-		<string>Language passed from installer (for UI)</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>String</string>
-		<key>Value</key>
-		<string>default</string>
-	</map>
+    <key>InstallLanguage</key>
+    <map>
+      <key>Comment</key>
+      <string>Language passed from installer (for UI)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>default</string>
+    </map>
     <key>InventoryAutoOpenDelay</key>
     <map>
       <key>Comment</key>
@@ -4155,13 +5293,13 @@
     <key>JoystickAvatarEnabled</key>
     <map>
       <key>Comment</key>
-      <string>Enables the Joystick to control Avatar movmement.</string>
+      <string>Enables the Joystick to control Avatar movement.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <string>1</string>
+      <integer>1</integer>
     </map>
     <key>JoystickAxis0</key>
     <map>
@@ -4249,7 +5387,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <string>1</string>
+      <integer>0</integer>
     </map>
     <key>JoystickEnabled</key>
     <map>
@@ -4267,11 +5405,11 @@
       <key>Comment</key>
       <string>Enables the Joystick to control the flycam.</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <string>1</string>
+      <integer>1</integer>
     </map>
     <key>JoystickInitialized</key>
     <map>
@@ -4284,6 +5422,17 @@
       <key>Value</key>
       <string />
     </map>
+    <key>JoystickRunThreshold</key>
+    <map>
+      <key>Comment</key>
+        <string>Input threshold to initiate running</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>F32</string>
+      <key>Value</key>
+        <real>0.25</real>
+      </map>
     <key>KeepAspectForSnapshot</key>
     <map>
       <key>Comment</key>
@@ -4294,6 +5443,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>LandBrushSize</key>
+    <map>
+      <key>Comment</key>
+        <string>Size of affected region when using teraform tool</string>
+      <key>Persist</key>
+        <integer>1</integer>
+      <key>Type</key>
+        <string>F32</string>
+      <key>Value</key>
+        <real>2.0</real>
     </map>
     <key>LCDDestination</key>
     <map>
@@ -4342,7 +5502,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://wiki.secondlife.com/wiki/[LSL_STRING]</string>
+      <string>http://wiki.secondlife.com/wiki/[LSL_STRING]</string>
     </map>
     <key>LagMeterShrunk</key>
     <map>
@@ -4358,7 +5518,7 @@
     <key>Language</key>
     <map>
       <key>Comment</key>
-      <string>Language specifier (for XUI)</string>
+      <string>Language specifier (for UI)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -4377,6 +5537,28 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
+    <key>TranslateLanguage</key>
+    <map>
+      <key>Comment</key>
+      <string>Translate Language specifier</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>default</string>
+    </map>
+    <key>TranslateChat</key>
+    <map>
+        <key>Comment</key>
+            <string>Translate incoming chat messages</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+    </map>
     <key>LastFeatureVersion</key>
     <map>
       <key>Comment</key>
@@ -4529,7 +5711,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>LipSyncOoh</key>
     <map>
@@ -4641,17 +5823,6 @@
       <key>Value</key>
       <real>20.0</real>
     </map>
-    <key>MainloopTimeoutDefault</key>
-        <map>
-        <key>Comment</key>
-            <string>Timeout duration for mainloop lock detection, in seconds.</string>
-        <key>Persist</key>
-            <integer>1</integer>
-        <key>Type</key>
-            <string>F32</string>
-        <key>Value</key>
-            <real>10.0</real>
-        </map>
     <key>MapOverlayIndex</key>
     <map>
       <key>Comment</key>
@@ -4760,7 +5931,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>300.0</real>
+      <real>256.0</real>
     </map>
     <key>MeanCollisionBump</key>
     <map>
@@ -4886,7 +6057,7 @@
     <key>MiniMapScale</key>
     <map>
       <key>Comment</key>
-      <string>Miniature world map zoom levle (pixels per region)</string>
+      <string>Miniature world map zoom level (pixels per region)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -5058,6 +6229,50 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>NearMeRange</key>
+    <map>
+      <key>Comment</key>
+      <string>Search radius for nearby avatars</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>20</integer>
+    </map>
+    <key>NextOwnerCopy</key>
+    <map>
+      <key>Comment</key>
+      <string>Newly created objects can be copied by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>NextOwnerModify</key>
+    <map>
+      <key>Comment</key>
+      <string>Newly created objects can be modified by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>NextOwnerTransfer</key>
+    <map>
+      <key>Comment</key>
+      <string>Newly created objects can be resold or given away by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>NewCacheLocation</key>
     <map>
       <key>Comment</key>
@@ -5198,7 +6413,7 @@
     <key>NumSessions</key>
     <map>
       <key>Comment</key>
-      <string>Number of successful logins to Meerkat</string>
+      <string>Number of successful logins</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -5517,6 +6732,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>6.0</real>
+    </map>
+	<key>PreferredMaturity</key>
+    <map>
+      <key>Comment</key>
+      <string>Setting for the user's preferred maturity level.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+	  <integer>13</integer>
     </map>
     <key>PreviewAnimRect</key>
     <map>
@@ -5959,101 +7185,101 @@
       <integer>1</integer>
     </map>
 
-    <key>RenderShadowGaussian</key>
-    <map>
-      <key>Comment</key>
-      <string>Gaussian coefficients for the two shadow/SSAO blurring passes (z component unused).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>2.0</real>
-        <real>2.0</real>
-        <real>0.0</real>
-      </array>
-    </map>
+  <key>RenderShadowGaussian</key>
+  <map>
+    <key>Comment</key>
+    <string>Gaussian coefficients for the two shadow/SSAO blurring passes (z component unused).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>2.0</real>
+      <real>2.0</real>
+      <real>0.0</real>
+    </array>
+  </map>
 
-    <key>RenderShadowNearDist</key>
-    <map>
-      <key>Comment</key>
-      <string>Near clip plane of shadow camera (affects precision of depth shadows).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>256</real>
-        <real>256</real>
-        <real>256</real>
-      </array>
-    </map>
-    <key>RenderShadowClipPlanes</key>
-    <map>
-      <key>Comment</key>
-      <string>Near clip plane split distances for shadow map frusta.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>4.0</real>
-        <real>8.0</real>
-        <real>24.0</real>
-      </array>
-    </map>
-    <key>RenderSSAOScale</key>
-    <map>
-      <key>Comment</key>
-      <string>Scaling factor for the area to sample for occluders (pixels at 1 meter away, inversely varying with distance)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>500.0</real>
-    </map>
-    <key>RenderSSAOMaxScale</key>
-    <map>
-      <key>Comment</key>
-      <string>Maximum screen radius for sampling (pixels)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>60</integer>
-    </map>
-    <key>RenderSSAOFactor</key>
-    <map>
-      <key>Comment</key>
-      <string>Occlusion sensitivity factor for ambient occlusion (larger is more)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.30</real>
-    </map>
-    <key>RenderSSAOEffect</key>
-    <map>
-      <key>Comment</key>
-      <string>Multiplier for (1) value and (2) saturation (HSV definition), for areas which are totally occluded.  Blends with original color for partly-occluded areas.  (Third component is unused.)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>0.40</real>
-        <real>1.00</real>
-        <real>0.00</real>
-      </array>
-    </map>
-    <key>RenderBumpmapMinDistanceSquared</key>
+  <key>RenderShadowNearDist</key>
+  <map>
+    <key>Comment</key>
+    <string>Near clip plane of shadow camera (affects precision of depth shadows).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>256</real>
+      <real>256</real>
+      <real>256</real>
+    </array>
+  </map>
+  <key>RenderShadowClipPlanes</key>
+  <map>
+    <key>Comment</key>
+    <string>Near clip plane split distances for shadow map frusta.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>4.0</real>
+      <real>8.0</real>
+      <real>24.0</real>
+    </array>
+  </map>
+  <key>RenderSSAOScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Scaling factor for the area to sample for occluders (pixels at 1 meter away, inversely varying with distance)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>500.0</real>
+  </map>
+  <key>RenderSSAOMaxScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum screen radius for sampling (pixels)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>60</integer>
+  </map>
+  <key>RenderSSAOFactor</key>
+  <map>
+    <key>Comment</key>
+    <string>Occlusion sensitivity factor for ambient occlusion (larger is more)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.30</real>
+  </map>
+  <key>RenderSSAOEffect</key>
+  <map>
+    <key>Comment</key>
+    <string>Multiplier for (1) value and (2) saturation (HSV definition), for areas which are totally occluded.  Blends with original color for partly-occluded areas.  (Third component is unused.)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Vector3</string>
+    <key>Value</key>
+    <array>
+      <real>0.40</real>
+      <real>1.00</real>
+      <real>0.00</real>
+    </array>
+  </map>
+  <key>RenderBumpmapMinDistanceSquared</key>
     <map>
       <key>Comment</key>
       <string>Maximum distance at which to render bumpmapped primitives (distance in meters, squared)</string>
@@ -6064,6 +7290,17 @@
       <key>Value</key>
       <real>100.0</real>
     </map>
+  <key>RenderNormalMapScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Scaler applied to height map when generating normal maps</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>128</real>
+  </map>
     <key>RenderCubeMap</key>
     <map>
       <key>Comment</key>
@@ -6119,128 +7356,129 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderDelayCreation</key>
-    <map>
-      <key>Comment</key>
-      <string>Throttle creation of drawables.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>RenderAnimateRes</key>
-    <map>
-      <key>Comment</key>
-      <string>Animate rezing prims.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>RenderAnimateTrees</key>
-    <map>
-      <key>Comment</key>
-      <string>Use GL matrix ops to animate tree branches.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>RenderDeferredAlphaSoften</key>
-    <map>
-      <key>Comment</key>
-      <string>Scalar for softening alpha surfaces (for soft particles).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.75</real>
-    </map>
-    <key>RenderDeferredNoise</key>
-    <map>
-      <key>Comment</key>
-      <string>Noise scalar to hide banding in deferred render.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>4</real>
-    </map>
-    <key>RenderDeferred</key>
-    <map>
-      <key>Comment</key>
-      <string>Use deferred rendering pipeline.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>RenderDeferredSunShadow</key>
-    <map>
-      <key>Comment</key>
-      <string>Generate shadows from the sun.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>RenderDeferredSunWash</key>
-    <map>
-      <key>Comment</key>
-      <string>Amount local lights are washed out by sun.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.5</real>
-    </map>
-    <key>RenderShadowNoise</key>
-    <map>
-      <key>Comment</key>
-      <string>Magnitude of noise on shadow samples.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>-0.0001</real>
-    </map>
-    <key>RenderShadowBlurSize</key>
-    <map>
-      <key>Comment</key>
-      <string>Scale of shadow softening kernel.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.7</real>
-    </map>
-    <key>RenderShadowBlurSamples</key>
-    <map>
-      <key>Comment</key>
-      <string>Number of samples to take for each pass of shadow blur (value range 1-16).  Actual number of samples is value * 2 - 1.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <real>5</real>
-    </map>
-    <key>RenderDynamicLOD</key>
+  <key>RenderDelayCreation</key>
+  <map>
+    <key>Comment</key>
+    <string>Throttle creation of drawables.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderAnimateRes</key>
+  <map>
+    <key>Comment</key>
+    <string>Animate rezing prims.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
+  <key>RenderAnimateTrees</key>
+  <map>
+    <key>Comment</key>
+    <string>Use GL matrix ops to animate tree branches.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderDeferredAlphaSoften</key>
+  <map>
+    <key>Comment</key>
+    <string>Scalar for softening alpha surfaces (for soft particles).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.75</real>
+  </map>
+  <key>RenderDeferredNoise</key>
+  <map>
+    <key>Comment</key>
+    <string>Noise scalar to hide banding in deferred render.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>4</real>
+  </map>
+  <key>RenderDeferred</key>
+  <map>
+    <key>Comment</key>
+    <string>Use deferred rendering pipeline.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderDeferredSunShadow</key>
+  <map>
+    <key>Comment</key>
+    <string>Generate shadows from the sun.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>RenderDeferredSunWash</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount local lights are washed out by sun.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
+  <key>RenderShadowNoise</key>
+  <map>
+    <key>Comment</key>
+    <string>Magnitude of noise on shadow samples.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>-0.0001</real>
+  </map>
+  <key>RenderShadowBlurSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Scale of shadow softening kernel.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.7</real>
+  </map>
+  <key>RenderShadowBlurSamples</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of samples to take for each pass of shadow blur (value range 1-16).  Actual number of samples is value * 2 - 1.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>5</real>
+  </map>
+  <key>RenderDynamicLOD</key>
     <map>
       <key>Comment</key>
       <string>Dynamically adjust level of detail.</string>
@@ -6390,13 +7628,13 @@
     <key>RenderGlowMinLuminance</key>
     <map>
       <key>Comment</key>
-      <string>Min luminance intensity necessary to consider an object bright enough to automatically glow. (Gets clamped to 0 - 1.0 range)</string>
+      <string>Min luminance intensity necessary to consider an object bright enough to automatically glow.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>1.0</real>
+      <real>2.5</real>
     </map>
     <key>RenderGlowResolutionPow</key>
     <map>
@@ -6479,6 +7717,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RenderHUDParticles</key>
+    <map>
+      <key>Comment</key>
+      <string>Display particle systems in HUD attachments (experimental)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderHighlightSelections</key>
+    <map>
+      <key>Comment</key>
+      <string>Show selection outlines on objects</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>RenderHiddenSelections</key>
     <map>
       <key>Comment</key>
@@ -6556,17 +7816,17 @@
       <key>Value</key>
       <integer>4096</integer>
     </map>
-    <key>RenderMaxNodeSize</key>
-    <map>
-      <key>Comment</key>
-      <string>Maximum size of a single node's vertex data (in KB).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>4096</integer>
-    </map>
+  <key>RenderMaxNodeSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum size of a single node's vertex data (in KB).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>4096</integer>
+  </map>
     <key>RenderMaxVBOSize</key>
     <map>
       <key>Comment</key>
@@ -6576,7 +7836,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>32</integer>
+      <integer>512</integer>
     </map>
     <key>RenderName</key>
     <map>
@@ -6961,7 +8221,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>SafeMode</key>
     <map>
@@ -7210,6 +8470,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShareWithGroup</key>
+    <map>
+      <key>Comment</key>
+      <string>Newly created objects are shared with the currently active group</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ShowActiveSpeakers</key>
     <map>
       <key>Comment</key>
@@ -7254,7 +8525,18 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>ShowCameraControls</key>
+    <key>ShowBanLines</key>
+    <map>
+      <key>Comment</key>
+      <string>Show in-world ban/access borders</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ShowCameraControls</key>
     <map>
       <key>Comment</key>
       <string>Display camera controls on login</string>
@@ -7397,7 +8679,98 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowMatureClassifieds</key>
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   <key>ShowMatureClassifieds</key>
     <map>
       <key>Comment</key>
       <string>Display results of find classifieds that are flagged as mature</string>
@@ -7454,10 +8827,32 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ShowPGSims</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of find places or find popular that are in PG sims</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowMatureSims</key>
     <map>
       <key>Comment</key>
       <string>Display results of find places or find popular that are in mature sims</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowAdultSims</key>
+    <map>
+      <key>Comment</key>
+      <string>Display results of find places or find popular that are in adult sims</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -7932,7 +9327,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>90</integer>
+      <integer>75</integer>
     </map>
     <key>SnapshotTextureLastResolution</key>
     <map>
@@ -8090,7 +9485,7 @@
     <key>SystemLanguage</key>
     <map>
       <key>Comment</key>
-      <string>Language indicated by system settings (for XUI)</string>
+      <string>Language indicated by system settings (for UI)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8200,7 +9595,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>1500.0</real>
+      <real>5000.0</real>
     </map>
     <key>ToolHelpRect</key>
     <map>
@@ -9762,6 +11157,17 @@
       <key>Value</key>
       <string>c80260ba-41fd-8a46-768a-6bf236360e3a</string>
     </map>
+	<key>UploadBakedTexOld</key>
+    <map>
+      <key>Comment</key>
+      <string>Forces the baked texture pipeline to upload using the old method.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>UseAltKeyForMenus</key>
     <map>
       <key>Comment</key>
@@ -9854,17 +11260,6 @@
     <map>
       <key>Comment</key>
       <string>Enable object culling based on occlusion (coverage) by other objects</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-     <key>RenderDelayVBUpdate</key>
-    <map>
-      <key>Comment</key>
-      <string>Delay vertex buffer updates until just before rendering</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -10042,6 +11437,17 @@
     <map>
       <key>Comment</key>
       <string>Enable/disable all GLSL shaders (debug)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>VivoxAutoPostCrashDumps</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, SLVoice will automatically send crash dumps directly to Vivox.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -10553,7 +11959,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>WaterEditPresets</key>
     <map>
@@ -10630,7 +12036,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>WindowWidth</key>
     <map>
@@ -10665,6 +12071,17 @@
       <key>Value</key>
       <integer>10</integer>
     </map>
+    <key>WornItemsSortOrder</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies sort key for worn inventory items (+0 = name, +1 = date, +2 = folders always by name, +4 = system folders to top)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>7</integer>
+    </map>
     <key>XferThrottle</key>
     <map>
       <key>Comment</key>
@@ -10674,7 +12091,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>150000.0</real>
+      <real>500000.0</real>
     </map>
     <key>YawFromMousePosition</key>
     <map>
@@ -10812,6 +12229,39 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>LogTextureDownloadsToViewerLog</key>
+    <map>
+      <key>Comment</key>
+      <string>Send texture download details to the viewer log</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>LogTextureDownloadsToSimulator</key>
+    <map>
+      <key>Comment</key>
+      <string>Send a digest of texture info to the sim</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TextureLoggingThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies the byte threshold at which texture download data should be sent to the sim.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
   <key>DefaultGrid</key>
   <map>
@@ -11854,209 +13304,6 @@
     <key>Value</key>
     <real>4.0</real>
   </map>
-  <key>MeerkatBuildPrefs_Xsize</key>
-  <map>
-    <key>Comment</key>
-    <string>Default Size For New Objects to be created X</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.5</real>
-  </map>
-  <key>MeerkatBuildPrefs_Ysize</key>
-  <map>
-    <key>Comment</key>
-    <string>Default Size For New Objects to be created Y</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.5</real>
-  </map>
-  <key>MeerkatBuildPrefs_Zsize</key>
-  <map>
-    <key>Comment</key>
-    <string>Default Size For New Objects to be created Z</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.5</real>
-  </map>
-  <key>MeerkatBuildPrefs_Phantom</key>
-  <map>
-    <key>Comment</key>
-    <string>Default Setting For New Objects to be created, phantom flag</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>MeerkatBuildPrefs_Temporary</key>
-  <map>
-    <key>Comment</key>
-    <string>Default Setting For New Objects to be created, temp flag</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>MeerkatBuildPrefs_Physical</key>
-  <map>
-    <key>Comment</key>
-    <string>Default Setting For New Objects to be created, physical flag</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>MeerkatBuildPrefs_Material</key>
-  <map>
-    <key>Comment</key>
-    <string>Default Setting For New Objects to be created, physical flag</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>String</string>
-    <key>Value</key>
-    <string>Wood</string>
-  </map>
-  <key>MeerkatBuildPrefs_Color</key>
-  <map>
-    <key>Comment</key>
-    <string>Color of new objects textures</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Color4</string>
-    <key>Value</key>
-    <array>
-      <real>1.0</real>
-      <real>1.0</real>
-      <real>1.0</real>
-      <real>1.0</real>
-    </array>
-  </map>
-  <key>MeerkatBuildPrefs_Texture</key>
-  <map>
-    <key>Comment</key>
-    <string>Texture used as 'Default' for new object created</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>String</string>
-    <key>Value</key>
-    <string>89556747-24cb-43ed-920b-47caed15465f</string>
-  </map>
-  <key>MeerkatBuildPrefs_Alpha</key>
-  <map>
-    <key>Comment</key>
-    <string>Default Alpha For New Objects to be created</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.0</real>
-  </map>
-  <key>MeerkatBuildPrefs_Glow</key>
-  <map>
-    <key>Comment</key>
-    <string>Default Glow For New Objects to be created</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.0</real>
-  </map>
-  <key>MeerkatBuildPrefs_FullBright</key>
-  <map>
-    <key>Comment</key>
-    <string>Default Setting For New Objects to be created, whether textures are full bright</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>MeerkatBuildPrefs_Shiny</key>
-  <map>
-    <key>Comment</key>
-    <string>Shiny level used as 'Default' for new objects created</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>String</string>
-    <key>Value</key>
-    <string>None</string>
-  </map>
-  <key>MeerkatBuildPrefs_PivotX</key>
-  <map>
-    <key>Comment</key>
-    <string>Pivot point on the X axis</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>50</real>
-  </map>
-  <key>MeerkatBuildPrefs_PivotY</key>
-  <map>
-    <key>Comment</key>
-    <string>Pivot point on the Y axis</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>50</real>
-  </map>
-  <key>MeerkatBuildPrefs_PivotZ</key>
-  <map>
-    <key>Comment</key>
-    <string>Pivot point on the Z axis</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>50</real>
-  </map>
-  <key>MeerkatBuildPrefs_PivotIsPercent</key>
-  <map>
-    <key>Comment</key>
-    <string>Consider the Pivot points values as a percentage</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
-  <key>MeerkatBuildPrefs_ActualRoot</key>
-  <map>
-    <key>Comment</key>
-    <string>Show the axis on the actual root of a linkset instead of mass center</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
   <key>MeerkatIgnoreSimulatorCameraConstraints</key>
   <map>
     <key>Comment</key>
@@ -12079,38 +13326,5 @@
     <key>Value</key>
     <real>40</real>
   </map>
-      <key>LogTextureDownloadsToViewerLog</key>
-    <map>
-      <key>Comment</key>
-      <string>Send texture download details to the viewer log</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>LogTextureDownloadsToSimulator</key>
-    <map>
-      <key>Comment</key>
-      <string>Send a digest of texture info to the sim</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>TextureLoggingThreshold</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifies the byte threshold at which texture download data should be sent to the sim.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
 </map>
 </llsd>

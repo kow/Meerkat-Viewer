@@ -66,11 +66,13 @@ endif (LINUX)
 set(viewer_SOURCE_FILES
 	chatbar_as_cmdline.cpp
 	emerald.cpp
+	floaterexport.cpp
 	floaterlogin.cpp
 	hippoGridManager.cpp
 	hippoLimits.cpp
 	hippoRestRequest.cpp
 	hippoUpdate.cpp
+    importtracker.cpp
     llagent.cpp
     llagentdata.cpp
     llagentlanguage.cpp
@@ -180,6 +182,7 @@ set(viewer_SOURCE_FILES
     llfloateropenobject.cpp
     llfloaterparcel.cpp
     llfloaterpermissionsmgr.cpp
+    llfloaterperms.cpp
     llfloaterpostcard.cpp
     llfloaterpostprocess.cpp
     llfloaterpreference.cpp
@@ -241,7 +244,6 @@ set(viewer_SOURCE_FILES
     llmaniprotate.cpp
     llmanipscale.cpp
     llmaniptranslate.cpp
-    llmapresponders.cpp
     llmediaremotectrl.cpp
     llmemoryview.cpp
     llmenucommands.cpp
@@ -336,6 +338,10 @@ set(viewer_SOURCE_FILES
     lltexturecache.cpp
     lltexturectrl.cpp
     lltexturefetch.cpp
+    lltextureinfo.cpp
+    lltextureinfodetails.cpp
+    lltexturestats.cpp
+    lltexturestatsuploader.cpp
     lltextureview.cpp
     lltoolbar.cpp
     lltoolbrush.cpp
@@ -412,6 +418,7 @@ set(viewer_SOURCE_FILES
     llvlcomposition.cpp
     llvlmanager.cpp
     llvoavatar.cpp
+    llvoavatardefines.cpp
     llvocache.cpp
     llvoclouds.cpp
     llvograss.cpp
@@ -442,12 +449,13 @@ set(viewer_SOURCE_FILES
     llwlparamset.cpp
     llworld.cpp
     llworldmap.cpp
+    llworldmapmessage.cpp
+    llworldmipmap.cpp
     llworldmapview.cpp
     llxmlrpctransaction.cpp
 	LocalInventory.cpp
     noise.cpp
     pipeline.cpp
-    primbackup.cpp
     rlvhandler.cpp
     rlvhelper.cpp
     rlvmultistringsearch.cpp
@@ -478,11 +486,13 @@ set(viewer_HEADER_FILES
 
 	chatbar_as_cmdline.h
 	emerald.h
+	floaterexport.h
 	floaterlogin.h
 	hippoGridManager.h
 	hippoLimits.h
 	hippoRestRequest.h
 	hippoUpdate.h
+    importtracker.h
     llagent.h
     llagentdata.h
     llagentlanguage.h
@@ -594,6 +604,7 @@ set(viewer_HEADER_FILES
     llfloateropenobject.h
     llfloaterparcel.h
     llfloaterpermissionsmgr.h
+    llfloaterperms.h
     llfloaterpostcard.h
     llfloaterpostprocess.h
     llfloaterpreference.h
@@ -654,7 +665,6 @@ set(viewer_HEADER_FILES
     llmaniprotate.h
     llmanipscale.h
     llmaniptranslate.h
-    llmapresponders.h
     llmediaremotectrl.h
     llmemoryview.h
     llmenucommands.h
@@ -752,6 +762,10 @@ set(viewer_HEADER_FILES
     lltexturecache.h
     lltexturectrl.h
     lltexturefetch.h
+    lltextureinfo.h
+    lltextureinfodetails.h
+    lltexturestats.h
+    lltexturestatsuploader.h
     lltextureview.h
     lltool.h
     lltoolbar.h
@@ -828,6 +842,7 @@ set(viewer_HEADER_FILES
     llvlcomposition.h
     llvlmanager.h
     llvoavatar.h
+    llvoavatardefines.h
     llvocache.h
     llvoclouds.h
     llvograss.h
@@ -860,13 +875,13 @@ set(viewer_HEADER_FILES
     llwlparamset.h
     llworld.h
     llworldmap.h
+    llworldmapmessage.h
+    llworldmipmap.h
     llworldmapview.h
     llxmlrpctransaction.h
 	LocalInventory.h
     macmain.h
     noise.h
-    pipeline.h
-    primbackup.h
     randgauss.h
     VertexCache.h
     VorbisFramework.h

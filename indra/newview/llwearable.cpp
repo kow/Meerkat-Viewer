@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
- * Copyright (c) 2002-2008, Linden Research, Inc.
+ * Copyright (c) 2002-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -47,6 +48,8 @@
 #include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "llwearable.h"
+
+using namespace LLVOAvatarDefines;
 
 // static
 S32 LLWearable::sCurrentDefinitionVersion = 1;
@@ -150,37 +153,36 @@ EWearableType LLWearable::typeNameToType( const std::string& type_name )
 	return WT_INVALID;
 }
 
-const char* terse_F32_to_string( F32 f, char s[MAX_STRING] )		/* Flawfinder: ignore */
+
+std::string terse_F32_to_string( F32 f )
 {
-	char* r = s;
-	S32 len = snprintf( s, MAX_STRING, "%.2f", f );		/* Flawfinder: ignore */
+	std::string r = llformat( "%.2f", f );
 
 	// "1.20"  -> "1.2"
 	// "24.00" -> "24."
-	while( '0' == r[len - 1] )
+	S32 len = r.length();
+	while( len > 0 && '0' == r[len - 1] )
 	{
-		len--;  
-		r[len] = '\0';
+		r.erase(len-1, 1);
+		len--;
 	}
 
 	if( '.' == r[len - 1] )
 	{
 		// "24." -> "24"
-		len--;
-		r[len] = '\0';
+		r.erase(len-1, 1);
 	}
 	else
 	if( ('-' == r[0]) && ('0' == r[1]) )
 	{
 		// "-0.59" -> "-.59"
-		r++;
-		r[0] = '-';
+		r.erase(1, 1);
 	}
 	else
 	if( '0' == r[0] )
 	{
 		// "0.59" -> ".59"
-		r++;
+		r.erase(0, 1);
 	}
 
 	return r;
@@ -197,13 +199,12 @@ BOOL LLWearable::FileExportParams( FILE* file )
 	S32 num_parameters = mVisualParamMap.size();
 	fprintf( file, "parameters %d\n", num_parameters );
 
-	char s[ MAX_STRING ];		/* Flawfinder: ignore */
 	for (param_map_t::iterator iter = mVisualParamMap.begin();
 		 iter != mVisualParamMap.end(); ++iter)
 	{
 		S32 param_id = iter->first;
 		F32 param_weight = iter->second;
-		fprintf( file, "%d %s\n", param_id, terse_F32_to_string( param_weight, s ) );
+		fprintf( file, "%d %s\n", param_id, terse_F32_to_string( param_weight ) );
 	}
 
 	return TRUE;
@@ -277,13 +278,12 @@ BOOL LLWearable::exportFile( LLFILE* file )
 		return FALSE;
 	}
 
-	char s[ MAX_STRING ];		/* Flawfinder: ignore */
 	for (param_map_t::iterator iter = mVisualParamMap.begin();
 		 iter != mVisualParamMap.end(); ++iter)
 	{
 		S32 param_id = iter->first;
 		F32 param_weight = iter->second;
-		if( fprintf( file, "%d %s\n", param_id, terse_F32_to_string( param_weight, s ) ) < 0 )
+		if( fprintf( file, "%d %s\n", param_id, terse_F32_to_string( param_weight ).c_str() ) < 0 )
 		{
 			return FALSE;
 		}
@@ -309,6 +309,8 @@ BOOL LLWearable::exportFile( LLFILE* file )
 
 	return TRUE;
 }
+
+
 
 BOOL LLWearable::importFile( LLFILE* file )
 {
@@ -436,6 +438,7 @@ BOOL LLWearable::importFile( LLFILE* file )
 	}
 	else
 	{
+		mType = WT_COUNT;
 		llwarns << "Bad Wearable asset: bad type #" << type <<  llendl;
 		return FALSE;
 	}
@@ -545,9 +548,9 @@ BOOL LLWearable::isOldVersion()
 
 
 	S32 te_count = 0;
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == mType )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == mType )
 		{
 			te_count++;
 			if( !is_in_map(mTEMap, te ) )
@@ -599,9 +602,9 @@ BOOL LLWearable::isDirty()
 		}
 	}
 
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == mType )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == mType )
 		{
 			LLViewerImage* avatar_image = avatar->getTEImage( te );
 			if( !avatar_image )
@@ -609,7 +612,7 @@ BOOL LLWearable::isDirty()
 				llassert( 0 );
 				continue;
 			}
-			const LLUUID& image_id = get_if_there(mTEMap,  te, LLVOAvatar::getDefaultTEImageID( te ) );
+			const LLUUID& image_id = get_if_there(mTEMap,  te, LLVOAvatar::getDefaultTEImageID((ETextureIndex) te ) );
 			if( avatar_image->getID() != image_id )
 			{
 				return TRUE;
@@ -651,11 +654,11 @@ void LLWearable::setParamsToDefaults()
 void LLWearable::setTexturesToDefaults()
 {
 	mTEMap.clear();
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == mType )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == mType )
 		{
-			mTEMap[te] = LLVOAvatar::getDefaultTEImageID( te );
+			mTEMap[te] = LLVOAvatar::getDefaultTEImageID((ETextureIndex) te );
 		}
 	}
 }
@@ -698,11 +701,11 @@ void LLWearable::writeToAvatar( BOOL set_by_user )
 	}
 
 	// Pull texture entries
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == mType )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == mType )
 		{
-			const LLUUID& image_id = get_if_there(mTEMap, te, LLVOAvatar::getDefaultTEImageID( te ) );
+			const LLUUID& image_id = get_if_there(mTEMap, te, LLVOAvatar::getDefaultTEImageID((ETextureIndex) te ) );
 			LLViewerImage* image = gImageList.getImage( image_id );
 			avatar->setLocTexTE( te, image, set_by_user );
 		}
@@ -775,9 +778,9 @@ void LLWearable::removeFromAvatar( EWearableType type, BOOL set_by_user )
 
 	// Pull textures
 	LLViewerImage* image = gImageList.getImage( IMG_DEFAULT_AVATAR );
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == type )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == type )
 		{
 			avatar->setLocTexTE( te, image, set_by_user );
 		}
@@ -821,9 +824,9 @@ void LLWearable::readFromAvatar()
 	}
 
 	mTEMap.clear();
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == mType )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == mType )
 		{
 			LLViewerImage* image = avatar->getTEImage( te );
 			if( image )
@@ -872,11 +875,11 @@ void LLWearable::copyDataFrom( LLWearable* src )
 	}
 
 	// Deep copy of mTEMap (copies only those tes that are current, filling in defaults where needed)
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == mType )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == mType )
 		{
-			const LLUUID& image_id = get_if_there(src->mTEMap, te, LLVOAvatar::getDefaultTEImageID( te ) );
+			const LLUUID& image_id = get_if_there(src->mTEMap, te, LLVOAvatar::getDefaultTEImageID((ETextureIndex) te ) );
 			mTEMap[te] = image_id;
 		}
 	}

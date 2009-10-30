@@ -53,6 +53,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewermenufile.h"
 #include "llviewerwindow.h"
+#include "lltexlayer.h"
 
 void dialog_refresh_all();
 
@@ -294,6 +295,56 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 	}
 }
 
+LLSendTexLayerResponder::LLSendTexLayerResponder(const LLSD& post_data,
+														   const LLUUID& vfile_id,
+														   LLAssetType::EType asset_type,
+														   LLBakedUploadData * baked_upload_data)
+												: LLAssetUploadResponder(post_data, vfile_id, asset_type),
+												mBakedUploadData(baked_upload_data)
+{
+}
+
+LLSendTexLayerResponder::~LLSendTexLayerResponder()
+{
+	// mBakedUploadData is normally deleted by calls to LLTexLayerSetBuffer::onTextureUploadComplete() below
+	if (mBakedUploadData)
+	{	// ...but delete it in the case where uploadComplete() is never called
+		delete mBakedUploadData;
+		mBakedUploadData = NULL;
+	}
+}
+
+
+// Baked texture upload completed
+void LLSendTexLayerResponder::uploadComplete(const LLSD& content)
+{
+	LLUUID item_id = mPostData["item_id"];
+
+	std::string result = content["state"];
+	LLUUID new_id = content["new_asset"];
+
+	llinfos << "LLSendTexLayerResponder::result from capabilities: " << result << llendl;
+	if (result == "complete"
+		&& mBakedUploadData != NULL)
+	{	// Invoke 
+		LLTexLayerSetBuffer::onTextureUploadComplete(new_id, (void*) mBakedUploadData, 0, LL_EXSTAT_NONE);
+		mBakedUploadData = NULL;	// deleted in onTextureUploadComplete()
+	}
+	else
+	{	// Invoke the original callback with an error result
+		LLTexLayerSetBuffer::onTextureUploadComplete(new_id, (void*) mBakedUploadData, -1, LL_EXSTAT_NONE);
+		mBakedUploadData = NULL;	// deleted in onTextureUploadComplete()
+	}
+}
+
+void LLSendTexLayerResponder::error(U32 statusNum, const std::string& reason)
+{
+	llinfos << "status: " << statusNum << " reason: " << reason << llendl;
+	
+	// Invoke the original callback with an error result
+	LLTexLayerSetBuffer::onTextureUploadComplete(LLUUID(), (void*) mBakedUploadData, -1, LL_EXSTAT_NONE);
+	mBakedUploadData = NULL;	// deleted in onTextureUploadComplete()
+}
 
 LLUpdateAgentInventoryResponder::LLUpdateAgentInventoryResponder(const LLSD& post_data,
 																 const LLUUID& vfile_id,

@@ -1281,6 +1281,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		llwarns << "can't read hand pose" << llendl;
 		return FALSE;
 	}
+	
+	if(word > LLHandMotion::NUM_HAND_POSES)
+	{
+		llwarns << "invalid LLHandMotion::eHandPose index: " << word << llendl;
+		return FALSE;
+	}
+	
 	mJointMotionList->mHandPose = (LLHandMotion::eHandPose)word;
 
 	//-------------------------------------------------------------------------
@@ -1324,7 +1331,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			llwarns << "can't read joint name" << llendl;
 			return FALSE;
 		}
-	
+
+		if (joint_name == "mScreen" || joint_name == "mRoot")
+		{
+			llwarns << "attempted to animate special " << joint_name << " joint" << llendl;
+			return FALSE;
+		}
+				
 		//---------------------------------------------------------------------
 		// find the corresponding joint
 		//---------------------------------------------------------------------
@@ -1408,6 +1421,12 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				}
 
 				time = U16_to_F32(time_short, 0.f, mJointMotionList->mDuration);
+				
+				if (time < 0 || time > mJointMotionList->mDuration)
+				{
+					llwarns << "invalid frame time" << llendl;
+					return FALSE;
+				}
 			}
 			
 			RotationKey rot_key;
@@ -1437,6 +1456,12 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				rot_key.mRotation.unpackFromVector3(rot_vec);
 			}
 
+			if( !(rot_key.mRotation.isFinite()) )
+			{
+				llwarns << "non-finite angle in rotation key" << llendl;
+				success = FALSE;
+			}
+			
 			if (!success)
 			{
 				llwarns << "can't read rotation key (" << k << ")" << llendl;
@@ -1508,7 +1533,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				pos_key.mPosition.mV[VY] = U16_to_F32(y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
 				pos_key.mPosition.mV[VZ] = U16_to_F32(z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
 			}
-
+			
+			if( !(pos_key.mPosition.isFinite()) )
+			{
+				llwarns << "non-finite position in key" << llendl;
+				success = FALSE;
+			}
+			
 			if (!success)
 			{
 				llwarns << "can't read position key (" << k << ")" << llendl;
@@ -1560,6 +1591,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			}
 			constraintp->mChainLength = (S32) byte;
 
+			if((U32)constraintp->mChainLength > mJointMotionList->getNumJointMotions())
+			{
+				llwarns << "invalid constraint chain length" << llendl;
+				delete constraintp;
+				return FALSE;
+			}
+
 			if (!dp.unpackU8(byte, "constraint_type"))
 			{
 				llwarns << "can't read constraint type" << llendl;
@@ -1587,7 +1625,14 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				delete constraintp;
 				return FALSE;
 			}
-
+			
+			if( !(constraintp->mSourceConstraintOffset.isFinite()) )
+			{
+				llwarns << "non-finite constraint source offset" << llendl;
+				delete constraintp;
+				return FALSE;
+			}
+			
 			if (!dp.unpackBinaryDataFixed(bin_data, BIN_DATA_LENGTH, "target_volume"))
 			{
 				llwarns << "can't read target volume name" << llendl;
@@ -1615,9 +1660,23 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				return FALSE;
 			}
 
+			if( !(constraintp->mTargetConstraintOffset.isFinite()) )
+			{
+				llwarns << "non-finite constraint target offset" << llendl;
+				delete constraintp;
+				return FALSE;
+			}
+			
 			if (!dp.unpackVector3(constraintp->mTargetConstraintDir, "target_dir"))
 			{
 				llwarns << "can't read constraint target direction" << llendl;
+				delete constraintp;
+				return FALSE;
+			}
+
+			if( !(constraintp->mTargetConstraintDir.isFinite()) )
+			{
+				llwarns << "non-finite constraint target direction" << llendl;
 				delete constraintp;
 				return FALSE;
 			}
@@ -1685,8 +1744,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 						break;
 					}
 				}
+				if (constraintp->mJointStateIndices[i] < 0 )
+				{
+					llwarns << "No joint index for constraint " << i << llendl;
+					delete constraintp;
+					return FALSE;
+				}
 			}
-
 		}
 	}
 

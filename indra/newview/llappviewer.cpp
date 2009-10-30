@@ -206,7 +206,6 @@ extern OSStatus simpleDialogHandler(EventHandlerCallRef handler, EventRef event,
 #include <boost/tokenizer.hpp>
 #endif // LL_DARWIN
 
-
 extern BOOL gRandomizeFramerate;
 extern BOOL gPeriodicSlowFrame;
 extern BOOL gDebugGL;
@@ -262,9 +261,7 @@ LLUUID gInventoryLibraryRoot;
 
 BOOL				gDisconnected = FALSE;
 
-// Map scale in pixels per region
-F32 				gMapScale = 128.f;
-F32 				gMiniMapScale = 128.f;
+// Minimap scale in pixels per region
 
 // used to restore texture state after a mode switch
 LLFrameTimer	gRestoreGLTimer;
@@ -417,8 +414,7 @@ static void settings_to_globals()
 	gAllowIdleAFK = gSavedSettings.getBOOL("AllowIdleAFK");
 	gAllowTapTapHoldRun = gSavedSettings.getBOOL("AllowTapTapHoldRun");
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
-	gMapScale = gSavedSettings.getF32("MapScale");
-	gMiniMapScale = gSavedSettings.getF32("MiniMapScale");
+	LLWorldMapView::sMapScale = gSavedSettings.getF32("MapScale");
 	gHandleKeysAsync = gSavedSettings.getBOOL("AsyncKeyboard");
 	LLHoverView::sShowHoverTips = gSavedSettings.getBOOL("ShowHoverTips");
 
@@ -430,7 +426,7 @@ static void settings_modify()
 	LLRenderTarget::sUseFBO				= gSavedSettings.getBOOL("RenderUseFBO");
 	LLVOAvatar::sUseImpostors			= gSavedSettings.getBOOL("RenderUseImpostors");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
-	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //sqaure lod factor to get exponential range of [1,4]
+	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //square lod factor to get exponential range of [1,4]
 	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL");
 	gDebugPipeline = gSavedSettings.getBOOL("RenderDebugPipeline");
 	
@@ -525,11 +521,11 @@ const std::string LLAppViewer::sPerAccountSettingsName = "PerAccount";
 const std::string LLAppViewer::sCrashSettingsName = "CrashSettings"; 
 
 LLTextureCache* LLAppViewer::sTextureCache = NULL; 
-LLWorkerThread* LLAppViewer::sImageDecodeThread = NULL; 
+LLImageDecodeThread* LLAppViewer::sImageDecodeThread = NULL; 
 LLTextureFetch* LLAppViewer::sTextureFetch = NULL; 
 
 LLAppViewer::LLAppViewer() : 
-	mMarkerFile(NULL),
+	mMarkerFile(),
 	mReportedCrash(false),
 	mNumSessions(0),
 	mPurgeCache(false),
@@ -620,25 +616,6 @@ bool LLAppViewer::init()
 	/////////////////////////////////////////////////
 	// OS-specific login dialogs
 	/////////////////////////////////////////////////
-#if LL_WINDOWS
-	/*
-	// Display initial login screen, comes up quickly. JC
-	{
-		LLSplashScreen::hide();
-
-		INT_PTR result = DialogBox(hInstance, L"CONNECTBOX", NULL, login_dialog_func);
-		if (result < 0)
-		{
-			llwarns << "Connect dialog box failed, returned " << result << llendl;
-			return 1;
-		}
-		// success, result contains which button user clicked
-		llinfos << "Connect dialog box clicked " << result << llendl;
-
-		LLSplashScreen::show();
-	}
-	*/
-#endif
 
 	//test_cached_control();
 
@@ -1349,10 +1326,6 @@ bool LLAppViewer::cleanup()
 	// save all settings, even if equals defaults
 	gCrashSettings.saveToFile(crash_settings_filename, FALSE);
 
-	gSavedSettings.cleanup();
-	gColors.cleanup();
-	gCrashSettings.cleanup();
-
 	// Save URL history file
 	LLURLHistory::saveFile("url_history.xml");
 
@@ -1429,6 +1402,11 @@ bool LLAppViewer::cleanup()
 	delete gVFS;
 	gVFS = NULL;
 
+	// Cleanup settings last in case other clases reference them
+	gSavedSettings.cleanup();
+	gColors.cleanup();
+	gCrashSettings.cleanup();
+	
 	LLWatchdog::getInstance()->cleanup();
 
 	end_messaging_system();
@@ -1496,14 +1474,14 @@ bool LLAppViewer::initThreads()
 		LLWatchdog::getInstance()->init(watchdog_killer_callback);
 	}
 
-	LLVFSThread::initClass(enable_threads && true);
-	LLLFSThread::initClass(enable_threads && true);
+	LLVFSThread::initClass(enable_threads && false);
+	LLLFSThread::initClass(enable_threads && false);
 
 	// Image decoding
-	LLAppViewer::sImageDecodeThread = new LLWorkerThread("ImageDecode", enable_threads && true);
+	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
 	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), enable_threads && false);
-	LLImage::initClass(LLAppViewer::getImageDecodeThread());
+	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), sImageDecodeThread, enable_threads && true);
+	LLImage::initClass();
 
 	// *FIX: no error handling here!
 	return true;
@@ -2250,8 +2228,7 @@ void LLAppViewer::cleanupSavedSettings()
 		}
 	}
 
-	gSavedSettings.setF32("MapScale", gMapScale );
-	gSavedSettings.setF32("MiniMapScale", gMiniMapScale );
+	gSavedSettings.setF32("MapScale", LLWorldMapView::sMapScale );
 	gSavedSettings.setBOOL("AsyncKeyboard", gHandleKeysAsync);
 	gSavedSettings.setBOOL("ShowHoverTips", LLHoverView::sShowHoverTips);
 
@@ -2424,16 +2401,17 @@ void LLAppViewer::handleViewerCrash()
 		if(gLLErrorActivated) crash_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,LLERROR_MARKER_FILE_NAME);
 		else crash_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,ERROR_MARKER_FILE_NAME);
 		llinfos << "Creating crash marker file " << crash_file_name << llendl;
-		apr_file_t* crash_file =  ll_apr_file_open(crash_file_name, LL_APR_W);
-		if (crash_file)
+		
+		LLAPRFile crash_file ;
+		crash_file.open(crash_file_name, LL_APR_W, LLAPRFile::local);
+		if (crash_file.getFileHandle())
 		{
 			LL_INFOS("MarkerFile") << "Created crash marker file " << crash_file_name << LL_ENDL;
 		}
 		else
 		{
 			LL_WARNS("MarkerFile") << "Cannot create error marker file " << crash_file_name << LL_ENDL;
-		}
-		apr_file_close(crash_file);
+		}		
 	}
 	
 	if (gMessageSystem && gDirUtilp)
@@ -2487,13 +2465,13 @@ bool LLAppViewer::anotherInstanceRunning()
 	LL_DEBUGS("MarkerFile") << "Checking marker file for lock..." << LL_ENDL;
 
 	//Freeze case checks
-	apr_file_t* fMarker = ll_apr_file_open(marker_file, LL_APR_RB);		
-	if (fMarker != NULL)
+	if (LLAPRFile::isExist(marker_file, LL_APR_RB))
 	{
 		// File exists, try opening with write permissions
-		apr_file_close(fMarker);
-		fMarker = ll_apr_file_open(marker_file, LL_APR_WB);
-		if (fMarker == NULL)
+		LLAPRFile outfile ;
+		outfile.open(marker_file, LL_APR_WB, LLAPRFile::global);
+		apr_file_t* fMarker = outfile.getFileHandle() ; 
+		if (!fMarker)
 		{
 			// Another instance is running. Skip the rest of these operations.
 			LL_INFOS("MarkerFile") << "Marker file is locked." << LL_ENDL;
@@ -2501,12 +2479,10 @@ bool LLAppViewer::anotherInstanceRunning()
 		}
 		if (apr_file_lock(fMarker, APR_FLOCK_NONBLOCK | APR_FLOCK_EXCLUSIVE) != APR_SUCCESS) //flock(fileno(fMarker), LOCK_EX | LOCK_NB) == -1)
 		{
-			apr_file_close(fMarker);
 			LL_INFOS("MarkerFile") << "Marker file is locked." << LL_ENDL;
 			return true;
 		}
-		// No other instances; we'll lock this file now & delete on quit.
-		apr_file_close(fMarker);
+		// No other instances; we'll lock this file now & delete on quit.		
 	}
 	LL_DEBUGS("MarkerFile") << "Marker file isn't locked." << LL_ENDL;
 	return false;
@@ -2532,51 +2508,46 @@ void LLAppViewer::initMarkerFile()
 	std::string llerror_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LLERROR_MARKER_FILE_NAME);
 	std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
 
-	apr_file_t* fMarker = ll_apr_file_open(logout_marker_file, LL_APR_RB);
-	if(fMarker != NULL)
+	
+	if (LLAPRFile::isExist(mMarkerFileName, LL_APR_RB) && !anotherInstanceRunning())
 	{
-		apr_file_close(fMarker);
+		gLastExecEvent = LAST_EXEC_FROZE;
+		LL_INFOS("MarkerFile") << "Exec marker found: program froze on previous execution" << LL_ENDL;
+	}    
+    
+	if(LLAPRFile::isExist(logout_marker_file, LL_APR_RB))
+	{
 		LL_INFOS("MarkerFile") << "Last exec LLError crashed, setting LastExecEvent to " << LAST_EXEC_LLERROR_CRASH << LL_ENDL;
 		gLastExecEvent = LAST_EXEC_LOGOUT_FROZE;
-	}	
-	fMarker = ll_apr_file_open(llerror_marker_file, LL_APR_RB);
-	if(fMarker != NULL)
+	}
+	if(LLAPRFile::isExist(llerror_marker_file, LL_APR_RB))
 	{
-		apr_file_close(fMarker);
 		llinfos << "Last exec LLError crashed, setting LastExecEvent to " << LAST_EXEC_LLERROR_CRASH << llendl;
 		if(gLastExecEvent == LAST_EXEC_LOGOUT_FROZE) gLastExecEvent = LAST_EXEC_LOGOUT_CRASH;
 		else gLastExecEvent = LAST_EXEC_LLERROR_CRASH;
 	}
-	fMarker = ll_apr_file_open(error_marker_file, LL_APR_RB);
-	if(fMarker != NULL)
+	if(LLAPRFile::isExist(error_marker_file, LL_APR_RB))
 	{
-		apr_file_close(fMarker);
 		LL_INFOS("MarkerFile") << "Last exec crashed, setting LastExecEvent to " << LAST_EXEC_OTHER_CRASH << LL_ENDL;
 		if(gLastExecEvent == LAST_EXEC_LOGOUT_FROZE) gLastExecEvent = LAST_EXEC_LOGOUT_CRASH;
 		else gLastExecEvent = LAST_EXEC_OTHER_CRASH;
 	}
-
-	ll_apr_file_remove(logout_marker_file);
-	ll_apr_file_remove(llerror_marker_file);
-	ll_apr_file_remove(error_marker_file);
 	
-	//Freeze case checks
+	LLAPRFile::remove(logout_marker_file);
+	LLAPRFile::remove(llerror_marker_file);
+	LLAPRFile::remove(error_marker_file);
+	
+	// No new markers if another instance is running.
 	if(anotherInstanceRunning()) 
 	{
 		return;
 	}
 	
-	fMarker = ll_apr_file_open(mMarkerFileName, LL_APR_RB);		
-	if (fMarker != NULL)
-	{
-		apr_file_close(fMarker);
-		gLastExecEvent = LAST_EXEC_FROZE;
-		LL_INFOS("MarkerFile") << "Exec marker found: program froze on previous execution" << LL_ENDL;
-	}
-
 	// Create the marker file for this execution & lock it
-	mMarkerFile =  ll_apr_file_open(mMarkerFileName, LL_APR_W);
-	if (mMarkerFile)
+	apr_status_t s;
+	s = mMarkerFile.open(mMarkerFileName, LL_APR_W, LLAPRFile::global);
+
+	if (s == APR_SUCCESS && mMarkerFile.getFileHandle())
 	{
 		LL_DEBUGS("MarkerFile") << "Marker file created." << LL_ENDL;
 	}
@@ -2585,9 +2556,9 @@ void LLAppViewer::initMarkerFile()
 		LL_INFOS("MarkerFile") << "Failed to create marker file." << LL_ENDL;
 		return;
 	}
-	if (apr_file_lock(mMarkerFile, APR_FLOCK_NONBLOCK | APR_FLOCK_EXCLUSIVE) != APR_SUCCESS) 
+	if (apr_file_lock(mMarkerFile.getFileHandle(), APR_FLOCK_NONBLOCK | APR_FLOCK_EXCLUSIVE) != APR_SUCCESS) 
 	{
-		apr_file_close(mMarkerFile);
+		mMarkerFile.close() ;
 		LL_INFOS("MarkerFile") << "Marker file cannot be locked." << LL_ENDL;
 		return;
 	}
@@ -2598,14 +2569,14 @@ void LLAppViewer::initMarkerFile()
 void LLAppViewer::removeMarkerFile(bool leave_logout_marker)
 {
 	LL_DEBUGS("MarkerFile") << "removeMarkerFile()" << LL_ENDL;
-	if (mMarkerFile != NULL)
+	if (mMarkerFile.getFileHandle())
 	{
-		ll_apr_file_remove( mMarkerFileName );
-		mMarkerFile = NULL;
+		mMarkerFile.close() ;
+		LLAPRFile::remove( mMarkerFileName );
 	}
 	if (mLogoutMarkerFile != NULL && !leave_logout_marker)
 	{
-		ll_apr_file_remove( mLogoutMarkerFileName );
+		LLAPRFile::remove( mLogoutMarkerFileName );
 		mLogoutMarkerFile = NULL;
 	}
 }
@@ -3295,6 +3266,7 @@ void LLAppViewer::idle()
 	    //
     
 	    gFrameStats.start(LLFrameStats::IDLE_NETWORK);
+		stop_glerror();
 		idleNetwork();
 	    stop_glerror();
 	        
@@ -3605,16 +3577,19 @@ void LLAppViewer::sendLogoutRequest()
 		//Set internal status variables and marker files
 		gLogoutInProgress = TRUE;
 		mLogoutMarkerFileName = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,LOGOUT_MARKER_FILE_NAME);
-		mLogoutMarkerFile =  ll_apr_file_open(mLogoutMarkerFileName, LL_APR_W);
+		
+		LLAPRFile outfile ;
+		outfile.open(mLogoutMarkerFileName, LL_APR_W, LLAPRFile::global);
+		mLogoutMarkerFile =  outfile.getFileHandle() ;
 		if (mLogoutMarkerFile)
 		{
 			llinfos << "Created logout marker file " << mLogoutMarkerFileName << llendl;
+    		apr_file_close(mLogoutMarkerFile);
 		}
 		else
 		{
 			llwarns << "Cannot create logout marker file " << mLogoutMarkerFileName << llendl;
-		}
-		apr_file_close(mLogoutMarkerFile);
+		}		
 	}
 }
 

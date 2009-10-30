@@ -3,7 +3,7 @@
  *
  * $LicenseInfo:firstyear=2004&license=viewergpl$
  * 
- * Copyright (c) 2004-2008, Linden Research, Inc.
+ * Copyright (c) 2004-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -16,7 +16,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -37,6 +38,7 @@
 #include <set>
 
 #include "llqueuedthread.h"
+#include "llapr.h"
 
 #define USE_FRAME_CALLBACK_MANAGER 0
 
@@ -50,6 +52,7 @@ class LLWorkerClass;
 
 class LLWorkerThread : public LLQueuedThread
 {
+	friend class LLWorkerClass;
 public:
 	class WorkRequest : public LLQueuedThread::QueuedRequest
 	{
@@ -81,20 +84,20 @@ private:
 	typedef std::list<LLWorkerClass*> delete_list_t;
 	delete_list_t mDeleteList;
 	LLMutex* mDeleteMutex;
-	apr_pool_t* mWorkerAPRPoolp;
 	
 public:
 	LLWorkerThread(const std::string& name, bool threaded = true);
 	~LLWorkerThread();
 
-	apr_pool_t* getWorkerAPRPool() { return mWorkerAPRPoolp; }
-	
 	/*virtual*/ S32 update(U32 max_time_ms);
 	
 	handle_t addWorkRequest(LLWorkerClass* workerclass, S32 param, U32 priority = PRIORITY_NORMAL);
 	
-	void deleteWorker(LLWorkerClass* workerclass); // schedule for deletion
 	S32 getNumDeletes() { return (S32)mDeleteList.size(); } // debug
+
+private:
+	void deleteWorker(LLWorkerClass* workerclass); // schedule for deletion
+	
 };
 
 //============================================================================
@@ -119,8 +122,6 @@ class LLWorkerClass
 	friend class LLWorkerThread;
 	friend class LLWorkerThread::WorkRequest;
 
-public:
-	static BOOL sDeleteLock ;
 public:
 	typedef LLWorkerThread::handle_t handle_t;
 	enum FLAGS

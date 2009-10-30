@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
- * Copyright (c) 2002-2008, Linden Research, Inc.
+ * Copyright (c) 2002-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -671,9 +672,7 @@ public:
 		  mConcave(FALSE),
 		  mDirty(TRUE),
 		  mTotalOut(0),
-		  mTotal(2),
-		  mMinX(0.f),
-		  mMaxX(0.f)
+		  mTotal(2)
 	{
 	}
 
@@ -721,9 +720,6 @@ protected:
 
 	S32			  mTotalOut;
 	S32			  mTotal;
-
-	F32			  mMaxX;
-	F32			  mMinX;
 };
 
 //-------------------------------------------------------------------
@@ -953,7 +949,6 @@ public:
 		S32 sculpt_level,
 		BOOL is_flexible);
 private:
-	F32 sculptGetSurfaceArea(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data);
 	//ZWAGOTH
 	void sculptGenerateMapVertices(U16 sculpt_width,
 		U16 sculpt_height,
@@ -961,6 +956,7 @@ private:
 		const U8* sculpt_data,
 		U8 sculpt_type,
 		BOOL is_flexible);
+	F32 sculptGetSurfaceArea();
 	void sculptGeneratePlaceholder();
 	void sculptCalcMeshResolution(U16 width, U16 height, U8 type, S32& s, S32& t);
 

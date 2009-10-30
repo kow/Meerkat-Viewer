@@ -56,8 +56,12 @@
 #include "lltrans.h"
 #include "llappviewer.h" 
 #include "llglheaders.h"
+#include "llwindow.h"
 #include "llmediamanager.h"
 
+#if LL_WINDOWS
+#include "lldxhardware.h"
+#endif
 
 extern LLCPUInfo gSysCPU;
 extern LLMemoryInfo gSysMemory;
@@ -119,6 +123,14 @@ LLFloaterAbout::LLFloaterAbout()
 
 	std::string support;
 	support.append("\n\n");
+
+#if LL_MSVC
+    support.append(llformat("Built with MSVC version %d\n\n", _MSC_VER));
+#endif
+
+#if LL_GNUC
+    support.append(llformat("Built with GCC version %d\n\n", GCC_VERSION));
+#endif
 
 	// Position
 	LLViewerRegion* region = gAgent.getRegion();
@@ -190,6 +202,20 @@ LLFloaterAbout::LLFloaterAbout()
 	support.append("Graphics Card: ");
 	support.append( (const char*) glGetString(GL_RENDERER) );
 	support.append("\n");
+
+#if LL_WINDOWS
+    getWindow()->incBusyCount();
+    getWindow()->setCursor(UI_CURSOR_ARROW);
+    support.append("Windows Graphics Driver Version: ");
+    LLSD driver_info = gDXHardware.getDisplayInfo();
+    if (driver_info.has("DriverVersion"))
+    {
+        support.append(driver_info["DriverVersion"]);
+    }
+    support.append("\n");
+    getWindow()->decBusyCount();
+    getWindow()->setCursor(UI_CURSOR_ARROW);
+#endif
 
 	support.append("OpenGL Version: ");
 	support.append( (const char*) glGetString(GL_VERSION) );

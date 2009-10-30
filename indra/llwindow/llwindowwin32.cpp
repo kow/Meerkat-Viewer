@@ -372,6 +372,8 @@ LLWindowWin32::LLWindowWin32(const std::string& title, const std::string& name, 
 	mMousePositionModified = FALSE;
 	mInputProcessingPaused = FALSE;
 	mPreeditor = NULL;
+	mhDC = NULL;
+	mhRC = NULL;
 
 	// Initialize the keyboard
 	gKeyboard = new LLKeyboardWin32();
@@ -417,7 +419,7 @@ LLWindowWin32::LLWindowWin32(const std::string& title, const std::string& name, 
 	mhInstance = GetModuleHandle(NULL);
 	mWndProc = NULL;
 
-	mSwapMethod = SWAP_METHOD_EXCHANGE;
+	mSwapMethod = SWAP_METHOD_UNDEFINED;
 
 	// No WPARAM yet.
 	mLastSizeWParam = 0;
@@ -843,8 +845,13 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	RECT	window_rect;
 	S32 width = size.mX;
 	S32 height = size.mY;
+	BOOL auto_show = FALSE;
 
-	resetDisplayResolution();
+	if (mhRC)
+	{
+		auto_show = TRUE;
+		resetDisplayResolution();
+	}
 
 	if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
 	{
@@ -1182,8 +1189,28 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			LL_INFOS("Window") << "Choosing pixel formats: " << num_formats << " pixel formats returned" << LL_ENDL;
 		}
 
-		pixel_format = pixel_formats[0];
+		
 
+		S32 swap_method = 0;
+		S32 cur_format = num_formats-1;
+		GLint swap_query = WGL_SWAP_METHOD_ARB;
+
+		BOOL found_format = FALSE;
+
+		while (!found_format && wglGetPixelFormatAttribivARB(mhDC, pixel_format, 0, 1, &swap_query, &swap_method))
+		{
+			if (swap_method == WGL_SWAP_UNDEFINED_ARB || cur_format <= 0)
+			{
+				found_format = TRUE;
+			}
+			else
+			{
+				--cur_format;
+			}
+		}
+		
+		pixel_format = pixel_formats[cur_format];
+		
 		if (mhDC != 0)											// Does The Window Have A Device Context?
 		{
 			wglMakeCurrent(mhDC, 0);							// Set The Current Active Rendering Context To Zero
@@ -1225,9 +1252,6 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			OSMessageBox("Can't set pixel format", "Error", OSMB_OK);
 			return FALSE;
 		}
-
-		int swap_method = 0;
-		GLint swap_query = WGL_SWAP_METHOD_ARB;
 
 		if (wglGetPixelFormatAttribivARB(mhDC, pixel_format, 0, 1, &swap_query, &swap_method))
 		{
@@ -1341,13 +1365,21 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	}
 
 	SetWindowLong(mWindowHandle, GWL_USERDATA, (U32)this);
-	show();
-
+	
 	//register joystick timer callback
 	SetTimer( mWindowHandle, 0, 1000 / 30, NULL ); // 30 fps timer
 
 	// ok to post quit messages now
 	mPostQuit = TRUE;
+
+	if (auto_show)
+	{
+		show();
+		glClearColor(0.0f, 0.0f, 0.0f, 0.f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		swapBuffers();
+	}
+
 	return TRUE;
 }
 
@@ -1559,7 +1591,13 @@ void LLWindowWin32::captureMouse()
 
 void LLWindowWin32::releaseMouse()
 {
+	// *NOTE:Mani ReleaseCapture will spawn new windows messages...
+	// which will in turn call our MainWindowProc. It therefore requires
+	// pausing *and more importantly resumption* of the mainlooptimeout...
+	// just like DispatchMessage below.
+	mCallbacks->handlePauseWatchdog(this);
 	ReleaseCapture();
+	mCallbacks->handleResumeWatchdog(this);
 }
 
 

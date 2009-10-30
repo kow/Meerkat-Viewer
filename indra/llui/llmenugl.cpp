@@ -445,7 +445,7 @@ void LLMenuItemGL::draw( void )
 	U8 font_style = mStyle;
 	if (getEnabled() && !mDrawTextDisabled )
 	{
-		font_style |= LLFontGL::DROP_SHADOW_SOFT;
+		//font_style |= LLFontGL::DROP_SHADOW_SOFT;
 	}
 
 	if ( getEnabled() && getHighlight() )
@@ -1601,7 +1601,7 @@ void LLMenuItemBranchDownGL::draw( void )
 	U8 font_style = getFontStyle();
 	if (getEnabled() && !getDrawTextDisabled() )
 	{
-		font_style |= LLFontGL::DROP_SHADOW_SOFT;
+		//font_style |= LLFontGL::DROP_SHADOW_SOFT;
 	}
 
 	LLColor4 color;
@@ -2866,12 +2866,14 @@ BOOL LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
 
 void LLMenuGL::draw( void )
 {
+	/*
 	if (mDropShadowed && !mTornOff)
 	{
 		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0, 
 			LLUI::sColorsGroup->getColor("ColorDropShadow"), 
 			LLUI::sConfigGroup->getS32("DropShadowFloater") );
 	}
+	*/
 
 	LLColor4 bg_color = mBackgroundColor;
 

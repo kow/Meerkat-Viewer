@@ -177,7 +177,8 @@ LLPumpIO::LLPumpIO(apr_pool_t* pool) :
 	mCurrentPool(NULL),
 	mCurrentPoolReallocCount(0),
 	mChainsMutex(NULL),
-	mCallbackMutex(NULL)
+	mCallbackMutex(NULL),
+	mCurrentChain(mRunningChains.end())
 {
 	mCurrentChain = mRunningChains.end();
 
@@ -276,11 +277,10 @@ void LLPumpIO::adjustTimeoutSeconds(F32 delta)
 {
 	// Ensure a chain is running
 	if(mRunningChains.end() != mCurrentChain)
- 	{
+	{
 		(*mCurrentChain).adjustTimeoutSeconds(delta);
- 	}
+	}
 }
-
 
 static std::string events_2_string(apr_int16_t events)
 {
@@ -549,7 +549,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
 	//lldebugs << "Running chain count: " << mRunningChains.size() << llendl;
 	running_chains_t::iterator run_chain = mRunningChains.begin();
 	bool process_this_chain = false;
-	for(; run_chain != mRunningChains.end(); )
+	while( run_chain != mRunningChains.end() )
 	{
 		PUMP_DEBUG;
 		if((*run_chain).mInit

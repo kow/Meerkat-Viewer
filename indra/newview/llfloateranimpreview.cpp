@@ -234,9 +234,11 @@ BOOL LLFloaterAnimPreview::postBuild()
 
 		// now load bvh file
 		S32 file_size;
-		apr_file_t* fp = ll_apr_file_open(mFilenameAndPath, LL_APR_RB, &file_size);
-
-		if (!fp)
+		
+		LLAPRFile infile ;
+		infile.open(mFilenameAndPath, LL_APR_RB, LLAPRFile::global, &file_size);
+		
+		if (!infile.getFileHandle())
 		{
 			llwarns << "Can't open BVH file:" << mFilename << llendl;	
 		}
@@ -246,14 +248,14 @@ BOOL LLFloaterAnimPreview::postBuild()
 
 			file_buffer = new char[file_size + 1];
 
-			if (file_size == ll_apr_file_read(fp, file_buffer, file_size))
+			if (file_size == infile.read(file_buffer, file_size))
 			{
 				file_buffer[file_size] = '\0';
 				llinfos << "Loading BVH file " << mFilename << llendl;
 				loaderp = new LLBVHLoader(file_buffer);
 			}
 
-			apr_file_close(fp);
+			infile.close() ;
 			delete[] file_buffer;
 		}
 	}
@@ -1033,7 +1035,7 @@ LLPreviewAnimation::LLPreviewAnimation(S32 width, S32 height) : LLDynamicTexture
 	mDummyAvatar->updateJointLODs();
 	mDummyAvatar->updateGeometry(mDummyAvatar->mDrawable);
 	mDummyAvatar->startMotion(ANIM_AGENT_STAND, BASE_ANIM_TIME_OFFSET);
-	mDummyAvatar->mSkirtLOD.setVisible(FALSE, TRUE);
+	mDummyAvatar->hideSkirt();
 	gPipeline.markVisible(mDummyAvatar->mDrawable, *LLViewerCamera::getInstance());
 
 	// stop extraneous animations

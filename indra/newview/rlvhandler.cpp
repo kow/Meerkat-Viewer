@@ -587,7 +587,7 @@ BOOL RlvHandler::processAddCommand(const LLUUID& uuid, const RlvCommand& rlvCmd)
 		case RLV_BHVR_SHOWMINIMAP:			// @showminimap=n			- Checked: 2009-07-05 (RLVa-1.0.0c)
 			{
 				// Simulate clicking the Minimap button [see LLToolBar::onClickRadar()]
-				#if RLV_TARGET < RLV_MAKE_TARGET(1, 23, 0)			// Version: 1.22.11
+				#if 0 //HACK because we're using a newer floatermap on an older base! RLV_TARGET < RLV_MAKE_TARGET(1, 23, 0)			// Version: 1.22.11
 					if (gFloaterMap->getVisible())
 						LLFloaterMap::toggle(NULL);
 				#else												// Version: 1.23.4

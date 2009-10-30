@@ -167,8 +167,8 @@ LLPanelMeerkat::~LLPanelMeerkat()
 BOOL LLPanelMeerkat::postBuild()
 {
 	refresh();
-	getChild<LLComboBox>("material")->setSimple(gSavedSettings.getString("MeerkatBuildPrefs_Material"));
-	getChild<LLComboBox>("combobox shininess")->setSimple(gSavedSettings.getString("MeerkatBuildPrefs_Shiny"));
+	getChild<LLComboBox>("material")->setSimple(gSavedSettings.getString("EmeraldBuildPrefs_Material"));
+	getChild<LLComboBox>("combobox shininess")->setSimple(gSavedSettings.getString("EmeraldBuildPrefs_Shiny"));
 	
 	getChild<LLSlider>("MeerkatBeamShapeScale")->setCommitCallback(beamUpdateCall);
 	getChild<LLSlider>("MeerkatMaxBeamsPerSecond")->setCommitCallback(beamUpdateCall);
@@ -344,7 +344,7 @@ void LLPanelMeerkat::onTexturePickerCommit(LLUICtrl* ctrl, void* userdata)
 	LLTextureCtrl*	image_ctrl = (LLTextureCtrl*)ctrl;
 	if(image_ctrl)
 	{
-		gSavedSettings.setString("MeerkatBuildPrefs_Texture", image_ctrl->getImageAssetID().asString());
+		gSavedSettings.setString("EmeraldBuildPrefs_Texture", image_ctrl->getImageAssetID().asString());
 	}
 }
 

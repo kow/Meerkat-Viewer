@@ -3,7 +3,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -16,7 +16,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -276,6 +277,7 @@ BOOL LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time)
 }
 
 
+// Returns TRUE to mean done, whether successful or not.
 BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count )
 {
 	LLMemType mt1((LLMemType::EMemType)mMemType);
@@ -288,7 +290,7 @@ BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 	if (!getData() || (getDataSize() < 16))
 	{
 		setLastError("LLImageJ2C uninitialized");
-		res = FALSE;
+		res = TRUE; // done
 	}
 	else
 	{
@@ -341,7 +343,7 @@ BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, 
 //static
 S32 LLImageJ2C::calcHeaderSizeJ2C()
 {
-	return 600; //2048; // ??? hack... just needs to be >= actual header size...
+	return FIRST_PACKET_SIZE; // Hack. just needs to be >= actual header size...
 }
 
 //static
@@ -418,7 +420,9 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 	resetLastError();
 
 	S32 file_size = 0;
-	apr_file_t* apr_file = ll_apr_file_open(filename, LL_APR_RB, &file_size);
+	LLAPRFile infile ;
+	infile.open(filename, LL_APR_RB, LLAPRFile::global, &file_size);
+	apr_file_t* apr_file = infile.getFileHandle() ;
 	if (!apr_file)
 	{
 		setLastError("Unable to open file for reading", filename);
@@ -427,7 +431,6 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 	else if (file_size == 0)
 	{
 		setLastError("File is empty",filename);
-		apr_file_close(apr_file);
 		res = FALSE;
 	}
 	else
@@ -435,7 +438,8 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 		U8 *data = new U8[file_size];
 		apr_size_t bytes_read = file_size;
 		apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read	
-		apr_file_close(apr_file);
+		infile.close() ;
+
 		if (s != APR_SUCCESS || (S32)bytes_read != file_size)
 		{
 			delete[] data;
@@ -447,7 +451,7 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 			res = validate(data, file_size);
 		}
 	}
-
+	
 	if (!mLastError.empty())
 	{
 		LLImage::setLastError(mLastError);

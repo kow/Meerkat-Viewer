@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -71,7 +72,7 @@ public:
 								LLStrider<U16>& indicesp);
 
 	void updateFaceSize(S32 idx) { }
-	/*virtual*/ void updateTextures(LLAgent &agent);											
+	/*virtual*/ void updateTextures();											
 	/*virtual*/ BOOL updateLOD();
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
 
@@ -79,6 +80,16 @@ public:
 
 	/*virtual*/ BOOL    isActive() const; // Whether this object needs to do an idleUpdate.
 	BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+
+	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
+										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
+										  BOOL pick_transparent = FALSE,
+										  S32* face_hit = NULL,                 // which face was hit
+										  LLVector3* intersection = NULL,       // return the intersection point
+										  LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
+										  LLVector3* normal = NULL,             // return the surface normal at the intersection point
+										  LLVector3* bi_normal = NULL           // return the surface bi-normal at the intersection point
+		);
 
 	static S32 sMaxGrassSpecies;
 

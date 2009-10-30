@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -131,6 +132,8 @@ protected:
 
 public:
 	typedef std::list<LLPointer<LLViewerObject> > child_list_t;
+	typedef std::list<LLPointer<LLViewerObject> > vobj_list_t;
+
 	typedef const child_list_t const_child_list_t;
 
 	LLViewerObject(const LLUUID &id, const LLPCode type, LLViewerRegion *regionp, BOOL is_global = FALSE);
@@ -187,7 +190,7 @@ public:
 	S32 getNumFaces() const { return mNumFaces; }
 
 	// Graphical stuff for objects - maybe broken out into render class later?
-	virtual void updateTextures(LLAgent &agent);
+	virtual void updateTextures();
 	virtual void boostTexturePriority(BOOL boost_children = TRUE);	// When you just want to boost priority of this object
 	
 	virtual LLDrawable* createDrawable(LLPipeline *pipeline);
@@ -303,6 +306,7 @@ public:
 	/*virtual*/ S32		setTERotation(const U8 te, const F32 r);
 	/*virtual*/	S32		setTEBumpmap(const U8 te, const U8 bump );
 	/*virtual*/	S32		setTETexGen(const U8 te, const U8 texgen );
+	/*virtual*/	S32		setTEMediaTexGen(const U8 te, const U8 media ); // *FIXME: this confusingly acts upon a superset of setTETexGen's flags without absorbing its semantics
 	/*virtual*/	S32		setTEShiny(const U8 te, const U8 shiny );
 	/*virtual*/	S32		setTEFullbright(const U8 te, const U8 fullbright );
 	/*virtual*/	S32		setTEMediaFlags(const U8 te, const U8 media_flags );

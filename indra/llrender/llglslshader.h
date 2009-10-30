@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -77,18 +78,22 @@ public:
 	BOOL mapAttributes(const std::vector<std::string> * attributes);
 	BOOL mapUniforms(const std::vector<std::string> * uniforms);
 	void mapUniform(GLint index, const std::vector<std::string> * uniforms);
+	void uniform1i(U32 index, GLint i);
 	void uniform1f(U32 index, GLfloat v);
 	void uniform2f(U32 index, GLfloat x, GLfloat y);
 	void uniform3f(U32 index, GLfloat x, GLfloat y, GLfloat z);
 	void uniform4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
+	void uniform1iv(U32 index, U32 count, const GLint* i);
 	void uniform1fv(U32 index, U32 count, const GLfloat* v);
 	void uniform2fv(U32 index, U32 count, const GLfloat* v);
 	void uniform3fv(U32 index, U32 count, const GLfloat* v);
 	void uniform4fv(U32 index, U32 count, const GLfloat* v);
+	void uniform1i(const std::string& uniform, GLint i);
 	void uniform1f(const std::string& uniform, GLfloat v);
 	void uniform2f(const std::string& uniform, GLfloat x, GLfloat y);
 	void uniform3f(const std::string& uniform, GLfloat x, GLfloat y, GLfloat z);
 	void uniform4f(const std::string& uniform, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
+	void uniform1iv(const std::string& uniform, U32 count, const GLint* i);
 	void uniform1fv(const std::string& uniform, U32 count, const GLfloat* v);
 	void uniform2fv(const std::string& uniform, U32 count, const GLfloat* v);
 	void uniform3fv(const std::string& uniform, U32 count, const GLfloat* v);

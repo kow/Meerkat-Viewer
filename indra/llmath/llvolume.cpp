@@ -3,7 +3,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
- * Copyright (c) 2002-2008, Linden Research, Inc.
+ * Copyright (c) 2002-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -16,7 +16,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -55,7 +56,7 @@ const F32 CUT_MAX = 1.f;
 const F32 MIN_CUT_DELTA = 0.02f;
 
 const F32 HOLLOW_MIN = 0.f;
-const F32 HOLLOW_MAX = 0.99f;
+const F32 HOLLOW_MAX = 0.95f;
 const F32 HOLLOW_MAX_SQUARE	= 0.7f;
 
 const F32 TWIST_MIN = -1.f;
@@ -64,10 +65,10 @@ const F32 TWIST_MAX =  1.f;
 const F32 RATIO_MIN = 0.f;
 const F32 RATIO_MAX = 2.f; // Tom Y: Inverted sense here: 0 = top taper, 2 = bottom taper
 
-const F32 HOLE_X_MIN= 0.01f;
+const F32 HOLE_X_MIN= 0.05f;
 const F32 HOLE_X_MAX= 1.0f;
 
-const F32 HOLE_Y_MIN= 0.01f;
+const F32 HOLE_Y_MIN= 0.05f;
 const F32 HOLE_Y_MAX= 0.5f;
 
 const F32 SHEAR_MIN = -0.5f;
@@ -1801,7 +1802,7 @@ BOOL LLVolume::generate()
 
 		sNumMeshPoints -= mMesh.size();
 		mMesh.resize(sizeT * sizeS);
-		sNumMeshPoints += mMesh.size();
+		sNumMeshPoints += mMesh.size();		
 
 		//generate vertex positions
 
@@ -1972,34 +1973,29 @@ inline LLVector3 sculpt_xy_to_vector(U32 x, U32 y, U16 sculpt_width, U16 sculpt_
 }
 
 
-F32 LLVolume::sculptGetSurfaceArea(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data)
+F32 LLVolume::sculptGetSurfaceArea()
 {
 	// test to see if image has enough variation to create non-degenerate geometry
 
+	F32 area = 0;
+
 	S32 sizeS = mPathp->mPath.size();
 	S32 sizeT = mProfilep->mProfile.size();
-
-	F32 area = 0;
-	
-	if ((sculpt_width != 0) &&
-		(sculpt_height != 0) &&
-		(sculpt_components != 0) &&
-		(sculpt_data != NULL))
+			
+	for (S32 s = 0; s < sizeS-1; s++)
 	{
-		for (S32 s = 0; s < sizeS - 1; s++)
+		for (S32 t = 0; t < sizeT-1; t++)
 		{
-			for (S32 t = 0; t < sizeT - 1; t++)
-			{
-				// convert image data to vectors
-				LLVector3 p1 = sculpt_st_to_vector(s, t, sizeS, sizeT, sculpt_width, sculpt_height, sculpt_components, sculpt_data);
-				LLVector3 p2 = sculpt_st_to_vector(s+1, t, sizeS, sizeT, sculpt_width, sculpt_height, sculpt_components, sculpt_data);
-				LLVector3 p3 = sculpt_st_to_vector(s, t+1, sizeS, sizeT, sculpt_width, sculpt_height, sculpt_components, sculpt_data);
+			// get four corners of quad
+			LLVector3 p1 = mMesh[(s  )*sizeT + (t  )].mPos;
+			LLVector3 p2 = mMesh[(s+1)*sizeT + (t  )].mPos;
+			LLVector3 p3 = mMesh[(s  )*sizeT + (t+1)].mPos;
+			LLVector3 p4 = mMesh[(s+1)*sizeT + (t+1)].mPos;
 
-				// compute the area of the parallelogram by taking the length of the cross product:
-				// (parallegram is an approximation of two triangles)
-				LLVector3 cross = (p1 - p2) % (p1 - p3);
-				area += cross.magVec();
-			}
+			// compute the area of the quad by taking the length of the cross product of the two triangles
+			LLVector3 cross1 = (p1 - p2) % (p1 - p3);
+			LLVector3 cross2 = (p4 - p2) % (p4 - p3);
+			area += (cross1.magVec() + cross2.magVec()) / 2.0;
 		}
 	}
 
@@ -2116,6 +2112,7 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width,
 				{
 					x = 0;
 				}
+					
 				else
 				{
 					x = sculpt_width - 1;
@@ -2178,7 +2175,21 @@ S32 sculpt_sides(F32 detail)
 // determine the number of vertices in both s and t direction for this sculpt
 void sculpt_calc_mesh_resolution(U16 width, U16 height, U8 type, F32 detail, S32& s, S32& t)
 {
-	S32 vertices = sculpt_sides(detail);
+	// this code has the following properties:
+	// 1) the aspect ratio of the mesh is as close as possible to the ratio of the map
+	//    while still using all available verts
+	// 2) the mesh cannot have more verts than is allowed by LOD
+	// 3) the mesh cannot have more verts than is allowed by the map
+	
+	S32 max_vertices_lod = (S32)pow((double)sculpt_sides(detail), 2.0);
+	S32 max_vertices_map = width * height / 4;
+	
+	S32 vertices;
+	if (max_vertices_map > 0)
+		vertices = llmin(max_vertices_lod, max_vertices_map);
+	else
+		vertices = max_vertices_lod;
+	
 
 	F32 ratio;
 	if ((width == 0) || (height == 0))
@@ -2187,13 +2198,13 @@ void sculpt_calc_mesh_resolution(U16 width, U16 height, U8 type, F32 detail, S32
 		ratio = (F32) width / (F32) height;
 
 	
-	s = (S32)(vertices / fsqrtf(ratio));
+	s = (S32)fsqrtf(((F32)vertices / ratio));
 
-	s = llmax(s, 3);   // no degenerate sizes, please
-	t = vertices * vertices / s;
+	s = llmax(s, 4);              // no degenerate sizes, please
+	t = vertices / s;
 
-	t = llmax(t, 3);   // no degenerate sizes, please
-	s = vertices * vertices / t;
+	t = llmax(t, 4);              // no degenerate sizes, please
+	s = vertices / t;
 }
 
 //ZWAGOTH
@@ -2236,12 +2247,19 @@ void LLVolume::sculpt(U16 sculpt_width,
 	sNumMeshPoints -= mMesh.size();
 	mMesh.resize(sizeS * sizeT);
 	sNumMeshPoints += mMesh.size();
-	
-	if (!data_is_empty && sculptGetSurfaceArea(sculpt_width, sculpt_height, sculpt_components, sculpt_data) < SCULPT_MIN_AREA)
-		data_is_empty = TRUE;
 
 	//generate vertex positions
-	if (data_is_empty) // if empty, make a placeholder mesh
+	if (!data_is_empty)
+	{
+		sculptGenerateMapVertices(sculpt_width, sculpt_height, sculpt_components, sculpt_data, sculpt_type, is_flexible);
+		
+		if (sculptGetSurfaceArea() < SCULPT_MIN_AREA)
+		{
+			data_is_empty = TRUE;
+		}
+	}
+
+	if (data_is_empty)
 	{
 		sculptGeneratePlaceholder();
 	}	
@@ -2251,6 +2269,8 @@ void LLVolume::sculpt(U16 sculpt_width,
 		sculptGenerateMapVertices(sculpt_width, sculpt_height, sculpt_components, sculpt_data, sculpt_type, is_flexible);
 	}
 
+
+	
 	for (S32 i = 0; i < (S32)mProfilep->mFaces.size(); i++)
 	{
 		mFaceMask |= mProfilep->mFaces[i].mFaceID;
@@ -4269,7 +4289,7 @@ LLFaceID LLVolume::generateFaceMask()
 		}
 		break;
 	default:
-		llerrs << "Unknown profile!" << llendl
+		llerrs << "Unknown profile!" << llendl;
 		break;
 	}
 

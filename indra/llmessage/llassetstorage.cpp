@@ -63,6 +63,9 @@ const LLUUID CATEGORIZE_LOST_AND_FOUND_ID(std::string("00000000-0000-0000-0000-0
 
 const U64 TOXIC_ASSET_LIFETIME = (120 * 1000000);		// microseconds
 
+LLTempAssetStorage::~LLTempAssetStorage()
+{
+}
 
 ///----------------------------------------------------------------------------
 /// LLAssetInfo
@@ -539,8 +542,19 @@ void LLAssetStorage::downloadCompleteCallback(
 		return;
 	}
 
-	req->setUUID(file_id);
-	req->setType(file_type);
+	// Inefficient since we're doing a find through a list that may have thousands of elements.
+	// This is due for refactoring; we will probably change mPendingDownloads into a set.
+	request_list_t::iterator download_iter = std::find(gAssetStorage->mPendingDownloads.begin(), 
+													   gAssetStorage->mPendingDownloads.end(),
+													   req);
+	// If the LLAssetRequest doesn't exist in the downloads queue, then it either has already been deleted
+	// by _cleanupRequests, or it's a transfer.
+	if (download_iter != gAssetStorage->mPendingDownloads.end())
+	{
+		req->setUUID(file_id);
+		req->setType(file_type);
+	}
+
 	if (LL_ERR_NOERR == result)
 	{
 		// we might have gotten a zero-size file
@@ -563,7 +577,7 @@ void LLAssetStorage::downloadCompleteCallback(
 	{
 		request_list_t::iterator curiter = iter++;
 		LLAssetRequest* tmp = *curiter;
-		if ((tmp->getUUID() == req->getUUID()) && (tmp->getType()== req->getType()))
+		if ((tmp->getUUID() == file_id) && (tmp->getType()== file_type))
 		{
 			requests.push_front(tmp);
 			iter = gAssetStorage->mPendingDownloads.erase(curiter);

@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2003&license=viewergpl$
  * 
- * Copyright (c) 2003-2008, Linden Research, Inc.
+ * Copyright (c) 2003-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -70,7 +71,7 @@ void LLViewerPartSource::updatePart(LLViewerPart &part, const F32 dt)
 {
 }
 
-void LLViewerPartSource::update(const F32 dt)
+void LLViewerPartSource::update(const F32 dt) 
 {
 	llerrs << "Creating default part source!" << llendl;
 }
@@ -101,7 +102,7 @@ LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) 
 	mPosAgent = mSourceObjectp->getPositionAgent();
 	mImagep = gImageList.getImageFromFile("pixiesmall.j2c");
 	gGL.getTexUnit(0)->bind(mImagep.get());
-	mImagep->setClamp(TRUE, TRUE);
+	mImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
 
 

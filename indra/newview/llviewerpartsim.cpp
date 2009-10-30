@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2003&license=viewergpl$
  * 
- * Copyright (c) 2003-2008, Linden Research, Inc.
+ * Copyright (c) 2003-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -121,7 +122,8 @@ void LLViewerPart::init(LLPointer<LLViewerPartSource> sourcep, LLViewerImage *im
 //
 
 
-LLViewerPartGroup::LLViewerPartGroup(const LLVector3 &center_agent, const F32 box_side)
+LLViewerPartGroup::LLViewerPartGroup(const LLVector3 &center_agent, const F32 box_side, bool hud)
+ : mHud(hud)
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mVOPartGroupp = NULL;
@@ -138,12 +140,21 @@ LLViewerPartGroup::LLViewerPartGroup(const LLVector3 &center_agent, const F32 bo
 	mCenterAgent = center_agent;
 	mBoxRadius = F_SQRT3*box_side*0.5f;
 
+	if (mHud)
+	{
+		mVOPartGroupp = (LLVOPartGroup *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_HUD_PART_GROUP, getRegion());
+	}
+	else
+	{
 	mVOPartGroupp = (LLVOPartGroup *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_PART_GROUP, getRegion());
+	}
 	mVOPartGroupp->setViewerPartGroup(this);
 	mVOPartGroupp->setPositionAgent(getCenterAgent());
 	F32 scale = box_side * 0.5f;
 	mVOPartGroupp->setScale(LLVector3(scale,scale,scale));
-	gPipeline.addObject(mVOPartGroupp);
+	
+	//gPipeline.addObject(mVOPartGroupp);
+	gPipeline.createObject(mVOPartGroupp);
 
 	LLSpatialGroup* group = mVOPartGroupp->mDrawable->getSpatialGroup();
 
@@ -228,6 +239,12 @@ BOOL LLViewerPartGroup::posInGroup(const LLVector3 &pos, const F32 desired_size)
 BOOL LLViewerPartGroup::addPart(LLViewerPart* part, F32 desired_size)
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
+
+	if (part->mFlags & LLPartData::LL_PART_HUD && !mHud)
+	{
+		return FALSE;
+	}
+
 	BOOL uniform_part = part->mScale.mV[0] == part->mScale.mV[1] && 
 					!(part->mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK);
 
@@ -558,7 +575,7 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
 		if(!return_group)
 		{
 			llassert_always(part->mPosAgent.isFinite());
-			LLViewerPartGroup *groupp = createViewerPartGroup(part->mPosAgent, desired_size);
+			LLViewerPartGroup *groupp = createViewerPartGroup(part->mPosAgent, desired_size, part->mFlags & LLPartData::LL_PART_HUD);
 			groupp->mUniformParticles = (part->mScale.mV[0] == part->mScale.mV[1] && 
 									!(part->mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK));
 			if (!groupp->addPart(part))
@@ -583,12 +600,12 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
 	return return_group ;
 }
 
-LLViewerPartGroup *LLViewerPartSim::createViewerPartGroup(const LLVector3 &pos_agent, const F32 desired_size)
+LLViewerPartGroup *LLViewerPartSim::createViewerPartGroup(const LLVector3 &pos_agent, const F32 desired_size, bool hud)
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	//find a box that has a center position divisible by PART_SIM_BOX_SIDE that encompasses
 	//pos_agent
-	LLViewerPartGroup *groupp = new LLViewerPartGroup(pos_agent, desired_size);
+	LLViewerPartGroup *groupp = new LLViewerPartGroup(pos_agent, desired_size, hud);
 	mViewerPartGroups.push_back(groupp);
 	return groupp;
 }

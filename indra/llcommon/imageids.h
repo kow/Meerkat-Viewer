@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -55,6 +56,7 @@ const LLUUID IMG_SPARK			("d2e75ac1-d0fb-4532-820e-a20034ac814d"); // dataserver
 const LLUUID IMG_FIRE			("aca40aa8-44cf-44ca-a0fa-93e1a2986f82"); // dataserver
 const LLUUID IMG_FACE_SELECT    ("a85ac674-cb75-4af6-9499-df7c5aaf7a28"); // face selector
 const LLUUID IMG_DEFAULT_AVATAR ("c228d1cf-4b5d-4ba8-84f4-899a0796aa97"); // dataserver
+const LLUUID IMG_INVISIBLE		("3a367d1c-bef1-6d43-7595-e88c1e3aadb3"); // dataserver
 
 const LLUUID IMG_EXPLOSION				("68edcf47-ccd7-45b8-9f90-1649d7f12806"); // On dataserver
 const LLUUID IMG_EXPLOSION_2			("21ce046c-83fe-430a-b629-c7660ac78d7c"); // On dataserver

@@ -5530,7 +5530,22 @@
    </global_color>
 
 <!-- =========================================================== -->
-   <layer_set
+  <layer_set
+    body_region="hair"
+    width="512"
+    height="512"
+    clear_alpha="false">
+    <layer
+      name="base"
+      global_color="hair_color"
+      write_all_channels="true">
+      <texture
+       local_texture="hair_grain" />
+    </layer>
+  </layer_set>
+  <!-- =========================================================== -->
+
+  <layer_set
     body_region="head"
     width="512"
     height="512"
@@ -5602,27 +5617,28 @@
 
       <layer
        name="highlight">
-         <texture
-          tga_file="head_highlights_alpha.tga"
+                  <texture
+                    tga_file="head_highlights_alpha.tga"
           file_is_mask="TRUE" />
 
+
          <param
-          id="159"
-          group="1"
-          name="Shading"
-          wearable="skin"
-          value_min="0"
+                    id="159"
+                    group="1"
+                    name="Shading"
+                    wearable="skin"
+                    value_min="0"
           value_max="1">
-            <param_color>
-               <value
+                        <param_color>
+                              <value
                 color="255, 255, 255, 0" />
+
 
                <value
                 color="255, 255, 255, 64" />
-            </param_color>
-         </param>
-      </layer>
-
+                        </param_color>
+                  </param>
+            </layer>	  
       <layer
        name="rosyface">
          <texture
@@ -5652,7 +5668,7 @@
          </param>
       </layer>
 
-      <layer
+	  <layer
        name="lips">
          <texture
           tga_file="lips_mask.tga"
@@ -5714,29 +5730,28 @@
          </param>
       </layer>-->
       <layer
-       name="freckles"
+              name="freckles"
        fixed_color="120,47,20,128">
-         <param
-          id="165"
-          group="0"
-          wearable="skin"
-          edit_group="skin_facedetail"
-          edit_group_order="2"
-          name="Freckles"
-          label_min="Less"
-          label_max="More"
-          value_min="0"
-          value_max="1"
-          camera_distance=".3"
+                  <param
+                    id="165"
+                    group="0"
+                    wearable="skin"
+                    edit_group="skin_facedetail"
+                    edit_group_order="2"
+                    name="Freckles"
+                    label_min="Less"
+                    label_max="More"
+                    value_min="0"
+                    value_max="1"
+                    camera_distance=".3"
           camera_elevation=".07">
-            <param_alpha
-             tga_file="freckles_alpha.tga"
-             skip_if_zero="true"
+                        <param_alpha
+                          tga_file="freckles_alpha.tga"
+                          skip_if_zero="true"
              domain="0.5" />
-         </param>
-      </layer>
-
-      <layer
+                  </param>
+            </layer>
+            <layer
        name="eyebrowsbump"
        render_pass="bump">
          <texture
@@ -6524,7 +6539,7 @@
          </param>
       </layer>
 
-      <layer
+   <layer
        name="head_bodypaint">
          <texture
           local_texture="head_bodypaint" />
@@ -6622,6 +6637,12 @@
       </layer>
 
       <layer
+       name="upper_bodypaint">
+         <texture
+          local_texture="upper_bodypaint" />
+      </layer>
+
+      <layer
        name="freckles upper"
        fixed_color="120,47,20,128">
          <param
@@ -6632,16 +6653,10 @@
           value_min="0"
           value_max="1">
             <param_alpha
-             tga_file="bodyfreckles_alpha.tga"
+             tga_file="upperbodyfreckles_alpha.tga"
              skip_if_zero="true"
              domain="0.6" />
          </param>
-      </layer>
-
-      <layer
-       name="upper_bodypaint">
-         <texture
-          local_texture="upper_bodypaint" />
       </layer>
 
       <layer
@@ -7754,18 +7769,6 @@
       </layer>
 
       <layer
-       name="toenails">
-         <texture
-          tga_file="lowerbody_color.tga" />
-      </layer>
-
-      <layer
-       name="lower_bodypaint">
-         <texture
-          local_texture="lower_bodypaint" />
-      </layer>
-
-      <layer
        name="shadow">
          <texture
           tga_file="lowerbody_shading_alpha.tga"
@@ -7809,6 +7812,18 @@
                 color="255, 255, 255, 64" />
             </param_color>
          </param>
+      </layer>
+
+	  <layer
+       name="toenails">
+         <texture
+          tga_file="lowerbody_color.tga" />
+      </layer>
+
+      <layer
+       name="lower_bodypaint">
+         <texture
+          local_texture="lower_bodypaint" />
       </layer>
 
       <layer

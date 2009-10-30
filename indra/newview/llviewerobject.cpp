@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2008, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -17,7 +17,8 @@
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -65,7 +66,6 @@
 #include "llface.h"
 #include "llfloaterproperties.h"
 #include "llfollowcam.h"
-#include "llnetmap.h"
 #include "llselectmgr.h"
 #include "llrendersphere.h"
 #include "lltooldraganddrop.h"
@@ -205,7 +205,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 {
 	if(!is_global)
 	{
-	llassert(mRegionp);
+		llassert(mRegionp);
 	}
 
 	LLPrimitive::init_primitive(pcode);
@@ -217,7 +217,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 
 	if(!is_global)
 	{
-	mPositionAgent = mRegionp->getOriginAgent();
+		mPositionAgent = mRegionp->getOriginAgent();
 	}
 
 	LLViewerObject::sNumObjects++;
@@ -284,94 +284,94 @@ void LLViewerObject::markDead()
 {
 	if (!mDead)
 	{
-	//llinfos << "Marking self " << mLocalID << " as dead." << llendl;
+		//llinfos << "Marking self " << mLocalID << " as dead." << llendl;
+		
+		// Root object of this hierarchy unlinks itself.
+		if (getParent())
+		{
+			((LLViewerObject *)getParent())->removeChild(this);
+			// go ahead and delete any jointinfo's that we find
+			delete mJointInfo;
+			mJointInfo = NULL;
+		}
 
-	// Root object of this hierarchy unlinks itself.
-	if (getParent())
-	{
-		((LLViewerObject *)getParent())->removeChild(this);
-		// go ahead and delete any jointinfo's that we find
-		delete mJointInfo;
-		mJointInfo = NULL;
-	}
+		// Mark itself as dead
+		mDead = TRUE;
+		gObjectList.cleanupReferences(this);
 
-	// Mark itself as dead
-	mDead = TRUE;
-	gObjectList.cleanupReferences(this);
-	
-	LLViewerObject *childp;
-	while (mChildList.size() > 0)
-	{
-		childp = mChildList.back();
-		if (childp->getPCode() != LL_PCODE_LEGACY_AVATAR)
+		LLViewerObject *childp;
+		while (mChildList.size() > 0)
 		{
-			//llinfos << "Marking child " << childp->getLocalID() << " as dead." << llendl;
-			childp->setParent(NULL); // LLViewerObject::markDead 1
-			childp->markDead();
+			childp = mChildList.back();
+			if (childp->getPCode() != LL_PCODE_LEGACY_AVATAR)
+			{
+				//llinfos << "Marking child " << childp->getLocalID() << " as dead." << llendl;
+				childp->setParent(NULL); // LLViewerObject::markDead 1
+				childp->markDead();
+			}
+			else
+			{
+				// make sure avatar is no longer parented, 
+				// so we can properly set it's position
+				childp->setDrawableParent(NULL);
+				((LLVOAvatar*)childp)->getOffObject();
+				childp->setParent(NULL); // LLViewerObject::markDead 2
+			}
+			mChildList.pop_back();
 		}
-		else
-		{
-			// make sure avatar is no longer parented, 
-			// so we can properly set it's position
-			childp->setDrawableParent(NULL);
-			((LLVOAvatar*)childp)->getOffObject();
-			childp->setParent(NULL); // LLViewerObject::markDead 2
-		}
-		mChildList.pop_back();
-	}
-	
-	if (mDrawable.notNull())
-	{
-		// Drawables are reference counted, mark as dead, then nuke the pointer.
-		mDrawable->markDead();
-		mDrawable = NULL;
-	}
-	
-	if (mText)
-	{
-		mText->markDead();
-		mText = NULL;
-	}
-	
-	if (mIcon)
-	{
-		mIcon->markDead();
-		mIcon = NULL;
-	}
-	
-	if (mPartSourcep)
-	{
-		mPartSourcep->setDead();
-		mPartSourcep = NULL;
-	}
-	
-	if (mAudioSourcep)
-	{
-		// Do some cleanup
-		if (gAudiop)
-		{
-			gAudiop->cleanupAudioSource(mAudioSourcep);
-		}
-		mAudioSourcep = NULL;
-	}
-	
-	if (flagAnimSource())
-	{
-		LLVOAvatar* avatarp = gAgent.getAvatarObject();
-		if (avatarp && !avatarp->isDead())
-		{
-			// stop motions associated with this object
-			avatarp->stopMotionFromSource(mID);
-		}
-	}
 
-	if (flagCameraSource())
-	{
-		LLFollowCamMgr::removeFollowCamParams(mID);
+		if (mDrawable.notNull())
+		{
+			// Drawables are reference counted, mark as dead, then nuke the pointer.
+			mDrawable->markDead();
+			mDrawable = NULL;
+		}
+
+		if (mText)
+		{
+			mText->markDead();
+			mText = NULL;
+		}
+
+		if (mIcon)
+		{
+			mIcon->markDead();
+			mIcon = NULL;
+		}
+
+		if (mPartSourcep)
+		{
+			mPartSourcep->setDead();
+			mPartSourcep = NULL;
+		}
+
+		if (mAudioSourcep)
+		{
+			// Do some cleanup
+			if (gAudiop)
+			{
+				gAudiop->cleanupAudioSource(mAudioSourcep);
+			}
+			mAudioSourcep = NULL;
+		}
+
+		if (flagAnimSource())
+		{
+			LLVOAvatar* avatarp = gAgent.getAvatarObject();
+			if (avatarp && !avatarp->isDead())
+			{
+				// stop motions associated with this object
+				avatarp->stopMotionFromSource(mID);
+			}
+		}
+
+		if (flagCameraSource())
+		{
+			LLFollowCamMgr::removeFollowCamParams(mID);
+		}
+
+		sNumZombieObjects++;
 	}
-	
-	sNumZombieObjects++;
-}
 }
 
 void LLViewerObject::dump() const
@@ -506,8 +506,6 @@ void LLViewerObject::setParent(LLViewerObject* parent)
 
 void LLViewerObject::addChild(LLViewerObject *childp)
 {
-	BOOL result = TRUE;
-	
 	for (child_list_t::iterator i = mChildList.begin(); i != mChildList.end(); ++i)
 	{
 		if (*i == childp)
@@ -524,17 +522,6 @@ void LLViewerObject::addChild(LLViewerObject *childp)
 
 	childp->setParent(this);
 	mChildList.push_back(childp);
-
-	if (!result) 
-	{
-		llwarns << "Failed to attach child " << childp->getID() << " to object " << getID() << llendl;
-		removeChild(childp);
-		if (mJointInfo)
-		{
-			delete mJointInfo;
-			mJointInfo = NULL;
-		}
-	}
 }
 
 void LLViewerObject::removeChild(LLViewerObject *childp)
@@ -637,8 +624,8 @@ BOOL LLViewerObject::setDrawableParent(LLDrawable* parentp)
 	
 	BOOL ret = mDrawable->mXform.setParent(parentp ? &parentp->mXform : NULL);
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
-	if(	old_parent != parentp &&
-		old_parent || (parentp && parentp->isActive()))
+	if(	(old_parent != parentp && old_parent)
+		|| (parentp && parentp->isActive()))
 	{
 		// *TODO we should not be relying on setDrawable parent to call markMoved
 		gPipeline.markMoved(mDrawable, FALSE);
@@ -1411,7 +1398,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				}
 
 				// Setup object text
-				if (!mText)
+				if (!mText && (value & 0x4))
 				{
 					mText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
 					mText->setFont(LLFontGL::sSansSerif);
@@ -1439,7 +1426,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 					setChanged(TEXTURE);
 				}
-				else
+				else if(mText.notNull())
 				{
 					mText->markDead();
 					mText = NULL;
@@ -1900,7 +1887,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	if ( gShowObjectUpdates )
 	{
-		if (!((mPrimitiveCode == LL_PCODE_LEGACY_AVATAR) && (((LLVOAvatar *) this)->mIsSelf))
+		if (!((mPrimitiveCode == LL_PCODE_LEGACY_AVATAR) && (((LLVOAvatar *) this)->isSelf()))
 			&& mRegionp)
 		{
 			LLViewerObject* object = gObjectList.createObjectViewer(LL_PCODE_LEGACY_TEXT_BUBBLE, mRegionp);
@@ -2453,7 +2440,11 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 	msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, object->mInventorySerialNum);
 	LLFilenameAndTask* ft = new LLFilenameAndTask;
 	ft->mTaskID = task_id;
-	msg->getStringFast(_PREHASH_InventoryData, _PREHASH_Filename, ft->mFilename);
+
+	std::string unclean_filename;
+	msg->getStringFast(_PREHASH_InventoryData, _PREHASH_Filename, unclean_filename);
+	ft->mFilename = LLDir::getScrubbedFileName(unclean_filename);
+	
 	if(ft->mFilename.empty())
 	{
 		lldebugs << "Task has no inventory" << llendl;
@@ -2896,7 +2887,7 @@ F32 LLViewerObject::getMidScale() const
 }
 
 
-void LLViewerObject::updateTextures(LLAgent &agent)
+void LLViewerObject::updateTextures()
 {
 }
 
@@ -2911,14 +2902,14 @@ void LLViewerObject::boostTexturePriority(BOOL boost_children /* = TRUE */)
 	S32 tex_count = getNumTEs();
 	for (i = 0; i < tex_count; i++)
 	{
- 		getTEImage(i)->setBoostLevel(LLViewerImage::BOOST_SELECTED);
+ 		getTEImage(i)->setBoostLevel(LLViewerImageBoostLevel::BOOST_SELECTED);
 	}
 
 	if (isSculpted())
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		LLUUID sculpt_id = sculpt_params->getSculptTexture();
-		gImageList.getImage(sculpt_id)->setBoostLevel(LLViewerImage::BOOST_SELECTED);
+		gImageList.getImage(sculpt_id)->setBoostLevel(LLViewerImageBoostLevel::BOOST_SELECTED);
 	}
 	
 	if (boost_children)
@@ -3072,32 +3063,31 @@ void LLViewerObject::updatePositionCaches() const
 {
 	if(mRegionp)
 	{
-	if (!isRoot())
-	{
-		mPositionRegion = ((LLViewerObject *)getParent())->getPositionRegion() + getPosition() * getParent()->getRotation();
-		mPositionAgent = mRegionp->getPosAgentFromRegion(mPositionRegion);
+		if (!isRoot())
+		{
+			mPositionRegion = ((LLViewerObject *)getParent())->getPositionRegion() + getPosition() * getParent()->getRotation();
+			mPositionAgent = mRegionp->getPosAgentFromRegion(mPositionRegion);
+		}
+		else
+		{
+			mPositionRegion = getPosition();
+			mPositionAgent = mRegionp->getPosAgentFromRegion(mPositionRegion);
+		}
 	}
-	else
-	{
-		mPositionRegion = getPosition();
-		mPositionAgent = mRegionp->getPosAgentFromRegion(mPositionRegion);
-	}
-}
 }
 
 const LLVector3d LLViewerObject::getPositionGlobal() const
-{
+{	
 	if(mRegionp)
 	{
-	LLVector3d position_global = mRegionp->getPosGlobalFromRegion(getPositionRegion());
+		LLVector3d position_global = mRegionp->getPosGlobalFromRegion(getPositionRegion());
 
-	if (isAttachment())
-	{
-		position_global = gAgent.getPosGlobalFromAgent(getRenderPosition());
+		if (isAttachment())
+		{
+			position_global = gAgent.getPosGlobalFromAgent(getRenderPosition());
+		}		
+		return position_global;
 	}
-
-	return position_global;
-}
 	else
 	{
 		LLVector3d position_global(getPosition());
@@ -3742,11 +3732,10 @@ S32 LLViewerObject::setTEColor(const U8 te, const LLColor4& color)
 	else if (color != tep->getColor())
 	{
 		retval = LLPrimitive::setTEColor(te, color);
-		setChanged(TEXTURE);
 		if (mDrawable.notNull() && retval)
 		{
 			// These should only happen on updates which are not the initial update.
-			gPipeline.markTextured(mDrawable);
+			dirtyMesh();
 		}
 	}
 	return retval;
@@ -3784,6 +3773,22 @@ S32 LLViewerObject::setTETexGen(const U8 te, const U8 texgen)
 	else if (texgen != tep->getTexGen())
 	{
 		retval = LLPrimitive::setTETexGen(te, texgen);
+		setChanged(TEXTURE);
+	}
+	return retval;
+}
+
+S32 LLViewerObject::setTEMediaTexGen(const U8 te, const U8 media)
+{
+	S32 retval = 0;
+	const LLTextureEntry *tep = getTE(te);
+	if (!tep)
+	{
+		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+	}
+	else if (media != tep->getMediaTexGen())
+	{
+		retval = LLPrimitive::setTEMediaTexGen(te, media);
 		setChanged(TEXTURE);
 	}
 	return retval;

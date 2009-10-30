@@ -46,7 +46,7 @@ public:
 	{
 		VERTEX_DATA_MASK =	(1 << LLVertexBuffer::TYPE_VERTEX) |
 							(1 << LLVertexBuffer::TYPE_NORMAL) |
-							(1 << LLVertexBuffer::TYPE_TEXCOORD) |
+							(1 << LLVertexBuffer::TYPE_TEXCOORD0) |
 							(1 << LLVertexBuffer::TYPE_COLOR)
 	};
 
@@ -60,7 +60,7 @@ public:
 	virtual U32 getPartitionType() const;
 	
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent);
-	/*virtual*/ void updateTextures(LLAgent &agent);
+	/*virtual*/ void updateTextures();
 
 	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
 	/*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);

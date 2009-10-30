@@ -77,6 +77,8 @@
 
 #include "llfilepicker.h"
 
+using namespace LLVOAvatarDefines;
+
 //*TODO:translate : The ui xml for this really needs to be integrated with the appearance paramaters
 
 // Globals
@@ -101,8 +103,8 @@ public:
 	static LLUndoAction *create()	{ return new LLUndoWearable(); }
 
 	void			setVisualParam(S32 param_id, F32 weight);
-	void			setColor( LLVOAvatar::ETextureIndex te, const LLColor4& color );
-	void			setTexture( LLVOAvatar::ETextureIndex te, const LLUUID& asset_id );
+	void			setColor( ETextureIndex te, const LLColor4& color );
+	void			setTexture( ETextureIndex te, const LLUUID& asset_id );
 	void			setWearable( EWearableType type );
 
 	virtual void	undo() {applyUndoRedo();}
@@ -388,8 +390,8 @@ public:
 	virtual BOOL		isDirty() const;	// LLUICtrl
 	
 	void				addSubpart(const std::string& name, ESubpart id, LLSubpart* part );
-	void				addTextureDropTarget( LLVOAvatar::ETextureIndex te, const std::string& name, const LLUUID& default_image_id, BOOL allow_no_texture );
-	void				addColorSwatch( LLVOAvatar::ETextureIndex te, const std::string& name );
+	void				addTextureDropTarget( ETextureIndex te, const std::string& name, const LLUUID& default_image_id, BOOL allow_no_texture );
+	void				addColorSwatch( ETextureIndex te, const std::string& name );
 
 	const std::string&	getLabel()	{ return LLWearable::typeToTypeLabel( mType ); }
 	EWearableType		getType()	{ return mType; }
@@ -694,7 +696,7 @@ void LLPanelEditWearable::onSelectAutoWearOption(S32 option, void* data)
 			wearable->getPermissions().getMaskNextOwner(), cb);
 	}
 }
-void LLPanelEditWearable::addColorSwatch( LLVOAvatar::ETextureIndex te, const std::string& name )
+void LLPanelEditWearable::addColorSwatch( ETextureIndex te, const std::string& name )
 {
 	childSetCommitCallback(name, LLPanelEditWearable::onColorCommit, this);
 	mColorList[name] = te;
@@ -709,7 +711,7 @@ void LLPanelEditWearable::onColorCommit( LLUICtrl* ctrl, void* userdata )
 	LLVOAvatar* avatar = gAgent.getAvatarObject();
 	if( avatar )
 	{
-		LLVOAvatar::ETextureIndex te = (LLVOAvatar::ETextureIndex)(self->mColorList[ctrl->getName()]);
+		ETextureIndex te = (ETextureIndex)(self->mColorList[ctrl->getName()]);
 
 		LLColor4 old_color = avatar->getClothesColor( te );
 		const LLColor4& new_color = color_ctrl->get();
@@ -729,7 +731,7 @@ void LLPanelEditWearable::onColorCommit( LLUICtrl* ctrl, void* userdata )
 }
 
 
-void LLPanelEditWearable::addTextureDropTarget( LLVOAvatar::ETextureIndex te, const std::string& name,
+void LLPanelEditWearable::addTextureDropTarget( ETextureIndex te, const std::string& name,
 												const LLUUID& default_image_id, BOOL allow_no_texture )
 {
 	childSetCommitCallback(name, LLPanelEditWearable::onTextureCommit, this);
@@ -754,7 +756,7 @@ void LLPanelEditWearable::onTextureCommit( LLUICtrl* ctrl, void* userdata )
 	LLVOAvatar* avatar = gAgent.getAvatarObject();
 	if( avatar )
 	{
-		LLVOAvatar::ETextureIndex te = (LLVOAvatar::ETextureIndex)(self->mTextureList[ctrl->getName()]);
+		ETextureIndex te = (ETextureIndex)(self->mTextureList[ctrl->getName()]);
 
 		// Save the old version to the undo stack
 		LLViewerImage* existing_image = avatar->getTEImage( te );
@@ -948,7 +950,7 @@ void LLPanelEditWearable::draw()
 			LLColorSwatchCtrl* ctrl = getChild<LLColorSwatchCtrl>(name);
 			if (ctrl)
 			{
-				ctrl->set(avatar->getClothesColor( (LLVOAvatar::ETextureIndex)te_index ) );
+				ctrl->set(avatar->getClothesColor( (ETextureIndex)te_index ) );
 			}
 		}
 	}
@@ -1968,9 +1970,9 @@ void LLFloaterCustomize::initWearablePanels()
 	part->mCameraOffset.setVec(-2.5f, 0.5f, 0.5f);
 	panel->addSubpart( "Body Detail", SUBPART_SKIN_BODYDETAIL, part );
 
-	panel->addTextureDropTarget( LLVOAvatar::TEX_HEAD_BODYPAINT,  "Head Tattoos", 	LLUUID::null, TRUE );
-	panel->addTextureDropTarget( LLVOAvatar::TEX_UPPER_BODYPAINT, "Upper Tattoos", 	LLUUID::null, TRUE );
-	panel->addTextureDropTarget( LLVOAvatar::TEX_LOWER_BODYPAINT, "Lower Tattoos", 	LLUUID::null, TRUE );
+	panel->addTextureDropTarget( TEX_HEAD_BODYPAINT,  "Head Tattoos", 	LLUUID::null, TRUE );
+	panel->addTextureDropTarget( TEX_UPPER_BODYPAINT, "Upper Tattoos", 	LLUUID::null, TRUE );
+	panel->addTextureDropTarget( TEX_LOWER_BODYPAINT, "Lower Tattoos", 	LLUUID::null, TRUE );
 
 	panel->childSetAction("Randomize", &LLPanelEditWearable::onBtnRandomize, panel);
 
@@ -2007,7 +2009,7 @@ void LLFloaterCustomize::initWearablePanels()
 	part->mCameraOffset.setVec(-0.5f, 0.05f, 0.07f);
 	panel->addSubpart( "Facial", SUBPART_HAIR_FACIAL, part );
 
-	panel->addTextureDropTarget(LLVOAvatar::TEX_HAIR, "Texture",
+	panel->addTextureDropTarget(TEX_HAIR, "Texture",
 								LLUUID( gSavedSettings.getString( "UIImgDefaultHairUUID" ) ),
 								FALSE );
 
@@ -2024,7 +2026,7 @@ void LLFloaterCustomize::initWearablePanels()
 	part->mCameraOffset.setVec(-0.5f, 0.05f, 0.07f);
 	panel->addSubpart( LLStringUtil::null, SUBPART_EYES, part );
 
-	panel->addTextureDropTarget(LLVOAvatar::TEX_EYES_IRIS, "Iris",
+	panel->addTextureDropTarget(TEX_EYES_IRIS, "Iris",
 								LLUUID( gSavedSettings.getString( "UIImgDefaultEyesUUID" ) ),
 								FALSE );
 
@@ -2041,11 +2043,11 @@ void LLFloaterCustomize::initWearablePanels()
 	part->mCameraOffset.setVec(-1.f, 0.15f, 0.3f);
 	panel->addSubpart( LLStringUtil::null, SUBPART_SHIRT, part );
 
-	panel->addTextureDropTarget( LLVOAvatar::TEX_UPPER_SHIRT, "Fabric",
+	panel->addTextureDropTarget( TEX_UPPER_SHIRT, "Fabric",
 								 LLUUID( gSavedSettings.getString( "UIImgDefaultShirtUUID" ) ),
 								 FALSE );
 
-	panel->addColorSwatch( LLVOAvatar::TEX_UPPER_SHIRT, "Color/Tint" );
+	panel->addColorSwatch( TEX_UPPER_SHIRT, "Color/Tint" );
 
 
 	/////////////////////////////////////////
@@ -2059,11 +2061,11 @@ void LLFloaterCustomize::initWearablePanels()
 	part->mCameraOffset.setVec(-1.6f, 0.15f, -0.5f);
 	panel->addSubpart( LLStringUtil::null, SUBPART_PANTS, part );
 
-	panel->addTextureDropTarget(LLVOAvatar::TEX_LOWER_PANTS, "Fabric",
+	panel->addTextureDropTarget(TEX_LOWER_PANTS, "Fabric",
 								LLUUID( gSavedSettings.getString( "UIImgDefaultPantsUUID" ) ),
 								FALSE );
 
-	panel->addColorSwatch( LLVOAvatar::TEX_LOWER_PANTS, "Color/Tint" );
+	panel->addColorSwatch( TEX_LOWER_PANTS, "Color/Tint" );
 
 
 	/////////////////////////////////////////
@@ -2079,11 +2081,11 @@ void LLFloaterCustomize::initWearablePanels()
 		part->mCameraOffset.setVec(-1.6f, 0.15f, -0.5f);
 		panel->addSubpart( LLStringUtil::null, SUBPART_SHOES, part );
 
-		panel->addTextureDropTarget( LLVOAvatar::TEX_LOWER_SHOES, "Fabric",
+		panel->addTextureDropTarget( TEX_LOWER_SHOES, "Fabric",
 									 LLUUID( gSavedSettings.getString( "UIImgDefaultShoesUUID" ) ),
 									 FALSE );
 
-		panel->addColorSwatch( LLVOAvatar::TEX_LOWER_SHOES, "Color/Tint" );
+		panel->addColorSwatch( TEX_LOWER_SHOES, "Color/Tint" );
 	}
 
 
@@ -2100,11 +2102,11 @@ void LLFloaterCustomize::initWearablePanels()
 		part->mCameraOffset.setVec(-1.6f, 0.15f, -0.5f);
 		panel->addSubpart( LLStringUtil::null, SUBPART_SOCKS, part );
 
-		panel->addTextureDropTarget( LLVOAvatar::TEX_LOWER_SOCKS, "Fabric",
+		panel->addTextureDropTarget( TEX_LOWER_SOCKS, "Fabric",
 									 LLUUID( gSavedSettings.getString( "UIImgDefaultSocksUUID" ) ),
 									 FALSE );
 
-		panel->addColorSwatch( LLVOAvatar::TEX_LOWER_SOCKS, "Color/Tint" );
+		panel->addColorSwatch( TEX_LOWER_SOCKS, "Color/Tint" );
 	}
 
 	/////////////////////////////////////////
@@ -2120,14 +2122,14 @@ void LLFloaterCustomize::initWearablePanels()
 		part->mCameraOffset.setVec(-2.f, 0.1f, 0.3f);
 		panel->addSubpart( LLStringUtil::null, SUBPART_JACKET, part );
 
-		panel->addTextureDropTarget( LLVOAvatar::TEX_UPPER_JACKET, "Upper Fabric",
+		panel->addTextureDropTarget( TEX_UPPER_JACKET, "Upper Fabric",
 									 LLUUID( gSavedSettings.getString( "UIImgDefaultJacketUUID" ) ),
 									 FALSE );
-		panel->addTextureDropTarget( LLVOAvatar::TEX_LOWER_JACKET, "Lower Fabric",
+		panel->addTextureDropTarget( TEX_LOWER_JACKET, "Lower Fabric",
 									 LLUUID( gSavedSettings.getString( "UIImgDefaultJacketUUID" ) ),
 									 FALSE );
 
-		panel->addColorSwatch( LLVOAvatar::TEX_UPPER_JACKET, "Color/Tint" );
+		panel->addColorSwatch( TEX_UPPER_JACKET, "Color/Tint" );
 	}
 
 	/////////////////////////////////////////
@@ -2143,11 +2145,11 @@ void LLFloaterCustomize::initWearablePanels()
 		part->mCameraOffset.setVec(-1.6f, 0.15f, -0.5f);
 		panel->addSubpart( LLStringUtil::null, SUBPART_SKIRT, part );
 
-		panel->addTextureDropTarget( LLVOAvatar::TEX_SKIRT,  "Fabric",
+		panel->addTextureDropTarget( TEX_SKIRT,  "Fabric",
 									 LLUUID( gSavedSettings.getString( "UIImgDefaultSkirtUUID" ) ),
 									 FALSE );
 
-		panel->addColorSwatch( LLVOAvatar::TEX_SKIRT, "Color/Tint" );
+		panel->addColorSwatch( TEX_SKIRT, "Color/Tint" );
 	}
 
 
@@ -2164,11 +2166,11 @@ void LLFloaterCustomize::initWearablePanels()
 		part->mCameraOffset.setVec(-1.f, 0.15f, 0.f);
 		panel->addSubpart( LLStringUtil::null, SUBPART_GLOVES, part );
 
-		panel->addTextureDropTarget( LLVOAvatar::TEX_UPPER_GLOVES,  "Fabric",
+		panel->addTextureDropTarget( TEX_UPPER_GLOVES,  "Fabric",
 									 LLUUID( gSavedSettings.getString( "UIImgDefaultGlovesUUID" ) ),
 									 FALSE );
 
-		panel->addColorSwatch( LLVOAvatar::TEX_UPPER_GLOVES, "Color/Tint" );
+		panel->addColorSwatch( TEX_UPPER_GLOVES, "Color/Tint" );
 	}
 
 
@@ -2185,11 +2187,11 @@ void LLFloaterCustomize::initWearablePanels()
 		part->mCameraOffset.setVec(-1.f, 0.15f, 0.3f);
 		panel->addSubpart( LLStringUtil::null, SUBPART_UNDERSHIRT, part );
 
-		panel->addTextureDropTarget( LLVOAvatar::TEX_UPPER_UNDERSHIRT,  "Fabric",
+		panel->addTextureDropTarget( TEX_UPPER_UNDERSHIRT,  "Fabric",
 									 LLUUID( gSavedSettings.getString( "UIImgDefaultUnderwearUUID" ) ),
 									 FALSE );
 
-		panel->addColorSwatch( LLVOAvatar::TEX_UPPER_UNDERSHIRT, "Color/Tint" );
+		panel->addColorSwatch( TEX_UPPER_UNDERSHIRT, "Color/Tint" );
 	}
 
 	/////////////////////////////////////////
@@ -2205,11 +2207,11 @@ void LLFloaterCustomize::initWearablePanels()
 		part->mCameraOffset.setVec(-1.6f, 0.15f, -0.5f);
 		panel->addSubpart( LLStringUtil::null, SUBPART_UNDERPANTS, part );
 
-		panel->addTextureDropTarget( LLVOAvatar::TEX_LOWER_UNDERPANTS, "Fabric",
+		panel->addTextureDropTarget( TEX_LOWER_UNDERPANTS, "Fabric",
 									 LLUUID( gSavedSettings.getString( "UIImgDefaultUnderwearUUID" ) ),
 									 FALSE );
 
-		panel->addColorSwatch( LLVOAvatar::TEX_LOWER_UNDERPANTS, "Color/Tint" );
+		panel->addColorSwatch( TEX_LOWER_UNDERPANTS, "Color/Tint" );
 	}
 }
 
@@ -2535,13 +2537,13 @@ void LLUndoWearable::setVisualParam( S32 param_id, F32 weight)
 	mAppearance.addParam( param_id, weight );
 }
 
-void LLUndoWearable::setTexture( LLVOAvatar::ETextureIndex te, const LLUUID& asset_id )
+void LLUndoWearable::setTexture( ETextureIndex te, const LLUUID& asset_id )
 {
 	mAppearance.clear();
 	mAppearance.addTexture( te, asset_id );
 }
 
-void LLUndoWearable::setColor( LLVOAvatar::ETextureIndex te, const LLColor4& color )
+void LLUndoWearable::setColor( ETextureIndex te, const LLColor4& color )
 {
 	LLVOAvatar* avatar = gAgent.getAvatarObject();
 	if( !avatar )
@@ -2592,9 +2594,9 @@ void LLUndoWearable::setWearable( EWearableType type )
 		}
 	}
 
-	for( S32 te = 0; te < LLVOAvatar::TEX_NUM_ENTRIES; te++ )
+	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if( LLVOAvatar::getTEWearableType( te ) == type )
+		if( LLVOAvatar::getTEWearableType((ETextureIndex) te ) == type )
 		{
 			LLViewerImage* te_image = avatar->getTEImage( te );
 			if( te_image )
@@ -2628,7 +2630,7 @@ void LLUndoWearable::applyUndoRedo()
 	}
 
 	// Textures
-	for( S32 i = 0; i < LLVOAvatar::TEX_NUM_ENTRIES; i++ )
+	for( S32 i = 0; i < TEX_NUM_INDICES; i++ )
 	{
 		const LLUUID& image_id = mAppearance.mTextures[i];
 		if( !image_id.isNull() )

@@ -534,7 +534,8 @@ BOOL LLFontGL::loadFace(const std::string& filename,
 	}
 	mImageGLp->createGLTexture(0, mRawImageGLp);
 	gGL.getTexUnit(0)->bind(mImageGLp);
-	mImageGLp->setMipFilterNearest(TRUE, TRUE);
+	//mImageGLp->setMipFilterNearest(TRUE, TRUE);
+	mImageGLp->setFilteringOption(LLTexUnit::TFO_POINT);
 	return TRUE;
 }
 
@@ -548,7 +549,8 @@ BOOL LLFontGL::addChar(const llwchar wch)
 	stop_glerror();
 	mImageGLp->setSubImage(mRawImageGLp, 0, 0, mImageGLp->getWidth(), mImageGLp->getHeight());
 	gGL.getTexUnit(0)->bind(mImageGLp);
-	mImageGLp->setMipFilterNearest(TRUE, TRUE);
+	//mImageGLp->setMipFilterNearest(TRUE, TRUE);
+	mImageGLp->setFilteringOption(LLTexUnit::TFO_POINT);
 	stop_glerror();
 	return TRUE;
 }

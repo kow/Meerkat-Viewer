@@ -64,6 +64,7 @@
 #include "llfocusmgr.h"
 #include "llhttpsender.h"
 #include "imageids.h"
+#include "llimageworker.h"
 #include "lllandmark.h"
 #include "llloginflags.h"
 #include "llmd5.h"
@@ -170,7 +171,7 @@
 #include "llvoclouds.h"
 #include "llweb.h"
 #include "llworld.h"
-#include "llworldmap.h"
+#include "llworldmapmessage.h"
 #include "llxfermanager.h"
 #include "pipeline.h"
 #include "llappviewer.h"
@@ -332,7 +333,6 @@ bool idle_startup()
 	static S32 timeout_count = 0;
 
 	static LLTimer login_time;
-	static LLFrameTimer wearables_timer;
 
 	// until this is encapsulated, this little hack for the
 	// auth/transform loop will do.
@@ -1768,10 +1768,13 @@ bool idle_startup()
 		gLoginMenuBarView->setVisible( FALSE );
 		gLoginMenuBarView->setEnabled( FALSE );
 
-		gFloaterMap->setVisible( gSavedSettings.getBOOL("ShowMiniMap") );
-
 		LLRect window(0, gViewerWindow->getWindowHeight(), gViewerWindow->getWindowWidth(), 0);
 		gViewerWindow->adjustControlRectanglesForFirstUse(window);
+
+		if(gSavedSettings.getBOOL("ShowMiniMap"))
+		{
+			LLFloaterMap::showInstance();
+		}
 
 		if (gSavedSettings.getBOOL("ShowCameraControls"))
 		{
@@ -2454,11 +2457,25 @@ bool idle_startup()
 			LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
 		}
 
+
+		// We now have an inventory skeleton, so if this is a user's first
+		// login, we can start setting up their clothing and avatar 
+		// appearance.  This helps to avoid the generic "Ruth" avatar in
+		// the orientation island tutorial experience. JC
+		if (gAgent.isFirstLogin()
+			&& !sInitialOutfit.empty()    // registration set up an outfit
+			&& !sInitialOutfitGender.empty() // and a gender
+			&& gAgent.getAvatarObject()	  // can't wear clothes without object
+			&& !gAgent.isGenderChosen() ) // nothing already loading
+		{
+			// Start loading the wearables, textures, gestures
+			LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
+		}
+
 		// wait precache-delay and for agent's avatar or a lot longer.
 		if(((timeout_frac > 1.f) && gAgent.getAvatarObject())
 		   || (timeout_frac > 3.f))
 		{
-			wearables_timer.reset();
 			LLStartUp::setStartupState( STATE_WEARABLES_WAIT );
 		}
 		else
@@ -2467,6 +2484,12 @@ bool idle_startup()
 			set_startup_status(0.60f + 0.30f * timeout_frac,
 				"Loading world...",
 					gAgent.mMOTD);
+			display_startup();
+			if (!LLViewerShaderMgr::sInitialized)
+			{
+				LLViewerShaderMgr::sInitialized = TRUE;
+				LLViewerShaderMgr::instance()->setShaders();
+			}
 		}
 
 		return TRUE;
@@ -2474,6 +2497,7 @@ bool idle_startup()
 
 	if (STATE_WEARABLES_WAIT == LLStartUp::getStartupState())
 	{
+		static LLFrameTimer wearables_timer;
 
 		const F32 wearables_time = wearables_timer.getElapsedTimeF32();
 		const F32 MAX_WEARABLES_TIME = 10.f;
@@ -2517,7 +2541,7 @@ bool idle_startup()
 		else
 		{
 			// OK to just get the wearables
-			if ( gAgent.getWearablesLoaded() )
+			if ( gAgent.areWearablesLoaded() )
 			{
 				// We have our clothing, proceed.
 				//llinfos << "wearables loaded" << llendl;
@@ -3257,9 +3281,8 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
 	msg->setHandlerFunc("AvatarPickerReply", LLFloaterAvatarPicker::processAvatarPickerReply);
 
-	msg->setHandlerFunc("MapLayerReply", LLWorldMap::processMapLayerReply);
-	msg->setHandlerFunc("MapBlockReply", LLWorldMap::processMapBlockReply);
-	msg->setHandlerFunc("MapItemReply", LLWorldMap::processMapItemReply);
+	msg->setHandlerFunc("MapBlockReply", LLWorldMapMessage::processMapBlockReply);
+	msg->setHandlerFunc("MapItemReply", LLWorldMapMessage::processMapItemReply);
 
 	msg->setHandlerFunc("EventInfoReply", LLPanelEvent::processEventInfoReply);
 	msg->setHandlerFunc("PickInfoReply", LLPanelPick::processPickInfoReply);
@@ -4024,8 +4047,7 @@ void LLStartUp::resetLogin()
 	}
 
 	// Hide any other stuff
-	if ( gFloaterMap )
-		gFloaterMap->setVisible( FALSE );
+	LLFloaterMap::hideInstance();
 }
 
 //---------------------------------------------------------------------------

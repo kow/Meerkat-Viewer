@@ -206,7 +206,10 @@ void LLCrashLogger::gatherFiles()
 		mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
 	}
 
+#if !LL_DARWIN
 	if(mCrashInPreviousExec)
+#else
+#endif
 	{
 		// Replace the log file ext with .old, since the 
 		// instance that launched this process has overwritten
@@ -368,7 +371,7 @@ bool LLCrashLogger::init()
 	if( gDirUtilp )
 	{
 		std::string marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.exec_marker");
-		ll_apr_file_remove( marker_file );
+		LLAPRFile::remove( marker_file );
 	}
 	
 	return true;

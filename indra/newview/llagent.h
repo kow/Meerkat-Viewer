@@ -563,6 +563,7 @@ public:
 	void			setHomePosRegion( const U64& region_handle, const LLVector3& pos_region );
 	BOOL			getHomePosGlobal( LLVector3d* pos_global );
 	void			setCameraAnimating( BOOL b )	{ mCameraAnimating = b; }
+	BOOL			getCameraAnimating( )			{ return mCameraAnimating; }
 	void			setAnimationDuration( F32 seconds ) { mAnimationDuration = seconds; }
 
 	F32				getNearChatRadius() { return mNearChatRadius; }
@@ -611,8 +612,6 @@ public:
 	//--------------------------------------------------------------------
 	// Wearables
 	//--------------------------------------------------------------------
-	BOOL			getWearablesLoaded() const	{ return mWearablesLoaded; }
-
 	void			setWearable( LLInventoryItem* new_item, LLWearable* wearable );
 	static void		onSetWearableDialog( S32 option, void* userdata );
 	void			setWearableFinal( LLInventoryItem* new_item, LLWearable* new_wearable );
