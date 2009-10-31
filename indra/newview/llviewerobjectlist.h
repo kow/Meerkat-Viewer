@@ -44,6 +44,8 @@
 // project includes
 #include "llviewerobject.h"
 
+#include "llviewercamera.h"
+
 class LLNetMap;
 class LLDebugBeacon;
 

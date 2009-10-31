@@ -36,6 +36,7 @@
 
 #include "llagent.h" 
 
+#include "llcamera.h"
 #include "llcoordframe.h"
 #include "indra_constants.h"
 #include "llmath.h"
