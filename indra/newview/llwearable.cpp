@@ -204,7 +204,7 @@ BOOL LLWearable::FileExportParams( FILE* file )
 	{
 		S32 param_id = iter->first;
 		F32 param_weight = iter->second;
-		fprintf( file, "%d %s\n", param_id, terse_F32_to_string( param_weight ) );
+		fprintf( file, "%d %s\n", param_id, terse_F32_to_string( param_weight ).c_str() );
 	}
 
 	return TRUE;
