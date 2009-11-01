@@ -52,18 +52,45 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 	
 	LLXmlTreeNode* root = xml_tree.getRoot();
 
-	for (LLXmlTreeNode* child = root->getFirstChild();
-		child;
-		child = root->getNextChild())
+	for (LLXmlTreeNode* child = root->getFirstChild(); child; child = root->getNextChild())
 	{
 		if (child->hasName("schema"))
-			cmdline_printchat("found schema!");
+			cmdline_printchat("Version: "+child->getTextContents());
 
 		if (child->hasName("name"))
-			cmdline_printchat("found name!");
+			cmdline_printchat("Name: "+child->getTextContents());
 		
 		if (child->hasName("date"))
-			cmdline_printchat("found date!");
+			cmdline_printchat("Date: "+child->getTextContents());
+
+		if (child->hasName("software"))
+			cmdline_printchat("Software: "+child->getTextContents());
+
+		if (child->hasName("platform"))
+			cmdline_printchat("Platform: "+child->getTextContents());
+
+		if (child->hasName("grid"))
+			cmdline_printchat("Grid: "+child->getTextContents());
+		
+		if (child->hasName("group"))
+		{
+			for (LLXmlTreeNode* object = child->getFirstChild(); object; object = child->getNextChild())
+			{
+				if (object->hasName("max"))
+				{
+					F32 x,y,z;
+					object->getAttributeF32("x", x);
+					object->getAttributeF32("y", y);
+					object->getAttributeF32("z", z);
+					cmdline_printchat("x = " + llformat( "%.4f", x ));
+					cmdline_printchat("y = " + llformat( "%.4f", y ));
+					cmdline_printchat("z = " + llformat( "%.4f", z ));
+
+				}
+				if (object->hasName("linkset"))
+					xmlimport(object);
+			}
+		}
 	}
 	
 	/*
@@ -106,6 +133,25 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 	linksetoffset=linksetgroups[groupcounter]["ObjectPos"];
 	initialPos=gAgent.getCameraPositionAgent();
 	import(ls_llsd);
+}
+
+void ImportTracker::xmlimport(LLXmlTreeNode* ls_data)
+{
+	cmdline_printchat("making linkset!");
+/*
+	if(!(linkset.size()))
+		if(!(linksetgroups.size()))
+			initialPos=gAgent.getCameraPositionAgent();
+	linkset = ls_data;
+	updated=0;
+	LLSD rot = linkset[0]["rotation"];
+	rootrot.mQ[VX] = (F32)(rot[0].asReal());
+	rootrot.mQ[VY] = (F32)(rot[1].asReal());
+	rootrot.mQ[VZ] = (F32)(rot[2].asReal());
+	rootrot.mQ[VW] = (F32)(rot[3].asReal());
+	state = BUILDING;
+	//llinfos << "IMPORTED, BUILDING.." << llendl;
+	plywood_above_head(); */
 }
 
 void ImportTracker::import(LLSD& ls_data)

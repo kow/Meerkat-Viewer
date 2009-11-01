@@ -35,7 +35,7 @@
 const S32 LL_VERSION_MAJOR = 0;
 const S32 LL_VERSION_MINOR = 3;
 const S32 LL_VERSION_PATCH = 0;
-const S32 LL_VERSION_BUILD = 22;
+const S32 LL_VERSION_BUILD = 267;
 
 const char * const LL_CHANNEL = "Meerkat Release Candidate";
 
