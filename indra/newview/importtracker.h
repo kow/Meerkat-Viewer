@@ -29,7 +29,6 @@ class ImportTracker
 		//Chalice - support import of linkset groups
 		void importer(std::string file, void (*callback)(LLViewerObject*));
 		void cleargroups();
-		void xmlimport(LLXmlTreeNode* ls_data);
 		void import(LLSD &ls_data);
 		void expectRez();
 		void clear();

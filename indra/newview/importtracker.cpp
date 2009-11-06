@@ -22,6 +22,29 @@
 
 
 #include "llviewertexteditor.h"
+//
+// Constants
+//
+enum {
+	MI_BOX,
+	MI_CYLINDER,
+	MI_PRISM,
+	MI_SPHERE,
+	MI_TORUS,
+	MI_TUBE,
+	MI_RING,
+	MI_SCULPT,
+	MI_NONE,
+	MI_VOLUME_COUNT
+};
+
+enum {
+	MI_HOLE_SAME,
+	MI_HOLE_CIRCLE,
+	MI_HOLE_SQUARE,
+	MI_HOLE_TRIANGLE,
+	MI_HOLE_COUNT
+};
 
 ImportTracker gImportTracker;
 
@@ -30,17 +53,14 @@ extern LLAgent gAgent;
 void cmdline_printchat(std::string message);
 void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*))
 {
+	LLSD linksets;
+	S32 total_linksets = 0;
 	mDownCallback = callback;
 	asset_insertions = 0;
 
 	//KOW DOES HPA HERE////////////////////////////////
 	std::string xml_filename = file;
-	//LLXMLNodePtr root;
-	//BOOL success  = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
 
-	//if (!success || root.isNull() || !root->hasName( "project" ))
-	//{
-		
 	LLXmlTree xml_tree;
 
 	if (!xml_tree.parseFile(xml_filename))
@@ -76,6 +96,7 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 		{
 			for (LLXmlTreeNode* object = child->getFirstChild(); object; object = child->getNextChild())
 			{
+				LLSD ls_llsd;
 				if (object->hasName("max"))
 				{
 					F32 x,y,z;
@@ -85,35 +106,378 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 					cmdline_printchat("x = " + llformat( "%.4f", x ));
 					cmdline_printchat("y = " + llformat( "%.4f", y ));
 					cmdline_printchat("z = " + llformat( "%.4f", z ));
+					//feed this ^^ data to the floater so we can draw a preview rectangle
+				}
+				else if (object->hasName("linkset"))
+				{
+					cmdline_printchat("IMPORT LINKSET");
+					U32 totalprims;
+					S32 object_index = 0;
+					LLXmlTreeNode* prim = object->getFirstChild();
+
+					//for (LLXmlTreeNode* prim = object->getFirstChild(); prim; prim = object->getNextChild())
+					while ((object_index < object->getChildCount()))
+					{
+						cmdline_printchat("getting volume params for prim" + llformat("%u",object_index));
+						object_index++;
+
+						LLSD prim_llsd;
+						LLVolumeParams volume_params;
+						std::string name, description;
+						LLSD prim_scale, prim_pos, prim_rot;
+						F32 shearx, sheary;
+						F32 taperx = 0.f, tapery = 0.f;
+						S32 selected_type;
+						S32 selected_hole = 1;
+						F32 cut_begin = 0.f;
+						F32 cut_end = 1.f;
+						F32 adv_cut_begin = 0.f;
+						F32 adv_cut_end = 1.f;
+						F32 hollow = 0.f;
+						F32 twist_begin;
+						F32 twist;
+						F32 scale_x=1.f, scale_y=1.f;
+
+						if (prim->hasName("box"))
+							selected_type = MI_BOX;
+						else if (prim->hasName("cylinder"))
+							selected_type = MI_CYLINDER;
+						else if (prim->hasName("prism"))
+							selected_type = MI_PRISM;
+						else if (prim->hasName("sphere"))
+							selected_type = MI_SPHERE;
+						else if (prim->hasName("torus"))
+							selected_type = MI_TORUS;
+						else if (prim->hasName("tube"))
+							selected_type = MI_TUBE;
+						else if (prim->hasName("ring"))
+							selected_type = MI_RING;
+						else if (prim->hasName("sculpt"))
+							selected_type = MI_SCULPT;
+
+						//COPY PASTE FROM LLPANELOBJECT
+						// Figure out what type of volume to make
+						U8 profile;
+						U8 path;
+						switch ( selected_type )
+						{
+						case MI_CYLINDER:
+							profile = LL_PCODE_PROFILE_CIRCLE;
+							path = LL_PCODE_PATH_LINE;
+							break;
+
+						case MI_BOX:
+							profile = LL_PCODE_PROFILE_SQUARE;
+							path = LL_PCODE_PATH_LINE;
+							break;
+
+						case MI_PRISM:
+							profile = LL_PCODE_PROFILE_EQUALTRI;
+							path = LL_PCODE_PATH_LINE;
+							break;
+
+						case MI_SPHERE:
+							profile = LL_PCODE_PROFILE_CIRCLE_HALF;
+							path = LL_PCODE_PATH_CIRCLE;
+							break;
+
+						case MI_TORUS:
+							profile = LL_PCODE_PROFILE_CIRCLE;
+							path = LL_PCODE_PATH_CIRCLE;
+							break;
+
+						case MI_TUBE:
+							profile = LL_PCODE_PROFILE_SQUARE;
+							path = LL_PCODE_PATH_CIRCLE;
+							break;
+
+						case MI_RING:
+							profile = LL_PCODE_PROFILE_EQUALTRI;
+							path = LL_PCODE_PATH_CIRCLE;
+							break;
+
+						case MI_SCULPT:
+							profile = LL_PCODE_PROFILE_CIRCLE;
+							path = LL_PCODE_PATH_CIRCLE;
+							break;
+							
+						default:
+							llwarns << "Unknown base type " << selected_type 
+								<< " in getVolumeParams()" << llendl;
+							// assume a box
+							selected_type = MI_BOX;
+							profile = LL_PCODE_PROFILE_SQUARE;
+							path = LL_PCODE_PATH_LINE;
+							break;
+						}
+
+						for (LLXmlTreeNode* param = prim->getFirstChild(); param; param = prim->getNextChild())
+						{
+							//<name><![CDATA[Object]]></name>
+							if (param->hasName("name"))
+							{
+								cmdline_printchat("name found");
+								name = param->getTextContents();
+							}
+							//<description><![CDATA[]]></description>
+							else if (param->hasName("description"))
+							{
+								cmdline_printchat("description found");
+								description = param->getTextContents();
+
+							}
+							//<position x="115.80774" y="30.13144" z="41.09710" />
+							else if (param->hasName("position"))
+							{
+								cmdline_printchat("position found");
+								LLVector3 vec;
+								param->getAttributeF32("x", vec.mV[VX]);
+								param->getAttributeF32("y", vec.mV[VY]);
+								param->getAttributeF32("z", vec.mV[VZ]);
+
+								prim_pos.append((F64)vec.mV[VX]);
+								prim_pos.append((F64)vec.mV[VY]);
+								prim_pos.append((F64)vec.mV[VZ]);
+							}
+							//<size x="0.50000" y="0.50000" z="0.50000" />
+							else if (param->hasName("size"))
+							{
+								cmdline_printchat("size found");
+								LLVector3 vec;
+								param->getAttributeF32("x", vec.mV[VX]);
+								param->getAttributeF32("y", vec.mV[VY]);
+								param->getAttributeF32("z", vec.mV[VZ]);
+
+								prim_scale.append((F64)vec.mV[VX]);
+								prim_scale.append((F64)vec.mV[VY]);
+								prim_scale.append((F64)vec.mV[VZ]);
+							}
+							//<rotation w="1.00000" x="0.00000" y="0.00000" z="0.00000" />
+							else if (param->hasName("rotation"))
+							{
+								cmdline_printchat("rotation found");
+								LLQuaternion quat;
+								param->getAttributeF32("w", quat.mQ[VW]);
+								param->getAttributeF32("x", quat.mQ[VX]);
+								param->getAttributeF32("y", quat.mQ[VY]);
+								param->getAttributeF32("z", quat.mQ[VZ]);
+
+								prim_rot.append((F64)quat.mQ[VX]);
+								prim_rot.append((F64)quat.mQ[VY]);
+								prim_rot.append((F64)quat.mQ[VZ]);
+								prim_rot.append((F64)quat.mQ[VW]);
+
+							}
+							//<top_shear x="0.00000" y="0.00000" />
+							else if (param->hasName("top_shear"))
+							{
+								cmdline_printchat("top_shear found");
+								param->getAttributeF32("x", shearx);
+								param->getAttributeF32("y", sheary);
+
+							}
+							//<taper x="0.00000" y="0.00000" />
+							else if (param->hasName("taper"))
+							{
+								cmdline_printchat("taper found");
+
+								// Check if we need to change top size/hole size params.
+								switch (selected_type)
+								{
+								case MI_SPHERE:
+								case MI_TORUS:
+								case MI_TUBE:
+								case MI_RING:
+									param->getAttributeF32("x", taperx);
+									param->getAttributeF32("y", tapery);
+									break;
+								default:
+									param->getAttributeF32("x", scale_x);
+									param->getAttributeF32("y", scale_y);
+									scale_x = 1.f - scale_x;
+									scale_y = 1.f - scale_y;
+									break;
+								}
+							}
+							//<hole_size x="1.00000" y="0.05000" />
+							else if (param->hasName("hole_size"))
+							{
+								cmdline_printchat("holesize/scale found");
+								param->getAttributeF32("x", scale_x);
+								param->getAttributeF32("y", scale_y);
+							}
+							//<path_cut begin="0.00000" end="1.00000" />
+							else if (param->hasName("path_cut"))
+							{
+								cmdline_printchat("path_cut found");
+								param->getAttributeF32("begin", cut_begin);
+								param->getAttributeF32("end", cut_end);
+							}
+							//<twist begin="0.00000" end="0.00000" />
+							else if (param->hasName("twist"))
+							{
+								cmdline_printchat("twist found");
+								param->getAttributeF32("begin", twist_begin);
+								param->getAttributeF32("end", twist);
+							}
+							//<hollow amount="40.99900" shape="4" />
+							if (param->hasName("hollow"))
+							{
+								cmdline_printchat("hollow found");
+								param->getAttributeF32("amount", hollow);
+								param->getAttributeS32("shape", selected_hole);
+							}
+							//<texture>
+							else if (param->hasName("texture"))
+							{
+								cmdline_printchat("texture found");
+								
+							}
+						}
+						
+						U8 hole;
+						switch (selected_hole)
+						{
+						case 3: 
+							hole = LL_PCODE_HOLE_CIRCLE;
+							break;
+						case 2:
+							hole = LL_PCODE_HOLE_SQUARE;
+							break;
+						case 4:
+							hole = LL_PCODE_HOLE_TRIANGLE;
+							break;
+						case 1:
+						default:
+							hole = LL_PCODE_HOLE_SAME;
+							break;
+						}
+
+						volume_params.setType(profile | hole, path);
+						//mSelectedType = selected_type;
+						
+						// Compute cut start/end
+
+						// Make sure at least OBJECT_CUT_INC of the object survives
+						if (cut_begin > cut_end - OBJECT_MIN_CUT_INC)
+						{
+							cut_begin = cut_end - OBJECT_MIN_CUT_INC;
+							//mSpinCutBegin->set(cut_begin);
+						}
+
+						// Make sure at least OBJECT_CUT_INC of the object survives
+						if (adv_cut_begin > adv_cut_end - OBJECT_MIN_CUT_INC)
+						{
+							adv_cut_begin = adv_cut_end - OBJECT_MIN_CUT_INC;
+							//mCtrlPathBegin->set(adv_cut_begin);
+						}
+
+						F32 begin_s, end_s;
+						F32 begin_t, end_t;
+
+						if (selected_type == MI_SPHERE || selected_type == MI_TORUS || 
+							selected_type == MI_TUBE   || selected_type == MI_RING)
+						{
+							begin_s = adv_cut_begin;
+							end_s	= adv_cut_end;
+
+							begin_t = cut_begin;
+							end_t	= cut_end;
+						}
+						else
+						{
+							begin_s = cut_begin;
+							end_s	= cut_end;
+
+							begin_t = adv_cut_begin;
+							end_t	= adv_cut_end;
+						}
+
+						volume_params.setBeginAndEndS(begin_s, end_s);
+						volume_params.setBeginAndEndT(begin_t, end_t);
+
+						// Hollowness
+						hollow = hollow/100.f;
+						if (  selected_hole == MI_HOLE_SQUARE && 
+							( selected_type == MI_CYLINDER || selected_type == MI_TORUS ||
+							  selected_type == MI_PRISM    || selected_type == MI_RING  ||
+							  selected_type == MI_SPHERE ) )
+						{
+							if (hollow > 0.7f) hollow = 0.7f;
+						}
+
+						volume_params.setHollow( hollow );
+
+						// Twist Begin,End
+						// Check the path type for twist conversion.
+						if (path == LL_PCODE_PATH_LINE || path == LL_PCODE_PATH_FLEXIBLE)
+						{
+							twist_begin	/= OBJECT_TWIST_LINEAR_MAX;
+							twist		/= OBJECT_TWIST_LINEAR_MAX;
+						}
+						else
+						{
+							twist_begin	/= OBJECT_TWIST_MAX;
+							twist		/= OBJECT_TWIST_MAX;
+						}
+
+						volume_params.setTwistBegin(twist_begin);
+						volume_params.setTwist(twist);
+
+						volume_params.setRatio( scale_x, scale_y );
+//						volume_params.setSkew(skew);
+						volume_params.setTaper( taperx, tapery );
+//						volume_params.setRadiusOffset(radius_offset);
+//						volume_params.setRevolutions(revolutions);
+
+						// Shear X,Y
+						volume_params.setShear( shearx, sheary );
+
+
+						prim_llsd["position"] = prim_pos;
+						prim_llsd["rotation"] = prim_rot;
+
+						prim_llsd["scale"] = prim_scale;
+						// Flags
+						//prim_llsd["shadows"] = object->flagCastShadows();
+						//prim_llsd["phantom"] = object->flagPhantom();
+						//prim_llsd["physical"] = (BOOL)(object->mFlags & FLAGS_USE_PHYSICS);
+
+						// Volume params
+						prim_llsd["volume"] = volume_params.asLLSD();
+
+
+						
+						totalprims += 1;
+						prim = object->getNextChild();
+
+						//LLSD temp;
+						//temp["Object"] = prim_llsd;
+						// Changed to use link numbers zero-indexed.
+						ls_llsd[object_index - 1] = prim_llsd;
+					}
+
+/* fix later, flexi support!
+		if ((path == LL_PCODE_PATH_LINE) || (selected_type == MI_SCULPT))
+		{
+			LLVOVolume *volobjp = (LLVOVolume *)(LLViewerObject*)(mObject);
+			if (volobjp->isFlexible())
+			{
+				path = LL_PCODE_PATH_FLEXIBLE;
+			}
+		}
+*/
+					
+					LLSD temp;
+					temp["Object"] = ls_llsd;
+					linksets[total_linksets] = temp;
+					total_linksets++;
+					//we should have the proper LLSD structure by now
 
 				}
-				if (object->hasName("linkset"))
-					xmlimport(object);
 			}
 		}
 	}
-	
-	/*
-		std::string tmp;
-	static LLStdStringHandle render_pass_string = LLXmlTree::addAttributeString("project");
-	if( root->getFastAttributeString( render_pass_string, tmp ) )
-	{
-		cmdline_printchat("name: "+ tmp);
-	}
-	else
-		cmdline_printchat("fail");
-
-	LLXMLNode* attribute = root->getFirstChild();
-	//LLXMLNode* attribute = root->getNextSibling();
-
-	if (attribute->hasName("schema"))
-	{
-		cmdline_printchat("schema: "+ attribute->getTextContents());
-	}
-	else
-		cmdline_printchat("error!");
-		*/
-
 	//////////////////////////////////////////////
 	llifstream importer(file);
 	LLSD data;
@@ -125,7 +489,17 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 	filepath = file;
 	asset_dir = filepath.substr(0,filepath.find_last_of(".")) + "_assets";
 
-	linksetgroups=file_data;
+	//HPA hackin
+	//linksetgroups=file_data;
+	linksetgroups=linksets;
+
+	// Create a file stream and write to it
+	llofstream export_file(file + ".llsd");
+	LLSDSerialize::toPrettyXML(linksetgroups, export_file);
+	// Open the file save dialog
+	export_file.close();
+
+
 	//llinfos << "LOADED LINKSETS, PREPARING.." << llendl;
 	groupcounter=0;
 	LLSD ls_llsd;
@@ -133,25 +507,6 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 	linksetoffset=linksetgroups[groupcounter]["ObjectPos"];
 	initialPos=gAgent.getCameraPositionAgent();
 	import(ls_llsd);
-}
-
-void ImportTracker::xmlimport(LLXmlTreeNode* ls_data)
-{
-	cmdline_printchat("making linkset!");
-/*
-	if(!(linkset.size()))
-		if(!(linksetgroups.size()))
-			initialPos=gAgent.getCameraPositionAgent();
-	linkset = ls_data;
-	updated=0;
-	LLSD rot = linkset[0]["rotation"];
-	rootrot.mQ[VX] = (F32)(rot[0].asReal());
-	rootrot.mQ[VY] = (F32)(rot[1].asReal());
-	rootrot.mQ[VZ] = (F32)(rot[2].asReal());
-	rootrot.mQ[VW] = (F32)(rot[3].asReal());
-	state = BUILDING;
-	//llinfos << "IMPORTED, BUILDING.." << llendl;
-	plywood_above_head(); */
 }
 
 void ImportTracker::import(LLSD& ls_data)
@@ -818,7 +1173,7 @@ void ImportTracker::send_properties(LLSD& prim, int counter)
 
 void ImportTracker::send_vectors(LLSD& prim,int counter)
 {
-	LLVector3 position = ((LLVector3)prim["position"] * rootrot) + root;
+	LLVector3 position = (LLVector3)prim["position"];
 	LLSD rot = prim["rotation"];
 	LLQuaternion rotq;
 	rotq.mQ[VX] = (F32)(rot[0].asReal());
@@ -859,6 +1214,7 @@ void ImportTracker::send_vectors(LLSD& prim,int counter)
 	
 	msg->sendReliable(gAgent.getRegion()->getHost());
 }
+
 
 void ImportTracker::send_shape(LLSD& prim)
 {
