@@ -110,8 +110,7 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 				}
 				else if (object->hasName("linkset"))
 				{
-					cmdline_printchat("IMPORT LINKSET");
-					U32 totalprims;
+					U32 totalprims = 0;
 					S32 object_index = 0;
 					LLXmlTreeNode* prim = object->getFirstChild();
 
@@ -125,17 +124,17 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 						LLVolumeParams volume_params;
 						std::string name, description;
 						LLSD prim_scale, prim_pos, prim_rot;
-						F32 shearx, sheary;
+						F32 shearx = 0.f, sheary = 0.f;
 						F32 taperx = 0.f, tapery = 0.f;
-						S32 selected_type;
+						S32 selected_type = MI_BOX;
 						S32 selected_hole = 1;
 						F32 cut_begin = 0.f;
 						F32 cut_end = 1.f;
 						F32 adv_cut_begin = 0.f;
 						F32 adv_cut_end = 1.f;
 						F32 hollow = 0.f;
-						F32 twist_begin;
-						F32 twist;
+						F32 twist_begin = 0.f;
+						F32 twist = 0.f;
 						F32 scale_x=1.f, scale_y=1.f;
 
 						if (prim->hasName("box"))
@@ -215,26 +214,17 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 						{
 							//<name><![CDATA[Object]]></name>
 							if (param->hasName("name"))
-							{
-								cmdline_printchat("name found");
 								name = param->getTextContents();
-							}
 							//<description><![CDATA[]]></description>
 							else if (param->hasName("description"))
-							{
-								cmdline_printchat("description found");
 								description = param->getTextContents();
-
-							}
 							//<position x="115.80774" y="30.13144" z="41.09710" />
 							else if (param->hasName("position"))
 							{
-								cmdline_printchat("position found");
 								LLVector3 vec;
 								param->getAttributeF32("x", vec.mV[VX]);
 								param->getAttributeF32("y", vec.mV[VY]);
 								param->getAttributeF32("z", vec.mV[VZ]);
-
 								prim_pos.append((F64)vec.mV[VX]);
 								prim_pos.append((F64)vec.mV[VY]);
 								prim_pos.append((F64)vec.mV[VZ]);
@@ -242,12 +232,10 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 							//<size x="0.50000" y="0.50000" z="0.50000" />
 							else if (param->hasName("size"))
 							{
-								cmdline_printchat("size found");
 								LLVector3 vec;
 								param->getAttributeF32("x", vec.mV[VX]);
 								param->getAttributeF32("y", vec.mV[VY]);
 								param->getAttributeF32("z", vec.mV[VZ]);
-
 								prim_scale.append((F64)vec.mV[VX]);
 								prim_scale.append((F64)vec.mV[VY]);
 								prim_scale.append((F64)vec.mV[VZ]);
@@ -255,13 +243,11 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 							//<rotation w="1.00000" x="0.00000" y="0.00000" z="0.00000" />
 							else if (param->hasName("rotation"))
 							{
-								cmdline_printchat("rotation found");
 								LLQuaternion quat;
 								param->getAttributeF32("w", quat.mQ[VW]);
 								param->getAttributeF32("x", quat.mQ[VX]);
 								param->getAttributeF32("y", quat.mQ[VY]);
 								param->getAttributeF32("z", quat.mQ[VZ]);
-
 								prim_rot.append((F64)quat.mQ[VX]);
 								prim_rot.append((F64)quat.mQ[VY]);
 								prim_rot.append((F64)quat.mQ[VZ]);
@@ -271,16 +257,12 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 							//<top_shear x="0.00000" y="0.00000" />
 							else if (param->hasName("top_shear"))
 							{
-								cmdline_printchat("top_shear found");
 								param->getAttributeF32("x", shearx);
 								param->getAttributeF32("y", sheary);
-
 							}
 							//<taper x="0.00000" y="0.00000" />
 							else if (param->hasName("taper"))
 							{
-								cmdline_printchat("taper found");
-
 								// Check if we need to change top size/hole size params.
 								switch (selected_type)
 								{
@@ -302,36 +284,126 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 							//<hole_size x="1.00000" y="0.05000" />
 							else if (param->hasName("hole_size"))
 							{
-								cmdline_printchat("holesize/scale found");
 								param->getAttributeF32("x", scale_x);
 								param->getAttributeF32("y", scale_y);
 							}
 							//<path_cut begin="0.00000" end="1.00000" />
 							else if (param->hasName("path_cut"))
 							{
-								cmdline_printchat("path_cut found");
 								param->getAttributeF32("begin", cut_begin);
 								param->getAttributeF32("end", cut_end);
 							}
 							//<twist begin="0.00000" end="0.00000" />
 							else if (param->hasName("twist"))
 							{
-								cmdline_printchat("twist found");
 								param->getAttributeF32("begin", twist_begin);
 								param->getAttributeF32("end", twist);
 							}
 							//<hollow amount="40.99900" shape="4" />
 							if (param->hasName("hollow"))
 							{
-								cmdline_printchat("hollow found");
 								param->getAttributeF32("amount", hollow);
 								param->getAttributeS32("shape", selected_hole);
 							}
 							//<texture>
 							else if (param->hasName("texture"))
 							{
+								LLSD textures;
+								S32 texture_count = 0;
+
 								cmdline_printchat("texture found");
-								
+								for (LLXmlTreeNode* face = param->getFirstChild(); face; face = param->getNextChild())
+								{
+									LLSD sd;
+									LLColor4 color;
+									/*
+	sd["imageid"] = getID();
+	sd["colors"] = ll_sd_from_color4(getColor());
+	sd["scales"] = mScaleS;
+	sd["scalet"] = mScaleT;
+	sd["offsets"] = mOffsetS;
+	sd["offsett"] = mOffsetT;
+	sd["imagerot"] = getRotation();
+	sd["bump"] = getBumpShiny();
+	sd["fullbright"] = getFullbright();
+	sd["media_flags"] = getMediaTexGen();
+	sd["glow"] = getGlow(); */
+									//<face id="0">
+									for (LLXmlTreeNode* param = face->getFirstChild(); param; param = face->getNextChild())
+									{
+										cmdline_printchat("face param found");
+										//<tile u="1.00000" v="-0.90000" />
+										if (param->hasName("tile"))
+										{
+											F32 temp;
+											param->getAttributeF32("u", temp);
+											sd["scales"] = temp;
+											param->getAttributeF32("v", temp);
+											sd["scalet"] = temp;
+										}
+										//<offset u="0.00000" v="0.00000" />
+										else if (param->hasName("offset"))
+										{
+											F32 temp;
+											param->getAttributeF32("u", temp);
+											sd["offsets"] = temp;
+											param->getAttributeF32("v", temp);
+											sd["offsett"] = temp;
+										}
+										//<rotation w="0.00000" />
+										else if (param->hasName("rotation"))
+										{
+											F32 temp;
+											param->getAttributeF32("w", temp);
+											sd["imagerot"] = temp;
+										}
+										//<image_file><![CDATA[87008270-fe87-bf2a-57ea-20dc6ecc4e6a.tga]]></image_file>
+										else if (param->hasName("image_file"))
+										{
+											//param->getAttributeF32("x", scale_x);
+											//param->getAttributeF32("y", scale_y);
+										}
+										//<image_uuid>87008270-fe87-bf2a-57ea-20dc6ecc4e6a</image_uuid>
+										else if (param->hasName("image_uuid"))
+										{
+											sd["imageid"] = param->getTextContents();
+										}
+										//<color b="1.00000" g="1.00000" r="1.00000" />
+										else if (param->hasName("color"))
+										{
+											param->getAttributeF32("r", color.mV[VRED]);
+											param->getAttributeF32("g", color.mV[VGREEN]);
+											param->getAttributeF32("b", color.mV[VBLUE]);
+										}
+										//<transparency val="1.00000" />
+										else if (param->hasName("transparency"))
+										{
+											param->getAttributeF32("val", color.mV[VALPHA]);
+										}
+										//<glow val="0.00000" />
+										else if (param->hasName("glow"))
+										{
+											F32 temp;
+											param->getAttributeF32("val", temp);
+											sd["glow"] = temp;
+										}
+										//<fullbright val="true" />
+										else if (param->hasName("fullbright"))
+										{
+											BOOL temp;
+											param->getAttributeBOOL("val", temp);
+											sd["fullbright"] = temp;
+										}
+									}
+									sd["colors"].append(color.mV[0]);
+									sd["colors"].append(color.mV[1]);
+									sd["colors"].append(color.mV[2]);
+									sd["colors"].append(color.mV[3]);
+									textures[texture_count] = sd;
+									texture_count++;
+								}
+								prim_llsd["textures"] = textures;
+									
 							}
 						}
 						
