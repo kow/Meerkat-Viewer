@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: ptr_helper.hpp 45264 2006-02-24 21:34:57Z chris $
+ * $Id: ptr_helper.hpp 24096 2004-07-27 03:43:34Z dgregor $
  *
  */
 

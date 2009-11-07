@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source: /cvsroot/boost/boost/boost/mpl/aux_/arity_spec.hpp,v $
-// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
-// $Revision: 82858 $
+// $Source$
+// $Date: 2004-11-27 21:04:02 -0500 (Sat, 27 Nov 2004) $
+// $Revision: 26326 $
 
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/limits/arity.hpp>

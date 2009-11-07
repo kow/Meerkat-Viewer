@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source: /cvsroot/boost/boost/boost/mpl/aux_/nested_type_wknd.hpp,v $
-// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
-// $Revision: 82858 $
+// $Source$
+// $Date: 2004-09-28 09:56:59 -0400 (Tue, 28 Sep 2004) $
+// $Revision: 25453 $
 
 #include <boost/mpl/aux_/config/gcc.hpp>
 #include <boost/mpl/aux_/config/workaround.hpp>

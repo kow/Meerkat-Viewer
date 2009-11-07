@@ -3,13 +3,15 @@
 
     http://www.boost.org/
 
-    Copyright (c) 2001-2007 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 
 #if !defined(CPP_DEFINED_GRAMMAR_HPP_F48287B2_DC67_40A8_B4A1_800EFBD67869_INCLUDED)
 #define CPP_DEFINED_GRAMMAR_HPP_F48287B2_DC67_40A8_B4A1_800EFBD67869_INCLUDED
+
+#include <boost/wave/wave_config.hpp>
 
 #include <boost/assert.hpp>
 #include <boost/spirit/core.hpp>
@@ -19,7 +21,6 @@
 #include <boost/spirit/actor/push_back_actor.hpp>
 #endif // SPIRIT_VERSION >= 0x1700
 
-#include <boost/wave/wave_config.hpp>
 #include <boost/wave/token_ids.hpp>
 #include <boost/wave/util/pattern_parser.hpp>
 #include <boost/wave/grammars/cpp_defined_grammar_gen.hpp>

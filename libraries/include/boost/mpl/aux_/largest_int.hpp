@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source: /cvsroot/boost/boost/boost/mpl/aux_/largest_int.hpp,v $
-// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
-// $Revision: 82858 $
+// $Source$
+// $Date: 2004-09-18 23:08:53 -0400 (Sat, 18 Sep 2004) $
+// $Revision: 25205 $
 
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/int.hpp>

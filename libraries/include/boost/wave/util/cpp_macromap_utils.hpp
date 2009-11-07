@@ -5,7 +5,7 @@
     
     http://www.boost.org/
 
-    Copyright (c) 2001-2007 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -17,6 +17,7 @@
 
 #include <boost/wave/wave_config.hpp>
 #include <boost/wave/token_ids.hpp>
+#include <boost/wave/util/unput_queue_iterator.hpp> 
 
 // this must occur after all of the includes and before any code appears
 #ifdef BOOST_HAS_ABI_HEADERS
@@ -25,7 +26,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This file contains the definition of several token sequence analyse 
+// This file contains the definition of several token sequence analyze 
 // and transformation utility functions needed during macro handling.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -156,30 +157,6 @@ is_special_macroname (StringT const &name)
     }
     return false;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-//
-//  Test, whether a given identifier resolves to a operator name
-//
-///////////////////////////////////////////////////////////////////////////////
-//template <typename StringT>
-//inline bool 
-//is_operator_macroname (StringT const &name)
-//{
-//    if (name.size() < 2 || name.size() > 6)
-//        return false;
-//        
-//    if (str == "and"    || str == "and_eq" || 
-//        str == "bitand" || str == "bitor" ||
-//        str == "compl"  || 
-//        str == "not"    || str == "not_eq" || 
-//        str == "or"     || str == "or_eq" || 
-//        str == "xor"    || str == "xor_eq")
-//    {
-//        return true;
-//    }
-//    return false;
-//}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -444,8 +421,6 @@ template <typename ContainerT>
 inline bool
 is_whitespace_only (ContainerT const &argument)
 {
-    using namespace cpplexer;
-    
     typename ContainerT::const_iterator end = argument.end();
     for (typename ContainerT::const_iterator it = argument.begin();
           it != end; ++it)
@@ -463,7 +438,8 @@ is_whitespace_only (ContainerT const &argument)
 ///////////////////////////////////////////////////////////////////////////////
 template <typename IteratorT>
 inline bool 
-skip_to_token(IteratorT &it, IteratorT const &end, token_id id)
+skip_to_token(IteratorT &it, IteratorT const &end, token_id id, 
+    bool& seen_newline)
 {
     using namespace boost::wave;
     if (token_id(*it) == id) 
@@ -472,8 +448,10 @@ skip_to_token(IteratorT &it, IteratorT const &end, token_id id)
         return false;
 
     while (IS_CATEGORY(*it, WhiteSpaceTokenType) || 
-            T_NEWLINE == token_id(*it)) 
+           T_NEWLINE == token_id(*it)) 
     {
+        if (T_NEWLINE == token_id(*it))
+            seen_newline = true;
         if (++it == end)
             return false;
     }

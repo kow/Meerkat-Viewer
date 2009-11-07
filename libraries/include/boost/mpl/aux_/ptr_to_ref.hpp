@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source: /cvsroot/boost/boost/boost/mpl/aux_/ptr_to_ref.hpp,v $
-// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
-// $Revision: 82858 $
+// $Source$
+// $Date: 2005-06-22 11:20:18 -0400 (Wed, 22 Jun 2005) $
+// $Revision: 29736 $
 
 #include <boost/mpl/aux_/static_cast.hpp>
 #include <boost/mpl/aux_/config/msvc.hpp>

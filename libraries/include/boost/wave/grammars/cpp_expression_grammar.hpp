@@ -3,13 +3,15 @@
 
     http://www.boost.org/
 
-    Copyright (c) 2001-2007 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 
 #if !defined(CPP_EXPRESSION_GRAMMAR_HPP_099CD1A4_A6C0_44BE_8F24_0B00F5BE5674_INCLUDED)
 #define CPP_EXPRESSION_GRAMMAR_HPP_099CD1A4_A6C0_44BE_8F24_0B00F5BE5674_INCLUDED
+
+#include <boost/wave/wave_config.hpp>
 
 #include <boost/assert.hpp>
 #include <boost/spirit/core.hpp>
@@ -26,7 +28,6 @@
 #include <boost/spirit/phoenix/statements.hpp>
 #include <boost/spirit/phoenix/casts.hpp>
 
-#include <boost/wave/wave_config.hpp>
 #include <boost/wave/token_ids.hpp>
 
 #include <boost/wave/cpp_exceptions.hpp>
@@ -100,11 +101,11 @@ namespace impl {
         { 
             typedef boost::wave::grammars::closures::closure_value return_type;
             bool is_unsigned = false;
-            unsigned long ul = intlit_grammar_gen<TokenT>::evaluate(token, 
+            uint_literal_type ul = intlit_grammar_gen<TokenT>::evaluate(token, 
                 is_unsigned);
 
             return is_unsigned ? 
-                return_type(ul) : return_type(static_cast<long>(ul));
+                return_type(ul) : return_type(static_cast<int_literal_type>(ul));
         }
     };
     phoenix::function<convert_intlit> const as_intlit;
@@ -781,7 +782,7 @@ expression_grammar_gen<TokenT>::evaluate(
             }
         }
     }
-    catch (wave::preprocess_exception const& e) {
+    catch (boost::wave::preprocess_exception const& e) {
     // expression is illformed
         if (if_block_status) {
             boost::throw_exception(e);

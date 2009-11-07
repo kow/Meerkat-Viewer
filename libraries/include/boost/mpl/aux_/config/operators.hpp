@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source: /cvsroot/boost/boost/boost/mpl/aux_/config/operators.hpp,v $
-// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
-// $Revision: 82858 $
+// $Source$
+// $Date: 2005-06-14 08:42:08 -0400 (Tue, 14 Jun 2005) $
+// $Revision: 29558 $
 
 #include <boost/mpl/aux_/config/gcc.hpp>
 #include <boost/mpl/aux_/config/msvc.hpp>

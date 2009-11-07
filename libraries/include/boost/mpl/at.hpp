@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source: /cvsroot/boost/boost/boost/mpl/at.hpp,v $
-// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
-// $Revision: 82858 $
+// $Source$
+// $Date: 2004-09-03 21:33:47 -0400 (Fri, 03 Sep 2004) $
+// $Revision: 24897 $
 
 #include <boost/mpl/at_fwd.hpp>
 #include <boost/mpl/aux_/at_impl.hpp>

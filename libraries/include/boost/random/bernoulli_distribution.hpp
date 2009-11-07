@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: bernoulli_distribution.hpp 45264 2006-02-24 21:34:57Z chris $
+ * $Id: bernoulli_distribution.hpp 41369 2007-11-25 18:07:19Z bemandawes $
  *
  * Revision history
  *  2001-02-18  moved to individual header files
@@ -32,11 +32,11 @@ public:
   typedef int input_type;
   typedef bool result_type;
 
-  explicit bernoulli_distribution(const RealType& p = RealType(0.5)) 
-    : _p(p)
+  explicit bernoulli_distribution(const RealType& p_arg = RealType(0.5)) 
+    : _p(p_arg)
   {
-    assert(p >= 0);
-    assert(p <= 1);
+    assert(_p >= 0);
+    assert(_p <= 1);
   }
 
   // compiler-generated copy ctor and assignment operator are fine

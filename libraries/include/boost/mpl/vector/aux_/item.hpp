@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source: /cvsroot/boost/boost/boost/mpl/vector/aux_/item.hpp,v $
-// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
-// $Revision: 82858 $
+// $Source$
+// $Date: 2005-05-14 20:39:04 -0400 (Sat, 14 May 2005) $
+// $Revision: 28913 $
 
 #include <boost/mpl/long.hpp>
 #include <boost/mpl/void.hpp>

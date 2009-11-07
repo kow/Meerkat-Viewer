@@ -11,9 +11,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source: /cvsroot/boost/boost/boost/mpl/map/aux_/begin_end_impl.hpp,v $
-// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
-// $Revision: 82858 $
+// $Source$
+// $Date: 2004-09-05 05:45:19 -0400 (Sun, 05 Sep 2004) $
+// $Revision: 24912 $
 
 #include <boost/mpl/begin_end_fwd.hpp>
 #include <boost/mpl/next_prior.hpp>

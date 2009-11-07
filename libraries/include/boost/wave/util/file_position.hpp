@@ -5,7 +5,7 @@
     
     http://www.boost.org/
 
-    Copyright (c) 2001-2007 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -108,9 +108,10 @@ private:
     template<typename Archive>
     void serialize(Archive &ar, const unsigned int version)
     {
-        ar & file;
-        ar & line;
-        ar & column;
+        using namespace boost::serialization;
+        ar & make_nvp("filename", file);
+        ar & make_nvp("line", line);
+        ar & make_nvp("column", column);
     }
 #endif
 

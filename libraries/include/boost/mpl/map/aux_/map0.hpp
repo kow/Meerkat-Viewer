@@ -11,9 +11,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source: /cvsroot/boost/boost/boost/mpl/map/aux_/map0.hpp,v $
-// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
-// $Revision: 82858 $
+// $Source$
+// $Date: 2004-10-13 14:25:11 -0400 (Wed, 13 Oct 2004) $
+// $Revision: 25712 $
 
 #include <boost/mpl/long.hpp>
 #include <boost/mpl/void.hpp>

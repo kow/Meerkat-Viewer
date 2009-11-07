@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: uniform_on_sphere.hpp 45264 2006-02-24 21:34:57Z chris $
+ * $Id: uniform_on_sphere.hpp 24096 2004-07-27 03:43:34Z dgregor $
  *
  * Revision history
  *  2001-02-18  moved to individual header files

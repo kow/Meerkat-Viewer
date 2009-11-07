@@ -3,7 +3,7 @@
 
     http://www.boost.org/
 
-    Copyright (c) 2001-2007 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -11,7 +11,10 @@
 #if !defined(CPP_CHLIT_GRAMMAR_HPP_9527D349_6592_449A_A409_42A001E6C64C_INCLUDED)
 #define CPP_CHLIT_GRAMMAR_HPP_9527D349_6592_449A_A409_42A001E6C64C_INCLUDED
 
-#include <limits>     // sid::numeric_limits
+#include <limits>     // std::numeric_limits
+#include <climits>    // CHAR_BIT
+
+#include <boost/wave/wave_config.hpp>   
 
 #include <boost/static_assert.hpp>
 #include <boost/cstdint.hpp>
@@ -19,15 +22,28 @@
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/attribute/closure.hpp>
 #include <boost/spirit/dynamic/if.hpp>
+#if SPIRIT_VERSION >= 0x1700
+#include <boost/spirit/actor/assign_actor.hpp>
+#include <boost/spirit/actor/push_back_actor.hpp>
+#endif // SPIRIT_VERSION >= 0x1700
 
 #include <boost/spirit/phoenix/operators.hpp>
 #include <boost/spirit/phoenix/primitives.hpp>
 #include <boost/spirit/phoenix/statements.hpp>
 #include <boost/spirit/phoenix/functions.hpp>
 
-#include <boost/wave/wave_config.hpp>   
 #include <boost/wave/cpp_exceptions.hpp>   
 #include <boost/wave/grammars/cpp_literal_grammar_gen.hpp>
+
+#if !defined(spirit_append_actor)
+#if SPIRIT_VERSION >= 0x1700
+#define spirit_append_actor(actor) boost::spirit::push_back_a(actor)
+#define spirit_assign_actor(actor) boost::spirit::assign_a(actor)
+#else
+#define spirit_append_actor(actor) boost::spirit::append(actor)
+#define spirit_assign_actor(actor) boost::spirit::assign(actor)
+#endif // SPIRIT_VERSION >= 0x1700
+#endif // !defined(spirit_append_actor)
 
 // this must occur after all of the includes and before any code appears
 #ifdef BOOST_HAS_ABI_HEADERS
@@ -62,9 +78,9 @@ namespace impl {
 ///////////////////////////////////////////////////////////////////////////////
     struct compose_character_literal {
 
-        template <typename ResultT, typename A1, typename A2, typename A3>
-        struct result { 
-        
+        template <typename A1, typename A2, typename A3, typename A4>
+        struct result 
+        { 
             typedef void type; 
         };
 
