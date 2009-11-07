@@ -1,13 +1,13 @@
-//  (C) Copyright Gennadiy Rozental 2005-2007.
+//  (C) Copyright Gennadiy Rozental 2005.
 //  Use, modification, and distribution are subject to the 
 //  Boost Software License, Version 1.0. (See accompanying file 
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org/libs/test for the library home page.
 //
-//  File        : $RCSfile$
+//  File        : $RCSfile: argv_traverser.ipp,v $
 //
-//  Version     : $Revision: 43798 $
+//  Version     : $Revision: 1.3 $
 //
 //  Description : implements facility to hide input traversing details
 // ***************************************************************************
@@ -205,5 +205,20 @@ argv_traverser::handle_mismatch()
 } // namespace BOOST_RT_PARAM_NAMESPACE
 
 } // namespace boost
+
+// ************************************************************************** //
+//   Revision History:
+//
+//   $Log: argv_traverser.ipp,v $
+//   Revision 1.3  2005/05/05 05:55:45  rogeeff
+//   portability fixes
+//
+//   Revision 1.2  2005/05/03 05:02:49  rogeeff
+//   como fixes
+//
+//   Revision 1.1  2005/04/12 06:42:43  rogeeff
+//   Runtime.Param library initial commit
+//
+// ************************************************************************** //
 
 #endif // BOOST_RT_CLA_ARGV_TRAVERSER_IPP_070604GER

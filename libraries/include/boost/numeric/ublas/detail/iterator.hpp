@@ -2,9 +2,13 @@
 //  Copyright (c) 2000-2002
 //  Joerg Walter, Mathias Koch
 //
-//  Distributed under the Boost Software License, Version 1.0. (See
-//  accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+//  Permission to use, copy, modify, distribute and sell this software
+//  and its documentation for any purpose is hereby granted without fee,
+//  provided that the above copyright notice appear in all copies and
+//  that both that copyright notice and this permission notice appear
+//  in supporting documentation.  The authors make no representations
+//  about the suitability of this software for any purpose.
+//  It is provided "as is" without express or implied warranty.
 //
 //  The authors gratefully acknowledge the support of
 //  GeNeSys mbH & Co. KG in producing this work.
@@ -199,7 +203,7 @@ namespace boost { namespace numeric { namespace ublas {
    * is LessThan Comparable.
    */
     template<class IC, class I, class T, class D = std::ptrdiff_t>
-    // ISSUE the default for D seems rather dangerous as it can easily be (silently) incorrect
+    // ISSUE the default here seems rather dangerous as it can easlly be (silently) incorrect
     struct random_access_iterator_base:
         public std::iterator<IC, T> {
         typedef I derived_iterator_type;
@@ -630,7 +634,7 @@ namespace boost { namespace numeric { namespace ublas {
 
   /** \brief A class implementing an indexed random access iterator.
    *
-   * \param C the (mutable) container type
+   * \param C the mutable container type
    * \param IC the iterator category
    *
    * This class implements a random access iterator. The current 
@@ -735,7 +739,7 @@ namespace boost { namespace numeric { namespace ublas {
 
   /** \brief A class implementing an indexed random access iterator.
    *
-   * \param C the (immutable) container type
+   * \param C the mutable container type
    * \param IC the iterator category
    *
    * This class implements a random access iterator. The current 
@@ -853,7 +857,7 @@ namespace boost { namespace numeric { namespace ublas {
   /** \brief A class implementing an indexed random access iterator 
    * of a matrix.
    *
-   * \param C the (mutable) container type
+   * \param C the mutable container type
    * \param IC the iterator category
    *
    * This class implements a random access iterator. The current
@@ -874,7 +878,7 @@ namespace boost { namespace numeric { namespace ublas {
         public random_access_iterator_base<IC,
                                            indexed_iterator1<C, IC>, 
                                            typename C::value_type,
-                                           typename C::difference_type> {
+                                           typename C::reference> {
     public:
         typedef C container_type;
         typedef IC iterator_category;
@@ -1020,7 +1024,7 @@ namespace boost { namespace numeric { namespace ublas {
         public random_access_iterator_base<IC,
                                            indexed_const_iterator1<C, IC>, 
                                            typename C::value_type,
-                                           typename C::difference_type> {
+                                           typename C::const_reference> {
     public:
         typedef C container_type;
         typedef IC iterator_category;
@@ -1146,7 +1150,7 @@ namespace boost { namespace numeric { namespace ublas {
   /** \brief A class implementing an indexed random access iterator 
    * of a matrix.
    *
-   * \param C the (mutable) container type
+   * \param C the mutable container type
    * \param IC the iterator category
    *
    * This class implements a random access iterator. The current
@@ -1165,7 +1169,7 @@ namespace boost { namespace numeric { namespace ublas {
         public random_access_iterator_base<IC,
                                            indexed_iterator2<C, IC>, 
                                            typename C::value_type,
-                                           typename C::difference_type> {
+                                           typename C::reference> {
     public:
         typedef C container_type;
         typedef IC iterator_category;
@@ -1308,7 +1312,7 @@ namespace boost { namespace numeric { namespace ublas {
         public random_access_iterator_base<IC,
                                            indexed_const_iterator2<C, IC>,
                                            typename C::value_type,
-                                           typename C::difference_type> {
+                                           typename C::const_reference> {
     public:
         typedef C container_type;
         typedef IC iterator_category;

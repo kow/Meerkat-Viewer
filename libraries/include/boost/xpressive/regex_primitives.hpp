@@ -2,101 +2,33 @@
 /// \file regex_primitives.hpp
 /// Contains the syntax elements for writing static regular expressions.
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2004 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef BOOST_XPRESSIVE_REGEX_PRIMITIVES_HPP_EAN_10_04_2005
 #define BOOST_XPRESSIVE_REGEX_PRIMITIVES_HPP_EAN_10_04_2005
 
-#include <vector>
 #include <climits>
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/and.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/preprocessor/cat.hpp>
+#include <boost/xpressive/proto/proto.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
+#include <boost/xpressive/detail/core/icase.hpp>
+#include <boost/xpressive/detail/core/action.hpp>
 #include <boost/xpressive/detail/core/matchers.hpp>
-#include <boost/xpressive/detail/utility/ignore_unused.hpp>
-
-// Doxygen can't handle proto :-(
-#ifndef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-# include <boost/xpressive/proto/proto.hpp>
-# include <boost/xpressive/proto/transform/arg.hpp>
-# include <boost/xpressive/detail/core/icase.hpp>
-# include <boost/xpressive/detail/static/compile.hpp>
-# include <boost/xpressive/detail/static/modifier.hpp>
-#endif
+#include <boost/xpressive/detail/static/as_xpr.hpp>
+#include <boost/xpressive/detail/static/compile.hpp>
+#include <boost/xpressive/detail/static/modifier.hpp>
+#include <boost/xpressive/detail/static/regex_operators.hpp>
+#include <boost/xpressive/detail/static/productions/productions.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {
 
-    typedef assert_word_placeholder<word_boundary<true> > assert_word_boundary;
-    typedef assert_word_placeholder<word_begin> assert_word_begin;
-    typedef assert_word_placeholder<word_end> assert_word_end;
-
-    struct mark_tag
-      : proto::extends<basic_mark_tag, mark_tag>
-    {
-        mark_tag(int mark_nbr)
-        {
-            mark_placeholder mark = {mark_nbr};
-            proto::arg(*this) = mark;
-        }
-
-        operator basic_mark_tag const &() const
-        {
-            return this->proto_base();
-        }
-
-        using proto::extends<basic_mark_tag, mark_tag>::operator =;
-    };
-
-    template<typename Grammar>
-    struct push_back_sub
-      : proto::transform::identity<Grammar>
-    {
-        template<typename Sub>
-        static int to_sub(Sub const &sub, proto::tag::terminal)
-        {
-            return proto::arg(sub).mark_number_;
-        }
-
-        template<typename Sub>
-        static int to_sub(Sub const &, proto::tag::negate)
-        {
-            return -1;
-        }
-
-        template<typename Expr, typename State, typename Visitor>
-        static Expr const &call(Expr const &expr, State const &, Visitor &subs)
-        {
-            subs.push_back(push_back_sub::to_sub(expr, typename Expr::proto_tag()));
-            return expr;
-        }
-    };
-
-    // s1 or -s1
-    struct SubMatch
-      : push_back_sub<proto::or_<basic_mark_tag, proto::negate<basic_mark_tag > > >
-    {};
-
-    struct SubMatchList
-      : proto::or_<SubMatch, proto::comma<SubMatchList, SubMatch> >
-    {};
-
-    template<typename Subs>
-    typename enable_if<
-        mpl::and_<proto::is_expr<Subs>, proto::matches<Subs, SubMatchList> >
-      , std::vector<int>
-    >::type
-    to_vector(Subs const &subs)
-    {
-        std::vector<int> subs_;
-        SubMatchList::call(subs, 0, subs_);
-        return subs_;
-    }
-
+typedef assert_word_placeholder<word_boundary<true> > assert_word_boundary;
+typedef assert_word_placeholder<word_begin> assert_word_begin;
+typedef assert_word_placeholder<word_end> assert_word_end;
 
 /*
 ///////////////////////////////////////////////////////////////////////////////
@@ -124,7 +56,6 @@ namespace boost { namespace xpressive { namespace detail
 //    type const &name = detail::BOOST_PP_CAT(global_pod_, name)<0>::value
 */
 
-
 } // namespace detail
 
 /// INTERNAL ONLY (for backwards compatibility)
@@ -139,14 +70,18 @@ unsigned int const repeat_max = UINT_MAX-1;
 unsigned int const inf = UINT_MAX-1;
 
 /// INTERNAL ONLY (for backwards compatibility)
-proto::terminal<detail::epsilon_matcher>::type const epsilon = {{}};
+proto::op_proxy<
+    proto::unary_op<detail::epsilon_matcher, proto::noop_tag>
+> const epsilon = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Successfully matches nothing.
 ///
 /// Successfully matches a zero-width sequence. nil always succeeds and
 /// never consumes any characters.
-proto::terminal<detail::epsilon_matcher>::type const nil = {{}};
+proto::op_proxy<
+    proto::unary_op<detail::epsilon_matcher, proto::noop_tag>
+> const nil = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches an alpha-numeric character.
@@ -156,7 +91,10 @@ proto::terminal<detail::epsilon_matcher>::type const nil = {{}};
 ///
 /// \attention alnum is equivalent to /[[:alnum:]]/ in perl. ~alnum is equivalent
 /// to /[[:^alnum:]]/ in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const alnum = {{"alnum", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const alnum = {"alnum"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches an alphabetic character.
@@ -166,7 +104,10 @@ proto::terminal<detail::posix_charset_placeholder>::type const alnum = {{"alnum"
 ///
 /// \attention alpha is equivalent to /[[:alpha:]]/ in perl. ~alpha is equivalent
 /// to /[[:^alpha:]]/ in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const alpha = {{"alpha", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const alpha = {"alpha"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a blank (horizonal white-space) character.
@@ -176,7 +117,10 @@ proto::terminal<detail::posix_charset_placeholder>::type const alpha = {{"alpha"
 ///
 /// \attention blank is equivalent to /[[:blank:]]/ in perl. ~blank is equivalent
 /// to /[[:^blank:]]/ in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const blank = {{"blank", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const blank = {"blank"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a control character.
@@ -186,7 +130,10 @@ proto::terminal<detail::posix_charset_placeholder>::type const blank = {{"blank"
 ///
 /// \attention cntrl is equivalent to /[[:cntrl:]]/ in perl. ~cntrl is equivalent
 /// to /[[:^cntrl:]]/ in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const cntrl = {{"cntrl", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const cntrl = {"cntrl"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a digit character.
@@ -196,7 +143,10 @@ proto::terminal<detail::posix_charset_placeholder>::type const cntrl = {{"cntrl"
 ///
 /// \attention digit is equivalent to /[[:digit:]]/ in perl. ~digit is equivalent
 /// to /[[:^digit:]]/ in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const digit = {{"digit", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const digit = {"digit"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a graph character.
@@ -206,7 +156,10 @@ proto::terminal<detail::posix_charset_placeholder>::type const digit = {{"digit"
 ///
 /// \attention graph is equivalent to /[[:graph:]]/ in perl. ~graph is equivalent
 /// to /[[:^graph:]]/ in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const graph = {{"graph", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const graph = {"graph"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a lower-case character.
@@ -216,7 +169,10 @@ proto::terminal<detail::posix_charset_placeholder>::type const graph = {{"graph"
 ///
 /// \attention lower is equivalent to /[[:lower:]]/ in perl. ~lower is equivalent
 /// to /[[:^lower:]]/ in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const lower = {{"lower", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const lower = {"lower"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a printable character.
@@ -226,7 +182,10 @@ proto::terminal<detail::posix_charset_placeholder>::type const lower = {{"lower"
 ///
 /// \attention print is equivalent to /[[:print:]]/ in perl. ~print is equivalent
 /// to /[[:^print:]]/ in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const print = {{"print", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const print = {"print"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a punctuation character.
@@ -236,7 +195,10 @@ proto::terminal<detail::posix_charset_placeholder>::type const print = {{"print"
 ///
 /// \attention punct is equivalent to /[[:punct:]]/ in perl. ~punct is equivalent
 /// to /[[:^punct:]]/ in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const punct = {{"punct", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const punct = {"punct"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a space character.
@@ -246,7 +208,10 @@ proto::terminal<detail::posix_charset_placeholder>::type const punct = {{"punct"
 ///
 /// \attention space is equivalent to /[[:space:]]/ in perl. ~space is equivalent
 /// to /[[:^space:]]/ in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const space = {{"space", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const space = {"space"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches an upper-case character.
@@ -256,7 +221,10 @@ proto::terminal<detail::posix_charset_placeholder>::type const space = {{"space"
 ///
 /// \attention upper is equivalent to /[[:upper:]]/ in perl. ~upper is equivalent
 /// to /[[:^upper:]]/ in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const upper = {{"upper", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const upper = {"upper"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a hexadecimal digit character.
@@ -266,17 +234,22 @@ proto::terminal<detail::posix_charset_placeholder>::type const upper = {{"upper"
 ///
 /// \attention xdigit is equivalent to /[[:xdigit:]]/ in perl. ~xdigit is equivalent
 /// to /[[:^xdigit:]]/ in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const xdigit = {{"xdigit", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const xdigit = {"xdigit"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Beginning of sequence assertion.
 ///
 /// For the character sequence [begin, end), 'bos' matches the
 /// zero-width sub-sequence [begin, begin).
-proto::terminal<detail::assert_bos_matcher>::type const bos = {{}};
+proto::op_proxy<
+    proto::unary_op<detail::assert_bos_matcher, proto::noop_tag>
+> const bos = {};
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief End of sequence assertion.
+/// \brief End of sequence assertion. 
 ///
 /// For the character sequence [begin, end),
 /// 'eos' matches the zero-width sub-sequence [end, end).
@@ -284,15 +257,19 @@ proto::terminal<detail::assert_bos_matcher>::type const bos = {{}};
 /// \attention Unlike the perl end of sequence assertion \$, 'eos' will
 /// not match at the position [end-1, end-1) if *(end-1) is '\\n'. To
 /// get that behavior, use (!_n >> eos).
-proto::terminal<detail::assert_eos_matcher>::type const eos = {{}};
+proto::op_proxy<
+    proto::unary_op<detail::assert_eos_matcher, proto::noop_tag>
+> const eos = {};
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief Beginning of line assertion.
+/// \brief Beginning of line assertion. 
 ///
 /// 'bol' matches the zero-width sub-sequence
 /// immediately following a logical newline sequence. The regex traits
 /// is used to determine what constitutes a logical newline sequence.
-proto::terminal<detail::assert_bol_placeholder>::type const bol = {{}};
+proto::op_proxy<
+    proto::unary_op<detail::assert_bol_placeholder, proto::noop_tag>
+> const bol = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief End of line assertion.
@@ -300,23 +277,29 @@ proto::terminal<detail::assert_bol_placeholder>::type const bol = {{}};
 /// 'eol' matches the zero-width sub-sequence
 /// immediately preceeding a logical newline sequence. The regex traits
 /// is used to determine what constitutes a logical newline sequence.
-proto::terminal<detail::assert_eol_placeholder>::type const eol = {{}};
+proto::op_proxy<
+    proto::unary_op<detail::assert_eol_placeholder, proto::noop_tag>
+> const eol = {};
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief Beginning of word assertion.
+/// \brief Beginning of word assertion. 
 ///
 /// 'bow' matches the zero-width sub-sequence
 /// immediately following a non-word character and preceeding a word character.
 /// The regex traits are used to determine what constitutes a word character.
-proto::terminal<detail::assert_word_begin>::type const bow = {{}};
+proto::op_proxy<
+    proto::unary_op<detail::assert_word_begin, proto::noop_tag>
+> const bow = {};
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief End of word assertion.
+/// \brief End of word assertion. 
 ///
 /// 'eow' matches the zero-width sub-sequence
 /// immediately following a word character and preceeding a non-word character.
 /// The regex traits are used to determine what constitutes a word character.
-proto::terminal<detail::assert_word_end>::type const eow = {{}};
+proto::op_proxy<
+    proto::unary_op<detail::assert_word_end, proto::noop_tag>
+> const eow = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Word boundary assertion.
@@ -326,7 +309,9 @@ proto::terminal<detail::assert_word_end>::type const eow = {{}};
 /// constitutes a word character. To match a non-word boundary, use ~_b.
 ///
 /// \attention _b is like \\b in perl. ~_b is like \\B in perl.
-proto::terminal<detail::assert_word_boundary>::type const _b = {{}};
+proto::op_proxy<
+    proto::unary_op<detail::assert_word_boundary, proto::noop_tag>
+> const _b = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a word character.
@@ -336,7 +321,10 @@ proto::terminal<detail::assert_word_boundary>::type const _b = {{}};
 /// character.
 ///
 /// \attention _w is like \\w in perl. ~_w is like \\W in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const _w = {{"w", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const _w = {"w"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a digit character.
@@ -346,7 +334,10 @@ proto::terminal<detail::posix_charset_placeholder>::type const _w = {{"w", false
 /// character.
 ///
 /// \attention _d is like \\d in perl. ~_d is like \\D in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const _d = {{"d", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const _d = {"d"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a space character.
@@ -356,7 +347,10 @@ proto::terminal<detail::posix_charset_placeholder>::type const _d = {{"d", false
 /// character.
 ///
 /// \attention _s is like \\s in perl. ~_s is like \\S in perl.
-proto::terminal<detail::posix_charset_placeholder>::type const _s = {{"s", false}};
+proto::op_proxy<
+    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
+  , char const *
+> const _s = {"s"};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a literal newline character, '\\n'.
@@ -365,7 +359,10 @@ proto::terminal<detail::posix_charset_placeholder>::type const _s = {{"s", false
 /// that is not a newline.
 ///
 /// \attention ~_n is like '.' in perl without the /s modifier.
-proto::terminal<char>::type const _n = {'\n'};
+proto::op_proxy<
+    proto::unary_op<detail::literal_placeholder<char>, proto::noop_tag>
+  , char
+> const _n = {'\n'};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a logical newline sequence.
@@ -374,7 +371,9 @@ proto::terminal<char>::type const _n = {'\n'};
 /// line separator class, as determined by the regex traits, or the '\\r\\n' sequence.
 /// For the purpose of back-tracking, '\\r\\n' is treated as a unit.
 /// To match any one character that is not a logical newline, use ~_ln.
-detail::logical_newline_xpression const _ln = {{}};
+proto::op_proxy<
+    detail::logical_newline_xpression
+> const _ln = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches any one character.
@@ -383,7 +382,9 @@ detail::logical_newline_xpression const _ln = {{}};
 /// '_' matches any one character, including the newline.
 ///
 /// \attention To match any character except the newline, use ~_n
-proto::terminal<detail::any_matcher>::type const _ = {{}};
+proto::op_proxy<
+    proto::unary_op<detail::any_matcher, proto::noop_tag>
+> const _ = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Reference to the current regex object
@@ -392,7 +393,9 @@ proto::terminal<detail::any_matcher>::type const _ = {{}};
 /// identifier is a short-hand for the current regex object. For instance,
 /// sregex rx = '(' >> (self | nil) >> ')'; will create a regex object that
 /// matches balanced parens such as "((()))".
-proto::terminal<detail::self_placeholder>::type const self = {{}};
+proto::op_proxy<
+    proto::unary_op<detail::self_placeholder, proto::noop_tag>
+> const self = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Used to create character sets.
@@ -409,11 +412,13 @@ proto::terminal<detail::self_placeholder>::type const self = {{}};
 ///
 /// Sets can be composed of other, possibly complemented, sets. For instance,
 /// set[ ~digit | ~(set= 'a','b','c') ].
-detail::set_initializer_type const set = {{}};
+proto::op_proxy<
+    detail::set_initializer_type
+> const set = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Sub-match placeholder, like $& in Perl
-mark_tag::proto_base_expr const s0 = {{0}};
+proto::op_proxy<detail::mark_tag, int> const s0 = {0};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Sub-match placeholder, like $1 in perl.
@@ -427,29 +432,21 @@ mark_tag::proto_base_expr const s0 = {{0}};
 /// After a successful regex_match() or regex_search(), the sub-match placeholders
 /// can be used to index into the match_results\<\> object to retrieve the Nth
 /// sub-match.
-mark_tag::proto_base_expr const s1 = {{1}};
-mark_tag::proto_base_expr const s2 = {{2}};
-mark_tag::proto_base_expr const s3 = {{3}};
-mark_tag::proto_base_expr const s4 = {{4}};
-mark_tag::proto_base_expr const s5 = {{5}};
-mark_tag::proto_base_expr const s6 = {{6}};
-mark_tag::proto_base_expr const s7 = {{7}};
-mark_tag::proto_base_expr const s8 = {{8}};
-mark_tag::proto_base_expr const s9 = {{9}};
+proto::op_proxy<detail::mark_tag, int> const s1 = {1};
+proto::op_proxy<detail::mark_tag, int> const s2 = {2};
+proto::op_proxy<detail::mark_tag, int> const s3 = {3};
+proto::op_proxy<detail::mark_tag, int> const s4 = {4};
+proto::op_proxy<detail::mark_tag, int> const s5 = {5};
+proto::op_proxy<detail::mark_tag, int> const s6 = {6};
+proto::op_proxy<detail::mark_tag, int> const s7 = {7};
+proto::op_proxy<detail::mark_tag, int> const s8 = {8};
+proto::op_proxy<detail::mark_tag, int> const s9 = {9};
 
 // NOTE: For the purpose of xpressive's documentation, make icase() look like an
 // ordinary function. In reality, it is a function object defined in detail/icase.hpp
 // so that it can serve double-duty as regex_constants::icase, the syntax_option_type.
+// Do the same for as_xpr(), which is actually defined in detail/static/as_xpr.hpp
 #ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Makes a sub-expression case-insensitive.
-///
-/// Use icase() to make a sub-expression case-insensitive. For instance,
-/// "foo" >> icase(set['b'] >> "ar") will match "foo" exactly followed by
-/// "bar" irrespective of case.
-template<typename Expr> detail::unspecified icase(Expr const &expr) { return 0; }
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Makes a literal into a regular expression.
 ///
@@ -462,10 +459,26 @@ template<typename Expr> detail::unspecified icase(Expr const &expr) { return 0; 
 /// For instance, as_xpr('a') will match an 'a'. You can also complement a
 /// character literal, as with ~as_xpr('a'). This will match any one character
 /// that is not an 'a'.
-#ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-template<typename Literal> detail::unspecified as_xpr(Literal const &literal) { return 0; }
-#else
-proto::functional::as_expr<> const as_xpr = {};
+template<typename Literal>
+inline typename detail::as_xpr_type<Literal>::const_reference
+as_xpr(Literal const &literal)
+{
+    return detail::as_xpr_type<Literal>::call(xpr);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief Makes a sub-expression case-insensitive.
+///
+/// Use icase() to make a sub-expression case-insensitive. For instance,
+/// "foo" >> icase(set['b'] >> "ar") will match "foo" exactly followed by
+/// "bar" irrespective of case.
+template<typename Xpr>
+inline proto::binary_op<detail::icase_modifier, typename detail::as_xpr_type<Xpr>::type, modifier_tag> const
+icase(Xpr const &xpr)
+{
+    detail::icase_modifier mod;
+    return proto::make_op<modifier_tag>(mod, as_xpr(xpr));
+}
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -473,11 +486,12 @@ proto::functional::as_expr<> const as_xpr = {};
 ///
 /// \param rex The basic_regex object to embed by reference.
 template<typename BidiIter>
-inline typename proto::terminal<reference_wrapper<basic_regex<BidiIter> const> >::type const
+inline proto::unary_op<detail::regex_placeholder<BidiIter, true>, proto::noop_tag> const
 by_ref(basic_regex<BidiIter> const &rex)
 {
-    reference_wrapper<basic_regex<BidiIter> const> ref(rex);
-    return proto::terminal<reference_wrapper<basic_regex<BidiIter> const> >::type::make(ref);
+    typedef detail::core_access<BidiIter> access;
+    shared_ptr<detail::regex_impl<BidiIter> > impl = access::get_regex_impl(rex);
+    return proto::noop(detail::regex_placeholder<BidiIter, true>(impl));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -488,48 +502,59 @@ by_ref(basic_regex<BidiIter> const &rex)
 /// \param ch_min The lower end of the range to match.
 /// \param ch_max The upper end of the range to match.
 template<typename Char>
-inline typename proto::terminal<detail::range_placeholder<Char> >::type const
+inline proto::unary_op<detail::range_placeholder<Char>, proto::noop_tag> const
 range(Char ch_min, Char ch_max)
 {
-    detail::range_placeholder<Char> that = {ch_min, ch_max, false};
-    return proto::terminal<detail::range_placeholder<Char> >::type::make(that);
+    return proto::noop(detail::range_placeholder<Char>(ch_min, ch_max));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief Make a sub-expression optional. Equivalent to !as_xpr(expr).
+/// \brief Make a sub-expression optional. Equivalent to !as_xpr(xpr).
 ///
-/// \param expr The sub-expression to make optional.
-#ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-template<typename Expr> detail::unspecified optional(Expr const &expr) { return 0; }
-#else
-proto::functional::make_expr<proto::tag::logical_not, proto::default_domain> const optional = {};
-#endif
+/// \param xpr The sub-expression to make optional.
+template<typename Xpr>
+inline proto::unary_op
+<
+    typename detail::as_xpr_type<Xpr>::type
+  , proto::logical_not_tag
+> const
+optional(Xpr const &xpr)
+{
+    return !as_xpr(xpr);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Repeat a sub-expression multiple times.
 ///
 /// There are two forms of the repeat\<\>() function template. To match a
-/// sub-expression N times, use repeat\<N\>(expr). To match a sub-expression
-/// from M to N times, use repeat\<M,N\>(expr).
+/// sub-expression N times, use repeat\<N\>(xpr). To match a sub-expression
+/// from M to N times, use repeat\<M,N\>(xpr).
 ///
 /// The repeat\<\>() function creates a greedy quantifier. To make the quantifier
-/// non-greedy, apply the unary minus operator, as in -repeat\<M,N\>(expr).
+/// non-greedy, apply the unary minus operator, as in -repeat\<M,N\>(xpr).
 ///
-/// \param expr The sub-expression to repeat.
-template<unsigned int Min, unsigned int Max, typename Expr>
-typename proto::result_of::make_expr<detail::generic_quant_tag<Min, Max>, proto::default_domain, Expr const>::type const
-repeat(Expr const &expr)
+/// \param xpr The sub-expression to repeat.
+template<unsigned int Min, unsigned int Max, typename Xpr>
+inline proto::unary_op
+<
+    typename detail::as_xpr_type<Xpr>::type
+  , detail::generic_quant_tag<Min, Max>
+> const
+repeat(Xpr const &xpr)
 {
-    return proto::make_expr<detail::generic_quant_tag<Min, Max>, proto::default_domain>(expr);
+    return proto::make_op<detail::generic_quant_tag<Min, Max> >(as_xpr(xpr));
 }
 
 /// \overload
-///
-template<unsigned int Count, typename Expr2>
-typename proto::result_of::make_expr<detail::generic_quant_tag<Count, Count>, proto::default_domain, Expr2 const>::type const
-repeat(Expr2 const &expr2)
+template<unsigned int Count, typename Xpr2>
+inline proto::unary_op
+<
+    typename detail::as_xpr_type<Xpr2>::type
+  , detail::generic_quant_tag<Count, Count>
+> const
+repeat(Xpr2 const &xpr)
 {
-    return proto::make_expr<detail::generic_quant_tag<Count, Count>, proto::default_domain>(expr2);
+    return proto::make_op<detail::generic_quant_tag<Count, Count> >(as_xpr(xpr));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -539,54 +564,69 @@ repeat(Expr2 const &expr2)
 /// the sub-expression will match only one way, and no other alternatives are
 /// tried.
 ///
-/// \attention keep(expr) is equivalent to the perl (?>...) extension.
+/// \attention keep(xpr) is equivalent to the perl (?>...) extension.
 ///
-/// \param expr The sub-expression to modify.
-#ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-template<typename Expr> detail::unspecified keep(Expr const &expr) { return 0; }
-#else
-proto::functional::make_expr<detail::keeper_tag, proto::default_domain> const keep = {};
-#endif
+/// \param xpr The sub-expression to modify.
+template<typename Xpr>
+inline proto::unary_op
+<
+    typename detail::as_xpr_type<Xpr>::type
+  , detail::keeper_tag
+> const
+keep(Xpr const &xpr)
+{
+    return proto::make_op<detail::keeper_tag>(as_xpr(xpr));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Look-ahead assertion.
 ///
-/// before(expr) succeeds if the expr sub-expression would match at the current
-/// position in the sequence, but expr is not included in the match. For instance,
+/// before(xpr) succeeds if the xpr sub-expression would match at the current
+/// position in the sequence, but xpr is not included in the match. For instance,
 /// before("foo") succeeds if we are before a "foo". Look-ahead assertions can be
 /// negated with the bit-compliment operator.
 ///
-/// \attention before(expr) is equivalent to the perl (?=...) extension.
-/// ~before(expr) is a negative look-ahead assertion, equivalent to the
+/// \attention before(xpr) is equivalent to the perl (?=...) extension.
+/// ~before(xpr) is a negative look-ahead assertion, equivalent to the
 /// perl (?!...) extension.
 ///
-/// \param expr The sub-expression to put in the look-ahead assertion.
-#ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-template<typename Expr> detail::unspecified before(Expr const &expr) { return 0; }
-#else
-proto::functional::make_expr<detail::lookahead_tag, proto::default_domain> const before = {};
-#endif
+/// \param xpr The sub-expression to put in the look-ahead assertion.
+template<typename Xpr>
+inline proto::unary_op
+<
+    typename detail::as_xpr_type<Xpr>::type
+  , detail::lookahead_tag<true>
+> const
+before(Xpr const &xpr)
+{
+    return proto::make_op<detail::lookahead_tag<true> >(as_xpr(xpr));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Look-behind assertion.
 ///
-/// after(expr) succeeds if the expr sub-expression would match at the current
-/// position minus N in the sequence, where N is the width of expr. expr is not included in
+/// after(xpr) succeeds if the xpr sub-expression would match at the current
+/// position minus N in the sequence, where N is the width of xpr. xpr is not included in
 /// the match. For instance,  after("foo") succeeds if we are after a "foo". Look-behind
 /// assertions can be negated with the bit-complement operator.
 ///
-/// \attention after(expr) is equivalent to the perl (?<=...) extension.
-/// ~after(expr) is a negative look-behind assertion, equivalent to the
+/// \attention after(xpr) is equivalent to the perl (?<=...) extension.
+/// ~after(xpr) is a negative look-behind assertion, equivalent to the
 /// perl (?<!...) extension.
 ///
-/// \param expr The sub-expression to put in the look-ahead assertion.
+/// \param xpr The sub-expression to put in the look-ahead assertion.
 ///
-/// \pre expr cannot match a variable number of characters.
-#ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-template<typename Expr> detail::unspecified after(Expr const &expr) { return 0; }
-#else
-proto::functional::make_expr<detail::lookbehind_tag, proto::default_domain> const after = {};
-#endif
+/// \pre xpr cannot match a variable number of characters.
+template<typename Xpr>
+inline proto::unary_op
+<
+    typename detail::as_xpr_type<Xpr>::type
+  , detail::lookbehind_tag<true>
+> const
+after(Xpr const &xpr)
+{
+    return proto::make_op<detail::lookbehind_tag<true> >(as_xpr(xpr));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Specify a regex traits or a std::locale.
@@ -608,67 +648,6 @@ imbue(Locale const &loc)
       , regex_constants::ECMAScript
     };
     return mod;
-}
-
-proto::terminal<detail::attribute_placeholder<mpl::int_<1> > >::type const a1 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<2> > >::type const a2 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<3> > >::type const a3 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<4> > >::type const a4 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<5> > >::type const a5 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<6> > >::type const a6 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<7> > >::type const a7 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<8> > >::type const a8 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<9> > >::type const a9 = {{}};
-
-namespace detail
-{
-    inline void ignore_unused_regex_primitives()
-    {
-        ignore_unused(repeat_max);
-        ignore_unused(inf);
-        ignore_unused(epsilon);
-        ignore_unused(nil);
-        ignore_unused(alnum);
-        ignore_unused(bos);
-        ignore_unused(eos);
-        ignore_unused(bol);
-        ignore_unused(eol);
-        ignore_unused(bow);
-        ignore_unused(eow);
-        ignore_unused(_b);
-        ignore_unused(_w);
-        ignore_unused(_d);
-        ignore_unused(_s);
-        ignore_unused(_n);
-        ignore_unused(_ln);
-        ignore_unused(_);
-        ignore_unused(self);
-        ignore_unused(set);
-        ignore_unused(s0);
-        ignore_unused(s1);
-        ignore_unused(s2);
-        ignore_unused(s3);
-        ignore_unused(s4);
-        ignore_unused(s5);
-        ignore_unused(s6);
-        ignore_unused(s7);
-        ignore_unused(s8);
-        ignore_unused(s9);
-        ignore_unused(a1);
-        ignore_unused(a2);
-        ignore_unused(a3);
-        ignore_unused(a4);
-        ignore_unused(a5);
-        ignore_unused(a6);
-        ignore_unused(a7);
-        ignore_unused(a8);
-        ignore_unused(a9);
-        ignore_unused(as_xpr);
-        ignore_unused(optional);
-        ignore_unused(before);
-        ignore_unused(after);
-        ignore_unused(keep);
-    }
 }
 
 }} // namespace boost::xpressive

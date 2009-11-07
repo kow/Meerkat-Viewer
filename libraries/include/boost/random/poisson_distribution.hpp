@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: poisson_distribution.hpp 41369 2007-11-25 18:07:19Z bemandawes $
+ * $Id: poisson_distribution.hpp 45264 2006-02-24 21:34:57Z chris $
  *
  */
 
@@ -30,8 +30,8 @@ public:
   typedef RealType input_type;
   typedef IntType result_type;
 
-  explicit poisson_distribution(const RealType& mean_arg = RealType(1))
-    : _mean(mean_arg)
+  explicit poisson_distribution(const RealType& mean = RealType(1))
+    : _mean(mean)
   {
 #ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
     // MSVC fails BOOST_STATIC_ASSERT with std::numeric_limits at class scope
@@ -39,7 +39,7 @@ public:
     BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
 #endif
 
-    assert(_mean > RealType(0));
+    assert(mean > RealType(0));
     init();
   }
 

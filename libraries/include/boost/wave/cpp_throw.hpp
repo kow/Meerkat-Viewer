@@ -3,7 +3,7 @@
 
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2007 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -33,20 +33,6 @@
             (act_pos).get_file().c_str()));                                   \
     }                                                                         \
     /**/
-#define BOOST_WAVE_THROW_CTX(ctx, cls, code, msg, act_pos)                    \
-    {                                                                         \
-        using namespace boost::wave;                                          \
-        std::strstream stream;                                                \
-            stream << cls::severity_text(cls::code) << ": "                   \
-            << cls::error_text(cls::code);                                    \
-        if ((msg)[0] != 0) stream << ": " << (msg);                           \
-        stream << std::ends;                                                  \
-        std::string throwmsg = stream.str(); stream.freeze(false);            \
-        ctx.get_hooks().throw_exception(ctx, cls(throwmsg.c_str(), cls::code, \
-            (act_pos).get_line(), (act_pos).get_column(),                     \
-            (act_pos).get_file().c_str()));                                   \
-    }                                                                         \
-    /**/
 #else
 #include <sstream>
 #define BOOST_WAVE_THROW(cls, code, msg, act_pos)                             \
@@ -62,19 +48,6 @@
             (act_pos).get_file().c_str()));                                   \
     }                                                                         \
     /**/
-#define BOOST_WAVE_THROW_CTX(ctx, cls, code, msg, act_pos)                    \
-    {                                                                         \
-        using namespace boost::wave;                                          \
-        std::stringstream stream;                                             \
-            stream << cls::severity_text(cls::code) << ": "                   \
-            << cls::error_text(cls::code);                                    \
-        if ((msg)[0] != 0) stream << ": " << (msg);                           \
-        stream << std::ends;                                                  \
-        ctx.get_hooks().throw_exception(ctx, cls(stream.str().c_str(),        \
-            cls::code, (act_pos).get_line(), (act_pos).get_column(),          \
-            (act_pos).get_file().c_str()));                                   \
-    }                                                                         \
-    /**/
 #endif // BOOST_NO_STRINGSTREAM
 #endif // BOOST_WAVE_THROW
 
@@ -83,7 +56,7 @@
 #if !defined(BOOST_WAVE_THROW_NAME)
 #ifdef BOOST_NO_STRINGSTREAM
 #include <strstream>
-#define BOOST_WAVE_THROW_NAME_CTX(ctx, cls, code, msg, act_pos, name)         \
+#define BOOST_WAVE_THROW_NAME(cls, code, msg, act_pos, name)                  \
     {                                                                         \
         using namespace boost::wave;                                          \
         std::strstream stream;                                                \
@@ -92,14 +65,14 @@
         if ((msg)[0] != 0) stream << ": " << (msg);                           \
         stream << std::ends;                                                  \
         std::string throwmsg = stream.str(); stream.freeze(false);            \
-        ctx.get_hooks().throw_exception(ctx, cls(throwmsg.c_str(), cls::code, \
+        boost::throw_exception(cls(throwmsg.c_str(), cls::code,               \
             (act_pos).get_line(), (act_pos).get_column(),                     \
             (act_pos).get_file().c_str(), (name)));                           \
     }                                                                         \
     /**/
 #else
 #include <sstream>
-#define BOOST_WAVE_THROW_NAME_CTX(ctx, cls, code, msg, act_pos, name)         \
+#define BOOST_WAVE_THROW_NAME(cls, code, msg, act_pos, name)                  \
     {                                                                         \
         using namespace boost::wave;                                          \
         std::stringstream stream;                                             \
@@ -107,8 +80,8 @@
             << cls::error_text(cls::code);                                    \
         if ((msg)[0] != 0) stream << ": " << (msg);                           \
         stream << std::ends;                                                  \
-        ctx.get_hooks().throw_exception(ctx, cls(stream.str().c_str(),        \
-            cls::code, (act_pos).get_line(), (act_pos).get_column(),          \
+        boost::throw_exception(cls(stream.str().c_str(), cls::code,           \
+            (act_pos).get_line(), (act_pos).get_column(),                     \
             (act_pos).get_file().c_str(), (name)));                           \
     }                                                                         \
     /**/
@@ -120,7 +93,7 @@
 #if !defined(BOOST_WAVE_THROW_VAR)
 #ifdef BOOST_NO_STRINGSTREAM
 #include <strstream>
-#define BOOST_WAVE_THROW_VAR_CTX(ctx, cls, code, msg, act_pos)                \
+#define BOOST_WAVE_THROW_VAR(cls, code, msg, act_pos)                         \
     {                                                                         \
         using namespace boost::wave;                                          \
         std::strstream stream;                                                \
@@ -129,14 +102,14 @@
         if ((msg)[0] != 0) stream << ": " << (msg);                           \
         stream << std::ends;                                                  \
         std::string throwmsg = stream.str(); stream.freeze(false);            \
-        ctx.get_hooks().throw_exception(ctx, cls(throwmsg.c_str(), code,      \
+        boost::throw_exception(cls(throwmsg.c_str(), code,                    \
             (act_pos).get_line(), (act_pos).get_column(),                     \
             (act_pos).get_file().c_str()));                                   \
     }                                                                         \
     /**/
 #else
 #include <sstream>
-#define BOOST_WAVE_THROW_VAR_CTX(ctx, cls, code, msg, act_pos)                \
+#define BOOST_WAVE_THROW_VAR(cls, code, msg, act_pos)                         \
     {                                                                         \
         using namespace boost::wave;                                          \
         std::stringstream stream;                                             \
@@ -144,7 +117,7 @@
             << cls::error_text(code);                                         \
         if ((msg)[0] != 0) stream << ": " << (msg);                           \
         stream << std::ends;                                                  \
-        ctx.get_hooks().throw_exception(ctx, cls(stream.str().c_str(), code,  \
+        boost::throw_exception(cls(stream.str().c_str(), code,                \
             (act_pos).get_line(), (act_pos).get_column(),                     \
             (act_pos).get_file().c_str()));                                   \
     }                                                                         \

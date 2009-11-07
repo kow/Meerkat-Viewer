@@ -9,13 +9,15 @@
 
 /*
   Reads maximal flow problem in extended DIMACS format.
+  
+  Reads from stdin. 
+
   This works, but could use some polishing. 
 */
 
 /* ----------------------------------------------------------------- */
 
 #include <vector>
-#include <istream>
 #include <stdio.h>
 
 namespace boost {
@@ -25,8 +27,7 @@ int read_dimacs_max_flow(Graph& g,
                          CapacityMap capacity, 
                          ReverseEdgeMap reverse_edge,
                          typename graph_traits<Graph>::vertex_descriptor& src,
-                         typename graph_traits<Graph>::vertex_descriptor& sink,
-                         std::istream& in=std::cin)
+                         typename graph_traits<Graph>::vertex_descriptor& sink)
 {
   //  const int MAXLINE = 100;      /* max line length in the input file */
   const int ARC_FIELDS = 3;     /* no of fields in arc line  */
@@ -113,7 +114,7 @@ int read_dimacs_max_flow(Graph& g,
      -  does service functions
   */
 
-  while (std::getline(in, in_line)) {
+  while (std::getline(std::cin, in_line)) {
     ++no_lines;
 
     switch (in_line[0]) {

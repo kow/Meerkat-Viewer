@@ -3,7 +3,7 @@
 
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2007 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -16,7 +16,6 @@
 #endif // defined(BOOST_SPIRIT_DEBUG)
 
 #include <boost/wave/wave_config.hpp>
-#include <boost/wave/grammars/cpp_value_error.hpp> // value_error
 
 // this must occur after all of the includes and before any code appears
 #ifdef BOOST_HAS_ABI_HEADERS
@@ -59,10 +58,10 @@ public:
     explicit closure_value(unsigned int ui, value_error valid_ = error_noerror) 
     : type(is_uint), valid(valid_) 
     { value.ui = ui; }
-    explicit closure_value(int_literal_type i, value_error valid_ = error_noerror) 
+    explicit closure_value(long i, value_error valid_ = error_noerror) 
     : type(is_int), valid(valid_) 
     { value.i = i; }
-    explicit closure_value(uint_literal_type ui, value_error valid_ = error_noerror) 
+    explicit closure_value(unsigned long ui, value_error valid_ = error_noerror) 
     : type(is_uint), valid(valid_) 
     { value.ui = ui; }
     explicit closure_value(bool b, value_error valid_ = error_noerror) 
@@ -73,7 +72,7 @@ public:
     value_error is_valid() const { return valid; }
     
 // explicit conversion
-    friend int_literal_type as_int(closure_value const& v)
+    friend int as_int(closure_value const& v)
     {
         switch (v.type) {
         case is_uint:   return v.value.ui;
@@ -82,7 +81,7 @@ public:
         }
         return v.value.i;
     }
-    friend uint_literal_type as_uint(closure_value const& v)
+    friend unsigned int as_uint(closure_value const& v)
     {
         switch (v.type) {
         case is_uint:   return v.value.ui;
@@ -91,7 +90,7 @@ public:
         }
         return v.value.i;
     }
-    friend int_literal_type as_long(closure_value const& v) 
+    friend long as_long(closure_value const& v) 
     {
         switch (v.type) {
         case is_uint:   return v.value.ui;
@@ -100,7 +99,7 @@ public:
         }
         return v.value.i;
     }
-    friend uint_literal_type as_ulong(closure_value const& v)
+    friend unsigned long as_ulong(closure_value const& v)
     {
         switch (v.type) {
         case is_uint:   return v.value.ui;
@@ -155,14 +154,14 @@ public:
         valid = error_noerror;
         return *this;
     }
-    closure_value &operator= (int_literal_type rhs)
+    closure_value &operator= (long rhs)
     {
         type = is_int;
         value.i = rhs;
         valid = error_noerror;
         return *this;
     }
-    closure_value &operator= (uint_literal_type rhs)
+    closure_value &operator= (unsigned long rhs)
     {
         type = is_uint;
         value.ui = rhs;
@@ -185,9 +184,9 @@ public:
             switch(rhs.type) {
             case is_bool:
                 {
-                    int_literal_type result = value.i + as_long(rhs); 
-                    if ((rhs.value.i > 0L && value.i > result) || 
-                        (rhs.value.i < 0L && value.i < result))
+                    long result = value.i + as_long(rhs); 
+                    if (rhs.value.i > 0L && value.i > result || 
+                        rhs.value.i < 0L && value.i < result)
                     {
                         valid = error_integer_overflow;
                     }
@@ -199,9 +198,9 @@ public:
                 
             case is_int:
                 {
-                    int_literal_type result = value.i + rhs.value.i;
-                    if ((rhs.value.i > 0L && value.i > result) || 
-                        (rhs.value.i < 0L && value.i < result))
+                    long result = value.i + rhs.value.i;
+                    if (rhs.value.i > 0L && value.i > result || 
+                        rhs.value.i < 0L && value.i < result)
                     {
                         valid = error_integer_overflow;
                     }
@@ -213,7 +212,7 @@ public:
                 
             case is_uint:
                 {
-                    uint_literal_type result = value.ui + rhs.value.ui; 
+                    unsigned long result = value.ui + rhs.value.ui; 
                     if (result < value.ui) {
                         valid = error_integer_overflow;
                     }
@@ -228,7 +227,7 @@ public:
             
         case is_uint:
             {
-                uint_literal_type result = value.ui + as_ulong(rhs); 
+                unsigned long result = value.ui + as_ulong(rhs); 
                 if (result < value.ui) {
                     valid = error_integer_overflow;
                 }
@@ -252,9 +251,9 @@ public:
             switch(rhs.type) {
             case is_bool:
                 {
-                    int_literal_type result = value.i - as_long(rhs); 
-                    if ((rhs.value.i > 0L && result > value.i) || 
-                        (rhs.value.i < 0L && result < value.i))
+                    long result = value.i - as_long(rhs); 
+                    if (rhs.value.i > 0L && result > value.i || 
+                        rhs.value.i < 0L && result < value.i)
                     {
                         valid = error_integer_overflow;
                     }
@@ -266,9 +265,9 @@ public:
 
             case is_int:
                 {
-                    int_literal_type result = value.i - rhs.value.i;
-                    if ((rhs.value.i > 0L && result > value.i) || 
-                        (rhs.value.i < 0L && result < value.i))
+                    long result = value.i - rhs.value.i;
+                    if (rhs.value.i > 0L && result > value.i || 
+                        rhs.value.i < 0L && result < value.i)
                     {
                         valid = error_integer_overflow;
                     }
@@ -280,7 +279,7 @@ public:
                 
             case is_uint:
                 {
-                    uint_literal_type result = value.ui - rhs.value.ui; 
+                    unsigned long result = value.ui - rhs.value.ui; 
                     if (result > value.ui) {
                         valid = error_integer_overflow;
                     }
@@ -297,7 +296,7 @@ public:
             switch(rhs.type) {
             case is_bool:
                 {
-                    uint_literal_type result = value.ui - as_ulong(rhs); 
+                    unsigned long result = value.ui - as_ulong(rhs); 
                     if (result > value.ui)
                     {
                         valid = error_integer_overflow;
@@ -310,9 +309,9 @@ public:
 
             case is_int:
                 {
-                    uint_literal_type result = value.ui - rhs.value.i;
-                    if ((rhs.value.i > 0L && result > value.ui) || 
-                        (rhs.value.i < 0L && result < value.ui))
+                    unsigned long result = value.ui - rhs.value.i;
+                    if (rhs.value.i > 0L && result > value.ui || 
+                        rhs.value.i < 0L && result < value.ui)
                     {
                         valid = error_integer_overflow;
                     }
@@ -324,7 +323,7 @@ public:
                 
             case is_uint:
                 {
-                    uint_literal_type result = value.ui - rhs.value.ui; 
+                    unsigned long result = value.ui - rhs.value.ui; 
                     if (result > value.ui) {
                         valid = error_integer_overflow;
                     }
@@ -351,7 +350,7 @@ public:
             case is_bool:   value.i *= as_long(rhs); break;
             case is_int:
                 {
-                    int_literal_type result = value.i * rhs.value.i; 
+                    long result = value.i * rhs.value.i; 
                     if (0 != value.i && 0 != rhs.value.i &&
                         (result / value.i != rhs.value.i ||
                          result / rhs.value.i != value.i)
@@ -367,7 +366,7 @@ public:
                 
             case is_uint:
                 {
-                    uint_literal_type result = value.ui * rhs.value.ui; 
+                    unsigned long result = value.ui * rhs.value.ui; 
                     if (0 != value.ui && 0 != rhs.value.ui &&
                         (result / value.ui != rhs.value.ui ||
                          result / rhs.value.ui != value.ui)
@@ -386,8 +385,8 @@ public:
             
         case is_uint:
             {
-                uint_literal_type rhs_val = as_ulong(rhs);
-                uint_literal_type result = value.ui * rhs_val; 
+                unsigned long rhs_val = as_ulong(rhs);
+                unsigned long result = value.ui * rhs_val; 
                 if (0 != value.ui && 0 != rhs_val &&
                     (result / value.ui != rhs_val ||
                       result / rhs_val != value.ui)
@@ -555,7 +554,7 @@ public:
         switch (rhs.type) {
         case is_int:
             {
-                int_literal_type value = as_long(rhs);
+                long value = as_long(rhs);
                 if (value != 0 && value == -value)
                     return closure_value(-value, error_integer_overflow);
                 return closure_value(-value, rhs.valid);
@@ -565,7 +564,7 @@ public:
         case is_uint:   break;
         }
 
-        int_literal_type value = as_ulong(rhs);
+        long value = as_ulong(rhs);
         if (value != 0 && value == -value)
             return closure_value(-value, error_integer_overflow);
         return closure_value(-value, rhs.valid);
@@ -667,7 +666,7 @@ public:
             case is_bool:
             case is_int:
                 {
-                int_literal_type shift_by = as_long(rhs);
+                long shift_by = as_long(rhs);
                     
                     if (shift_by > 64) 
                         shift_by = 64;
@@ -679,7 +678,7 @@ public:
                 
             case is_uint:
                 {
-                uint_literal_type shift_by = as_ulong(rhs);
+                unsigned long shift_by = as_ulong(rhs);
                     
                     if (shift_by > 64) 
                         shift_by = 64;
@@ -697,7 +696,7 @@ public:
             case is_bool:
             case is_int:
                 {
-                int_literal_type shift_by = as_long(rhs);
+                long shift_by = as_long(rhs);
                     
                     if (shift_by > 64) 
                         shift_by = 64;
@@ -709,7 +708,7 @@ public:
                 
             case is_uint:
                 {
-                uint_literal_type shift_by = as_ulong(rhs);
+                unsigned long shift_by = as_ulong(rhs);
                     
                     if (shift_by > 64) 
                         shift_by = 64;
@@ -732,7 +731,7 @@ public:
             case is_bool:
             case is_int:
                 {
-                int_literal_type shift_by = as_long(rhs);
+                long shift_by = as_long(rhs);
                     
                     if (shift_by > 64) 
                         shift_by = 64;
@@ -744,7 +743,7 @@ public:
                 
             case is_uint:
                 {
-                uint_literal_type shift_by = as_ulong(rhs);
+                unsigned long shift_by = as_ulong(rhs);
                     
                     if (shift_by > 64) 
                         shift_by = 64;
@@ -762,7 +761,7 @@ public:
             case is_bool:
             case is_int:
                 {
-                int_literal_type shift_by = as_long(rhs);
+                long shift_by = as_long(rhs);
                     
                     if (shift_by > 64) 
                         shift_by = 64;
@@ -774,7 +773,7 @@ public:
                 
             case is_uint:
                 {
-                uint_literal_type shift_by = as_ulong(rhs);
+                unsigned long shift_by = as_ulong(rhs);
                     
                     if (shift_by > 64) 
                         shift_by = 64;
@@ -805,21 +804,21 @@ public:
     friend closure_value 
     operator| (closure_value const &lhs, closure_value const &rhs)
     {
-        uint_literal_type result = as_ulong(lhs) | as_ulong(rhs);
+        unsigned long result = as_ulong(lhs) | as_ulong(rhs);
         return closure_value(result, (value_error)(lhs.valid | rhs.valid));
     }
     
     friend closure_value 
     operator& (closure_value const &lhs, closure_value const &rhs)
     {
-        uint_literal_type result = as_ulong(lhs) & as_ulong(rhs);
+        unsigned long result = as_ulong(lhs) & as_ulong(rhs);
         return closure_value(result, (value_error)(lhs.valid | rhs.valid));
     }
 
     friend closure_value 
     operator^ (closure_value const &lhs, closure_value const &rhs)
     {
-        uint_literal_type result = as_ulong(lhs) ^ as_ulong(rhs);
+        unsigned long result = as_ulong(lhs) ^ as_ulong(rhs);
         return closure_value(result, (value_error)(lhs.valid | rhs.valid));
     }
     
@@ -862,8 +861,8 @@ public:
 private:
     value_type type;
     union {
-        int_literal_type i;
-        uint_literal_type ui;
+        long i;
+        unsigned long ui;
         bool b;
     } value;
     value_error valid;

@@ -30,10 +30,8 @@
   #ifdef BOOST_WINDOWS
     #define BOOST_MUTEX_HELPER BOOST_MUTEX_HELPER_WIN32
   #else
-    #if defined(BOOST_HAS_UNISTD_H)
-      #include <unistd.h>
-    #endif
-    #if defined(_POSIX_THREADS) || defined(BOOST_HAS_PTHREADS)
+    #include <unistd.h>
+    #ifdef _POSIX_THREADS
       #define BOOST_MUTEX_HELPER BOOST_MUTEX_HELPER_PTHREAD
     #endif
   #endif
@@ -47,7 +45,7 @@
 # ifdef BOOST_WINDOWS
 #  include <windows.h>
 # endif
-# if defined(_POSIX_THREADS) || defined(BOOST_HAS_PTHREADS)
+# ifdef _POSIX_THREADS
 #  include <pthread.h>
 # endif
 #endif
@@ -85,7 +83,7 @@ class win32_mutex
 
 #endif // defined(BOOST_WINDOWS)
 
-#if defined(_POSIX_THREADS) || defined(BOOST_HAS_PTHREADS)
+#ifdef _POSIX_THREADS
 
 class pthread_mutex
 {
@@ -109,7 +107,7 @@ class pthread_mutex
     { pthread_mutex_unlock(&mtx); }
 };
 
-#endif // defined(_POSIX_THREADS) || defined(BOOST_HAS_PTHREADS)
+#endif // defined(_POSIX_THREADS)
 
 #endif // !defined(BOOST_NO_MT)
 

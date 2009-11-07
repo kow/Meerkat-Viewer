@@ -31,6 +31,7 @@
 #include "boost/functional.hpp"
 #include "boost/limits.hpp"
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <functional>
 #include <numeric>
@@ -164,9 +165,9 @@ public:
   void reshape(const SizeList& extents) {
     boost::function_requires<
       detail::multi_array::CollectionConcept<SizeList> >();
-    BOOST_ASSERT(num_elements_ ==
-                 std::accumulate(extents.begin(),extents.end(),
-                                 size_type(1),std::multiplies<size_type>()));
+    assert(num_elements_ ==
+           std::accumulate(extents.begin(),extents.end(),
+                            size_type(1),std::multiplies<size_type>()));
 
     std::copy(extents.begin(),extents.end(),extent_list_.begin());
     this->compute_strides(stride_list_,extent_list_,storage_);
@@ -482,9 +483,9 @@ public:
       ConstMultiArrayConcept<ConstMultiArray,NumDims> >();
 
     // make sure the dimensions agree
-    BOOST_ASSERT(other.num_dimensions() == this->num_dimensions());
-    BOOST_ASSERT(std::equal(other.shape(),other.shape()+this->num_dimensions(),
-                            this->shape()));
+    assert(other.num_dimensions() == this->num_dimensions());
+    assert(std::equal(other.shape(),other.shape()+this->num_dimensions(),
+                      this->shape()));
     // iterator-based copy
     std::copy(other.begin(),other.end(),this->begin());
     return *this;
@@ -494,10 +495,9 @@ public:
     if (&other != this) {
       // make sure the dimensions agree
       
-      BOOST_ASSERT(other.num_dimensions() == this->num_dimensions());
-      BOOST_ASSERT(std::equal(other.shape(),
-                              other.shape()+this->num_dimensions(),
-                              this->shape()));
+      assert(other.num_dimensions() == this->num_dimensions());
+      assert(std::equal(other.shape(),other.shape()+this->num_dimensions(),
+                        this->shape()));
       // iterator-based copy
       std::copy(other.begin(),other.end(),this->begin());
     }

@@ -70,8 +70,7 @@ namespace boost { namespace program_options { namespace detail {
     public:
         common_config_file_iterator() { found_eof(); }
         common_config_file_iterator(
-            const std::set<std::string>& allowed_options,
-            bool allow_unregistered = false);
+            const std::set<std::string>& allowed_options);
 
         virtual ~common_config_file_iterator() {}
 
@@ -104,7 +103,6 @@ namespace boost { namespace program_options { namespace detail {
         // Invariant: no element is prefix of other element.
         std::set<std::string> allowed_prefixes;
         std::string m_prefix;
-        bool m_allow_unregistered;
     };
 
     template<class charT>
@@ -118,8 +116,7 @@ namespace boost { namespace program_options { namespace detail {
         /** Creates a config file parser for the specified stream.            
         */
         basic_config_file_iterator(std::basic_istream<charT>& is, 
-                                   const std::set<std::string>& allowed_options,
-                                   bool allow_unregistered = false); 
+                                   const std::set<std::string>& allowed_options); 
 
     private: // base overrides
 
@@ -142,9 +139,8 @@ namespace boost { namespace program_options { namespace detail {
     template<class charT>
     basic_config_file_iterator<charT>::
     basic_config_file_iterator(std::basic_istream<charT>& is, 
-                               const std::set<std::string>& allowed_options,
-                               bool allow_unregistered)
-    : common_config_file_iterator(allowed_options, allow_unregistered)
+                               const std::set<std::string>& allowed_options)
+    : common_config_file_iterator(allowed_options)
     {
         this->is.reset(&is, null_deleter());                 
         get();

@@ -19,7 +19,7 @@ struct enum_ : public objects::enum_base
     typedef objects::enum_base base;
 
     // Declare a new enumeration type in the current scope()
-    enum_(char const* name, char const* doc = 0);
+    enum_(char const* name);
 
     // Add a new enumeration value with the given name and value.
     inline enum_<T>& value(char const* name, T);
@@ -34,15 +34,13 @@ struct enum_ : public objects::enum_base
 };
 
 template <class T>
-inline enum_<T>::enum_(char const* name, char const* doc )
+inline enum_<T>::enum_(char const* name)
     : base(
         name
         , &enum_<T>::to_python
         , &enum_<T>::convertible_from_python
         , &enum_<T>::construct
-        , type_id<T>()
-		, doc
-        )
+        , type_id<T>())
 {
 }
 

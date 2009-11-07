@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
-// access.hpp
+// accesss.hpp
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2004 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -14,10 +14,8 @@
 #endif
 
 #include <vector>
-#include <boost/shared_ptr.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/dynamic/matchable.hpp>
-#include <boost/xpressive/match_results.hpp> // for type_info_less
 
 namespace boost { namespace xpressive { namespace detail
 {
@@ -28,11 +26,15 @@ namespace boost { namespace xpressive { namespace detail
 template<typename BidiIter>
 struct core_access
 {
-    typedef typename iterator_value<BidiIter>::type char_type;
+    // BUGBUG give basic_regex move semantics!
+    static basic_regex<BidiIter> make_regex(regex_impl<BidiIter> const &impl)
+    {
+        return basic_regex<BidiIter>(impl);
+    }
 
     static std::size_t get_hidden_mark_count(basic_regex<BidiIter> const &rex)
     {
-        return proto::arg(rex)->hidden_mark_count_;
+        return rex.impl_->hidden_mark_count_;
     }
 
     static bool invalid(basic_regex<BidiIter> const &rex)
@@ -40,7 +42,7 @@ struct core_access
         return rex.invalid_();
     }
 
-    static bool match(basic_regex<BidiIter> const &rex, match_state<BidiIter> &state)
+    static bool match(basic_regex<BidiIter> const &rex, state_type<BidiIter> &state)
     {
         return rex.match_(state);
     }
@@ -48,7 +50,7 @@ struct core_access
     static shared_ptr<detail::regex_impl<BidiIter> > const &
     get_regex_impl(basic_regex<BidiIter> const &rex)
     {
-        return proto::arg(rex).get();
+        return rex.impl_.get();
     }
 
     static void init_sub_match_vector
@@ -76,13 +78,11 @@ struct core_access
     (
         match_results<BidiIter> &what
       , regex_id_type regex_id
-      , intrusive_ptr<traits<char_type> const> const &traits
       , sub_match_impl<BidiIter> *sub_matches
       , std::size_t size
-      , std::vector<named_mark<char_type> > const &named_marks
     )
     {
-        what.init_(regex_id, traits, sub_matches, size, named_marks);
+        what.init_(regex_id, sub_matches, size);
     }
 
     static sub_match_vector<BidiIter> &get_sub_match_vector(match_results<BidiIter> &what)
@@ -105,9 +105,9 @@ struct core_access
         return what.nested_results_;
     }
 
-    static action_args_type &get_action_args(match_results<BidiIter> &what)
+    static action_state &get_action_state(match_results<BidiIter> &what)
     {
-        return what.args_;
+        return what.action_state_;
     }
 
     static void set_prefix_suffix(match_results<BidiIter> &what, BidiIter begin, BidiIter end)

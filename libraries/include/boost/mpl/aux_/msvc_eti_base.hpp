@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source$
-// $Date: 2004-11-27 20:39:23 -0500 (Sat, 27 Nov 2004) $
-// $Revision: 26324 $
+// $Source: /cvsroot/boost/boost/boost/mpl/aux_/msvc_eti_base.hpp,v $
+// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
+// $Revision: 82858 $
 
 #include <boost/mpl/aux_/is_msvc_eti_arg.hpp>
 #include <boost/mpl/aux_/config/eti.hpp>

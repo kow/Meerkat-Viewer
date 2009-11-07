@@ -11,9 +11,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source$
-// $Date: 2004-12-14 17:34:44 -0500 (Tue, 14 Dec 2004) $
-// $Revision: 26508 $
+// $Source: /cvsroot/boost/boost/boost/mpl/key_type.hpp,v $
+// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
+// $Revision: 82858 $
 
 #include <boost/mpl/key_type_fwd.hpp>
 #include <boost/mpl/sequence_tag.hpp>

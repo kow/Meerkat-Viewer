@@ -4,9 +4,9 @@
 /* Copyright (c) 2002,2003,2005 CrystalClear Software, Inc.
  * Use, modification and distribution is subject to the
  * Boost Software License, Version 1.0. (See accompanying
- * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
+ * file LICENSE-1.0 or http://www.boost.org/LICENSE-1.0)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
  */
 
 
@@ -16,7 +16,6 @@
 
 #include <boost/detail/workaround.hpp>
 #include "boost/date_time/c_time.hpp"
-#include "boost/date_time/time_clock.hpp"
 #include "boost/cstdint.hpp"
 #include "boost/shared_ptr.hpp"
 
@@ -120,10 +119,6 @@ namespace date_time {
       FILETIME ft_utc;
       GetSystemTimeAsFileTime(&ft_utc);
       FileTimeToLocalFileTime(&ft_utc,&ft);
-      #elif defined(BOOST_NO_GETSYSTEMTIMEASFILETIME)
-      SYSTEMTIME st;
-      GetSystemTime( &st );
-      SystemTimeToFileTime( &st, &ft );
       #else
       GetSystemTimeAsFileTime(&ft);
       #endif
@@ -138,10 +133,6 @@ namespace date_time {
       FILETIME ft_utc;
       GetSystemTimeAsFileTime(&ft_utc);
       FileTimeToLocalFileTime(&ft_utc,&ft);
-      #elif defined(BOOST_NO_GETSYSTEMTIMEASFILETIME)
-      SYSTEMTIME st;
-      GetSystemTime( &st );
-      SystemTimeToFileTime( &st, &ft );
       #else
       GetSystemTimeAsFileTime(&ft);
       #endif

@@ -31,7 +31,6 @@ namespace std{
 #include <boost/archive/detail/oserializer.hpp>
 #include <boost/archive/detail/interface_oarchive.hpp>
 #include <boost/serialization/nvp.hpp>
-#include <boost/archive/detail/register_archive.hpp>
 
 // determine if its necessary to handle (u)int64_t specifically
 // i.e. that its not a synonym for (unsigned) long
@@ -54,9 +53,7 @@ namespace detail {
     class basic_oserializer;
 }
 
-class polymorphic_oarchive;
-
-class polymorphic_oarchive_impl :
+class polymorphic_oarchive :
     public detail::interface_oarchive<polymorphic_oarchive>
 {
 #ifdef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
@@ -100,6 +97,14 @@ public:
     virtual void save_start(const char * name) = 0;
     virtual void save_end(const char * name) = 0;
     virtual void register_basic_serializer(const detail::basic_oserializer & bos) = 0;
+    virtual void lookup_basic_helper(
+        const boost::serialization::extended_type_info * const eti,
+                boost::shared_ptr<void> & sph
+    ) = 0;
+    virtual void insert_basic_helper(
+        const boost::serialization::extended_type_info * const eti,
+                shared_ptr<void> & sph
+    ) = 0;
 
     virtual void end_preamble() = 0;
 
@@ -108,7 +113,7 @@ public:
     template<class T>
     void save_override(T & t, BOOST_PFTO int)
     {
-        archive::save(* this->This(), t);
+        archive::save(* this, t);
     }
     // special treatment for name-value pairs.
     template<class T>
@@ -119,11 +124,9 @@ public:
                 ::boost::serialization::nvp<T> & t, int
         ){
         save_start(t.name());
-        archive::save(* this->This(), t.const_value());
+        archive::save(* this, t.const_value());
         save_end(t.name());
     }
-protected:
-    virtual ~polymorphic_oarchive_impl(){}
 public:
     // utility functions implemented by all legal archives
     virtual unsigned int get_flags() const = 0;
@@ -140,15 +143,11 @@ public:
     ) = 0;
 };
 
-// note: preserve naming symmetry
-class polymorphic_oarchive : 
-    public polymorphic_oarchive_impl
-{};
-
 } // namespace archive
 } // namespace boost
 
-// required by export
-BOOST_SERIALIZATION_REGISTER_ARCHIVE(boost::archive::polymorphic_oarchive)
+// required by smart_cast for compilers not implementing
+// partial template specialization
+BOOST_BROKEN_COMPILER_TYPE_TRAITS_SPECIALIZATION(boost::archive::polymorphic_oarchive)
 
 #endif // BOOST_ARCHIVE_POLYMORPHIC_OARCHIVE_HPP

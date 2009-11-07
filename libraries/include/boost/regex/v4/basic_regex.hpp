@@ -19,21 +19,14 @@
 #ifndef BOOST_REGEX_V4_BASIC_REGEX_HPP
 #define BOOST_REGEX_V4_BASIC_REGEX_HPP
 
-#ifdef BOOST_MSVC
-#pragma warning(push)
-#pragma warning(disable: 4103)
-#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_PREFIX
-#endif
-#ifdef BOOST_MSVC
-#pragma warning(pop)
 #endif
 
 namespace boost{
 #ifdef BOOST_MSVC
 #pragma warning(push)
-#pragma warning(disable : 4251 4231 4660 4800)
+#pragma warning(disable : 4251 4231 4660)
 #endif
 
 namespace re_detail{
@@ -637,15 +630,8 @@ public:
 
 } // namespace boost
 
-#ifdef BOOST_MSVC
-#pragma warning(push)
-#pragma warning(disable: 4103)
-#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_SUFFIX
-#endif
-#ifdef BOOST_MSVC
-#pragma warning(pop)
 #endif
 
 #endif

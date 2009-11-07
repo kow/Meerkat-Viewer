@@ -2,7 +2,7 @@
 #ifndef BOOST_MPL_SET_AUX_INSERT_IMPL_HPP_INCLUDED
 #define BOOST_MPL_SET_AUX_INSERT_IMPL_HPP_INCLUDED
 
-// Copyright Aleksey Gurtovoy 2003-2007
+// Copyright Aleksey Gurtovoy 2003-2004
 // Copyright David Abrahams 2003-2004
 //
 // Distributed under the Boost Software License, Version 1.0. 
@@ -11,9 +11,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source$
-// $Date: 2007-11-25 13:07:19 -0500 (Sun, 25 Nov 2007) $
-// $Revision: 41369 $
+// $Source: /cvsroot/boost/boost/boost/mpl/set/aux_/insert_impl.hpp,v $
+// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
+// $Revision: 82858 $
 
 #include <boost/mpl/insert_fwd.hpp>
 #include <boost/mpl/set/aux_/has_key_impl.hpp>
@@ -36,7 +36,7 @@ template<  typename Set, typename T > struct set_insert_impl
         , eval_if< 
               is_same< T,typename Set::last_masked_ > 
             , base<Set>
-            , identity< s_item<T,typename Set::item_> >
+            , identity< s_item<T,Set> >
             >
         >
 {

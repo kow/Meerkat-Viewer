@@ -3,15 +3,13 @@
 
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2007 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 
 #if !defined(CPP_INTLIT_GRAMMAR_HPP_2E1E70B1_F15C_4132_8554_10A231B0D91C_INCLUDED)
 #define CPP_INTLIT_GRAMMAR_HPP_2E1E70B1_F15C_4132_8554_10A231B0D91C_INCLUDED
-
-#include <boost/wave/wave_config.hpp>
 
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/attribute/closure.hpp>
@@ -24,6 +22,7 @@
 #include <boost/spirit/phoenix/primitives.hpp>
 #include <boost/spirit/phoenix/statements.hpp>
 
+#include <boost/wave/wave_config.hpp>
 #include <boost/wave/cpp_exceptions.hpp>
 #include <boost/wave/grammars/cpp_literal_grammar_gen.hpp>
 
@@ -51,11 +50,10 @@ namespace boost {
 namespace wave { 
 namespace grammars {
 
-///////////////////////////////////////////////////////////////////////////////
 namespace closures {
 
     struct intlit_closure 
-    :   boost::spirit::closure<intlit_closure, uint_literal_type> 
+    :   boost::spirit::closure<intlit_closure, unsigned long> 
     {
         member1 val;
     };
@@ -105,7 +103,7 @@ struct intlit_grammar :
 
                     hex_lit =
                             (ch_p('X') | ch_p('x'))
-                        >>  uint_parser<uint_literal_type, 16>()
+                        >>  uint_parser<unsigned long, 16>()
                             [
                                 self.val = arg1,
                                 var(self.is_unsigned) = true
@@ -113,7 +111,7 @@ struct intlit_grammar :
                     ,
                         
                     oct_lit =
-                       !uint_parser<uint_literal_type, 8>()
+                       !uint_parser<unsigned long, 8>()
                         [
                             self.val = arg1,
                             var(self.is_unsigned) = true
@@ -121,7 +119,7 @@ struct intlit_grammar :
                     ,
                         
                     dec_lit =
-                        uint_parser<uint_literal_type, 10>()
+                        int_parser<long, 10>()
                         [
                             self.val = arg1
                         ]
@@ -160,14 +158,14 @@ struct intlit_grammar :
 
 template <typename TokenT>
 BOOST_WAVE_INTLITGRAMMAR_GEN_INLINE 
-uint_literal_type 
+unsigned long 
 intlit_grammar_gen<TokenT>::evaluate(TokenT const &token, 
     bool &is_unsigned)
 {
     using namespace boost::spirit;
     
 intlit_grammar g(is_unsigned);
-uint_literal_type result = 0;
+unsigned long result = 0;
 typename TokenT::string_type const &token_val = token.get_value();
 parse_info<typename TokenT::string_type::const_iterator> hit =
     parse(token_val.begin(), token_val.end(), g[spirit_assign_actor(result)]);

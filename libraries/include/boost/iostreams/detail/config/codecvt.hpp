@@ -1,5 +1,4 @@
-// (C) Copyright 2008 CodeRage, LLC (turkanis at coderage dot com)
-// (C) Copyright 2003-2007 Jonathan Turkanis
+// (C) Copyright Jonathan Turkanis 2003.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt.)
 
@@ -41,10 +40,7 @@
 
 //------------------Normalize codecvt::length---------------------------------//
 
-#if !defined(__MSL_CPP__) && !defined(__LIBCOMO__) && \
-    (!defined(BOOST_RWSTD_VER) || BOOST_RWSTD_VER < 0x04010300) && \
-    (!defined(__MACH__) || !defined(__INTEL_COMPILER))
-    /**/
+#if !defined(__MSL_CPP__) && !defined(__LIBCOMO__)
 # define BOOST_IOSTREAMS_CODECVT_CV_QUALIFIER const
 #else
 # define BOOST_IOSTREAMS_CODECVT_CV_QUALIFIER

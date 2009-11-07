@@ -17,7 +17,6 @@
 #include <boost/spirit/core/primitives/impl/primitives.ipp>
 
 #ifdef BOOST_MSVC
-#pragma warning (push)
 #pragma warning(disable : 4512)
 #endif
 
@@ -80,8 +79,8 @@ namespace boost { namespace spirit {
 
         template <typename T>
         bool test(T ch) const
-        {
-            return !positive.test(ch);
+        { 
+            return !positive.test(ch); 
         }
 
         positive_t const positive;
@@ -114,8 +113,8 @@ namespace boost { namespace spirit {
 
         template <typename T>
         bool test(T ch_) const
-        {
-            return ch_ == ch;
+        { 
+            return ch_ == ch; 
         }
 
         CharT   ch;
@@ -124,8 +123,8 @@ namespace boost { namespace spirit {
     template <typename CharT>
     inline chlit<CharT>
     ch_p(CharT ch)
-    {
-        return chlit<CharT>(ch);
+    { 
+        return chlit<CharT>(ch); 
     }
 
     // This should take care of ch_p("a") "bugs"
@@ -155,8 +154,8 @@ namespace boost { namespace spirit {
 
         template <typename T>
         bool test(T ch) const
-        {
-            return !(CharT(ch) < first) && !(last < CharT(ch));
+        { 
+            return !(CharT(ch) < first) && !(last < CharT(ch)); 
         }
 
         CharT   first;
@@ -166,8 +165,8 @@ namespace boost { namespace spirit {
     template <typename CharT>
     inline range<CharT>
     range_p(CharT first, CharT last)
-    {
-        return range<CharT>(first, last);
+    { 
+        return range<CharT>(first, last); 
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -209,15 +208,15 @@ namespace boost { namespace spirit {
     template <typename CharT>
     inline chseq<CharT const*>
     chseq_p(CharT const* str)
-    {
-        return chseq<CharT const*>(str);
+    { 
+        return chseq<CharT const*>(str); 
     }
 
     template <typename IteratorT>
     inline chseq<IteratorT>
     chseq_p(IteratorT first, IteratorT last)
-    {
-        return chseq<IteratorT>(first, last);
+    { 
+        return chseq<IteratorT>(first, last); 
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -255,22 +254,22 @@ namespace boost { namespace spirit {
     template <typename CharT>
     inline strlit<CharT const*>
     str_p(CharT const* str)
-    {
-        return strlit<CharT const*>(str);
+    { 
+        return strlit<CharT const*>(str); 
     }
 
     template <typename CharT>
     inline strlit<CharT *>
     str_p(CharT * str)
-    {
-        return strlit<CharT *>(str);
+    { 
+        return strlit<CharT *>(str); 
     }
 
     template <typename IteratorT>
     inline strlit<IteratorT>
     str_p(IteratorT first, IteratorT last)
-    {
-        return strlit<IteratorT>(first, last);
+    { 
+        return strlit<IteratorT>(first, last); 
     }
 
     // This should take care of str_p('a') "bugs"
@@ -295,8 +294,8 @@ namespace boost { namespace spirit {
         template <typename ScannerT>
         typename parser_result<self_t, ScannerT>::type
         parse(ScannerT const& scan) const
-        {
-            return scan.no_match();
+        { 
+            return scan.no_match(); 
         }
     };
 
@@ -315,8 +314,8 @@ namespace boost { namespace spirit {
 
         template <typename CharT>
         bool test(CharT) const
-        {
-            return true;
+        { 
+            return true; 
         }
     };
 
@@ -341,8 +340,8 @@ namespace boost { namespace spirit {
 
         template <typename CharT>
         bool test(CharT ch) const
-        {
-            return impl::isalnum_(ch);
+        { 
+            return impl::isalnum_(ch); 
         }
     };
 
@@ -361,8 +360,8 @@ namespace boost { namespace spirit {
 
         template <typename CharT>
         bool test(CharT ch) const
-        {
-            return impl::isalpha_(ch);
+        { 
+            return impl::isalpha_(ch); 
         }
     };
 
@@ -381,8 +380,8 @@ namespace boost { namespace spirit {
 
         template <typename CharT>
         bool test(CharT ch) const
-        {
-            return impl::iscntrl_(ch);
+        { 
+            return impl::iscntrl_(ch); 
         }
     };
 
@@ -401,8 +400,8 @@ namespace boost { namespace spirit {
 
         template <typename CharT>
         bool test(CharT ch) const
-        {
-            return impl::isdigit_(ch);
+        { 
+            return impl::isdigit_(ch); 
         }
     };
 
@@ -421,8 +420,8 @@ namespace boost { namespace spirit {
 
         template <typename CharT>
         bool test(CharT ch) const
-        {
-            return impl::isgraph_(ch);
+        { 
+            return impl::isgraph_(ch); 
         }
     };
 
@@ -441,8 +440,8 @@ namespace boost { namespace spirit {
 
         template <typename CharT>
         bool test(CharT ch) const
-        {
-            return impl::islower_(ch);
+        { 
+            return impl::islower_(ch); 
         }
     };
 
@@ -461,7 +460,7 @@ namespace boost { namespace spirit {
 
         template <typename CharT>
         bool test(CharT ch) const
-        {
+        { 
             return impl::isprint_(ch);
         }
     };
@@ -481,8 +480,8 @@ namespace boost { namespace spirit {
 
         template <typename CharT>
         bool test(CharT ch) const
-        {
-            return impl::ispunct_(ch);
+        { 
+            return impl::ispunct_(ch); 
         }
     };
 
@@ -501,7 +500,7 @@ namespace boost { namespace spirit {
 
         template <typename CharT>
         bool test(CharT ch) const
-        {
+        { 
             return impl::isblank_(ch);
         }
     };
@@ -521,8 +520,8 @@ namespace boost { namespace spirit {
 
         template <typename CharT>
         bool test(CharT ch) const
-        {
-            return impl::isspace_(ch);
+        { 
+            return impl::isspace_(ch); 
         }
     };
 
@@ -541,8 +540,8 @@ namespace boost { namespace spirit {
 
         template <typename CharT>
         bool test(CharT ch) const
-        {
-            return impl::isupper_(ch);
+        { 
+            return impl::isupper_(ch); 
         }
     };
 
@@ -561,8 +560,8 @@ namespace boost { namespace spirit {
 
         template <typename CharT>
         bool test(CharT ch) const
-        {
-            return impl::isxdigit_(ch);
+        { 
+            return impl::isxdigit_(ch); 
         }
     };
 
@@ -637,14 +636,10 @@ namespace boost { namespace spirit {
     ///////////////////////////////////////////////////////////////////////////
     inline strlit<char const*> const
     pizza_p(char const* your_favorite_pizza)
-    {
-        return your_favorite_pizza;
+    { 
+        return your_favorite_pizza; 
     }
 
 }} // namespace boost::spirit
-
-#ifdef BOOST_MSVC
-#pragma warning (pop)
-#endif
 
 #endif

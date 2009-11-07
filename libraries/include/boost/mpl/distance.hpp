@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source$
-// $Date: 2005-01-25 20:58:33 -0500 (Tue, 25 Jan 2005) $
-// $Revision: 26850 $
+// $Source: /cvsroot/boost/boost/boost/mpl/distance.hpp,v $
+// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
+// $Revision: 82858 $
 
 #include <boost/mpl/distance_fwd.hpp>
 #include <boost/mpl/iter_fold.hpp>

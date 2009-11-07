@@ -31,7 +31,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/detail/stack_constructor.hpp>
-#include <boost/serialization/collection_size_type.hpp>
 
 namespace boost{
 namespace serialization {
@@ -102,7 +101,7 @@ template<class Container>
 class reserve_imp
 {
 public:
-    void operator()(Container &s, std::size_t count) const {
+    void operator()(Container &s, unsigned int count) const {
         s.reserve(count);
     }
 };
@@ -111,7 +110,7 @@ template<class Container>
 class no_reserve_imp
 {
 public:
-    void operator()(Container & /* s */, std::size_t /* count */) const{}
+    void operator()(Container & /* s */, unsigned int /* count */) const{}
 };
 
 template<class Archive, class Container, class InputFunction, class R>
@@ -119,18 +118,16 @@ inline void load_collection(Archive & ar, Container &s)
 {
     s.clear();
     // retrieve number of elements
-    collection_size_type count;
-    unsigned int item_version;
+    unsigned int count;
+    unsigned int item_version(0);
     ar >> BOOST_SERIALIZATION_NVP(count);
-    if(3 < ar.get_library_version())
+    if(3 < ar.get_library_version()){
         ar >> BOOST_SERIALIZATION_NVP(item_version);
-    else
-        item_version = 0;
+    }
     R rx;
     rx(s, count);
-    std::size_t c = count;
     InputFunction ifunc;
-    while(c-- > 0){
+    while(count-- > 0){
         ifunc(ar, s, item_version);
     }
 }

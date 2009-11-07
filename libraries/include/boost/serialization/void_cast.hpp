@@ -146,54 +146,27 @@ class void_caster_primitive :
         return b;
     }
 
-    BOOST_DLLEXPORT void_caster_primitive() BOOST_USED;
-    
-    static BOOST_DLLEXPORT void_caster_primitive const& instance;
-
-    // Something we can use to force instantiation without generating
-    // warnings.
-    static void use(void_caster_primitive const&) {}
-    
- public:
-    // CodeWarrior fails to construct static members of class
-    // templates when they are instantiated from within templates, so
-    // we do everything with void_caster_primitive in terms of
-    // get_instance.  On CodeWarrior, the user must invoke
-    // BOOST_SERIALIZATION_MWERKS_BASE_AND_DERIVED to make this work
-    // (see boost/serialization/export.hpp).  On other compilers (and
-    // if the bug is fixed in a future version of CodeWarriror), the
-    // initialization of instance (above) obviates the need for
-    // BOOST_SERIALIZATION_MWERKS_BASE_AND_DERIVED.
-    static BOOST_DLLEXPORT void_caster_primitive const& get_instance()
-    {
-        static void_caster_primitive instance_;
-        
-        // refer to instance, causing it to be instantiated (and
-        // initialized at startup on working compilers)
-        use(instance);
-
-        return instance_;
-    }
+public:
+    static const void_caster_primitive instance;
+    void_caster_primitive() BOOST_USED;
 };
 
 template <class Derived, class Base>
-BOOST_DLLEXPORT void_caster_primitive<Derived, Base>::void_caster_primitive() :
+void_caster_primitive<Derived, Base>::void_caster_primitive() :
     void_caster( 
         * type_info_implementation<Derived>::type::get_instance(), 
         * type_info_implementation<Base>::type::get_instance() 
     )
 {
-    // calling get_instance() causes infinite recursion, and the
-    // instance reference isn't initialized yet, so we must pass this
-    // to static_register.  It *is* the same object as instance, but
-    // there's no way even to assert that here.
-    this->static_register(this);
+    this->static_register(& instance);
 }
 
-template <class Derived, class Base>
-BOOST_DLLEXPORT void_caster_primitive<Derived,Base> const&
-void_caster_primitive<Derived,Base>::instance
-= void_caster_primitive<Derived,Base>::get_instance();
+// the purpose of this class is to create to->from and from->to instances
+// of void_caster_primitive for each related pair of types.  This has to be
+// done a pre-execution time - hence the usage of static variable.
+template<class Derived, class Base>
+const void_caster_primitive<Derived, Base>
+    void_caster_primitive<Derived, Base>::instance;
 
 } // void_cast_detail 
 
@@ -214,8 +187,9 @@ inline const void_cast_detail::void_caster & void_cast_register(
     const Base * /* bnull = NULL */
 ){
     return void_cast_detail::void_caster_primitive<
-        const Derived, const Base
-    >::get_instance();
+        const Derived, 
+        const Base
+    >::instance;
 }
 
 } // namespace serialization

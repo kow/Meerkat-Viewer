@@ -105,11 +105,6 @@ public:
         return *this;
     }
 
-    void reset( T * rhs )
-    {
-        this_type( rhs ).swap( *this );
-    }
-
     T * get() const
     {
         return p_;
@@ -117,13 +112,11 @@ public:
 
     T & operator*() const
     {
-        BOOST_ASSERT( p_ != 0 );
         return *p_;
     }
 
     T * operator->() const
     {
-        BOOST_ASSERT( p_ != 0 );
         return p_;
     }
 

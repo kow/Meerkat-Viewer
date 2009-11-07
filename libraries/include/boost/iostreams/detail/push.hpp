@@ -1,5 +1,4 @@
-// (C) Copyright 2008 CodeRage, LLC (turkanis at coderage dot com)
-// (C) Copyright 2003-2007 Jonathan Turkanis
+// (C) Copyright Jonathan Turkanis 2003.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt.)
 
@@ -29,7 +28,7 @@
 #include <boost/type_traits/is_convertible.hpp>
 
 //
-// Macro: BOOST_IOSTREAMS_DEFINE_PUSH_CONSTRUCTOR(name, mode, ch, helper).
+// Macro: BOOST_IOSTREAMS_DEFINE_PUSH_CONSTRUCTOR(mode, name, helper).
 // Description: Defines overloads with name 'name' which forward to a function
 //      'helper' which takes a filter or devide by const reference.
 //
@@ -38,7 +37,7 @@
     /**/
 
 //
-// Macro: BOOST_IOSTREAMS_DEFINE_PUSH(name, mode, ch, helper).
+// Macro: BOOST_IOSTREAMS_DEFINE_PUSH_CONSTRUCTOR(mode, name, helper).
 // Description: Defines constructors which forward to a function
 //      'helper' which takes a filter or device by const reference.
 //

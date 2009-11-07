@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: inversive_congruential.hpp 41369 2007-11-25 18:07:19Z bemandawes $
+ * $Id: inversive_congruential.hpp 45264 2006-02-24 21:34:57Z chris $
  *
  * Revision history
  *  2001-02-18  moved to individual header files
@@ -18,7 +18,6 @@
 
 #include <iostream>
 #include <cassert>
-#include <stdexcept>
 #include <boost/config.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/random/detail/const_mod.hpp>

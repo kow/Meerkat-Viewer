@@ -19,15 +19,8 @@
 #ifndef BOOST_REGEX_V4_MATCH_RESULTS_HPP
 #define BOOST_REGEX_V4_MATCH_RESULTS_HPP
 
-#ifdef BOOST_MSVC
-#pragma warning(push)
-#pragma warning(disable: 4103)
-#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_PREFIX
-#endif
-#ifdef BOOST_MSVC
-#pragma warning(pop)
 #endif
 
 namespace boost{
@@ -411,15 +404,8 @@ std::ostream& operator << (std::ostream& os,
 #endif
 } // namespace boost
 
-#ifdef BOOST_MSVC
-#pragma warning(push)
-#pragma warning(disable: 4103)
-#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_SUFFIX
-#endif
-#ifdef BOOST_MSVC
-#pragma warning(pop)
 #endif
 
 #endif

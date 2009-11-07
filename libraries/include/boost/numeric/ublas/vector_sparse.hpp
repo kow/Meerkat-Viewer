@@ -2,9 +2,13 @@
 //  Copyright (c) 2000-2002
 //  Joerg Walter, Mathias Koch
 //
-//  Distributed under the Boost Software License, Version 1.0. (See
-//  accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+//  Permission to use, copy, modify, distribute and sell this software
+//  and its documentation for any purpose is hereby granted without fee,
+//  provided that the above copyright notice appear in all copies and
+//  that both that copyright notice and this permission notice appear
+//  in supporting documentation.  The authors make no representations
+//  about the suitability of this software for any purpose.
+//  It is provided "as is" without express or implied warranty.
 //
 //  The authors gratefully acknowledge the support of
 //  GeNeSys mbH & Co. KG in producing this work.
@@ -734,17 +738,6 @@ namespace boost { namespace numeric { namespace ublas {
             return reverse_iterator (begin ());
         }
 
-         // Serialization
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int /* file_version */){
-            serialization::collection_size_type s (size_);
-            ar & serialization::make_nvp("size",s);
-            if (Archive::is_loading::value) {
-                size_ = s;
-            }
-            ar & serialization::make_nvp("data", data_);
-        }
-
     private:
         size_type size_;
         array_type data_;
@@ -875,21 +868,13 @@ namespace boost { namespace numeric { namespace ublas {
     public:
         BOOST_UBLAS_INLINE
         void resize (size_type size, bool preserve = true) {
+            // FIXME preserve unimplemented
+            BOOST_UBLAS_CHECK (!preserve, internal_logic ());
             size_ = size;
             capacity_ = restrict_capacity (capacity_);
-            if (preserve) {
-                index_data_. resize (capacity_, size_type ());
-                value_data_. resize (capacity_, value_type ());
-                filled_ = (std::min) (capacity_, filled_);
-                while ((filled_ > 0) && (zero_based(index_data_[filled_ - 1]) >= size)) {
-                    --filled_;
-                }
-            }
-            else {
-                index_data_. resize (capacity_);
-                value_data_. resize (capacity_);
-                filled_ = 0;
-            }
+            index_data_. resize (capacity_);
+            value_data_. resize (capacity_);
+            filled_ = 0;
             storage_invariants ();
         }
 
@@ -1325,30 +1310,12 @@ namespace boost { namespace numeric { namespace ublas {
             return reverse_iterator (begin ());
         }
 
-         // Serialization
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int /* file_version */){
-            serialization::collection_size_type s (size_);
-            ar & serialization::make_nvp("size",s);
-            if (Archive::is_loading::value) {
-                size_ = s;
-            }
-            // ISSUE: filled may be much less than capacity
-            // ISSUE: index_data_ and value_data_ are undefined between filled and capacity (trouble with 'nan'-values)
-            ar & serialization::make_nvp("capacity", capacity_);
-            ar & serialization::make_nvp("filled", filled_);
-            ar & serialization::make_nvp("index_data", index_data_);
-            ar & serialization::make_nvp("value_data", value_data_);
-            storage_invariants();
-        }
-
     private:
         void storage_invariants () const
         {
             BOOST_UBLAS_CHECK (capacity_ == index_data_.size (), internal_logic ());
             BOOST_UBLAS_CHECK (capacity_ == value_data_.size (), internal_logic ());
             BOOST_UBLAS_CHECK (filled_ <= capacity_, internal_logic ());
-            BOOST_UBLAS_CHECK ((0 == filled_) || (zero_based(index_data_[filled_ - 1]) < size_), internal_logic ());
         }
 
         size_type size_;
@@ -1504,15 +1471,11 @@ namespace boost { namespace numeric { namespace ublas {
         void resize (size_type size, bool preserve = true) {
             if (preserve)
                 sort ();    // remove duplicate elements.
-            size_ = size;
             capacity_ = restrict_capacity (capacity_);
             if (preserve) {
                 index_data_. resize (capacity_, size_type ());
                 value_data_. resize (capacity_, value_type ());
                 filled_ = (std::min) (capacity_, filled_);
-                while ((filled_ > 0) && (zero_based(index_data_[filled_ - 1]) >= size)) {
-                    --filled_;
-                }
             }
             else {
                 index_data_. resize (capacity_);
@@ -1520,6 +1483,7 @@ namespace boost { namespace numeric { namespace ublas {
                 filled_ = 0;
             }
             sorted_filled_ = filled_;
+            size_ = size;
             storage_invariants ();
         }
         // Reserving
@@ -2005,25 +1969,6 @@ namespace boost { namespace numeric { namespace ublas {
             return reverse_iterator (begin ());
         }
 
-         // Serialization
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int /* file_version */){
-            serialization::collection_size_type s (size_);
-            ar & serialization::make_nvp("size",s);
-            if (Archive::is_loading::value) {
-                size_ = s;
-            }
-            // ISSUE: filled may be much less than capacity
-            // ISSUE: index_data_ and value_data_ are undefined between filled and capacity (trouble with 'nan'-values)
-            ar & serialization::make_nvp("capacity", capacity_);
-            ar & serialization::make_nvp("filled", filled_);
-            ar & serialization::make_nvp("sorted_filled", sorted_filled_);
-            ar & serialization::make_nvp("sorted", sorted_);
-            ar & serialization::make_nvp("index_data", index_data_);
-            ar & serialization::make_nvp("value_data", value_data_);
-            storage_invariants();
-        }
-
     private:
         void storage_invariants () const
         {
@@ -2032,7 +1977,6 @@ namespace boost { namespace numeric { namespace ublas {
             BOOST_UBLAS_CHECK (filled_ <= capacity_, internal_logic ());
             BOOST_UBLAS_CHECK (sorted_filled_ <= filled_, internal_logic ());
             BOOST_UBLAS_CHECK (sorted_ == (sorted_filled_ == filled_), internal_logic ());
-            BOOST_UBLAS_CHECK ((0 == filled_) || (zero_based(index_data_[filled_ - 1]) < size_), internal_logic ());
         }
 
         size_type size_;

@@ -10,9 +10,6 @@
 # include <boost/python/converter/from_python.hpp>
 # include <boost/python/converter/rvalue_from_python_data.hpp>
 # include <boost/python/converter/registered.hpp>
-#ifndef BOOST_PYTHON_NO_PY_SIGNATURES
-# include <boost/python/converter/pytype_function.hpp>
-#endif
 # include <boost/shared_ptr.hpp>
 
 namespace boost { namespace python { namespace converter { 
@@ -22,11 +19,7 @@ struct shared_ptr_from_python
 {
     shared_ptr_from_python()
     {
-        converter::registry::insert(&convertible, &construct, type_id<shared_ptr<T> >()
-#ifndef BOOST_PYTHON_NO_PY_SIGNATURES
-                      , &converter::expected_from_python_type_direct<T>::get_pytype
-#endif
-                      );
+        converter::registry::insert(&convertible, &construct, type_id<shared_ptr<T> >());
     }
 
  private:

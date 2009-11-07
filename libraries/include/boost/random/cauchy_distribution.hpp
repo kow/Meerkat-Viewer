@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: cauchy_distribution.hpp 41369 2007-11-25 18:07:19Z bemandawes $
+ * $Id: cauchy_distribution.hpp 45264 2006-02-24 21:34:57Z chris $
  *
  * Revision history
  *  2001-02-18  moved to individual header files
@@ -41,9 +41,9 @@ public:
   BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
 #endif
 
-  explicit cauchy_distribution(result_type median_arg = result_type(0), 
-                               result_type sigma_arg = result_type(1))
-    : _median(median_arg), _sigma(sigma_arg) { }
+  explicit cauchy_distribution(result_type median = result_type(0), 
+                               result_type sigma = result_type(1))
+    : _median(median), _sigma(sigma) { }
 
   // compiler-generated copy ctor and assignment operator are fine
 

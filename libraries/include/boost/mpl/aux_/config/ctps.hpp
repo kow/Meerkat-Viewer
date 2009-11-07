@@ -10,16 +10,16 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source$
-// $Date: 2007-11-25 13:07:19 -0500 (Sun, 25 Nov 2007) $
-// $Revision: 41369 $
+// $Source: /cvsroot/boost/boost/boost/mpl/aux_/config/ctps.hpp,v $
+// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
+// $Revision: 82858 $
 
 #include <boost/mpl/aux_/config/workaround.hpp>
 #include <boost/config.hpp>
 
 #if    !defined(BOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC) \
     && !defined(BOOST_MPL_PREPROCESSING_MODE) \
-    && BOOST_WORKAROUND(__BORLANDC__, < 0x582)
+    && BOOST_WORKAROUND(__BORLANDC__, < 0x600) 
 
 #   define BOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC
 

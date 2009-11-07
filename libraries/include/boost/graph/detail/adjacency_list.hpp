@@ -24,9 +24,7 @@
 
 #include <boost/iterator/iterator_adaptor.hpp>
 
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/not.hpp>
-#include <boost/mpl/and.hpp>
+#include <boost/pending/ct_if.hpp>
 #include <boost/graph/graph_concepts.hpp>
 #include <boost/pending/container_traits.hpp>
 #include <boost/graph/detail/adj_list_edge_iterator.hpp>
@@ -64,11 +62,6 @@
   bidirectional code... it is awful similar.
  */
 
-
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-// Stay out of the way of the concept checking class
-# define Graph Graph_
-#endif
 
 namespace boost {
 
@@ -2275,7 +2268,7 @@ namespace boost {
         typedef typename container_gen<VertexListS, 
           vertex_ptr>::type SeqVertexList;
         typedef boost::integer_range<std::size_t> RandVertexList;
-        typedef typename mpl::if_<is_rand_access,
+        typedef typename boost::ct_if_t<is_rand_access,
           RandVertexList, SeqVertexList>::type VertexList;
 
         typedef typename VertexList::iterator vertex_iterator;
@@ -2285,10 +2278,10 @@ namespace boost {
         typedef typename container_gen<EdgeListS, 
           list_edge<vertex_descriptor, EdgeProperty> >::type EdgeContainer;
 
-        typedef typename mpl::and_<DirectedT, 
-             typename mpl::not_<BidirectionalT>::type >::type on_edge_storage;
+        typedef typename ct_and<DirectedT, 
+             typename ct_not<BidirectionalT>::type >::type on_edge_storage;
 
-        typedef typename mpl::if_<on_edge_storage,
+        typedef typename boost::ct_if_t<on_edge_storage,
           std::size_t, typename EdgeContainer::size_type
         >::type edges_size_type;
 
@@ -2296,9 +2289,9 @@ namespace boost {
 
         typedef typename detail::is_random_access<EdgeListS>::type is_edge_ra;
 
-        typedef typename mpl::if_<on_edge_storage,
+        typedef typename boost::ct_if_t<on_edge_storage,
           stored_edge_property<vertex_descriptor, EdgeProperty>,
-          typename mpl::if_<is_edge_ra,
+          typename boost::ct_if_t<is_edge_ra,
             stored_ra_edge_iter<vertex_descriptor, EdgeContainer, EdgeProperty>,
             stored_edge_iter<vertex_descriptor, EdgeIter, EdgeProperty>
           >::type
@@ -2349,7 +2342,7 @@ namespace boost {
         typedef adj_list_edge_iterator<vertex_iterator, out_edge_iterator, 
            graph_type> DirectedEdgeIter;
 
-        typedef typename mpl::if_<on_edge_storage,
+        typedef typename boost::ct_if_t<on_edge_storage,
           DirectedEdgeIter, UndirectedEdgeIter>::type edge_iterator;
 
         // stored_vertex and StoredVertexList
@@ -2383,10 +2376,10 @@ namespace boost {
           InEdgeList m_in_edges;
           VertexProperty m_property;
         };
-        typedef typename mpl::if_<is_rand_access,
-          typename mpl::if_<BidirectionalT,
+        typedef typename boost::ct_if_t<is_rand_access,
+          typename boost::ct_if_t<BidirectionalT,
             bidir_rand_stored_vertex, rand_stored_vertex>::type,
-          typename mpl::if_<BidirectionalT,
+          typename boost::ct_if_t<BidirectionalT,
             bidir_seq_stored_vertex, seq_stored_vertex>::type
         >::type StoredVertex;
         struct stored_vertex : public StoredVertex {
@@ -2396,20 +2389,20 @@ namespace boost {
 
         typedef typename container_gen<VertexListS, stored_vertex>::type
           RandStoredVertexList;
-        typedef typename mpl::if_< is_rand_access,
+        typedef typename boost::ct_if_t< is_rand_access,
           RandStoredVertexList, SeqStoredVertexList>::type StoredVertexList;
       }; // end of config
 
 
-      typedef typename mpl::if_<BidirectionalT,
+      typedef typename boost::ct_if_t<BidirectionalT,
         bidirectional_graph_helper_with_property<config>,
-        typename mpl::if_<DirectedT,
+        typename boost::ct_if_t<DirectedT,
           directed_graph_helper<config>,
           undirected_graph_helper<config>
         >::type
       >::type DirectedHelper;
 
-      typedef typename mpl::if_<is_rand_access,
+      typedef typename boost::ct_if_t<is_rand_access,
         vec_adj_list_impl<Graph, config, DirectedHelper>,
         adj_list_impl<Graph, config, DirectedHelper>
       >::type type;
@@ -2813,11 +2806,6 @@ namespace BOOST_STD_EXTENSION_NAMESPACE {
 #undef stored_edge
 #undef stored_edge_property
 #undef stored_edge_iter
-
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-// Stay out of the way of the concept checking class
-#undef Graph
-#endif
 
 #endif // BOOST_GRAPH_DETAIL_DETAIL_ADJACENCY_LIST_CCT
 

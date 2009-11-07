@@ -1,4 +1,4 @@
-/* Copyright 2003-2007 Joaquín M López Muñoz.
+/* Copyright 2003-2006 Joaquín M López Muñoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -22,59 +22,28 @@ namespace multi_index{
 
 /* dummy type and variable for use in ordered_index::range() */
 
-#if BOOST_WORKAROUND(BOOST_MSVC,<1300)
-/* The default branch actually works for MSVC 6.0, but seems like
- * this implementation of unbounded improves the performance of ordered
- * indices! This behavior is hard to explain and probably a test artifact,
- * but it does not hurt to have the workaround anyway.
- */
+namespace detail{
 
-namespace detail{struct unbounded_type{};}
+struct unbounded_type{};
+
+} /* namespace multi_index::detail */
 
 namespace{
 
-static detail::unbounded_type  unbounded_obj=detail::unbounded_type();
-static detail::unbounded_type& unbounded=unbounded_obj;
-
-} /* unnamed */
-#else
-/* ODR-abiding technique shown at the example attached to
- * http://lists.boost.org/Archives/boost/2006/07/108355.php
+#if BOOST_WORKAROUND(BOOST_MSVC,<1300)
+/* The default branch actually works for MSVC 6.0, but seems like
+ * the const qualifier reduces the performance of ordered indices! This
+ * behavior is hard to explain and probably a test artifact, but it
+ * does not hurt to have the workaround anyway.
  */
 
-namespace detail{class unbounded_helper;}
-
-detail::unbounded_helper unbounded(detail::unbounded_helper);
-
-namespace detail{
-
-class unbounded_helper
-{
-  unbounded_helper(){}
-  unbounded_helper(const unbounded_helper&){}
-  friend unbounded_helper multi_index::unbounded(unbounded_helper);
-};
-
-typedef unbounded_helper (*unbounded_type)(unbounded_helper);
-
-} /* namespace multi_index::detail */
-
-inline detail::unbounded_helper unbounded(detail::unbounded_helper)
-{
-  return detail::unbounded_helper();
-}
+static detail::unbounded_type  unbounded_obj=detail::unbounded_type();
+static detail::unbounded_type& unbounded=unbounded_obj;
+#else
+const detail::unbounded_type unbounded=detail::unbounded_type();
 #endif
 
-/* tags used in the implementation of range */
-
-namespace detail{
-
-struct none_unbounded_tag{};
-struct lower_unbounded_tag{};
-struct upper_unbounded_tag{};
-struct both_unbounded_tag{};
-
-} /* namespace multi_index::detail */
+} /* unnamed */
 
 } /* namespace multi_index */
 

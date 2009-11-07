@@ -23,6 +23,8 @@
 #  include <boost/cstdint.hpp>
 #endif
 
+#include <boost/detail/workaround.hpp>
+
 #ifdef __cplusplus
 namespace boost{
    namespace regex_constants{
@@ -71,7 +73,7 @@ typedef enum _match_flags
 
 } match_flags;
 
-#if (defined(_MSC_VER) && (_MSC_VER < 1300)) || defined(__BORLANDC__)
+#if BOOST_WORKAROUND(BOOST_MSVC, < 1300) || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
 typedef unsigned long match_flag_type;
 #else
 typedef match_flags match_flag_type;

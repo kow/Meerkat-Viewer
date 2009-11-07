@@ -70,6 +70,9 @@ namespace boost
         typedef ptr_array<T,N,CloneAllocator>
                           this_type;
 
+        ptr_array( const this_type& );
+        void operator=( const this_type& );
+
     public:
         typedef std::size_t size_type;
         typedef U*          value_type;
@@ -83,47 +86,12 @@ namespace boost
         ptr_array() : base_class()
         { }
 
-        explicit ptr_array( const ptr_array& r )
-        {
-            size_t i = 0;
-            for( ; i != N; ++i )
-                this->base()[i] = this->null_policy_allocate_clone( 
-                                        static_cast<T*>( r.base()[i] ) ); 
-        }
-
-        template< class U >
-        explicit ptr_array( const ptr_array<U,N>& r )
-        {
-            size_t i = 0;
-            for( ; i != N; ++i )
-                this->base()[i] = this->null_policy_allocate_clone( 
-                                        static_cast<U*>( r.base()[i] ) ); 
-        }
-
-        explicit ptr_array( std::auto_ptr<this_type> r )
+        ptr_array( std::auto_ptr<this_type> r )
         : base_class( r ) { }
 
-        ptr_array& operator=( const ptr_array& r )
-        {
-            ptr_array clone( r );
-            this->swap( clone );
-            return *this;
-            
-        }
-
-        template< class U >
-        ptr_array& operator=( const ptr_array<U,N>& r )
-        {
-            ptr_array clone( r );
-            this->swap( clone );
-            return *this;
-            
-        }
-
-        ptr_array& operator=( std::auto_ptr<this_type> r )
+        void operator=( std::auto_ptr<this_type> r )
         {
             base_class::operator=(r);
-            return *this;
         }
 
         std::auto_ptr<this_type> release()
@@ -139,7 +107,7 @@ namespace boost
             for( size_t i = 0; i != N; ++i )
             {
                 if( ! is_null(i) )
-                    pa->replace( i, this->null_policy_allocate_clone( &(*this)[i] ) ); 
+                    pa->replace( i, CloneAllocator::allocate_clone( (*this)[i] ) );
             }
             return pa;
         }
@@ -163,9 +131,9 @@ namespace boost
 
             this->enforce_null_policy( r, "Null pointer in 'ptr_array::replace()'" );
 
-            auto_type res( static_cast<U*>( this->base()[idx] ) ); // nothrow
-            this->base()[idx] = r;                                 // nothrow
-            return boost::ptr_container::move(res);                // nothrow 
+            auto_type res( static_cast<U*>( this->c_private()[idx] ) ); // nothrow
+            this->c_private()[idx] = r;                                 // nothrow
+            return move(res);                                           // nothrow
         }
 
         template< size_t idx, class V >
@@ -183,9 +151,9 @@ namespace boost
             BOOST_PTR_CONTAINER_THROW_EXCEPTION( idx >= N, bad_index,
                                                  "'replace()' aout of bounds" );
 
-            auto_type res( static_cast<U*>( this->base()[idx] ) ); // nothrow
-            this->base()[idx] = ptr.release();                     // nothrow
-            return boost::ptr_container::move(res);                // nothrow 
+            auto_type res( static_cast<U*>( this->c_private()[idx] ) ); // nothrow
+            this->c_private()[idx] = ptr.release();                     // nothrow
+            return move(res);                                           // nothrow
         }
 
         template< class V >
@@ -219,8 +187,34 @@ namespace boost
         bool is_null() const
         {
             BOOST_STATIC_ASSERT( idx < N );
-            return this->base()[idx] == 0;
+            return this->c_private()[idx] == 0;
         }
+        
+    public: // serialization
+
+        template< class Archive >
+        void save( Archive& ar, const unsigned ) const
+        {
+            this->save_helper( ar );
+        }
+
+        template< class Archive >
+        void load( Archive& ar, const unsigned ) // basic
+        {
+            for( size_type i = 0u; i != N; ++i )
+            {
+                //
+                // Remark: pointers are not tracked,
+                // so we need not call ar.reset_object_address(v, u)
+                //
+                T* p;
+                ar & p;
+                this->replace( i, p );
+            }
+        }
+
+        BOOST_SERIALIZATION_SPLIT_MEMBER()
+
     };
 
     //////////////////////////////////////////////////////////////////////////////

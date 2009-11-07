@@ -20,7 +20,6 @@
 #define CREF
 #endif
 
-#include <climits>
 #include <boost/spirit/phoenix/actor.hpp>
 #include <boost/spirit/phoenix/composite.hpp>
 #include <boost/config.hpp>

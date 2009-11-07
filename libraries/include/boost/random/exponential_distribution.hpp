@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: exponential_distribution.hpp 41369 2007-11-25 18:07:19Z bemandawes $
+ * $Id: exponential_distribution.hpp 45264 2006-02-24 21:34:57Z chris $
  *
  * Revision history
  *  2001-02-18  moved to individual header files
@@ -36,8 +36,8 @@ public:
   BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
 #endif
 
-  explicit exponential_distribution(result_type lambda_arg = result_type(1))
-    : _lambda(lambda_arg) { assert(_lambda > result_type(0)); }
+  explicit exponential_distribution(result_type lambda = result_type(1))
+    : _lambda(lambda) { assert(lambda > result_type(0)); }
 
   // compiler-generated copy ctor and assignment operator are fine
 

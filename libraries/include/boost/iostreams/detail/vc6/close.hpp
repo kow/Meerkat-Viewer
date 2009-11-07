@@ -1,5 +1,4 @@
-// (C) Copyright 2008 CodeRage, LLC (turkanis at coderage dot com)
-// (C) Copyright 2005-2007 Jonathan Turkanis
+// (C) Copyright Jonathan Turkanis 2005.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt.)
 
@@ -13,9 +12,6 @@ template<typename T>
 struct close_impl;
 
 } // End namespace detail.
-
-template<typename T>
-void close(T& t) { detail::close_all(t); }
 
 template<typename T>
 void close(T& t, BOOST_IOS::openmode which)
@@ -68,14 +64,14 @@ struct close_impl<any_tag> {
     struct inner {
         static void close(T& t, BOOST_IOS::openmode which)
         {
-            if (which == BOOST_IOS::out)
+            if ((which & BOOST_IOS::out) != 0)
                 iostreams::flush(t);
         }
 
         template<typename Sink>
         static void close(T& t, Sink& snk, BOOST_IOS::openmode which)
         {
-            if (which == BOOST_IOS::out) {
+            if ((which & BOOST_IOS::out) != 0) {
                 non_blocking_adapter<Sink> nb(snk);
                 iostreams::flush(t, nb);
             }
@@ -92,7 +88,7 @@ struct close_impl<closable_tag> {
             typedef typename category_of<T>::type category;
             const bool in =  is_convertible<category, input>::value &&
                             !is_convertible<category, output>::value;
-            if (in == (which == BOOST_IOS::in))
+            if (in == ((which & BOOST_IOS::in) != 0))
                 t.close();
         }
         template<typename Sink>
@@ -101,7 +97,7 @@ struct close_impl<closable_tag> {
             typedef typename category_of<T>::type category;
             const bool in =  is_convertible<category, input>::value &&
                             !is_convertible<category, output>::value;
-            if (in == (which == BOOST_IOS::in)) {
+            if (in == ((which & BOOST_IOS::in) != 0)) {
                 non_blocking_adapter<Sink> nb(snk);
                 t.close(nb);
             }

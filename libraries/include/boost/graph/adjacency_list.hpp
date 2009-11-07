@@ -36,10 +36,7 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/graph_selectors.hpp>
 #include <boost/property_map.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/and.hpp>
-#include <boost/mpl/not.hpp>
-#include <boost/mpl/bool.hpp>
+#include <boost/pending/ct_if.hpp>
 #include <boost/graph/detail/edge.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/detail/workaround.hpp>
@@ -241,12 +238,12 @@ namespace boost {
   namespace detail {
     template <class Directed> struct is_random_access { 
       enum { value = false};
-      typedef mpl::false_ type;
+      typedef false_type type;
     };
     template <>
     struct is_random_access<vecS> { 
       enum { value = true }; 
-      typedef mpl::true_ type;
+      typedef true_type type;
     };
 
   } // namespace detail
@@ -262,8 +259,7 @@ namespace boost {
 
   template <class OutEdgeListS = vecS,
             class VertexListS = vecS,
-            class DirectedS = directedS,
-            class EdgeListS = listS>
+            class DirectedS = directedS>
   struct adjacency_list_traits
   {
     typedef typename detail::is_random_access<VertexListS>::type
@@ -271,9 +267,9 @@ namespace boost {
     typedef typename DirectedS::is_bidir_t is_bidir;
     typedef typename DirectedS::is_directed_t is_directed;
 
-    typedef typename mpl::if_<is_bidir,
+    typedef typename boost::ct_if_t<is_bidir,
       bidirectional_tag,
-      typename mpl::if_<is_directed,
+      typename boost::ct_if_t<is_directed,
         directed_tag, undirected_tag
       >::type
     >::type directed_category;
@@ -282,26 +278,10 @@ namespace boost {
       edge_parallel_category;
 
     typedef void* vertex_ptr;
-    typedef typename mpl::if_<is_rand_access,
+    typedef typename boost::ct_if_t<is_rand_access,
       std::size_t, vertex_ptr>::type vertex_descriptor;
     typedef detail::edge_desc_impl<directed_category, vertex_descriptor>
       edge_descriptor;
-
-    typedef std::size_t vertices_size_type;
-
-  private:
-    // Logic to figure out the edges_size_type
-    struct dummy {};
-    typedef typename container_gen<EdgeListS, dummy>::type EdgeContainer;
-    typedef typename DirectedS::is_bidir_t BidirectionalT;
-    typedef typename DirectedS::is_directed_t DirectedT;
-    typedef typename mpl::and_<DirectedT, 
-      typename mpl::not_<BidirectionalT>::type >::type on_edge_storage;
-  public:
-    typedef typename mpl::if_<on_edge_storage,
-       std::size_t, typename EdgeContainer::size_type
-    >::type edges_size_type;
-
   };
 
 } // namespace boost
@@ -355,10 +335,10 @@ namespace boost {
       edge_property_type;
 
     // The types that are actually bundled
-    typedef typename mpl::if_c<(is_same<maybe_vertex_bundled, no_property>::value),
+    typedef typename ct_if<(is_same<maybe_vertex_bundled, no_property>::value),
                            no_vertex_bundle,
                            maybe_vertex_bundled>::type vertex_bundled;
-    typedef typename mpl::if_c<(is_same<maybe_edge_bundled, no_property>::value),
+    typedef typename ct_if<(is_same<maybe_edge_bundled, no_property>::value),
                            no_edge_bundle,
                            maybe_edge_bundled>::type edge_bundled;
 #else

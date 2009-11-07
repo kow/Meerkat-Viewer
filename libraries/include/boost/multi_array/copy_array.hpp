@@ -19,7 +19,7 @@
 // shape
 //
 #include "boost/type.hpp"
-#include "boost/assert.hpp"
+#include <cassert>
 
 namespace boost {
 namespace detail {
@@ -52,8 +52,8 @@ private:
 
 template <typename Array1, typename Array2>
 void copy_array (Array1& source, Array2& dest) {
-  BOOST_ASSERT(std::equal(source.shape(),source.shape()+source.num_dimensions(),
-                          dest.shape()));
+  assert(std::equal(source.shape(),source.shape()+source.num_dimensions(),
+                    dest.shape()));
   // Dispatch to the proper function
   typedef typename Array1::element element_type;
   copy_dispatch<element_type>::

@@ -1,13 +1,13 @@
-//  (C) Copyright Gennadiy Rozental 2005-2007.
+//  (C) Copyright Gennadiy Rozental 2005.
 //  Use, modification, and distribution are subject to the 
 //  Boost Software License, Version 1.0. (See accompanying file 
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org/libs/test for the library home page.
 //
-//  File        : $RCSfile$
+//  File        : $RCSfile: basic_parameter.hpp,v $
 //
-//  Version     : $Revision: 43798 $
+//  Version     : $Revision: 1.1 $
 //
 //  Description : generic custom parameter generator
 // ***************************************************************************
@@ -80,5 +80,14 @@ param_type( cstring name = cstring() )                                          
 } // namespace BOOST_RT_PARAM_NAMESPACE
 
 } // namespace boost
+
+// ************************************************************************** //
+//   Revision History:
+//
+//   $Log: basic_parameter.hpp,v $
+//   Revision 1.1  2005/04/12 06:42:43  rogeeff
+//   Runtime.Param library initial commit
+//
+// ************************************************************************** //
 
 #endif // BOOST_RT_CLA_BASIC_PARAMETER_HPP_062604GER

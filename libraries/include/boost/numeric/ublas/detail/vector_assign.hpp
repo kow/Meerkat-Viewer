@@ -2,9 +2,13 @@
 //  Copyright (c) 2000-2002
 //  Joerg Walter, Mathias Koch
 //
-//  Distributed under the Boost Software License, Version 1.0. (See
-//  accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+//  Permission to use, copy, modify, distribute and sell this software
+//  and its documentation for any purpose is hereby granted without fee,
+//  provided that the above copyright notice appear in all copies and
+//  that both that copyright notice and this permission notice appear
+//  in supporting documentation.  The authors make no representations
+//  about the suitability of this software for any purpose.
+//  It is provided "as is" without express or implied warranty.
 //
 //  The authors gratefully acknowledge the support of
 //  GeNeSys mbH & Co. KG in producing this work.
@@ -13,7 +17,6 @@
 #ifndef _BOOST_UBLAS_VECTOR_ASSIGN_
 #define _BOOST_UBLAS_VECTOR_ASSIGN_
 
-#include <boost/numeric/ublas/functional.hpp> // scalar_assign
 // Required for make_conformant storage
 #include <vector>
 
@@ -337,9 +340,8 @@ namespace detail {
             it += size;
         }
 #if BOOST_UBLAS_TYPE_CHECK
-        if (! disable_type_check<bool>::value) 
-            BOOST_UBLAS_CHECK (detail::expression_type_check (v, cv), 
-                               external_logic ("external logic or bad condition of inputs"));
+        if (! disable_type_check<bool>::value)
+            BOOST_UBLAS_CHECK (detail::expression_type_check (v, cv), external_logic ());
 #endif
     }
     // Sparse case
@@ -365,9 +367,8 @@ namespace detail {
             ++ ite;
         }
 #if BOOST_UBLAS_TYPE_CHECK
-        if (! disable_type_check<bool>::value) 
-            BOOST_UBLAS_CHECK (detail::expression_type_check (v, cv), 
-                               external_logic ("external logic or bad condition of inputs"));
+        if (! disable_type_check<bool>::value)
+            BOOST_UBLAS_CHECK (detail::expression_type_check (v, cv), external_logic ());
 #endif
     }
     // Sparse proxy or functional case
@@ -433,8 +434,7 @@ namespace detail {
         }
 #if BOOST_UBLAS_TYPE_CHECK
         if (! disable_type_check<bool>::value)
-            BOOST_UBLAS_CHECK (detail::expression_type_check (v, cv), 
-                               external_logic ("external logic or bad condition of inputs"));
+            BOOST_UBLAS_CHECK (detail::expression_type_check (v, cv), external_logic ());
 #endif
     }
 

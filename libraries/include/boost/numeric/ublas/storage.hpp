@@ -2,9 +2,13 @@
 //  Copyright (c) 2000-2002
 //  Joerg Walter, Mathias Koch
 //
-//  Distributed under the Boost Software License, Version 1.0. (See
-//  accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+//  Permission to use, copy, modify, distribute and sell this software
+//  and its documentation for any purpose is hereby granted without fee,
+//  provided that the above copyright notice appear in all copies and
+//  that both that copyright notice and this permission notice appear
+//  in supporting documentation.  The authors make no representations
+//  about the suitability of this software for any purpose.
+//  It is provided "as is" without express or implied warranty.
 //
 //  The authors gratefully acknowledge the support of
 //  GeNeSys mbH & Co. KG in producing this work.
@@ -18,12 +22,7 @@
 #include <boost/shared_array.hpp>
 #endif
 
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/collection_size_type.hpp>
-#include <boost/serialization/nvp.hpp>
-
 #include <boost/numeric/ublas/exception.hpp>
-#include <boost/numeric/ublas/traits.hpp>
 #include <boost/numeric/ublas/detail/iterator.hpp>
 
 
@@ -64,15 +63,19 @@ namespace boost { namespace numeric { namespace ublas {
         explicit BOOST_UBLAS_INLINE
         unbounded_array (size_type size, const ALLOC &a = ALLOC()):
             alloc_(a), size_ (size) {
-          if (size_) {
-              data_ = alloc_.allocate (size_);
-              if (! detail::has_trivial_constructor<T>::value) {
-                  for (pointer d = data_; d != data_ + size_; ++d)
-                      alloc_.construct(d, value_type());
-              }
-          }
-          else
-              data_ = 0;
+            if (size_) {
+                data_ = alloc_.allocate (size_);
+                // ISSUE some compilers may zero POD here
+#ifdef BOOST_UBLAS_USEFUL_ARRAY_PLACEMENT_NEW
+                // array form fails on some compilers due to size cookie, is it standard conforming?
+                new (data_) value_type[size_];
+#else
+                for (pointer d = data_; d != data_ + size_; ++d)
+                    new (d) value_type;
+#endif
+            }
+            else
+                data_ = 0;
         }
         // No value initialised, but still be default constructed
         BOOST_UBLAS_INLINE
@@ -87,7 +90,6 @@ namespace boost { namespace numeric { namespace ublas {
         }
         BOOST_UBLAS_INLINE
         unbounded_array (const unbounded_array &c):
-            storage_array<unbounded_array<T, ALLOC> >(),
             alloc_ (c.alloc_), size_ (c.size_) {
             if (size_) {
                 data_ = alloc_.allocate (size_);
@@ -99,12 +101,9 @@ namespace boost { namespace numeric { namespace ublas {
         BOOST_UBLAS_INLINE
         ~unbounded_array () {
             if (size_) {
-                if (! detail::has_trivial_destructor<T>::value) {
-                    // std::_Destroy (begin(), end(), alloc_);
-                    const iterator i_end = end();
-                    for (iterator i = begin (); i != i_end; ++i) {
-                        iterator_destroy (i); 
-                    }
+                const iterator i_end = end();
+                for (iterator i = begin (); i != i_end; ++i) {
+                    iterator_destroy (i); 
                 }
                 alloc_.deallocate (data_, size_);
             }
@@ -138,18 +137,20 @@ namespace boost { namespace numeric { namespace ublas {
                         }
                     }
                     else {
-                        if (! detail::has_trivial_constructor<T>::value) {
-                            for (pointer di = data_; di != data_ + size; ++di)
-                                alloc_.construct (di, value_type());
-                        }
+                        // ISSUE some compilers may zero POD here
+#ifdef BOOST_UBLAS_USEFUL_ARRAY_PLACEMENT_NEW
+                        // array form fails on some compilers due to size cookie, is it standard conforming?
+                        new (data_) value_type[size];
+#else
+                        for (pointer di = data_; di != data_ + size; ++di)
+                            new (di) value_type;
+#endif
                     }
                 }
 
                 if (size_) {
-                    if (! detail::has_trivial_destructor<T>::value) {
-                        for (pointer si = p_data; si != p_data + size_; ++si)
-                            alloc_.destroy (si);
-                    }
+                    for (pointer si = p_data; si != p_data + size_; ++si)
+                        alloc_.destroy (si);
                     alloc_.deallocate (p_data, size_);
                 }
 
@@ -269,21 +270,6 @@ namespace boost { namespace numeric { namespace ublas {
         }
 
     private:
-        friend class boost::serialization::access;
-
-        // Serialization
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
-        { 
-            serialization::collection_size_type s(size_);
-            ar & serialization::make_nvp("size",s);
-            if ( Archive::is_loading::value ) {
-                resize(s);
-            }
-            ar & serialization::make_array(data_, s);
-        }
-
-    private:
         // Handle explict destroy on a (possibly indexed) iterator
         BOOST_UBLAS_INLINE
         static void iterator_destroy (iterator &i) {
@@ -334,7 +320,7 @@ namespace boost { namespace numeric { namespace ublas {
         bounded_array (const bounded_array &c):
             size_ (c.size_)  {
             // ISSUE elements should be copy constructed here, but we must copy instead as already default constructed
-            std::copy (c.begin(), c.end(), begin());
+            std::copy (c.data_, c.data_ + c.size_, data_);
         }
         
         // Resizing
@@ -444,22 +430,6 @@ namespace boost { namespace numeric { namespace ublas {
         BOOST_UBLAS_INLINE
         reverse_iterator rend () {
             return reverse_iterator (begin ());
-        }
-
-    private:
-        // Serialization
-        friend class boost::serialization::access;
-
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
-        {
-            serialization::collection_size_type s(size_);
-            ar & serialization::make_nvp("size", s);
-            if ( Archive::is_loading::value ) {
-                if (s > N) bad_size("too large size in bounded_array::load()\n").raise();
-                resize(s);
-            }
-            ar & serialization::make_array(data_, s);
         }
 
     private:
@@ -1612,7 +1582,6 @@ namespace boost { namespace numeric { namespace ublas {
         bool equal(const self_type& rhs) const {
             return (v1_ == rhs.v1_);
         }
-        BOOST_UBLAS_INLINE
         bool less(const self_type& rhs) const {
             return (v1_ < rhs.v1_);
         }
@@ -1627,18 +1596,6 @@ namespace boost { namespace numeric { namespace ublas {
         BOOST_UBLAS_INLINE
         friend bool operator < (const self_type& lhs, const self_type& rhs) {
             return lhs.less(rhs);
-        }
-        BOOST_UBLAS_INLINE
-        friend bool operator >= (const self_type& lhs, const self_type& rhs) {
-            return !lhs.less(rhs);
-        }
-        BOOST_UBLAS_INLINE
-        friend bool operator > (const self_type& lhs, const self_type& rhs) {
-            return rhs.less(lhs);
-        }
-        BOOST_UBLAS_INLINE
-        friend bool operator <= (const self_type& lhs, const self_type& rhs) {
-            return !rhs.less(lhs);
         }
 
     private:
@@ -1800,18 +1757,6 @@ namespace boost { namespace numeric { namespace ublas {
         BOOST_UBLAS_INLINE
         friend bool operator < (const self_type& lhs, const self_type& rhs) {
             return lhs.less(rhs);
-        }
-        BOOST_UBLAS_INLINE
-        friend bool operator >= (const self_type& lhs, const self_type& rhs) {
-            return !lhs.less(rhs);
-        }
-        BOOST_UBLAS_INLINE
-        friend bool operator > (const self_type& lhs, const self_type& rhs) {
-            return rhs.less(lhs);
-        }
-        BOOST_UBLAS_INLINE
-        friend bool operator <= (const self_type& lhs, const self_type& rhs) {
-            return !rhs.less(lhs);
         }
 
     private:

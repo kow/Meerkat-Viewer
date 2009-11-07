@@ -1,5 +1,4 @@
-// (C) Copyright 2008 CodeRage, LLC (turkanis at coderage dot com)
-// (C) Copyright 2003-2007 Jonathan Turkanis
+// (C) Copyright Jonathan Turkanis 2003.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt.)
 
@@ -32,9 +31,7 @@
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/bool.hpp> // true_.
 #include <boost/mpl/if.hpp>
-#if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-# include <boost/range/iterator_range.hpp>
-#endif // #if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
+#include <boost/range/iterator_range.hpp>
 #include <boost/type_traits/is_array.hpp>
 
 // Must come last.
@@ -101,12 +98,10 @@ template<typename Mode, typename Ch, std::size_t N>
 array_adapter<Mode, Ch> resolve(Ch (&array)[N])
 { return array_adapter<Mode, Ch>(array); }
 
-#  if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-    template<typename Mode, typename Ch, typename Iter>
-    range_adapter< Mode, boost::iterator_range<Iter> > 
-    resolve(const boost::iterator_range<Iter>& rng)
-    { return range_adapter< Mode, boost::iterator_range<Iter> >(rng); }
-#  endif // #if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
+template<typename Mode, typename Ch, typename Iter>
+range_adapter< Mode, boost::iterator_range<Iter> > 
+resolve(const boost::iterator_range<Iter>& rng)
+{ return range_adapter< Mode, boost::iterator_range<Iter> >(rng); }
 
 # else // # ifndef BOOST_IOSTREAMS_NO_STREAM_TEMPLATES //---------------------//
 

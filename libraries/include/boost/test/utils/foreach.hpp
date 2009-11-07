@@ -1,14 +1,14 @@
 //  (C) Copyright Eric Niebler 2004-2005
-//  (C) Copyright Gennadiy Rozental 2005-2007.
+//  (C) Copyright Gennadiy Rozental 2005.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org/libs/test for the library home page.
 //
-//  File        : $RCSfile$
+//  File        : $RCSfile: foreach.hpp,v $
 //
-//  Version     : $Revision: 41369 $
+//  Version     : $Revision: 1.4 $
 //
 //  Description : this is an abridged version of an excelent BOOST_FOREACH facility
 //  presented by Eric Niebler. I am so fond of it so I couldn't wait till it 
@@ -28,7 +28,9 @@
 #include <boost/mpl/bool.hpp>
 #include <boost/test/detail/workaround.hpp>
 
+#if !BOOST_WORKAROUND(__SUNPRO_CC, BOOST_TESTED_AT(0x530) )
 #include <boost/type_traits/is_const.hpp>
+#endif
 
 #include <boost/test/detail/suppress_warnings.hpp>
 
@@ -78,12 +80,38 @@ static_any_cast( static_any_t a, Iter* = 0 )
 // **************                   is_const                   ************** //
 // ************************************************************************** //
 
+#if BOOST_WORKAROUND(__SUNPRO_CC, BOOST_TESTED_AT(0x530) )
+
+template<typename C>
+inline mpl::false_
+is_const_coll( C& )
+{
+    return mpl::false_();
+}
+
+//____________________________________________________________________________//
+
+template<typename C>
+inline mpl::true_
+is_const_coll( C const& )
+{
+    return mpl::true_();
+}
+
+//____________________________________________________________________________//
+
+#else
+
 template<typename C>
 inline is_const<C>
 is_const_coll( C& )
 {
     return is_const<C>();
 }
+
+//____________________________________________________________________________//
+
+#endif
 
 //____________________________________________________________________________//
 
@@ -100,12 +128,26 @@ begin( C& t, mpl::false_ )
 
 //____________________________________________________________________________//
 
+#if BOOST_WORKAROUND(__SUNPRO_CC, BOOST_TESTED_AT(0x530) )
+
+template<typename C>
+inline static_any<BOOST_DEDUCED_TYPENAME C::iterator>
+begin( C const& t, mpl::true_ )
+{
+    typedef typename C::iterator it;
+    return static_any<it>( const_cast<it>( t.begin() ) );
+}
+
+#else
+
 template<typename C>
 inline static_any<BOOST_DEDUCED_TYPENAME C::const_iterator>
 begin( C const& t, mpl::true_ )
 {
     return static_any<BOOST_DEDUCED_TYPENAME C::const_iterator>( t.begin() );
 }
+
+#endif
 
 //____________________________________________________________________________//
 
@@ -122,12 +164,26 @@ end( C& t, mpl::false_ )
 
 //____________________________________________________________________________//
 
+#if BOOST_WORKAROUND(__SUNPRO_CC, BOOST_TESTED_AT(0x530) )
+
+template<typename C>
+inline static_any<BOOST_DEDUCED_TYPENAME C::iterator>
+end( C const& t, mpl::true_ )
+{
+    typedef typename C::iterator it;
+    return static_any<it>( const_cast<it>( t.end() ) );
+}
+
+#else
+
 template<typename C>
 inline static_any<BOOST_DEDUCED_TYPENAME C::const_iterator>
 end( C const& t, mpl::true_ )
 {
     return static_any<BOOST_DEDUCED_TYPENAME C::const_iterator>( t.end() );
 }
+
+#endif
 
 //____________________________________________________________________________//
 
@@ -301,5 +357,23 @@ for( ;                                                                          
 //____________________________________________________________________________//
 
 #include <boost/test/detail/enable_warnings.hpp>
+
+// ***************************************************************************
+//  Revision History :
+//
+//  $Log: foreach.hpp,v $
+//  Revision 1.4  2005/03/24 04:02:33  rogeeff
+//  portability fixes
+//
+//  Revision 1.3  2005/03/23 21:02:26  rogeeff
+//  Sunpro CC 5.3 fixes
+//
+//  Revision 1.2  2005/02/21 10:15:45  rogeeff
+//  vc 7.1 workaround
+//
+//  Revision 1.1  2005/02/20 08:27:08  rogeeff
+//  This a major update for Boost.Test framework. See release docs for complete list of fixes/updates
+//
+// ***************************************************************************
 
 #endif // BOOST_TEST_FOREACH_HPP_021005GER

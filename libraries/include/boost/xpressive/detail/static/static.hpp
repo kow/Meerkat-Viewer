@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // static.hpp
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2004 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -18,8 +18,6 @@
 #include <boost/xpressive/detail/core/state.hpp>
 #include <boost/xpressive/detail/core/linker.hpp>
 #include <boost/xpressive/detail/core/peeker.hpp>
-#include <boost/xpressive/detail/static/placeholders.hpp>
-#include <boost/xpressive/detail/utility/width.hpp>
 
 // Random thoughts:
 // - must support indirect repeat counts {$n,$m}
@@ -32,6 +30,26 @@
 namespace boost { namespace xpressive { namespace detail
 {
 
+#ifdef BOOST_XPR_DEBUG_STACK
+///////////////////////////////////////////////////////////////////////////////
+// top_type
+//
+template<typename Top>
+struct top_type
+{
+    typedef Top type;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// top_type
+//
+template<typename Top, typename Next>
+struct top_type<stacked_xpression<Top, Next> >
+{
+    typedef Next type;
+};
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 // stacked_xpression
 //
@@ -42,7 +60,7 @@ struct stacked_xpression
     // match
     //  delegates to Next
     template<typename BidiIter>
-    bool match(match_state<BidiIter> &state) const
+    bool match(state_type<BidiIter> &state) const
     {
         return static_cast<Next const *>(this)->
             BOOST_NESTED_TEMPLATE push_match<Top>(state);
@@ -52,8 +70,9 @@ struct stacked_xpression
     //   jump back to the xpression on top of the xpression stack,
     //   and keep the xpression on the stack.
     template<typename BidiIter>
-    static bool top_match(match_state<BidiIter> &state, void const *top)
+    static bool top_match(state_type<BidiIter> &state, xpression_base const *top)
     {
+        BOOST_XPR_DEBUG_STACK_ASSERT(typeid(*top) == typeid(typename top_type<Top>::type));
         return static_cast<Top const *>(top)->
             BOOST_NESTED_TEMPLATE push_match<Top>(state);
     }
@@ -62,8 +81,9 @@ struct stacked_xpression
     //   jump back to the xpression on top of the xpression stack,
     //   pop the xpression off the stack.
     template<typename BidiIter>
-    static bool pop_match(match_state<BidiIter> &state, void const *top)
+    static bool pop_match(state_type<BidiIter> &state, xpression_base const *top)
     {
+        BOOST_XPR_DEBUG_STACK_ASSERT(typeid(*top) == typeid(typename top_type<Top>::type));
         return static_cast<Top const *>(top)->match(state);
     }
 
@@ -71,7 +91,7 @@ struct stacked_xpression
     //   pop the xpression off the top of the stack and ignore it; call
     //   match on next.
     template<typename BidiIter>
-    bool skip_match(match_state<BidiIter> &state) const
+    bool skip_match(state_type<BidiIter> &state) const
     {
         // could be static_xpression::skip_impl or stacked_xpression::skip_impl
         // depending on if there is 1 or more than 1 xpression on the
@@ -84,7 +104,7 @@ struct stacked_xpression
     // skip_impl
     //   implementation of skip_match.
     template<typename That, typename BidiIter>
-    static bool skip_impl(That const &that, match_state<BidiIter> &state)
+    static bool skip_impl(That const &that, state_type<BidiIter> &state)
     {
         return that.BOOST_NESTED_TEMPLATE push_match<Top>(state);
     }
@@ -113,15 +133,6 @@ struct static_xpression
 {
     Next next_;
 
-    BOOST_STATIC_CONSTANT(bool, pure = Matcher::pure && Next::pure);
-    BOOST_STATIC_CONSTANT(
-        std::size_t
-      , width =
-            Matcher::width != unknown_width::value && Next::width != unknown_width::value
-          ? Matcher::width + Next::width
-          : unknown_width::value
-    );
-
     static_xpression(Matcher const &matcher = Matcher(), Next const &next = Next())
       : Matcher(matcher)
       , next_(next)
@@ -131,7 +142,7 @@ struct static_xpression
     // match
     //  delegates to the Matcher
     template<typename BidiIter>
-    bool match(match_state<BidiIter> &state) const
+    bool match(state_type<BidiIter> &state) const
     {
         return this->Matcher::match(state, this->next_);
     }
@@ -140,7 +151,7 @@ struct static_xpression
     //   call match on this, but also push "Top" onto the xpression
     //   stack so we know what we are jumping back to later.
     template<typename Top, typename BidiIter>
-    bool push_match(match_state<BidiIter> &state) const
+    bool push_match(state_type<BidiIter> &state) const
     {
         return this->Matcher::match(state, stacked_xpression_cast<Top>(this->next_));
     }
@@ -148,7 +159,7 @@ struct static_xpression
     // skip_impl
     //   implementation of skip_match, called from stacked_xpression::skip_match
     template<typename That, typename BidiIter>
-    static bool skip_impl(That const &that, match_state<BidiIter> &state)
+    static bool skip_impl(That const &that, state_type<BidiIter> &state)
     {
         return that.match(state);
     }
@@ -157,7 +168,7 @@ struct static_xpression
     template<typename Char>
     void link(xpression_linker<Char> &linker) const
     {
-        linker.accept(*static_cast<Matcher const *>(this), &this->next_);
+        linker.link(*static_cast<Matcher const *>(this), &this->next_);
         this->next_.link(linker);
     }
 
@@ -165,16 +176,25 @@ struct static_xpression
     template<typename Char>
     void peek(xpression_peeker<Char> &peeker) const
     {
-        this->peek_next_(peeker.accept(*static_cast<Matcher const *>(this)), peeker);
+        this->peek_next_(peeker.peek(*static_cast<Matcher const *>(this)), peeker);
     }
 
     // for getting xpression width
-    detail::width get_width() const
+    template<typename BidiIter>
+    std::size_t get_width(state_type<BidiIter> *state) const
     {
-        return this->get_width_(mpl::size_t<width>());
+        // BUGBUG this gets called from the simple_repeat_matcher::match(), so this is slow.
+        // or will the compiler be able to optimize this all away?
+        std::size_t this_width = this->Matcher::get_width(state);
+        if(this_width == unknown_width())
+            return unknown_width();
+        std::size_t that_width = this->next_.get_width(state);
+        if(that_width == unknown_width())
+            return unknown_width();
+        return this_width + that_width;
     }
 
-private:
+private: // hide this
 
     static_xpression &operator =(static_xpression const &);
 
@@ -185,38 +205,37 @@ private:
     }
 
     template<typename Char>
-    void peek_next_(mpl::false_, xpression_peeker<Char> &) const
+    static void peek_next_(mpl::false_, xpression_peeker<Char> &)
     {
         // no-op
     }
 
-    template<std::size_t Width>
-    detail::width get_width_(mpl::size_t<Width>) const
-    {
-        return Width;
-    }
-
-    detail::width get_width_(unknown_width) const
-    {
-        // Should only be called in contexts where the width is
-        // known to be fixed.
-        return this->Matcher::get_width() + this->next_.get_width();
-    }
+    using Matcher::width;
+    using Matcher::pure;
 };
 
+// syntactic sugar so this xpression can be treated the same as
+// (a smart pointer to) a dynamic xpression from templates
+template<typename Matcher, typename Next>
+inline static_xpression<Matcher, Next> const *
+get_pointer(static_xpression<Matcher, Next> const &xpr)
+{
+    return &xpr;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
-// make_static
+// make_static_xpression
 //
 template<typename Matcher>
 inline static_xpression<Matcher> const
-make_static(Matcher const &matcher)
+make_static_xpression(Matcher const &matcher)
 {
     return static_xpression<Matcher>(matcher);
 }
 
 template<typename Matcher, typename Next>
 inline static_xpression<Matcher, Next> const
-make_static(Matcher const &matcher, Next const &next)
+make_static_xpression(Matcher const &matcher, Next const &next)
 {
     return static_xpression<Matcher, Next>(matcher, next);
 }
@@ -225,10 +244,8 @@ make_static(Matcher const &matcher, Next const &next)
 // no_next
 //
 struct no_next
+  : xpression_base
 {
-    BOOST_STATIC_CONSTANT(std::size_t, width = 0);
-    BOOST_STATIC_CONSTANT(bool, pure = true);
-
     template<typename Char>
     void link(xpression_linker<Char> &) const
     {
@@ -240,16 +257,32 @@ struct no_next
         peeker.fail();
     }
 
-    detail::width get_width() const
+    template<typename BidiIter>
+    static std::size_t get_width(state_type<BidiIter> *)
     {
         return 0;
     }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+// alternates_list
+//
+template<typename Alternates>
+struct alternates_list
+  : Alternates
+{
+    alternates_list(Alternates const &alternates)
+      : Alternates(alternates)
+    {
+    }
+private:
+    alternates_list &operator =(alternates_list const &);
+};
+
+///////////////////////////////////////////////////////////////////////////////
 // get_mark_number
 //
-inline int get_mark_number(basic_mark_tag const &mark)
+inline int get_mark_number(mark_tag const &mark)
 {
     return proto::arg(mark).mark_number_;
 }

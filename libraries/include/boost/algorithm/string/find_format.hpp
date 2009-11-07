@@ -1,12 +1,11 @@
 //  Boost string_algo library find_format.hpp header file  ---------------------------//
 
-//  Copyright Pavol Droba 2002-2003.
-//
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
+//  Copyright Pavol Droba 2002-2003. Use, modification and
+//  distribution is subject to the Boost Software License, Version
+//  1.0. (See accompanying file LICENSE_1_0.txt or copy at
+//  http://www.boost.org/LICENSE_1_0.txt)
 
-//  See http://www.boost.org/ for updates, documentation, and revision history.
+//  See http://www.boost.org for updates, documentation, and revision history.
 
 #ifndef BOOST_STRING_FIND_FORMAT_HPP
 #define BOOST_STRING_FIND_FORMAT_HPP
@@ -17,7 +16,6 @@
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/const_iterator.hpp>
-#include <boost/range/as_literal.hpp>
 
 #include <boost/algorithm/string/concept.hpp>
 #include <boost/algorithm/string/detail/find_format.hpp>
@@ -70,13 +68,11 @@ namespace boost {
                     FormatterT,
                     FinderT,BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> >();
 
-            iterator_range<BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> lit_input(as_literal(Input));
-
             return detail::find_format_copy_impl(
                 Output,
-                lit_input,
+                Input,
                 Formatter,
-                Finder( begin(lit_input), end(lit_input) ) );
+                Finder( begin(Input), end(Input) ) );
         }
 
         //! Generic replace algorithm
@@ -180,14 +176,12 @@ namespace boost {
                     FormatterT,
                     FinderT,BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> >();
 
-            iterator_range<BOOST_STRING_TYPENAME range_const_iterator<RangeT>::type> lit_input(as_literal(Input));
-
             return detail::find_format_all_copy_impl(
                 Output,
-                lit_input,
+                Input,
                 Finder,
                 Formatter,
-                Finder(begin(lit_input), end(lit_input)));
+                Finder(begin(Input), end(Input)));
         }
 
         //! Generic replace all algorithm

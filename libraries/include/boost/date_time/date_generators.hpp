@@ -4,9 +4,9 @@
 /* Copyright (c) 2002,2003,2005 CrystalClear Software, Inc.
  * Use, modification and distribution is subject to the 
  * Boost Software License, Version 1.0. (See accompanying
- * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
+ * file LICENSE-1.0 or http://www.boost.org/LICENSE-1.0)
  * Author: Jeff Garland, Bart Garst 
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
  */
 
 /*! @file date_generators.hpp
@@ -153,6 +153,8 @@ namespace date_time {
    month_type month_;
  };
 
+  //! Returns nth arg as string. 1 -> "first", 2 -> "second", max is 5.
+  BOOST_DATE_TIME_DECL const char* nth_as_str(int n);
 
   //! Useful generator functor for finding holidays
   /*! Based on the idea in Cal. Calc. for finding holidays that are
@@ -241,9 +243,7 @@ namespace date_time {
     week_num wn_;
     day_of_week_type dow_;
   };
-  
-  //! Returns nth arg as string. 1 -> "first", 2 -> "second", max is 5.
-  BOOST_DATE_TIME_DECL const char* nth_as_str(int n);
+
 
   //! Useful generator functor for finding holidays and daylight savings
   /*! Similar to nth_kday_of_month, but requires less paramters

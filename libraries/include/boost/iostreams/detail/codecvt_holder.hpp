@@ -1,5 +1,4 @@
-// (C) Copyright 2008 CodeRage, LLC (turkanis at coderage dot com)
-// (C) Copyright 2003-2007 Jonathan Turkanis
+// (C) Copyright Jonathan Turkanis 2003.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt.)
 
@@ -31,7 +30,7 @@ template<typename Codecvt>
 struct codecvt_holder {
     typedef Codecvt codecvt_type;
     const codecvt_type& get() const { return codecvt_; }
-    void imbue(const std::locale&) { }
+    void imbue(const std::locale& loc) { }
     Codecvt codecvt_;
 };
 

@@ -32,6 +32,7 @@
 #include <memory>           // std::auto_ptr
 #include <functional>       // std::less
 #include <new>              // std::bad_alloc
+#include <typeinfo>         // std::type_info in get_deleter
 
 namespace boost
 {
@@ -258,7 +259,7 @@ public:
         return std::less<sp_counted_base *>()( a.pi_, b.pi_ );
     }
 
-    void * get_deleter( sp_typeinfo const & ti ) const
+    void * get_deleter(std::type_info const & ti) const
     {
         return pi_? pi_->get_deleter( ti ): 0;
     }

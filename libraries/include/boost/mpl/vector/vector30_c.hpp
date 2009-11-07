@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source$
-// $Date: 2004-09-02 11:41:37 -0400 (Thu, 02 Sep 2004) $
-// $Revision: 24874 $
+// $Source: /cvsroot/boost/boost/boost/mpl/vector/vector30_c.hpp,v $
+// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
+// $Revision: 82858 $
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
 #   include <boost/mpl/vector/vector20_c.hpp>

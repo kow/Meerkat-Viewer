@@ -1,13 +1,13 @@
-//  (C) Copyright Gennadiy Rozental 2005-2007.
+//  (C) Copyright Gennadiy Rozental 2005.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at 
 //  http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org/libs/test for the library home page.
 //
-//  File        : $RCSfile$
+//  File        : $RCSfile: fwd.hpp,v $
 //
-//  Version     : $Revision: 43798 $
+//  Version     : $Revision: 1.1 $
 //
 //  Description : global framework level forward declaration
 // ***************************************************************************
@@ -37,5 +37,14 @@ template<typename T> class typed_argument;
 } // namespace BOOST_RT_PARAM_NAMESPACE
 
 } // namespace boost
+
+// ************************************************************************** //
+//   Revision History:
+//
+//   $Log: fwd.hpp,v $
+//   Revision 1.1  2005/04/12 06:42:42  rogeeff
+//   Runtime.Param library initial commit
+//
+// ************************************************************************** //
 
 #endif // BOOST_RT_FWD_HPP_062604GER

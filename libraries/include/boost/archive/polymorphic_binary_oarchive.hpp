@@ -18,24 +18,23 @@
 
 #include <boost/config.hpp>
 #include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/detail/polymorphic_oarchive_dispatch.hpp>
+#include <boost/archive/detail/polymorphic_oarchive_impl.hpp>
 
 namespace boost { 
 namespace archive {
 
-typedef detail::polymorphic_oarchive_dispatch<
+typedef detail::polymorphic_oarchive_impl<
     binary_oarchive_impl<
-        naked_binary_oarchive, 
-        std::ostream::char_type, 
-        std::ostream::traits_type
+        binary_oarchive, std::ostream::char_type, std::ostream::traits_type
     >
  > polymorphic_binary_oarchive;
 
 } // namespace archive
 } // namespace boost
 
-// required by export
-BOOST_SERIALIZATION_REGISTER_ARCHIVE(
+// required by smart_cast for compilers not implementing 
+// partial template specialization
+BOOST_BROKEN_COMPILER_TYPE_TRAITS_SPECIALIZATION(
     boost::archive::polymorphic_binary_oarchive
 )
 

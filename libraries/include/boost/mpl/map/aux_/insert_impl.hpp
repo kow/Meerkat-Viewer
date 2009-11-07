@@ -11,9 +11,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source$
-// $Date: 2004-12-14 09:05:33 -0500 (Tue, 14 Dec 2004) $
-// $Revision: 26498 $
+// $Source: /cvsroot/boost/boost/boost/mpl/map/aux_/insert_impl.hpp,v $
+// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
+// $Revision: 82858 $
 
 #include <boost/mpl/insert_fwd.hpp>
 #include <boost/mpl/next_prior.hpp>

@@ -11,7 +11,12 @@
 #define BOOST_SPIRIT_NUMERICS_IPP
 
 #include <cmath>
-#include <limits>
+
+#if defined(BOOST_NO_STDC_NAMESPACE)
+#  define BOOST_SPIRIT_IMPL_STD_NS
+#else
+#  define BOOST_SPIRIT_IMPL_STD_NS std
+#endif
 
 namespace boost { namespace spirit {
 
@@ -45,11 +50,14 @@ namespace boost { namespace spirit {
         //
         //  Traits class for radix specific number conversion
         //
-        //      Convert a digit from character representation, ch, to binary
-        //      representation, returned in val.
-        //      Returns whether the conversion was successful.
+        //      Test the validity of a single character:
         //
-        //        template<typename CharT> static bool digit(CharT ch, T& val);
+        //          template<typename CharT> static bool is_valid(CharT ch);
+        //
+        //      Convert a digit from character representation to binary
+        //      representation:
+        //
+        //          template<typename CharT> static int digit(CharT ch);
         //
         ///////////////////////////////////////////////////////////////////////
         template<const int Radix>
@@ -59,11 +67,16 @@ namespace boost { namespace spirit {
         template<>
         struct radix_traits<2>
         {
-            template<typename CharT, typename T>
-            static bool digit(CharT ch, T& val)
+            template<typename CharT>
+            static bool is_valid(CharT ch)
             {
-                val = ch - '0';
                 return ('0' == ch || '1' == ch);
+            }
+
+            template<typename CharT>
+            static int digit(CharT ch)
+            {
+                return ch - '0';
             }
         };
 
@@ -71,11 +84,16 @@ namespace boost { namespace spirit {
         template<>
         struct radix_traits<8>
         {
-            template<typename CharT, typename T>
-            static bool digit(CharT ch, T& val)
+            template<typename CharT>
+            static bool is_valid(CharT ch)
             {
-                val = ch - '0';
                 return ('0' <= ch && ch <= '7');
+            }
+
+            template<typename CharT>
+            static int digit(CharT ch)
+            {
+                return ch - '0';
             }
         };
 
@@ -83,11 +101,16 @@ namespace boost { namespace spirit {
         template<>
         struct radix_traits<10>
         {
-            template<typename CharT, typename T>
-            static bool digit(CharT ch, T& val)
+            template<typename CharT>
+            static bool is_valid(CharT ch)
             {
-                val = ch - '0';
                 return impl::isdigit_(ch);
+            }
+
+            template<typename CharT>
+            static int digit(CharT ch)
+            {
+                return ch - '0';
             }
         };
 
@@ -95,19 +118,18 @@ namespace boost { namespace spirit {
         template<>
         struct radix_traits<16>
         {
-            template<typename CharT, typename T>
-            static bool digit(CharT ch, T& val)
+            template<typename CharT>
+            static bool is_valid(CharT ch)
             {
-                if (radix_traits<10>::digit(ch, val))
-                    return true;
+                return impl::isxdigit_(ch);
+            }
 
-                CharT lc = impl::tolower_(ch);
-                if ('a' <= lc && lc <= 'f')
-                {
-                    val = lc - 'a' + 10;
-                    return true;
-                }
-                return false;
+            template<typename CharT>
+            static int digit(CharT ch)
+            {
+                if (impl::isdigit_(ch))
+                    return ch - '0';
+                return impl::tolower_(ch) - 'a' + 10;
             }
         };
 
@@ -130,9 +152,6 @@ namespace boost { namespace spirit {
         //          numeric type can hold it. Accumulate is either
         //          positive_accumulate<Radix> (default) for parsing positive
         //          numbers or negative_accumulate<Radix> otherwise.
-        //          Checking is only performed when std::numeric_limits<T>::
-        //          is_specialized is true. Otherwise, there's no way to
-        //          do the check.
         //
         //          scan.first and scan.last are iterators as usual (i.e.
         //          first is mutable and is moved forward when a match is
@@ -142,92 +161,140 @@ namespace boost { namespace spirit {
         //
         //      NOTE:
         //              Returns a non-match, if the number to parse
-        //              overflows (or underflows) the used type.
+        //              overflows (or underflows) the used integral type.
+        //              Overflow (or underflow) is detected when an
+        //              operation wraps a value from its maximum to its
+        //              minimum (or vice-versa). For example, overflow
+        //              occurs when the result of the expression n * x is
+        //              less than n (assuming n is positive and x is
+        //              greater than 1).
         //
         //      BEWARE:
         //              the parameters 'n' and 'count' should be properly
         //              initialized before calling this function.
         //
         ///////////////////////////////////////////////////////////////////////
-        template <typename T, int Radix>
+        template <int Radix>
         struct positive_accumulate
         {
             //  Use this accumulator if number is positive
-            static bool add(T& n, T digit)
+
+            template <typename T>
+            static bool check(T const& n, T const& prev)
             {
-                if (std::numeric_limits<T>::is_specialized)
-                {
-                    static T const max = (std::numeric_limits<T>::max)();
-                    static T const max_div_radix = max/Radix;
+                return n < prev;
+            }
 
-                    if (n > max_div_radix)
-                        return false;
-                    n *= Radix;
-
-                    if (n > max - digit)
-                        return false;
-                    n += digit;
-
-                    return true;
-                }
-                else
-                {
-                    n *= Radix;
-                    n += digit;
-                    return true;
-                }
+            template <typename T, typename CharT>
+            static void add(T& n, CharT ch)
+            {
+                n += radix_traits<Radix>::digit(ch);
             }
         };
 
-        template <typename T, int Radix>
+        template <int Radix>
         struct negative_accumulate
         {
             //  Use this accumulator if number is negative
-            static bool add(T& n, T digit)
+
+            template <typename T>
+            static bool check(T const& n, T const& prev)
             {
-                if (std::numeric_limits<T>::is_specialized)
-                {
-                    typedef std::numeric_limits<T> num_limits;
-                    static T const min =
-                        (!num_limits::is_integer && num_limits::is_signed && num_limits::has_denorm) ?
-                        -(num_limits::max)() : (num_limits::min)();
-                    static T const min_div_radix = min/Radix;
+                return n > prev;
+            }
 
-                    if (n < min_div_radix)
-                        return false;
-                    n *= Radix;
-
-                    if (n < min + digit)
-                        return false;
-                    n -= digit;
-
-                    return true;
-                }
-                else
-                {
-                    n *= Radix;
-                    n -= digit;
-                    return true;
-                }
+            template <typename T, typename CharT>
+            static void add(T& n, CharT ch)
+            {
+                n -= radix_traits<Radix>::digit(ch);
             }
         };
 
-        template <int MaxDigits>
-        inline bool allow_more_digits(std::size_t i)
+        template <int Radix, typename Accumulate>
+        struct extract_int_base
         {
-            return i < MaxDigits;
-        }
+            //  Common code for extract_int specializations
+            template <typename ScannerT, typename T>
+            static bool
+            f(ScannerT& scan, T& n)
+            {
+                T prev = n;
+                n *= Radix;
+                if (Accumulate::check(n, prev))
+                    return false;   //  over/underflow!
+                prev = n;
+                Accumulate::add(n, *scan);
+                if (Accumulate::check(n, prev))
+                    return false;   //  over/underflow!
+                return true;
+            }
+        };
+
+        template <bool Bounded>
+        struct extract_int_
+        {
+            template <
+                int Radix,
+                unsigned MinDigits,
+                int MaxDigits,
+                typename Accumulate
+            >
+            struct apply
+            {
+                typedef extract_int_base<Radix, Accumulate> base;
+                typedef radix_traits<Radix> check;
+
+                template <typename ScannerT, typename T>
+                static bool
+                f(ScannerT& scan, T& n, std::size_t& count)
+                {
+                    std::size_t i = 0;
+                    for (; (i < MaxDigits) && !scan.at_end()
+                        && check::is_valid(*scan);
+                        ++i, ++scan, ++count)
+                    {
+                        if (!base::f(scan, n))
+                            return false;   //  over/underflow!
+                    }
+                    return i >= MinDigits;
+                }
+            };
+        };
 
         template <>
-        inline bool allow_more_digits<-1>(std::size_t)
+        struct extract_int_<false>
         {
-            return true;
-        }
+            template <
+                int Radix,
+                unsigned MinDigits,
+                int MaxDigits,
+                typename Accumulate
+            >
+            struct apply
+            {
+                typedef extract_int_base<Radix, Accumulate> base;
+                typedef radix_traits<Radix> check;
+
+                template <typename ScannerT, typename T>
+                static bool
+                f(ScannerT& scan, T& n, std::size_t& count)
+                {
+                    std::size_t i = 0;
+                    for (; !scan.at_end() && check::is_valid(*scan);
+                        ++i, ++scan, ++count)
+                    {
+                        if (!base::f(scan, n))
+                            return false;   //  over/underflow!
+                    }
+                    return i >= MinDigits;
+                }
+            };
+        };
 
         //////////////////////////////////
         template <
             int Radix, unsigned MinDigits, int MaxDigits,
-            typename Accumulate
+            typename Accumulate = positive_accumulate<Radix>
         >
         struct extract_int
         {
@@ -235,16 +302,9 @@ namespace boost { namespace spirit {
             static bool
             f(ScannerT& scan, T& n, std::size_t& count)
             {
-                std::size_t i = 0;
-                T digit;
-                while( allow_more_digits<MaxDigits>(i) && !scan.at_end() &&
-                    radix_traits<Radix>::digit(*scan, digit) )
-                {
-                    if (!Accumulate::add(n, digit))
-                        return false; // Overflow
-                    ++i, ++scan, ++count;
-                }
-                return i >= MinDigits;
+                typedef typename extract_int_<(MaxDigits >= 0)>::template
+                    apply<Radix, MinDigits, MaxDigits, Accumulate> extractor;
+                return extractor::f(scan, n, count);
             }
         };
 
@@ -279,8 +339,8 @@ namespace boost { namespace spirit {
                     T n = 0;
                     std::size_t count = 0;
                     typename ScannerT::iterator_t save = scan.first;
-                    if (extract_int<Radix, MinDigits, MaxDigits,
-                        positive_accumulate<T, Radix> >::f(scan, n, count))
+                    if (extract_int<Radix, MinDigits, MaxDigits>::
+                        f(scan, n, count))
                     {
                         return scan.create_match(count, n, save, scan.first);
                     }
@@ -317,9 +377,9 @@ namespace boost { namespace spirit {
             parse(ScannerT const& scan) const
             {
                 typedef extract_int<Radix, MinDigits, MaxDigits,
-                    negative_accumulate<T, Radix> > extract_int_neg_t;
-                typedef extract_int<Radix, MinDigits, MaxDigits,
-                    positive_accumulate<T, Radix> > extract_int_pos_t;
+                    negative_accumulate<Radix> > extract_int_neg_t;
+                typedef extract_int<Radix, MinDigits, MaxDigits>
+                    extract_int_pos_t;
 
                 if (!scan.at_end())
                 {
@@ -398,11 +458,9 @@ namespace boost { namespace spirit {
 
                     if (RT hit = RealPoliciesT::parse_frac_n(scan))
                     {
-#if !defined(BOOST_NO_STDC_NAMESPACE)
-                        using namespace std;  // allow for ADL to find pow()
-#endif
                         hit.value(hit.value()
-                            * pow(T(10), T(-hit.length())));
+                            * BOOST_SPIRIT_IMPL_STD_NS::
+                                pow(T(10), T(-hit.length())));
                         if (neg)
                             n -= hit.value();
                         else
@@ -438,10 +496,8 @@ namespace boost { namespace spirit {
                     //  actual exponent. It is an error if it is not there.
                     if (RT e_n_hit = RealPoliciesT::parse_exp_n(scan))
                     {
-#if !defined(BOOST_NO_STDC_NAMESPACE)
-                        using namespace std;    // allow for ADL to find pow()
-#endif
-                        n *= pow(T(10), T(e_n_hit.value()));
+                        n *= BOOST_SPIRIT_IMPL_STD_NS::
+                            pow(T(10), T(e_n_hit.value()));
                         count += e_n_hit.length() + e_hit.length();
                     }
                     else
@@ -472,3 +528,4 @@ namespace boost { namespace spirit {
 }} // namespace boost::spirit
 
 #endif
+#undef BOOST_SPIRIT_IMPL_STD_NS

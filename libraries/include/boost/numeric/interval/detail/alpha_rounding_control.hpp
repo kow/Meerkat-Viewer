@@ -57,6 +57,7 @@ namespace detail {
 #error Dynamic rounding mode not enabled. See cxx man page for details.
 #endif
 
+
     struct alpha_rounding_control
     {
     typedef unsigned int rounding_mode;

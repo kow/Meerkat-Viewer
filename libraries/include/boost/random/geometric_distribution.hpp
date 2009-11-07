@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: geometric_distribution.hpp 41369 2007-11-25 18:07:19Z bemandawes $
+ * $Id: geometric_distribution.hpp 45264 2006-02-24 21:34:57Z chris $
  *
  * Revision history
  *  2001-02-18  moved to individual header files
@@ -37,10 +37,10 @@ public:
   typedef RealType input_type;
   typedef IntType result_type;
 
-  explicit geometric_distribution(const RealType& p_arg = RealType(0.5))
-    : _p(p_arg)
+  explicit geometric_distribution(const RealType& p = RealType(0.5))
+    : _p(p)
   {
-    assert(RealType(0) < _p && _p < RealType(1));
+    assert(RealType(0) < p && p < RealType(1));
     init();
   }
 

@@ -13,8 +13,6 @@
 #include <boost/property_map.hpp>
 #include <boost/optional.hpp>
 #include <vector>
-#include <climits> // for CHAR_BIT
-#include <boost/none.hpp>
 
 #ifdef BOOST_RELAXED_HEAP_DEBUG
 #  include <iostream>
@@ -174,14 +172,14 @@ public:
   value_type& top()
   {
     find_smallest();
-    assert(smallest_value->value != none);
+    assert(smallest_value->value != 0);
     return *smallest_value->value;
   }
 
   const value_type& top() const
   {
     find_smallest();
-    assert(smallest_value->value != none);
+    assert(smallest_value->value != 0);
     return *smallest_value->value;
   }
 
@@ -204,7 +202,7 @@ public:
     rank_type r = x->rank;
     group* p = x->parent;
     {
-      assert(x->value != none);
+      assert(x->value != 0);
 
       // Find x's group
       size_type start = get(id, *x->value) - get(id, *x->value) % log_n;

@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // detail/dynamic/parser_traits.hpp
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2004 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -16,7 +16,6 @@
 #include <string>
 #include <climits>
 #include <boost/assert.hpp>
-#include <boost/throw_exception.hpp>
 #include <boost/xpressive/regex_error.hpp>
 #include <boost/xpressive/regex_traits.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
@@ -35,10 +34,11 @@ namespace boost { namespace xpressive
 template<typename RegexTraits>
 struct compiler_traits
 {
+    typedef typename RegexTraits::char_type char_type;
+    typedef std::basic_string<char_type> string_type;
+    typedef typename string_type::const_iterator iterator_type;
     typedef RegexTraits regex_traits;
-    typedef typename regex_traits::char_type char_type;
-    typedef typename regex_traits::string_type string_type;
-    typedef typename regex_traits::locale_type locale_type;
+    typedef typename RegexTraits::locale_type locale_type;
 
     ///////////////////////////////////////////////////////////////////////////////
     // constructor
@@ -46,8 +46,8 @@ struct compiler_traits
       : traits_(traits)
       , flags_(regex_constants::ECMAScript)
       , space_(lookup_classname(traits_, "space"))
-      , alnum_(lookup_classname(traits_, "alnum"))
     {
+        BOOST_ASSERT(0 != this->space_);
     }
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ struct compiler_traits
     {
         locale_type oldloc = this->traits().imbue(loc);
         this->space_ = lookup_classname(this->traits(), "space");
-        this->alnum_ = lookup_classname(this->traits(), "alnum");
+        BOOST_ASSERT(0 != this->space_);
         return oldloc;
     }
 
@@ -96,8 +96,7 @@ struct compiler_traits
     ///////////////////////////////////////////////////////////////////////////////
     // get_token
     //  get a token and advance the iterator
-    template<typename FwdIter>
-    regex_constants::compiler_token_type get_token(FwdIter &begin, FwdIter end)
+    regex_constants::compiler_token_type get_token(iterator_type &begin, iterator_type end)
     {
         using namespace regex_constants;
         if(this->eat_ws_(begin, end) == end)
@@ -130,11 +129,10 @@ struct compiler_traits
 
     ///////////////////////////////////////////////////////////////////////////////
     // get_quant_spec
-    template<typename FwdIter>
-    bool get_quant_spec(FwdIter &begin, FwdIter end, detail::quant_spec &spec)
+    bool get_quant_spec(iterator_type &begin, iterator_type end, detail::quant_spec &spec)
     {
         using namespace regex_constants;
-        FwdIter old_begin;
+        iterator_type old_begin;
 
         if(this->eat_ws_(begin, end) == end)
         {
@@ -213,8 +211,7 @@ struct compiler_traits
 
     ///////////////////////////////////////////////////////////////////////////
     // get_group_type
-    template<typename FwdIter>
-    regex_constants::compiler_token_type get_group_type(FwdIter &begin, FwdIter end, string_type &name)
+    regex_constants::compiler_token_type get_group_type(iterator_type &begin, iterator_type end)
     {
         using namespace regex_constants;
         if(this->eat_ws_(begin, end) != end && BOOST_XPR_CHAR_(char_type, '?') == *begin)
@@ -229,17 +226,6 @@ struct compiler_traits
             case BOOST_XPR_CHAR_(char_type, '#'): ++begin; return token_comment;
             case BOOST_XPR_CHAR_(char_type, '='): ++begin; return token_positive_lookahead;
             case BOOST_XPR_CHAR_(char_type, '!'): ++begin; return token_negative_lookahead;
-            case BOOST_XPR_CHAR_(char_type, 'R'): ++begin; return token_recurse;
-            case BOOST_XPR_CHAR_(char_type, '$'):
-                this->get_name_(++begin, end, name);
-                detail::ensure(begin != end, error_paren, "incomplete extension");
-                if(BOOST_XPR_CHAR_(char_type, '=') == *begin)
-                {
-                    ++begin;
-                    return token_rule_assign;
-                }
-                return token_rule_ref;
-
             case BOOST_XPR_CHAR_(char_type, '<'):
                 this->eat_ws_(++begin, end);
                 detail::ensure(begin != end, error_paren, "incomplete extension");
@@ -248,24 +234,7 @@ struct compiler_traits
                 case BOOST_XPR_CHAR_(char_type, '='): ++begin; return token_positive_lookbehind;
                 case BOOST_XPR_CHAR_(char_type, '!'): ++begin; return token_negative_lookbehind;
                 default:
-                    boost::throw_exception(regex_error(error_badbrace, "unrecognized extension"));
-                }
-
-            case BOOST_XPR_CHAR_(char_type, 'P'):
-                this->eat_ws_(++begin, end);
-                detail::ensure(begin != end, error_paren, "incomplete extension");
-                switch(*begin)
-                {
-                case BOOST_XPR_CHAR_(char_type, '<'):
-                    this->get_name_(++begin, end, name);
-                    detail::ensure(begin != end && BOOST_XPR_CHAR_(char_type, '>') == *begin++, error_paren, "incomplete extension");
-                    return token_named_mark;
-                case BOOST_XPR_CHAR_(char_type, '='):
-                    this->get_name_(++begin, end, name);
-                    detail::ensure(begin != end, error_paren, "incomplete extension");
-                    return token_named_mark_ref;
-                default:
-                    boost::throw_exception(regex_error(error_badbrace, "unrecognized extension"));
+                    throw regex_error(error_badbrace, "unrecognized extension");
                 }
 
             case BOOST_XPR_CHAR_(char_type, 'i'):
@@ -276,7 +245,7 @@ struct compiler_traits
                 return this->parse_mods_(begin, end);
 
             default:
-                boost::throw_exception(regex_error(error_badbrace, "unrecognized extension"));
+                throw regex_error(error_badbrace, "unrecognized extension");
             }
         }
 
@@ -286,8 +255,7 @@ struct compiler_traits
     //////////////////////////////////////////////////////////////////////////
     // get_charset_token
     //  NOTE: white-space is *never* ignored in a charset.
-    template<typename FwdIter>
-    regex_constants::compiler_token_type get_charset_token(FwdIter &begin, FwdIter end)
+    regex_constants::compiler_token_type get_charset_token(iterator_type &begin, iterator_type end)
     {
         using namespace regex_constants;
         BOOST_ASSERT(begin != end);
@@ -298,7 +266,7 @@ struct compiler_traits
         case BOOST_XPR_CHAR_(char_type, ']'): ++begin; return token_charset_end;
         case BOOST_XPR_CHAR_(char_type, '['):
             {
-                FwdIter next = begin; ++next;
+                iterator_type next = begin; ++next;
                 if(next != end && *next == BOOST_XPR_CHAR_(char_type, ':'))
                 {
                     begin = ++next;
@@ -308,7 +276,7 @@ struct compiler_traits
             break;
         case BOOST_XPR_CHAR_(char_type, ':'):
             {
-                FwdIter next = begin; ++next;
+                iterator_type next = begin; ++next;
                 if(next != end && *next == BOOST_XPR_CHAR_(char_type, ']'))
                 {
                     begin = ++next;
@@ -333,8 +301,7 @@ struct compiler_traits
 
     //////////////////////////////////////////////////////////////////////////
     // get_escape_token
-    template<typename FwdIter>
-    regex_constants::compiler_token_type get_escape_token(FwdIter &begin, FwdIter end)
+    regex_constants::compiler_token_type get_escape_token(iterator_type &begin, iterator_type end)
     {
         using namespace regex_constants;
         if(begin != end)
@@ -368,8 +335,7 @@ private:
 
     //////////////////////////////////////////////////////////////////////////
     // parse_mods_
-    template<typename FwdIter>
-    regex_constants::compiler_token_type parse_mods_(FwdIter &begin, FwdIter end)
+    regex_constants::compiler_token_type parse_mods_(iterator_type &begin, iterator_type end)
     {
         using namespace regex_constants;
         bool set = true;
@@ -382,11 +348,9 @@ private:
         case BOOST_XPR_CHAR_(char_type, ':'): ++begin; // fall-through
         case BOOST_XPR_CHAR_(char_type, ')'): return token_no_mark;
         case BOOST_XPR_CHAR_(char_type, '-'): if(false == (set = !set)) break; // else fall-through
-        default: boost::throw_exception(regex_error(error_paren, "unknown pattern modifier"));
+        default: throw regex_error(error_paren, "unknown pattern modifier");
         }
         while(detail::ensure(++begin != end, error_paren, "incomplete extension"));
-        // this return is technically unreachable, but this must
-        // be here to work around a bug in gcc 4.0
         return token_no_mark;
     }
 
@@ -401,34 +365,12 @@ private:
     // is_space_
     bool is_space_(char_type ch) const
     {
-        return 0 != this->space_ && this->traits().isctype(ch, this->space_);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // is_alnum_
-    bool is_alnum_(char_type ch) const
-    {
-        return 0 != this->alnum_ && this->traits().isctype(ch, this->alnum_);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // get_name_
-    template<typename FwdIter>
-    void get_name_(FwdIter &begin, FwdIter end, string_type &name)
-    {
-        this->eat_ws_(begin, end);
-        for(name.clear(); begin != end && this->is_alnum_(*begin); ++begin)
-        {
-            name.push_back(*begin);
-        }
-        this->eat_ws_(begin, end);
-        detail::ensure(!name.empty(), regex_constants::error_paren, "incomplete extension");
+        return this->traits().isctype(ch, this->space_);
     }
 
     ///////////////////////////////////////////////////////////////////////////////
     // eat_ws_
-    template<typename FwdIter>
-    FwdIter &eat_ws_(FwdIter &begin, FwdIter end)
+    iterator_type &eat_ws_(iterator_type &begin, iterator_type end)
     {
         if(0 != (regex_constants::ignore_white_space & this->flags()))
         {
@@ -451,7 +393,6 @@ private:
     regex_traits traits_;
     regex_constants::syntax_option_type flags_;
     typename regex_traits::char_class_type space_;
-    typename regex_traits::char_class_type alnum_;
 };
 
 }} // namespace boost::xpressive

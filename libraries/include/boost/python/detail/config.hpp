@@ -134,8 +134,4 @@
 #include <boost/config/auto_link.hpp>
 #endif  // auto-linking disabled
 
-#ifndef BOOST_PYTHON_NO_PY_SIGNATURES
-#define BOOST_PYTHON_SUPPORTS_PY_SIGNATURES // enables smooth transition
-#endif
-
 #endif // CONFIG_DWA052200_H_

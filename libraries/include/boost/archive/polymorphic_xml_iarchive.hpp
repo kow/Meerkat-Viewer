@@ -18,26 +18,21 @@
 
 #include <boost/config.hpp>
 #include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/detail/polymorphic_iarchive_dispatch.hpp>
+#include <boost/archive/detail/polymorphic_iarchive_impl.hpp>
 
 namespace boost { 
 namespace archive {
 
-class polymorphic_xml_iarchive : 
-    public detail::polymorphic_iarchive_dispatch<naked_xml_iarchive>
-{
-public:
-    polymorphic_xml_iarchive(std::istream & is, unsigned int flags = 0) :
-        detail::polymorphic_iarchive_dispatch<naked_xml_iarchive>(is, flags)
-    {}
-    ~polymorphic_xml_iarchive(){}
-};
+typedef detail::polymorphic_iarchive_impl<
+        xml_iarchive_impl<xml_iarchive> 
+> polymorphic_xml_iarchive;
 
 } // namespace archive
 } // namespace boost
 
-// required by export
-BOOST_SERIALIZATION_REGISTER_ARCHIVE(
+// required by smart_cast for compilers not implementing 
+// partial template specialization
+BOOST_BROKEN_COMPILER_TYPE_TRAITS_SPECIALIZATION(
     boost::archive::polymorphic_xml_iarchive
 )
 

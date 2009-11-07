@@ -22,7 +22,6 @@
    // version does not do so.
    //
 #   include <boost/type_traits/detail/is_mem_fun_pointer_impl.hpp>
-#   include <boost/type_traits/remove_cv.hpp>
 #else
 #   include <boost/type_traits/is_reference.hpp>
 #   include <boost/type_traits/is_array.hpp>
@@ -42,7 +41,7 @@ namespace boost {
 BOOST_TT_AUX_BOOL_TRAIT_DEF1(
       is_member_function_pointer
     , T
-    , ::boost::type_traits::is_mem_fun_pointer_impl<typename remove_cv<T>::type>::value
+    , ::boost::type_traits::is_mem_fun_pointer_impl<T>::value
     )
 
 #else
@@ -62,10 +61,6 @@ struct is_mem_fun_pointer_select<false>
 {
     template <typename T> struct result_
     {
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
-#pragma warning(push)
-#pragma warning(disable:6334)
-#endif
         static T* make_t;
         typedef result_<T> self_type;
 
@@ -73,9 +68,6 @@ struct is_mem_fun_pointer_select<false>
             bool, value = (
                 1 == sizeof(::boost::type_traits::is_mem_fun_pointer_tester(self_type::make_t))
             ));
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
-#pragma warning(pop)
-#endif
     };
 };
 

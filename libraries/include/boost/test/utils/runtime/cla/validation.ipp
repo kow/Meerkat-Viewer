@@ -1,13 +1,13 @@
-//  (C) Copyright Gennadiy Rozental 2005-2007.
+//  (C) Copyright Gennadiy Rozental 2005.
 //  Use, modification, and distribution are subject to the 
 //  Boost Software License, Version 1.0. (See accompanying file 
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org/libs/test for the library home page.
 //
-//  File        : $RCSfile$
+//  File        : $RCSfile: validation.ipp,v $
 //
-//  Version     : $Revision: 43798 $
+//  Version     : $Revision: 1.1 $
 //
 //  Description : input validation helpers implementation
 // ***************************************************************************
@@ -20,7 +20,6 @@
 
 #include <boost/test/utils/runtime/cla/argv_traverser.hpp>
 #include <boost/test/utils/runtime/cla/validation.hpp>
-#include <boost/test/utils/runtime/validation.hpp> // BOOST_RT_PARAM_NAMESPACE::logic_error
 
 // Boost
 #include <boost/test/utils/basic_cstring/io.hpp>
@@ -61,5 +60,14 @@ report_input_error( argv_traverser const& tr, format_stream& msg )
 } // namespace BOOST_RT_PARAM_NAMESPACE
 
 } // namespace boost
+
+// ************************************************************************** //
+//   Revision History:
+//
+//   $Log: validation.ipp,v $
+//   Revision 1.1  2005/04/12 06:42:43  rogeeff
+//   Runtime.Param library initial commit
+//
+// ************************************************************************** //
 
 #endif // BOOST_RT_CLA_VALIDATION_IPP_070604GER

@@ -19,7 +19,6 @@
 #include <boost/archive/detail/basic_oarchive.hpp>
 #include <boost/archive/detail/interface_oarchive.hpp>
 #include <boost/archive/detail/oserializer.hpp>
-#include <boost/archive/detail/register_archive.hpp>
 
 namespace boost {
 namespace archive {
@@ -31,7 +30,6 @@ class common_oarchive :
     public basic_oarchive,
     public interface_oarchive<Archive>
 {
-    friend class interface_oarchive<Archive>;
 private:
     virtual void vsave(const version_type t){
         * this->This() << t;
@@ -63,9 +61,10 @@ protected:
     void save_override(T & t, BOOST_PFTO int){
         archive::save(* this->This(), t);
     }
+
     void save_start(const char *name){}
     void save_end(const char *name){}
-    common_oarchive(unsigned int flags = 0) : 
+    common_oarchive(unsigned int flags) : 
         basic_oarchive(flags),
         interface_oarchive<Archive>()
     {}

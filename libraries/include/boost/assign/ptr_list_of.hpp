@@ -37,9 +37,8 @@ namespace boost
 namespace assign_detail
 {
     /////////////////////////////////////////////////////////////////////////
-    // Part 1: flexible and efficient interface
-    /////////////////////////////////////////////////////////////////////////    
-
+    // Part 0: flexible and efficient interface
+    ///////////////////////////////////////////////////////////////////////// 
     template< class T > 
     class generic_ptr_list       
     {
@@ -58,11 +57,10 @@ namespace assign_detail
         generic_ptr_list() : values_( 32u )
         { }
 
-        /*
         generic_ptr_list( const generic_ptr_list& r )
         {
             values_.swap(r.values_);
-        }*/
+        }
         
         generic_ptr_list( release_type r ) : values_(r)
         { }
@@ -80,19 +78,11 @@ namespace assign_detail
 
     public:
 
-        operator impl_type() const
+        template< class PtrContainer >
+        operator std::auto_ptr<PtrContainer>() const 
         {
-            return values_;        
-        }
- 
-        template< template<class,class,class> class Seq, class U,
-                  class CA, class A > 
-        operator Seq<U,CA,A>() const 
-        {
-            Seq<U,CA,A> result;
-            result.transfer( result.end(), values_ );
-            BOOST_ASSERT( empty() );
-            return result;
+            PtrContainer* type = 0;
+            return convert( type );
         }
 
         template< class PtrContainer >

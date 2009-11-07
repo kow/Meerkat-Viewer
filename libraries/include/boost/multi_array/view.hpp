@@ -244,7 +244,10 @@ public: // should be protected
 
     // Calculate the array size
     num_elements_ = std::accumulate(extent_list_.begin(),extent_list_.end(),
-                                    size_type(1),std::multiplies<size_type>());
+                            size_type(1),std::multiplies<size_type>());
+#if 0
+    assert(num_elements_ != 0);
+#endif
   }
 
   typedef boost::array<size_type,NumDims> size_list;
@@ -301,9 +304,9 @@ public:
       ConstMultiArrayConcept<ConstMultiArray,NumDims> >();
 
     // make sure the dimensions agree
-    BOOST_ASSERT(other.num_dimensions() == this->num_dimensions());
-    BOOST_ASSERT(std::equal(other.shape(),other.shape()+this->num_dimensions(),
-                            this->shape()));
+    assert(other.num_dimensions() == this->num_dimensions());
+    assert(std::equal(other.shape(),other.shape()+this->num_dimensions(),
+                      this->shape()));
     // iterator-based copy
     std::copy(other.begin(),other.end(),begin());
     return *this;
@@ -313,10 +316,9 @@ public:
   multi_array_view& operator=(const multi_array_view& other) {
     if (&other != this) {
       // make sure the dimensions agree
-      BOOST_ASSERT(other.num_dimensions() == this->num_dimensions());
-      BOOST_ASSERT(std::equal(other.shape(),
-                              other.shape()+this->num_dimensions(),
-                              this->shape()));
+      assert(other.num_dimensions() == this->num_dimensions());
+      assert(std::equal(other.shape(),other.shape()+this->num_dimensions(),
+                        this->shape()));
       // iterator-based copy
       std::copy(other.begin(),other.end(),begin());
     }

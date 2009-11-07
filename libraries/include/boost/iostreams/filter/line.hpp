@@ -1,5 +1,4 @@
-// (C) Copyright 2008 CodeRage, LLC (turkanis at coderage dot com)
-// (C) Copyright 2005-2007 Jonathan Turkanis
+// (C) Copyright Jonathan Turkanis 2005.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt.)
 
@@ -18,10 +17,9 @@
 #include <string>
 #include <boost/config.hpp>                        // BOOST_STATIC_CONSTANT.
 #include <boost/iostreams/categories.hpp>
+#include <boost/iostreams/detail/closer.hpp>
 #include <boost/iostreams/detail/ios.hpp>          // openmode, streamsize.
-#include <boost/iostreams/read.hpp>                // check_eof 
 #include <boost/iostreams/pipeline.hpp>
-#include <boost/iostreams/write.hpp>
 
 // Must come last.
 #include <boost/iostreams/detail/config/disable_warnings.hpp> // VC7.1 C4244.
@@ -73,7 +71,7 @@ public:
         state_ |= f_read;
 
         // Handle unfinished business.
-        std::streamsize result = 0;
+        streamsize result = 0;
         if (!cur_line_.empty() && (result = read_line(s, n)) == n)
             return n;
 
@@ -119,23 +117,19 @@ public:
         }
     }
 
+    typedef basic_line_filter<Ch, Alloc> self;
+    friend struct detail::closer<self>;
+
     template<typename Sink>
     void close(Sink& snk, BOOST_IOS::openmode which)
     {
-        if ((state_ & f_read) && which == BOOST_IOS::in)
-            close_impl();
+        if ((state_ & f_read) && (which & BOOST_IOS::in))
+            close();
 
-        if ((state_ & f_write) && which == BOOST_IOS::out) {
-            try {
-                if (!cur_line_.empty())
-                    write_line(snk);
-            } catch (...) {
-                try {
-                    close_impl();
-                } catch (...) { }
-                throw;
-            }
-            close_impl();
+        if ((state_ & f_write) && (which & BOOST_IOS::out)) {
+            detail::closer<self> closer(*this);
+            if (!cur_line_.empty())
+                write_line(snk);
         }
     }
 private:
@@ -146,8 +140,8 @@ private:
     std::streamsize read_line(char_type* s, std::streamsize n)
     {
         using namespace std;
-        std::streamsize result =
-            (std::min) (n, static_cast<std::streamsize>(cur_line_.size()));
+        streamsize result =
+            (std::min) (n, static_cast<streamsize>(cur_line_.size()));
         traits_type::copy(s, cur_line_.data(), result);
         cur_line_.erase(0, result);
         return result;
@@ -187,7 +181,7 @@ private:
         return result;
     }
 
-    void close_impl()
+    void close()
     {
         clear();
         state_ = 0;

@@ -69,12 +69,6 @@
 #      define BOOST_NO_IS_ABSTRACT
 #    endif
 
-//
-// Issues that effect all known versions:
-//
-#define BOOST_NO_TWO_PHASE_NAME_LOOKUP
-
-
 #define BOOST_COMPILER "Sun compiler version " BOOST_STRINGIZE(__SUNPRO_CC)
 
 //
@@ -84,8 +78,8 @@
 #error "Compiler not supported or configured - please reconfigure"
 #endif
 //
-// last known and checked version is 0x590:
-#if (__SUNPRO_CC > 0x590)
+// last known and checked version is 0x570:
+#if (__SUNPRO_CC > 0x580)
 #  if defined(BOOST_ASSERT_CONFIG)
 #     error "Unknown compiler version - please run the configure tests and report the results"
 #  endif

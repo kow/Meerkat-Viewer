@@ -12,17 +12,14 @@
 //          http://www.boost.org/LICENSE_1_0.txt)
 //
 // ------------------------------------------------------
-//
-// $Id: integer_log2.hpp 41369 2007-11-25 18:07:19Z bemandawes $
+
 
 
 #ifndef BOOST_INTEGER_LOG2_HPP_GP_20030301
 #define BOOST_INTEGER_LOG2_HPP_GP_20030301
 
-#include <assert.h>
-#ifdef __BORLANDC__
-#include <climits>
-#endif
+#include <cassert>
+#include <climits> // actually used for Borland only
 #include "boost/limits.hpp"
 #include "boost/config.hpp"
 

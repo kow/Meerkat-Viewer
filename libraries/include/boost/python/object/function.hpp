@@ -14,7 +14,6 @@
 
 namespace boost { namespace python { namespace objects { 
 
-
 struct BOOST_PYTHON_DECL function : PyObject
 {
     function(
@@ -54,7 +53,6 @@ struct BOOST_PYTHON_DECL function : PyObject
     object m_doc;
     object m_arg_names;
     unsigned m_nkeyword_values;
-    friend class function_doc_signature_generator;
 };
 
 //

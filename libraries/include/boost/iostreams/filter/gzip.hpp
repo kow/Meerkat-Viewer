@@ -1,5 +1,4 @@
-// (C) Copyright 2008 CodeRage, LLC (turkanis at coderage dot com)
-// (C) Copyright 2003-2007 Jonathan Turkanis
+// (C) Copyright Jonathan Turkanis 2003.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt.)
 
@@ -135,7 +134,7 @@ struct gzip_params : zlib_params {
                  std::string comment    = "",
                  std::time_t mtime      = 0 )
         : zlib_params(level, method, window_bits, mem_level, strategy),
-          file_name(file_name), comment(comment), mtime(mtime)
+          file_name(file_name), mtime(mtime)
         { }
     std::string  file_name;
     std::string  comment;
@@ -186,7 +185,8 @@ public:
     template<typename Source>
     std::streamsize read(Source& src, char_type* s, std::streamsize n)
     {
-        std::streamsize result = 0;
+        using namespace std;
+        streamsize result = 0;
 
         // Read header.
         if (!(flags_ & f_header_done))
@@ -196,7 +196,7 @@ public:
         if (!(flags_ & f_body_done)) {
 
             // Read from basic_zlib_filter.
-            std::streamsize amt = base_type::read(src, s + result, n - result);
+            streamsize amt = base_type::read(src, s + result, n - result);
             if (amt != -1) {
                 result += amt;
                 if (amt < n - result) { // Double-check for EOF.
@@ -234,27 +234,30 @@ public:
     template<typename Sink>
     void close(Sink& snk, BOOST_IOS::openmode m)
     {
-        if (m == BOOST_IOS::out) {
-            try {
+        namespace io = boost::iostreams;
 
-                // Close zlib compressor.
-                base_type::close(snk, BOOST_IOS::out);
+        if (m & BOOST_IOS::out) {
 
-                if (flags_ & f_header_done) {
+            // Close zlib compressor.
+            base_type::close(snk, BOOST_IOS::out);
 
-                    // Write final fields of gzip file format.
-                    write_long(this->crc(), snk);
-                    write_long(this->total_in(), snk);
-                }
+            if (flags_ & f_header_done) {
 
-            } catch (...) {
-                close_impl();
-                throw;
+                // Write final fields of gzip file format.
+                write_long(this->crc(), snk);
+                write_long(this->total_in(), snk);
             }
-            close_impl();
-        } else {
-            close_impl();
+
         }
+        #if BOOST_WORKAROUND(__GNUC__, == 2) && defined(__STL_CONFIG_H) || \
+            BOOST_WORKAROUND(BOOST_DINKUMWARE_STDLIB, == 1) \
+            /**/
+            footer_.erase(0, std::string::npos);
+        #else
+            footer_.clear();
+        #endif
+        offset_ = 0;
+        flags_ = 0;
     }
 private:
     static gzip_params normalize_params(gzip_params p);
@@ -268,19 +271,6 @@ private:
         boost::iostreams::put(next, static_cast<char>(0xFF & (n >> 8)));
         boost::iostreams::put(next, static_cast<char>(0xFF & (n >> 16)));
         boost::iostreams::put(next, static_cast<char>(0xFF & (n >> 24)));
-    }
-
-    void close_impl()
-    {
-        #if BOOST_WORKAROUND(__GNUC__, == 2) && defined(__STL_CONFIG_H) || \
-            BOOST_WORKAROUND(BOOST_DINKUMWARE_STDLIB, == 1) \
-            /**/
-            footer_.erase(0, std::string::npos);
-        #else
-            footer_.clear();
-        #endif
-        offset_ = 0;
-        flags_ = 0;
     }
 
     enum flag_type {
@@ -352,11 +342,10 @@ public:
     {
         try {
             base_type::close(src, BOOST_IOS::in);
-        } catch (const zlib_error& e) {
             flags_ = 0;
+        } catch (const zlib_error& e) {
             throw gzip_error(e);
         }
-        flags_ = 0;
     }
 
     std::string file_name() const { return file_name_; }
@@ -559,9 +548,10 @@ template<typename Alloc>
 std::streamsize basic_gzip_compressor<Alloc>::read_string
     (char* s, std::streamsize n, std::string& str)
 {
-    std::streamsize avail =
-        static_cast<std::streamsize>(str.size() - offset_);
-    std::streamsize amt = (std::min)(avail, n);
+    using namespace std;
+    streamsize avail =
+        static_cast<streamsize>(str.size() - offset_);
+    streamsize amt = (std::min)(avail, n);
     std::copy( str.data() + offset_,
                str.data() + offset_ + amt,
                s );

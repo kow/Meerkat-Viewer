@@ -13,9 +13,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source$
-// $Date: 2005-10-04 14:01:35 -0400 (Tue, 04 Oct 2005) $
-// $Revision: 31196 $
+// $Source: /cvsroot/boost/boost/boost/mpl/aux_/sequence_wrapper.hpp,v $
+// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
+// $Revision: 82858 $
 
 #   include <boost/mpl/aux_/config/ctps.hpp>
 #   include <boost/mpl/aux_/config/static_constant.hpp>

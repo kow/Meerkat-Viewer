@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source$
-// $Date: 2004-10-24 04:18:08 -0400 (Sun, 24 Oct 2004) $
-// $Revision: 25850 $
+// $Source: /cvsroot/boost/boost/boost/mpl/list/aux_/pop_front.hpp,v $
+// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
+// $Revision: 82858 $
 
 #include <boost/mpl/pop_front_fwd.hpp>
 #include <boost/mpl/next_prior.hpp>

@@ -12,7 +12,6 @@
 
 #  include <boost/python/detail/preprocessor.hpp>
 #  include <boost/python/detail/indirect_traits.hpp>
-#  include <boost/python/converter/pytype_function.hpp>
 
 #  include <boost/preprocessor/iterate.hpp>
 #  include <boost/preprocessor/iteration/local.hpp>
@@ -25,14 +24,7 @@ namespace boost { namespace python { namespace detail {
 struct signature_element
 {
     char const* basename;
-    converter::pytype_function pytype_f;
     bool lvalue;
-};
-
-struct py_func_sig_info
-{
-    signature_element const *signature;
-    signature_element const *ret;
 };
 
 template <unsigned> struct signature_arity;
@@ -76,25 +68,15 @@ struct signature_arity<N>
         {
             static signature_element const result[N+2] = {
                 
-#ifndef BOOST_PYTHON_NO_PY_SIGNATURES
 # define BOOST_PP_LOCAL_MACRO(i)                                                            \
-                {                                                                           \
-                  type_id<BOOST_DEDUCED_TYPENAME mpl::at_c<Sig,i>::type>().name()           \
-                  , &converter::expected_pytype_for_arg<BOOST_DEDUCED_TYPENAME mpl::at_c<Sig,i>::type>::get_pytype   \
-                  , indirect_traits::is_reference_to_non_const<BOOST_DEDUCED_TYPENAME mpl::at_c<Sig,i>::type>::value \
-                },
-#else
-# define BOOST_PP_LOCAL_MACRO(i)                                                            \
-                {                                                                           \
-                  type_id<BOOST_DEDUCED_TYPENAME mpl::at_c<Sig,i>::type>().name()           \
-                  , 0 \
-                  , indirect_traits::is_reference_to_non_const<BOOST_DEDUCED_TYPENAME mpl::at_c<Sig,i>::type>::value \
-                },
-#endif
+     {                                                                                      \
+         type_id<BOOST_DEDUCED_TYPENAME mpl::at_c<Sig,i>::type>().name()                    \
+         , indirect_traits::is_reference_to_non_const<BOOST_DEDUCED_TYPENAME mpl::at_c<Sig,i>::type>::value \
+     },
                 
 # define BOOST_PP_LOCAL_LIMITS (0, N)
 # include BOOST_PP_LOCAL_ITERATE()
-                {0,0,0}
+                {0,0}
             };
             return result;
         }

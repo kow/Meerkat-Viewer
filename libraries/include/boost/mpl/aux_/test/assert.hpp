@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source$
-// $Date: 2004-10-01 12:32:41 -0400 (Fri, 01 Oct 2004) $
-// $Revision: 25513 $
+// $Source: /cvsroot/boost/boost/boost/mpl/aux_/test/assert.hpp,v $
+// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
+// $Revision: 82858 $
 
 #include <boost/mpl/assert.hpp>
 #include <boost/preprocessor/cat.hpp>

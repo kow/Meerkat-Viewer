@@ -1,5 +1,4 @@
-// (C) Copyright 2008 CodeRage, LLC (turkanis at coderage dot com)
-// (C) Copyright 2003-2007 Jonathan Turkanis
+// (C) Copyright Jonathan Turkanis 2003.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt.)
 
@@ -22,8 +21,6 @@
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/detail/buffer.hpp>
 #include <boost/iostreams/detail/counted_array.hpp>
-#include <boost/iostreams/detail/execute.hpp>
-#include <boost/iostreams/detail/functional.hpp> // clear_flags, call_reset
 #include <boost/mpl/if.hpp>
 #include <boost/ref.hpp>
 #include <boost/shared_ptr.hpp>
@@ -37,9 +34,8 @@ namespace boost { namespace iostreams {
 //
 // Template name: inverse.
 // Template paramters:
-//      Filter - A model of InputFilter or OutputFilter.
-// Description: Generates an InputFilter from an OutputFilter or
-//      vice versa.
+//      Filter - A filter adapter which 
+// Description: Returns an instance of an appropriate specialization of inverse.
 //
 template<typename Filter>
 class inverse {
@@ -120,13 +116,13 @@ public:
     }
 
     template<typename Device>
-    void close(Device& dev)
+    void close( Device& dev, 
+                BOOST_IOS::openmode which = 
+                    BOOST_IOS::in | BOOST_IOS::out )
     {
-        detail::execute_all(
-            detail::flush_buffer(buf(), dev, (flags() & f_write) != 0),
-            detail::call_close_all(pimpl_->filter_, dev),
-            detail::clear_flags(flags())
-        );
+        if ((which & BOOST_IOS::out) != 0 && (flags() & f_write) != 0)
+            buf().flush(dev);
+        flags() = 0;
     }
 private:
     filter_ref filter() { return boost::ref(pimpl_->filter_); }

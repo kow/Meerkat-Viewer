@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // set.hpp
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2004 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -35,18 +35,30 @@ struct set_matcher
   : quant_style_fixed_width<1>
 {
     typedef typename Traits::char_type char_type;
-    char_type set_[ Size ];
+    char_type set_[ Size ? Size : 1 ];
     bool not_;
     bool icase_;
 
-    set_matcher()
+    typedef set_matcher<Traits, Size + 1> next_type;
+    friend struct set_matcher<Traits, Size - 1>;
+
+    set_matcher(Traits const &)
       : set_()
       , not_(false)
       , icase_(false)
     {
     }
 
-    void inverse()
+    set_matcher(char_type ch, Traits const &traits)
+      : set_()
+      , not_(false)
+      , icase_(false)
+    {
+        BOOST_MPL_ASSERT_RELATION(1, ==, Size);
+        this->set_[0] = traits.translate(ch);
+    }
+
+    void complement()
     {
         this->not_ = !this->not_;
     }
@@ -61,15 +73,37 @@ struct set_matcher
         }
     }
 
+    next_type push_back(char_type ch, Traits const &traits) const
+    {
+        return next_type(*this, ch, traits);
+    }
+
+    char_type const *begin() const
+    {
+        return this->set_;
+    }
+
+    char_type const *end() const
+    {
+        return this->set_ + Size;
+    }
+
     bool in_set(Traits const &traits, char_type ch) const
     {
-        char_type const *begin = &this->set_[0], *end = begin + Size;
         ch = this->icase_ ? traits.translate_nocase(ch) : traits.translate(ch);
-        return end != std::find(begin, end, ch);
+
+        if(1 == Size)
+        {
+            return this->set_[0] == ch;
+        }
+        else
+        {
+            return this->end() != std::find(this->begin(), this->end(), ch);
+        }
     }
 
     template<typename BidiIter, typename Next>
-    bool match(match_state<BidiIter> &state, Next const &next) const
+    bool match(state_type<BidiIter> &state, Next const &next) const
     {
         if(state.eos() || this->not_ == this->in_set(traits_cast<Traits>(state), *state.cur_))
         {
@@ -82,6 +116,17 @@ struct set_matcher
         }
 
         return --state.cur_, false;
+    }
+
+private:
+
+    set_matcher(set_matcher<Traits, Size - 1> const &that, char_type ch, Traits const &traits)
+      : set_()
+      , not_(false)
+      , icase_(that.icase_)
+    {
+        std::copy(that.begin(), that.end(), this->set_);
+        this->set_[ Size - 1 ] = traits.translate(ch);
     }
 };
 

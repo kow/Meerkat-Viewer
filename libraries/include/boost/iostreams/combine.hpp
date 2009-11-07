@@ -1,5 +1,4 @@
-// (C) Copyright 2008 CodeRage, LLC (turkanis at coderage dot com)
-// (C) Copyright 2003-2007 Jonathan Turkanis
+// (C) Copyright Jonathan Turkanis 2003.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt.)
 
@@ -26,9 +25,6 @@
 #include <boost/static_assert.hpp>  
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/is_same.hpp> 
-
-// Must come last.
-#include <boost/iostreams/detail/config/disable_warnings.hpp>
 
 namespace boost { namespace iostreams {
 
@@ -100,22 +96,12 @@ public:
 
     template<typename Sink>
     void close(Sink& snk, BOOST_IOS::openmode which)
-    {
-        if (which == BOOST_IOS::in) {
-            if (is_convertible<in_category, dual_use>::value) {
-                iostreams::close(in_, snk, BOOST_IOS::in);
-            } else {
-                detail::close_all(in_, snk);
-            }
+        {
+            if (which & BOOST_IOS::in)
+                iostreams::close(in_, snk, which);
+            if (which & BOOST_IOS::out)
+                iostreams::close(out_, snk, which);
         }
-        if (which == BOOST_IOS::out) {
-            if (is_convertible<out_category, dual_use>::value) {
-                iostreams::close(out_, snk, BOOST_IOS::out);
-            } else {
-                detail::close_all(out_, snk);
-            }
-        }
-    }
     #ifndef BOOST_NO_STD_LOCALE
         void imbue(const std::locale& loc);
     #endif
@@ -207,10 +193,10 @@ template<typename Source, typename Sink>
 inline void
 combined_device<Source, Sink>::close(BOOST_IOS::openmode which)
 { 
-    if (which == BOOST_IOS::in)
-        detail::close_all(src_); 
-    if (which == BOOST_IOS::out)
-        detail::close_all(sink_); 
+    if (which & BOOST_IOS::in)
+        iostreams::close(src_, which); 
+    if (which & BOOST_IOS::out)
+        iostreams::close(sink_, which); 
 }
 
 #ifndef BOOST_NO_STD_LOCALE
@@ -243,7 +229,5 @@ inline combined_filter<InputFilter, OutputFilter>::combined_filter
 } // End namespace detail.
 
 } } // End namespaces iostreams, boost.
-
-#include <boost/iostreams/detail/config/enable_warnings.hpp>
 
 #endif // #ifndef BOOST_IOSTREAMS_COMBINE_HPP_INCLUDED

@@ -29,9 +29,9 @@
 #include <boost/mpl/deref.hpp>
 #include <boost/multi_index_container_fwd.hpp>
 #include <boost/multi_index/detail/access_specifier.hpp>
-#include <boost/multi_index/detail/adl_swap.hpp>
 #include <boost/multi_index/detail/base_type.hpp>
 #include <boost/multi_index/detail/converter.hpp>
+#include <boost/multi_index/detail/def_ctor_tuple_cons.hpp>
 #include <boost/multi_index/detail/header_holder.hpp>
 #include <boost/multi_index/detail/has_tag.hpp>
 #include <boost/multi_index/detail/no_duplicate_tags.hpp>
@@ -72,14 +72,8 @@ class multi_index_container:
         Value,IndexSpecifierList,Allocator>::type
     >::type>,
   BOOST_MULTI_INDEX_PRIVATE_IF_MEMBER_TEMPLATE_FRIENDS detail::header_holder<
-    typename detail::prevent_eti<
-      Allocator,
-      typename boost::detail::allocator::rebind_to<
-        Allocator,
-        typename detail::multi_index_node_type<
-          Value,IndexSpecifierList,Allocator>::type
-      >::type
-    >::type::pointer,
+    typename detail::multi_index_node_type<
+      Value,IndexSpecifierList,Allocator>::type,
     multi_index_container<Value,IndexSpecifierList,Allocator> >,
   public detail::multi_index_base_type<
     Value,IndexSpecifierList,Allocator>::type
@@ -97,24 +91,19 @@ class multi_index_container:
 private:
 #if !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
   template <typename,typename,typename> friend class  detail::index_base;
-  template <typename,typename>          friend struct detail::header_holder;
-  template <typename,typename>          friend struct detail::converter;
+  template <typename,typename>          friend class  detail::header_holder;
+  template <typename,typename>          friend class  detail::converter;
 #endif
 
   typedef typename detail::multi_index_base_type<
       Value,IndexSpecifierList,Allocator>::type   super;
-  typedef typename
-  boost::detail::allocator::rebind_to<
+  typedef ::boost::base_from_member<
+    typename boost::detail::allocator::rebind_to<
       Allocator,
       typename super::node_type
-  >::type                                         node_allocator;
-  typedef ::boost::base_from_member<
-    node_allocator>                               bfm_allocator;
+    >::type>                                      bfm_allocator;
   typedef detail::header_holder<
-    typename detail::prevent_eti<
-      Allocator,
-      node_allocator
-    >::type::pointer,
+    typename super::node_type,
     multi_index_container>                        bfm_header;
 
 #if BOOST_WORKAROUND(BOOST_MSVC,<1300)
@@ -127,8 +116,15 @@ public:
    * brought forward here to save us some typename's.
    */
 
-  typedef typename super::ctor_args_list          ctor_args_list;
-  typedef IndexSpecifierList                      index_specifier_type_list;
+#if defined(BOOST_MSVC)
+  typedef 
+    detail::default_constructible_tuple_cons<
+      typename super::ctor_args_list>              ctor_args_list;
+#else
+  typedef typename super::ctor_args_list           ctor_args_list;
+#endif
+
+  typedef IndexSpecifierList                       index_specifier_type_list;
  
 #if BOOST_WORKAROUND(BOOST_MSVC,<1300)
   /* MSVC++ 6.0 chokes on moderately long index lists (around 6 indices
@@ -352,10 +348,8 @@ public:
   {
     typedef typename nth_index<N>::type index;
 
-#if !defined(__SUNPRO_CC)||!(__SUNPRO_CC<0x580) /* fails in Sun C++ 5.7 */
     BOOST_STATIC_ASSERT(
       (mpl::contains<iterator_type_list,IteratorType>::value));
-#endif
 
     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(it);
     BOOST_MULTI_INDEX_CHECK_IS_OWNER(
@@ -371,11 +365,9 @@ public:
   {
     typedef typename nth_index<N>::type index;
 
-#if !defined(__SUNPRO_CC)||!(__SUNPRO_CC<0x580) /* fails in Sun C++ 5.7 */
     BOOST_STATIC_ASSERT((
       mpl::contains<iterator_type_list,IteratorType>::value||
       mpl::contains<const_iterator_type_list,IteratorType>::value));
-#endif
 
     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(it);
     BOOST_MULTI_INDEX_CHECK_IS_OWNER(
@@ -406,10 +398,8 @@ public:
   {
     typedef typename index<Tag>::type index;
 
-#if !defined(__SUNPRO_CC)||!(__SUNPRO_CC<0x580) /* fails in Sun C++ 5.7 */
     BOOST_STATIC_ASSERT(
       (mpl::contains<iterator_type_list,IteratorType>::value));
-#endif
 
     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(it);
     BOOST_MULTI_INDEX_CHECK_IS_OWNER(
@@ -424,11 +414,9 @@ public:
   {
     typedef typename index<Tag>::type index;
 
-#if !defined(__SUNPRO_CC)||!(__SUNPRO_CC<0x580) /* fails in Sun C++ 5.7 */
     BOOST_STATIC_ASSERT((
       mpl::contains<iterator_type_list,IteratorType>::value||
       mpl::contains<const_iterator_type_list,IteratorType>::value));
-#endif
 
     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(it);
     BOOST_MULTI_INDEX_CHECK_IS_OWNER(
@@ -442,18 +430,17 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
 
   node_type* header()const
   {
-    return &*bfm_header::member;
+    return bfm_header::member;
   }
 
   node_type* allocate_node()
   {
-    return &*bfm_allocator::member.allocate(1);
+    return bfm_allocator::member.allocate(1);
   }
 
   void deallocate_node(node_type* x)
   {
-    typedef typename node_allocator::pointer node_pointer;
-    bfm_allocator::member.deallocate(static_cast<node_pointer>(x),1);
+    bfm_allocator::member.deallocate(x,1);
   }
 
   bool empty_()const
@@ -540,9 +527,6 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
 
   void swap_(multi_index_container<Value,IndexSpecifierList,Allocator>& x)
   {
-    if(bfm_allocator::member!=x.bfm_allocator::member){
-      detail::adl_swap(bfm_allocator::member,x.bfm_allocator::member);
-    }
     std::swap(bfm_header::member,x.bfm_header::member);
     super::swap_(x);
     std::swap(node_count,x.node_count);
@@ -554,7 +538,7 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
   }
 
   template<typename Modifier>
-  bool modify_(Modifier& mod,node_type* x)
+  bool modify_(Modifier mod,node_type* x)
   {
     mod(const_cast<value_type&>(x->value()));
 
@@ -569,42 +553,6 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
     BOOST_CATCH(...){
       deallocate_node(x);
       --node_count;
-      BOOST_RETHROW;
-    }
-    BOOST_CATCH_END
-  }
-
-  template<typename Modifier,typename Rollback>
-  bool modify_(Modifier& mod,Rollback& back,node_type* x)
-  {
-    mod(const_cast<value_type&>(x->value()));
-
-    bool b;
-    BOOST_TRY{
-      b=super::modify_rollback_(x);
-    }
-    BOOST_CATCH(...){
-      BOOST_TRY{
-        back(const_cast<value_type&>(x->value()));
-        BOOST_RETHROW;
-      }
-      BOOST_CATCH(...){
-        this->erase_(x);
-        BOOST_RETHROW;
-      }
-      BOOST_CATCH_END
-    }
-    BOOST_CATCH_END
-
-    BOOST_TRY{
-      if(!b){
-        back(const_cast<value_type&>(x->value()));
-        return false;
-      }
-      else return true;
-    }
-    BOOST_CATCH(...){
-      this->erase_(x);
       BOOST_RETHROW;
     }
     BOOST_CATCH_END
@@ -839,8 +787,7 @@ project(
     Value,IndexSpecifierList,Allocator>                multi_index_type;
   typedef typename nth_index<multi_index_type,N>::type index;
 
-#if (!defined(BOOST_MSVC)||!(BOOST_MSVC<1310))&&  /* MSVC++ 6.0/7.0 fails */\
-    (!defined(__SUNPRO_CC)||!(__SUNPRO_CC<0x580)) /* as does Sun C++ 5.7  */
+#if !defined(BOOST_MSVC)||!(BOOST_MSVC<1310) /* ain't work in MSVC++ 6.0/7.0 */
   BOOST_STATIC_ASSERT((
     mpl::contains<
       BOOST_DEDUCED_TYPENAME multi_index_type::iterator_type_list,
@@ -874,8 +821,7 @@ project(
     Value,IndexSpecifierList,Allocator>                multi_index_type;
   typedef typename nth_index<multi_index_type,N>::type index;
 
-#if (!defined(BOOST_MSVC)||!(BOOST_MSVC<1310))&&  /* MSVC++ 6.0/7.0 fails */\
-    (!defined(__SUNPRO_CC)||!(__SUNPRO_CC<0x580)) /* as does Sun C++ 5.7  */
+#if !defined(BOOST_MSVC)||!(BOOST_MSVC<1310) /* ain't work in MSVC++ 6.0/7.0 */
   BOOST_STATIC_ASSERT((
     mpl::contains<
       BOOST_DEDUCED_TYPENAME multi_index_type::iterator_type_list,
@@ -929,8 +875,7 @@ project(
   typedef typename ::boost::multi_index::index<
     multi_index_type,Tag>::type                 index;
 
-#if (!defined(BOOST_MSVC)||!(BOOST_MSVC<1310))&&  /* MSVC++ 6.0/7.0 fails */\
-    (!defined(__SUNPRO_CC)||!(__SUNPRO_CC<0x580)) /* as does Sun C++ 5.7  */
+#if !defined(BOOST_MSVC)||!(BOOST_MSVC<1310) /* ain't work in MSVC++ 6.0/7.0 */
   BOOST_STATIC_ASSERT((
     mpl::contains<
       BOOST_DEDUCED_TYPENAME multi_index_type::iterator_type_list,
@@ -965,8 +910,7 @@ project(
   typedef typename ::boost::multi_index::index<
     multi_index_type,Tag>::type                 index;
 
-#if (!defined(BOOST_MSVC)||!(BOOST_MSVC<1310))&&  /* MSVC++ 6.0/7.0 fails */\
-    (!defined(__SUNPRO_CC)||!(__SUNPRO_CC<0x580)) /* as does Sun C++ 5.7  */
+#if !defined(BOOST_MSVC)||!(BOOST_MSVC<1310) /* ain't work in MSVC++ 6.0/7.0 */
   BOOST_STATIC_ASSERT((
     mpl::contains<
       BOOST_DEDUCED_TYPENAME multi_index_type::iterator_type_list,

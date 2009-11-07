@@ -10,13 +10,11 @@
 //          http://www.boost.org/LICENSE_1_0.txt)
 //
 // ------------------------------------------------------
-//
-// $Id: lowest_bit.hpp 41369 2007-11-25 18:07:19Z bemandawes $
 
 #ifndef BOOST_LOWEST_BIT_HPP_GP_20030301
 #define BOOST_LOWEST_BIT_HPP_GP_20030301
 
-#include <assert.h>
+#include <cassert>
 #include "boost/pending/integer_log2.hpp"
 
 

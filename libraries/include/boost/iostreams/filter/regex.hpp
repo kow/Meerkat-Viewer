@@ -1,5 +1,4 @@
-// (C) Copyright 2008 CodeRage, LLC (turkanis at coderage dot com)
-// (C) Copyright 2003-2007 Jonathan Turkanis
+// (C) Copyright Jonathan Turkanis 2003.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt.)
 
@@ -58,7 +57,7 @@ private:
                 return;
             iterator first(&src[0], &src[0] + src.size(), re_, flags_);
             iterator last;
-            const Ch* suffix = 0;
+            const Ch* suffix = 0; // Prevent GCC 2.95 warning.
             for (; first != last; ++first) {
                 dest.insert( dest.end(), 
                              first->prefix().first,
@@ -69,15 +68,11 @@ private:
                              replacement.end() );
                 suffix = first->suffix().first;
             }
-            if (suffix) {
-                dest.insert(dest.end(), suffix, &src[0] + src.size());
-            } else {
-                dest.insert(dest.end(), &src[0], &src[0] + src.size());
-            }
+            dest.insert(dest.end(), suffix, &src[0] + src.size());
         }
     struct simple_formatter {
         simple_formatter(const string_type& fmt, flag_type fmt_flags) 
-            : fmt_(fmt), fmt_flags_(fmt_flags) { }
+            : fmt_(fmt), fmt_flags_(fmt_flags_) { }
         string_type operator() (const match_type& match) const
         { return match.format(fmt_, fmt_flags_); }
         string_type  fmt_;

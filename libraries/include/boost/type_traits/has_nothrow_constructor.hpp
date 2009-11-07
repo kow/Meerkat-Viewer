@@ -30,7 +30,6 @@ struct has_nothrow_constructor_imp{
 }
 
 BOOST_TT_AUX_BOOL_TRAIT_DEF1(has_nothrow_constructor,T,::boost::detail::has_nothrow_constructor_imp<T>::value)
-BOOST_TT_AUX_BOOL_TRAIT_DEF1(has_nothrow_default_constructor,T,::boost::detail::has_nothrow_constructor_imp<T>::value)
 
 } // namespace boost
 

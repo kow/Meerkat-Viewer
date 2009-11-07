@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Source$
-// $Date: 2008-03-22 17:45:55 -0400 (Sat, 22 Mar 2008) $
-// $Revision: 43798 $
+// $Source: /cvsroot/boost/boost/boost/mpl/min_element.hpp,v $
+// $Date: 2008-03-20 14:41:26 -0700 (Thu, 20 Mar 2008) $
+// $Revision: 82858 $
 
 #include <boost/mpl/max_element.hpp>
 #include <boost/mpl/not.hpp>

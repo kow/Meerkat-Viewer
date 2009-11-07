@@ -14,7 +14,6 @@
 #define BOOST_FILESYSTEM_CONVENIENCE_HPP
 
 #include <boost/filesystem/operations.hpp>
-#include <boost/system/error_code.hpp>
 #include <vector>
 #include <stack>
 
@@ -29,7 +28,7 @@
 # else
 #   define BOOST_FS_FUNC(BOOST_FS_TYPE) inline BOOST_FS_TYPE 
     typedef boost::filesystem::path Path;
-#   define BOOST_FS_FUNC_STRING inline std::string
+#   define BOOST_FS_FUNC_STRING std::string
 #   define BOOST_FS_TYPENAME
 # endif
 
@@ -44,8 +43,7 @@ namespace boost
          {
            if ( !ph.empty() && !is_directory(ph) )
                boost::throw_exception( basic_filesystem_error<Path>(
-                 "boost::filesystem::create_directories", ph,
-                 make_error_code( boost::system::posix::file_exists ) ) );
+                 "boost::filesystem::create_directories", ph, -1 ) );
            return false;
          }
 
@@ -140,8 +138,7 @@ namespace boost
       basic_recursive_directory_iterator(){}  // creates the "end" iterator
 
       explicit basic_recursive_directory_iterator( const Path & dir_path );
-      basic_recursive_directory_iterator( const Path & dir_path,
-        system::error_code & ec );
+      basic_recursive_directory_iterator( const Path & dir_path, system_error_type & ec );
 
       int level() const { return m_imp->m_level; }
 
@@ -188,7 +185,6 @@ namespace boost
 
       bool equal( const basic_recursive_directory_iterator & rhs ) const
         { return m_imp == rhs.m_imp; }
-
     };
 
     typedef basic_recursive_directory_iterator<path> recursive_directory_iterator;
@@ -205,20 +201,15 @@ namespace boost
       : m_imp( new detail::recur_dir_itr_imp<Path> )
     {
       m_imp->m_stack.push( basic_directory_iterator<Path>( dir_path ) );
-      if ( m_imp->m_stack.top () == basic_directory_iterator<Path>() )
-        { m_imp.reset (); }
     }
 
     template<class Path>
     basic_recursive_directory_iterator<Path>::
-      basic_recursive_directory_iterator( const Path & dir_path,
-        system::error_code & ec )
+      basic_recursive_directory_iterator( const Path & dir_path, system_error_type & ec )
       : m_imp( new detail::recur_dir_itr_imp<Path> )
     {
+      m_imp->m_stack.push( basic_directory_iterator<Path>( dir_path, std::nothrow ) );
       m_imp->m_no_throw = true;
-      m_imp->m_stack.push( basic_directory_iterator<Path>( dir_path, ec ) );
-      if ( m_imp->m_stack.top () == basic_directory_iterator<Path>() )
-        { m_imp.reset (); }
     }
 
     //  increment
@@ -229,15 +220,15 @@ namespace boost
       
       static const basic_directory_iterator<Path> end_itr;
 
-      if ( m_imp->m_no_push )
-        { m_imp->m_no_push = false; }
+      if ( m_imp->m_no_push ) m_imp->m_no_push = false;
       else if ( is_directory( m_imp->m_stack.top()->status() ) )
       {
-        system::error_code ec;
+        system_error_type ec;
         m_imp->m_stack.push(
           m_imp->m_no_throw
             ? basic_directory_iterator<Path>( *m_imp->m_stack.top(), ec )
-            : basic_directory_iterator<Path>( *m_imp->m_stack.top() ) );
+            : basic_directory_iterator<Path>( *m_imp->m_stack.top() )
+          );
         if ( m_imp->m_stack.top() != end_itr )
         {
           ++m_imp->m_level;
@@ -263,17 +254,71 @@ namespace boost
       BOOST_ASSERT( m_imp.get() && "pop on end iterator" );
       BOOST_ASSERT( m_imp->m_level > 0 && "pop with level < 1" );
 
-      static const basic_directory_iterator<Path> end_itr;
+      m_imp->m_stack.pop();
+      --m_imp->m_level;
+    }
 
-      do
+    //  what() basic_filesystem_error_decoder  -------------------------------//
+
+    namespace detail
+    {
+
+#   if BOOST_WORKAROUND(__BORLANDC__,BOOST_TESTED_AT(0x581))
+      using boost::filesystem::system_message;
+#   endif
+
+      inline void decode_system_message( system_error_type ec, std::string & target )
       {
-        m_imp->m_stack.pop();
-        --m_imp->m_level;
+        system_message( ec, target );
       }
-      while ( !m_imp->m_stack.empty()
-        && ++m_imp->m_stack.top() == end_itr );
 
-      if ( m_imp->m_stack.empty() ) m_imp.reset(); // done, so make end iterator
+#   if defined(BOOST_WINDOWS_API) && !defined(BOOST_FILESYSTEM_NARROW_ONLY)
+      inline void decode_system_message( system_error_type ec, std::wstring & target )
+      {
+        system_message( ec, target );
+      }
+#   endif
+
+      template<class String>
+      void decode_system_message( system_error_type ec, String & target )
+      {
+        std::string temp;
+        system_message( ec, temp );
+        for ( const char * p = temp.c_str(); *p != 0; ++p )
+          { target += static_cast<typename String::value_type>( *p ); }
+      }
+    }
+
+    template<class Path>
+    typename Path::string_type what( const basic_filesystem_error<Path> & ex )
+    {
+      typename Path::string_type s;
+      for ( const char * p = ex.what(); *p != 0; ++p )
+        { s += static_cast<typename Path::string_type::value_type>( *p ); }
+
+      if ( !ex.path1().empty() )
+      {
+        s += static_cast<typename Path::string_type::value_type>( ':' );
+        s += static_cast<typename Path::string_type::value_type>( ' ' );
+        s += static_cast<typename Path::string_type::value_type>( '\"' );
+        s += ex.path1().file_string();
+        s += static_cast<typename Path::string_type::value_type>( '\"' );
+      }
+      if ( !ex.path2().empty() )
+      {
+        s += static_cast<typename Path::string_type::value_type>( ',' );
+        s += static_cast<typename Path::string_type::value_type>( ' ' );
+        s += static_cast<typename Path::string_type::value_type>( '\"' );
+        s += ex.path2().file_string();
+        s += static_cast<typename Path::string_type::value_type>( '\"' );
+      }
+      if ( ex.system_error() )
+      {
+        s += static_cast<typename Path::string_type::value_type>( ' ' );
+
+        detail::decode_system_message( ex.system_error(), s );
+      }
+      return s;
     }
 
   } // namespace filesystem

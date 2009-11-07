@@ -56,15 +56,8 @@
 #include "boost/mpl/has_xxx.hpp"
 #include <boost/static_assert.hpp>
 
-#ifdef BOOST_MSVC
-#pragma warning(push)
-#pragma warning(disable: 4103)
-#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_PREFIX
-#endif
-#ifdef BOOST_MSVC
-#pragma warning(pop)
 #endif
 
 namespace boost{
@@ -174,15 +167,8 @@ private:
 
 } // namespace boost
 
-#ifdef BOOST_MSVC
-#pragma warning(push)
-#pragma warning(disable: 4103)
-#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_SUFFIX
-#endif
-#ifdef BOOST_MSVC
-#pragma warning(pop)
 #endif
 
 #endif // include

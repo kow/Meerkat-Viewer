@@ -1,5 +1,4 @@
-// (C) Copyright 2008 CodeRage, LLC (turkanis at coderage dot com)
-// (C) Copyright 2003-2007 Jonathan Turkanis
+// (C) Copyright Jonathan Turkanis 2003.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt.)
 
@@ -12,6 +11,7 @@
 # pragma once
 #endif
 
+#include <algorithm>                            // for_each.
 #include <cassert>
 #include <exception>
 #include <functional>                           // unary_function.
@@ -38,8 +38,7 @@
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type.hpp>
-#include <boost/iostreams/detail/execute.hpp>   // VC6.5 requires this
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1310)        // #include order
+#if BOOST_WORKAROUND(BOOST_MSVC, < 1310)
 # include <boost/mpl/int.hpp>
 #endif
 
@@ -230,8 +229,7 @@ private:
                     policy_type,
                     BOOST_IOSTREAMS_CHAR_TRAITS(char_type),
                     Alloc, Mode
-                >                                         streambuf_t;
-        typedef typename list_type::iterator              iterator;
+                >                                         facade_type;
         BOOST_STATIC_ASSERT((is_convertible<category, Mode>::value));
         if (is_complete())
             throw std::logic_error("chain complete");
@@ -244,20 +242,12 @@ private:
             pback_size != -1 ?
                 pback_size :
                 pimpl_->pback_size_;
-        std::auto_ptr<streambuf_t>
-            buf(new streambuf_t(t, buffer_size, pback_size));
+        std::auto_ptr<facade_type>
+            buf(new facade_type(t, buffer_size, pback_size));
         list().push_back(buf.get());
         buf.release();
-        if (is_device<policy_type>::value) {
+        if (is_device<policy_type>::value)
             pimpl_->flags_ |= f_complete | f_open;
-            for ( iterator first = list().begin(),
-                           last = list().end();
-                  first != last;
-                  ++first )
-            {
-                (*first)->set_needs_close();
-            }
-        }
         if (prev) prev->set_next(list().back());
         notify();
     }
@@ -271,7 +261,7 @@ private:
 
     static void close(streambuf_type* b, BOOST_IOS::openmode m)
     {
-        if (m == BOOST_IOS::out && is_convertible<Mode, output>::value)
+        if (m & BOOST_IOS::out)
             b->BOOST_IOSTREAMS_PUBSYNC();
         b->close(m);
     }
@@ -305,35 +295,23 @@ private:
               pback_size_(default_pback_buffer_size),
               flags_(f_auto_close)
             { }
-        ~chain_impl() { try { close(); reset(); } catch (...) { } }
+        ~chain_impl() { try { close(); reset(); } catch (std::exception&) { } }
         void close()
             {
                 if ((flags_ & f_open) != 0) {
-                    flags_ &= ~f_open;
                     stream_buffer< basic_null_device<Ch, Mode> > null;
                     if ((flags_ & f_complete) == 0) {
                         null.open(basic_null_device<Ch, Mode>());
                         set_next(links_.back(), &null);
                     }
                     links_.front()->BOOST_IOSTREAMS_PUBSYNC();
-                    try {
-                        boost::iostreams::detail::execute_foreach(
-                            links_.rbegin(), links_.rend(), 
-                            closer(BOOST_IOS::in)
-                        );
-                    } catch (...) {
-                        try {
-                            boost::iostreams::detail::execute_foreach(
-                                links_.begin(), links_.end(), 
-                                closer(BOOST_IOS::out)
-                            );
-                        } catch (...) { }
-                        throw;
-                    }
-                    boost::iostreams::detail::execute_foreach(
-                        links_.begin(), links_.end(), 
-                        closer(BOOST_IOS::out)
-                    );
+                    if (is_convertible<Mode, input>::value)
+                        std::for_each( links_.rbegin(), links_.rend(),
+                                       closer(BOOST_IOS::in) );
+                    if (is_convertible<Mode, output>::value)
+                        std::for_each( links_.begin(), links_.end(),
+                                       closer(BOOST_IOS::out) );
+                    flags_ &= ~f_open;
                 }
             }
         void reset()
