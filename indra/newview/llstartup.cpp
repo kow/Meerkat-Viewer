@@ -1895,7 +1895,13 @@ bool idle_startup()
 		{
 			LL_DEBUGS("AppInit") << "Initializing sky..." << LL_ENDL;
 			// Initialize all of the viewer object classes for the first time (doing things like texture fetches.
+			LLGLState::checkStates();
+			LLGLState::checkTextureChannels();
+
 			gSky.init(initial_sun_direction);
+
+			LLGLState::checkStates();
+			LLGLState::checkTextureChannels();
 		}
 
 		LL_DEBUGS("AppInit") << "Decoding images..." << LL_ENDL;
@@ -3970,7 +3976,7 @@ void init_start_screen(S32 location_id)
 	}
 
 	raw->expandToPowerOfTwo();
-	gStartImageGL->createGLTexture(0, raw);
+	gStartImageGL->createGLTexture(0, raw, 0, TRUE, LLViewerImageBoostLevel::OTHER);
 }
 
 

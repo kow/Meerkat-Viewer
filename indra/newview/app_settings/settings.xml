@@ -12346,7 +12346,7 @@
   <key>FloaterPrimImport</key>
   <map>
     <key>Comment</key>
-    <string>Export floater position/size</string>
+    <string>Import floater position/size</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

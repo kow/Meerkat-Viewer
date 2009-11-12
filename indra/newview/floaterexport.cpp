@@ -377,7 +377,7 @@ void FloaterExport::onClickExport(void* data)
 
 	// Open the file save dialog
 	LLFilePicker& file_picker = LLFilePicker::instance();
-	if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_XML ) )
+	if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_HPA ) )
 	{
 		// User canceled save.
 		return;
@@ -515,7 +515,7 @@ void FloaterExport::exportworker(void *userdata)
 				temp_xml->createChild("schema", FALSE)->setValue("1.0");
 				temp_xml->createChild("name", FALSE)->setValue(FloaterExport::sInstance->file_name);
 				temp_xml->createChild("date", FALSE)->setValue(LLLogChat::timestamp(1));
-				temp_xml->createChild("sotware", FALSE)->setValue(llformat("%s %d.%d.%d.%d",
+				temp_xml->createChild("software", FALSE)->setValue(llformat("%s %d.%d.%d.%d",
 				LLAppViewer::instance()->getSecondLifeTitle().c_str(), LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VERSION_BUILD));
 				temp_xml->createChild("platform", FALSE)->setValue("Second Life");
 				temp_xml->createChild("grid", FALSE)->setValue("test");

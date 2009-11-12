@@ -2,11 +2,13 @@
  * @file importtracker.cpp
  * @brief A utility for importing linksets from XML.
  * Discrete wuz here
+ * HPA support added -Patrick Sapinski (Thursday, November 12, 2009)
  */
 
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
+#include "llfilepicker.h"
 #include "llframetimer.h"
 #include "llprimitive.h"
 #include "llviewerregion.h"
@@ -17,11 +19,17 @@
 #include "lltooldraganddrop.h"
 #include "llassetuploadresponders.h"
 #include "lleconomy.h"
+#include "lluictrlfactory.h"
+#include "llviewerimagelist.h"
+#include "llagent.h"
+#include "llsurface.h"
+#include "llspinctrl.h"
 
 #include "llfloaterperms.h"
 
 
 #include "llviewertexteditor.h"
+
 //
 // Constants
 //
@@ -46,67 +54,289 @@ enum {
 	MI_HOLE_COUNT
 };
 
+const F32 CONTEXT_CONE_IN_ALPHA = 0.5f;
+const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
+	F32 mContextConeOpacity = 1.0f;
+
 ImportTracker gImportTracker;
 
 extern LLAgent gAgent;
 
-void cmdline_printchat(std::string message);
-void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*))
-{
-	LLSD linksets;
-	S32 total_linksets = 0;
-	mDownCallback = callback;
-	asset_insertions = 0;
+ImportTrackerFloater* ImportTrackerFloater::sInstance = 0;
 
-	//KOW DOES HPA HERE////////////////////////////////
+void ImportTrackerFloater::draw()
+{
+	S32 mapsize = 100; //Radius of the map
+
+	//X,Y,Z label colors
+	const LLColor4	white(	1.0f,	1.0f,	1.0f,	1);
+	const LLColor4	red(	1.0f,	0.25f,	0.f,	1);
+	const LLColor4	green(	0.f,	1.0f,	0.f,	1);
+	const LLColor4	blue(	0.f,	0.5f,	1.0f,	1);
+	mCtrlPosX	->setLabelColor(red);
+	mCtrlPosY	->setLabelColor(green);
+	mCtrlPosZ	->setLabelColor(blue);
+
+	LLFloater::draw();
+	LLRect rec  = getChild<LLPanel>("sim_icon")->getRect();
+	
+	gGL.pushMatrix();
+	//gGL.color4fv(LLColor4::black.mV);
+	//gl_circle_2d(rec.getCenterX(),rec.getCenterY(),30.0f,(S32)30,false);	
+	gGL.color4fv(LLColor4::white.mV);
+	gl_circle_2d(rec.getCenterX(),rec.getCenterY(),60.0f,(S32)30,false);	
+			
+	LLViewerRegion *regionp = gAgent.getRegion();
+	F32 right = rec.getCenterX() + mapsize;
+	F32 left = rec.getCenterX() - mapsize;
+	F32 top = rec.getCenterY() + mapsize;
+	F32 bottom = rec.getCenterY() - mapsize;
+
+	// Draw using texture.
+	gGL.getTexUnit(0)->bind(regionp->getLand().getSTexture());
+	gGL.begin(LLRender::QUADS);
+		gGL.texCoord2f(0.f, 1.f);
+		gGL.vertex2f(left, top);
+		gGL.texCoord2f(0.f, 0.f);
+		gGL.vertex2f(left, bottom);
+		gGL.texCoord2f(1.f, 0.f);
+		gGL.vertex2f(right, bottom);
+		gGL.texCoord2f(1.f, 1.f);
+		gGL.vertex2f(right, top);
+	gGL.end();
+	
+	// Draw water
+	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, ABOVE_WATERLINE_ALPHA / 255.f);
+	{
+		if (regionp->getLand().getWaterTexture())
+		{
+			gGL.getTexUnit(0)->bind(regionp->getLand().getWaterTexture());
+			gGL.begin(LLRender::QUADS);
+				gGL.texCoord2f(0.f, 1.f);
+				gGL.vertex2f(left, top);
+				gGL.texCoord2f(0.f, 0.f);
+				gGL.vertex2f(left, bottom);
+				gGL.texCoord2f(1.f, 0.f);
+				gGL.vertex2f(right, bottom);
+				gGL.texCoord2f(1.f, 1.f);
+				gGL.vertex2f(right, top);
+			gGL.end();
+		}
+	}
+	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT); 
+
+	F32 x = rec.getCenterX() - mapsize + (gImportTracker.importoffset.mV[VX] + gImportTracker.importposition.mV[VX]) / 2;
+	F32 y = rec.getCenterY() - mapsize + (gImportTracker.importoffset.mV[VY] + gImportTracker.importposition.mV[VX]) / 2;
+
+	F32 scaled_x = (gImportTracker.size.mV[VX] / 256) * mapsize;
+	F32 scaled_y = (gImportTracker.size.mV[VY] / 256) * mapsize;
+	right = x + scaled_x;
+	left = x - scaled_x;
+	top = y + scaled_x;
+	bottom = y - scaled_x;
+
+	gl_rect_2d(left,top,right,bottom, TRUE);
+
+	gGL.popMatrix();
+}
+
+ImportTrackerFloater::ImportTrackerFloater()
+:	LLFloater( std::string("Prim Import Floater") )
+{
+	LLUICtrlFactory::getInstance()->buildFloater( this, "floater_prim_import.xml" );
+
+	childSetAction("import", onClickImport, this);
+	childSetAction("close", onClickClose, this);
+
+	// Position
+	mCtrlPosX = getChild<LLSpinCtrl>("Pos X");
+	childSetCommitCallback("Pos X",onCommitPosition,this);
+	mCtrlPosY = getChild<LLSpinCtrl>("Pos Y");
+	childSetCommitCallback("Pos Y",onCommitPosition,this);
+	mCtrlPosZ = getChild<LLSpinCtrl>("Pos Z");
+	childSetCommitCallback("Pos Z",onCommitPosition,this);
+
+	LLBBox bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
+	LLVector3 box_center_agent = bbox.getCenterAgent();
+	//LLVector3 box_corner_agent = bbox.localToAgent( unitVectorToLocalBBoxExtent( partToUnitVector( mManipPart ), bbox ) );
+	//mGridScale = mSavedSelectionBBox.getExtentLocal() * 0.5f;
+	
+	LLVector3 temp = bbox.getExtentLocal();
+
+	std::stringstream sstr;	
+	LLUICtrl * ctrl=this->getChild<LLUICtrl>("selection size");	
+
+	sstr <<"X: "<<llformat("%.2f", temp.mV[VX]);
+	sstr <<", Y: "<<llformat("%.2f", temp.mV[VY]);
+	sstr <<", Z: "<<llformat("%.2f", temp.mV[VZ]);
+	//sstr << " \n ";
+	//		temp = bbox.getCenterAgent();
+	//sstr << "X: "<<temp.mV[VX]<<", Y: "<<temp.mV[VY]<<", Z: "<<temp.mV[VZ];
+
+	ctrl->setValue(LLSD("Text")=sstr.str());
+	
+	// reposition floater from saved settings
+	LLRect rect = gSavedSettings.getRect( "FloaterPrimImport" );
+	reshape( rect.getWidth(), rect.getHeight(), FALSE );
+	setRect( rect );
+
+//	running=false;
+	//textures.clear();
+//	assetmap.clear();
+//	current_asset=LLUUID::null;
+//	m_retexture=false;
+
+
+
+}
+
+ImportTrackerFloater* ImportTrackerFloater::getInstance()
+{
+    if ( ! sInstance )
+        sInstance = new ImportTrackerFloater();
+
+	return sInstance;
+}
+
+ImportTrackerFloater::~ImportTrackerFloater()
+{
+	// save position of floater
+	gSavedSettings.setRect( "FloaterPrimImport", getRect() );
+
+	//which one?? -Patrick Sapinski (Wednesday, November 11, 2009)
+	ImportTrackerFloater::sInstance = NULL;
+	sInstance = NULL;
+}
+
+void ImportTrackerFloater::close()
+{
+	if(sInstance)
+	{
+		delete sInstance;
+		sInstance = NULL;
+	}
+}
+
+void ImportTrackerFloater::show()
+{
+	// Open the file open dialog
+	LLFilePicker& file_picker = LLFilePicker::instance();
+	if( !file_picker.getOpenFile( LLFilePicker::FFLOAD_HPA ) )
+	{
+		// User canceled save.
+		return;
+	}
+		 
+	const std::string filename = file_picker.getFirstFile().c_str();
+	 gImportTracker.loadhpa(filename);
+	//gImportTracker.importer(filename, NULL);	
+
+	if(NULL==sInstance) 
+	{
+		sInstance = new ImportTrackerFloater();
+		llwarns << "sInstance assigned. sInstance=" << sInstance << llendl;
+	}
+	
+	sInstance->open();	/*Flawfinder: ignore*/
+}
+
+// static
+void ImportTrackerFloater::onCommitPosition( LLUICtrl* ctrl, void* userdata )
+{
+	sInstance->sendPosition();
+}
+
+// static
+void ImportTrackerFloater::onClickImport(void* data)
+{
+	/*
+	FloaterExport* self = (FloaterExport*)data;
+
+	// Open the file save dialog
+	LLFilePicker& file_picker = LLFilePicker::instance();
+	if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_XML ) )
+	{
+		// User canceled save.
+		return;
+	}
+	 
+	self->file_name = file_picker.getCurFile();
+	self->folder = gDirUtilp->getDirName(self->file_name);
+
+	self->export_state=EXPORT_INIT;
+	gIdleCallbacks.addFunction(exportworker, NULL);
+	*/
+}
+
+// static
+void ImportTrackerFloater::onClickClose(void* data)
+{
+	sInstance->close();
+}
+
+void ImportTrackerFloater::sendPosition()
+{	
+	LLVector3 newpos(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
+	gImportTracker.importoffset = newpos - gImportTracker.importposition;
+}
+
+void ImportTracker::loadhpa(std::string file)
+{
+	S32 total_linksets = 0;
+
 	std::string xml_filename = file;
 
 	LLXmlTree xml_tree;
 
 	if (!xml_tree.parseFile(xml_filename))
 	{
-		cmdline_printchat("Problem reading HPA file: "+xml_filename);
+		//cmdline_printchat("Problem reading HPA file: "+xml_filename);
 		return;
 	}
-	cmdline_printchat("loaded HPA: "+ xml_filename);
+	//cmdline_printchat("loaded HPA: "+ xml_filename);
 	
 	LLXmlTreeNode* root = xml_tree.getRoot();
 
 	for (LLXmlTreeNode* child = root->getFirstChild(); child; child = root->getNextChild())
 	{
-		if (child->hasName("schema"))
-			cmdline_printchat("Version: "+child->getTextContents());
+		//if (child->hasName("schema"))
+			//cmdline_printchat("Version: "+child->getTextContents());
 
 		if (child->hasName("name"))
-			cmdline_printchat("Name: "+child->getTextContents());
+			ImportTrackerFloater::sInstance->getChild<LLTextBox>("name label")->setValue("Name: " + child->getTextContents());
+			//cmdline_printchat("Name: "+child->getTextContents());
 		
 		if (child->hasName("date"))
-			cmdline_printchat("Date: "+child->getTextContents());
+			ImportTrackerFloater::sInstance->getChild<LLTextBox>("date label")->setValue("Date: " + child->getTextContents());
+			//cmdline_printchat("Date: "+child->getTextContents());
 
-		if (child->hasName("software"))
-			cmdline_printchat("Software: "+child->getTextContents());
+		//if (child->hasName("software"))
+			//cmdline_printchat("Software: "+child->getTextContents());
 
-		if (child->hasName("platform"))
-			cmdline_printchat("Platform: "+child->getTextContents());
+		//if (child->hasName("platform"))
+			//cmdline_printchat("Platform: "+child->getTextContents());
 
 		if (child->hasName("grid"))
-			cmdline_printchat("Grid: "+child->getTextContents());
+			ImportTrackerFloater::sInstance->getChild<LLTextBox>("grid label")->setValue("Grid: " + child->getTextContents());
+			//grid = child->getTextContents();
+			//cmdline_printchat("Grid: "+child->getTextContents());
 		
 		if (child->hasName("group"))
 		{
 			for (LLXmlTreeNode* object = child->getFirstChild(); object; object = child->getNextChild())
 			{
 				LLSD ls_llsd;
-				if (object->hasName("max"))
+				if (object->hasName("center"))
 				{
-					F32 x,y,z;
-					object->getAttributeF32("x", x);
-					object->getAttributeF32("y", y);
-					object->getAttributeF32("z", z);
-					cmdline_printchat("x = " + llformat( "%.4f", x ));
-					cmdline_printchat("y = " + llformat( "%.4f", y ));
-					cmdline_printchat("z = " + llformat( "%.4f", z ));
-					//feed this ^^ data to the floater so we can draw a preview rectangle
+					object->getAttributeF32("x", importposition.mV[VX]);
+					object->getAttributeF32("y", importposition.mV[VY]);
+					object->getAttributeF32("z", importposition.mV[VZ]);
+				}
+				else if (object->hasName("max"))
+				{
+					object->getAttributeF32("x", size.mV[VX]);
+					object->getAttributeF32("y", size.mV[VY]);
+					object->getAttributeF32("z", size.mV[VZ]);
 				}
 				else if (object->hasName("linkset"))
 				{
@@ -117,7 +347,7 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 					//for (LLXmlTreeNode* prim = object->getFirstChild(); prim; prim = object->getNextChild())
 					while ((object_index < object->getChildCount()))
 					{
-						cmdline_printchat("getting volume params for prim" + llformat("%u",object_index));
+						//cmdline_printchat("getting volume params for prim" + llformat("%u",object_index));
 						object_index++;
 
 						LLSD prim_llsd;
@@ -311,19 +541,13 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 								LLSD textures;
 								S32 texture_count = 0;
 
-								cmdline_printchat("texture found");
+								//cmdline_printchat("texture found");
 								for (LLXmlTreeNode* face = param->getFirstChild(); face; face = param->getNextChild())
 								{
 									LLSD sd;
 									LLColor4 color;
 									/*
-	sd["imageid"] = getID();
-	sd["colors"] = ll_sd_from_color4(getColor());
-	sd["scales"] = mScaleS;
-	sd["scalet"] = mScaleT;
-	sd["offsets"] = mOffsetS;
-	sd["offsett"] = mOffsetT;
-	sd["imagerot"] = getRotation();
+
 	sd["bump"] = getBumpShiny();
 	sd["fullbright"] = getFullbright();
 	sd["media_flags"] = getMediaTexGen();
@@ -331,7 +555,6 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 									//<face id="0">
 									for (LLXmlTreeNode* param = face->getFirstChild(); param; param = face->getNextChild())
 									{
-										cmdline_printchat("face param found");
 										//<tile u="1.00000" v="-0.90000" />
 										if (param->hasName("tile"))
 										{
@@ -390,8 +613,11 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 										//<fullbright val="true" />
 										else if (param->hasName("fullbright"))
 										{
-											BOOL temp;
-											param->getAttributeBOOL("val", temp);
+											BOOL temp = false;
+											std::string value;
+											param->getAttributeString("val", value);
+											if (value == "true")
+												temp = true;
 											sd["fullbright"] = temp;
 										}
 									}
@@ -548,9 +774,22 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 
 				}
 			}
+			//We've looped through the HPA now let's fill in some values.
+			ImportTrackerFloater::sInstance->mCtrlPosX->set(importposition.mV[VX]);
+			ImportTrackerFloater::sInstance->mCtrlPosY->set(importposition.mV[VY]);
+			ImportTrackerFloater::sInstance->mCtrlPosZ->set(importposition.mV[VZ]);
+			size = (size - importposition) * 2;
+			ImportTrackerFloater::sInstance->getChild<LLTextBox>("size label")->setValue("Size: " + llformat("%.3f,%.3f,%.3f", size.mV[VX], size.mV[VY], size.mV[VZ]));
+				
 		}
 	}
-	//////////////////////////////////////////////
+}
+
+void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*))
+{
+	mDownCallback = callback;
+	asset_insertions = 0;
+
 	llifstream importer(file);
 	LLSD data;
 	LLSDSerialize::fromXMLDocument(data, importer);
@@ -565,6 +804,7 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 	//linksetgroups=file_data;
 	linksetgroups=linksets;
 
+	//DEBUG CODE! At this point our HPA should be in Emerald LLSD format.
 	// Create a file stream and write to it
 	llofstream export_file(file + ".llsd");
 	LLSDSerialize::toPrettyXML(linksetgroups, export_file);
@@ -613,6 +853,7 @@ void ImportTracker::clear()
 	state = IDLE;
 	finish();
 }
+void cmdline_printchat(std::string message);
 LLViewerObject* find(U32 local)
 {
 	S32 i;
@@ -1286,7 +1527,6 @@ void ImportTracker::send_vectors(LLSD& prim,int counter)
 	
 	msg->sendReliable(gAgent.getRegion()->getHost());
 }
-
 
 void ImportTracker::send_shape(LLSD& prim)
 {

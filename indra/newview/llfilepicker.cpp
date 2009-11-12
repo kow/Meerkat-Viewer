@@ -59,6 +59,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define SLOBJECT_FILTER L"Objects (*.slobject)\0*.slobject\0"
 #define RAW_FILTER L"RAW files (*.raw)\0*.raw\0"
 #define TEXT_FILTER L"Text files (*.txt; *.rtf)\0*.txt;*.rtf;*.lsl\0"
+#define HPA_FILTER L"HPA files (*.hpa)\0*.hpa\0"
 #endif
 
 //
@@ -193,6 +194,10 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 		break;
 	case FFLOAD_RAW:
 		mOFN.lpstrFilter = RAW_FILTER \
+			L"\0";
+		break;
+	case FFLOAD_HPA:
+		mOFN.lpstrFilter = HPA_FILTER \
 			L"\0";
 		break;
 	default:

@@ -9,7 +9,35 @@
 
 #include "llviewerobject.h"
 
+class LLSpinCtrl;
 
+class ImportTrackerFloater : public LLFloater
+{
+public:
+	void draw();
+	static ImportTrackerFloater* getInstance();
+	virtual ~ImportTrackerFloater();
+	//close me
+	static void close();
+	void show();
+	ImportTrackerFloater();	
+	static ImportTrackerFloater* sInstance;
+
+	static void 	onCommitPosition(LLUICtrl* ctrl, void* userdata);
+
+	//Import button
+	static void onClickImport(void* data);
+	
+	//Close button
+	static void onClickClose(void* data);
+
+	LLSpinCtrl*		mCtrlPosX;
+	LLSpinCtrl*		mCtrlPosY;
+	LLSpinCtrl*		mCtrlPosZ;
+
+protected:
+	void			sendPosition();
+};
 
 class ImportTracker
 {
@@ -27,6 +55,7 @@ class ImportTracker
 		~ImportTracker() { localids.clear(); linkset.clear(); }
 	
 		//Chalice - support import of linkset groups
+		void loadhpa(std::string file);
 		void importer(std::string file, void (*callback)(LLViewerObject*));
 		void cleargroups();
 		void import(LLSD &ls_data);
@@ -38,7 +67,11 @@ class ImportTracker
 		
 		const int getState() { return state; }
 
+		LLSD linksets;
 		U32 asset_insertions;
+		LLVector3 importposition;
+		LLVector3 size;
+		LLVector3 importoffset;
 		
 	protected:		
 		void send_inventory(LLSD &prim);

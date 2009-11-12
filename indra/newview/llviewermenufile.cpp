@@ -353,35 +353,8 @@ class ImportLinkset : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_XML);
-	
-		if (filename.empty())
-			return true;
-	
-		llifstream importer(filename);
-		LLSD data;
-		LLSDSerialize::fromXMLDocument(data, importer);
-	
-		if (gImportTracker.getState() != ImportTracker::IDLE)
-		{
-			gImportTracker.clear();
-			gImportTracker.cleargroups();
-		}
-		LLSD data2=data;
-		LLSD header=data2["Header"];
-		//if(header.isDefined())
-		//{
-			//if(header["Version"].asInteger() == 2)
-			//{
-				//LLSD obj_llsd=data["Objects"];
-				//gImportTracker.prepare(obj_llsd);
-				gImportTracker.importer(filename, NULL);
-			//}
-			//else
-				//gImportTracker.import(data);
-		//}
-		//else
-			//gImportTracker.import(data);
+		ImportTrackerFloater::getInstance()->show();
+		//gImportTracker.show();
 		return true;
 	}
 };

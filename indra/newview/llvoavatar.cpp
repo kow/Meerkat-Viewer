@@ -84,7 +84,11 @@
 #include "llvoicevisualizer.h" // Ventrella
 #include "llsdserialize.h" // client resolver
 
-#include "boost/lexical_cast.hpp"
+#if LL_MSVC
+// disable boost::lexical_cast warning
+#pragma warning (disable:4702)
+#endif
+#include <boost/lexical_cast.hpp>
 
 // [RLVa:KB]
 #include "llstartup.h"
