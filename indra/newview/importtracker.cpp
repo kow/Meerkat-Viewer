@@ -125,15 +125,15 @@ void ImportTrackerFloater::draw()
 	}
 	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT); 
 
-	F32 x = rec.getCenterX() - mapsize + (gImportTracker.importoffset.mV[VX] + gImportTracker.importposition.mV[VX]) / 2;
-	F32 y = rec.getCenterY() - mapsize + (gImportTracker.importoffset.mV[VY] + gImportTracker.importposition.mV[VX]) / 2;
+	F32 x = rec.getCenterX() - mapsize + (((gImportTracker.importoffset.mV[VX] + gImportTracker.importposition.mV[VX]) / 256) * mapsize * 2);
+	F32 y = rec.getCenterY() - mapsize + (((gImportTracker.importoffset.mV[VY] + gImportTracker.importposition.mV[VY]) / 256) * mapsize * 2);
 
 	F32 scaled_x = (gImportTracker.size.mV[VX] / 256) * mapsize;
-	//F32 scaled_y = (gImportTracker.size.mV[VY] / 256) * mapsize;
+	F32 scaled_y = (gImportTracker.size.mV[VY] / 256) * mapsize;
 	right = x + scaled_x;
 	left = x - scaled_x;
-	top = y + scaled_x;
-	bottom = y - scaled_x;
+	top = y + scaled_y;
+	bottom = y - scaled_y;
 
 	gl_rect_2d(left,top,right,bottom, TRUE);
 
