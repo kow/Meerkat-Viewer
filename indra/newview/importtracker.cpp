@@ -129,7 +129,7 @@ void ImportTrackerFloater::draw()
 	F32 y = rec.getCenterY() - mapsize + (gImportTracker.importoffset.mV[VY] + gImportTracker.importposition.mV[VX]) / 2;
 
 	F32 scaled_x = (gImportTracker.size.mV[VX] / 256) * mapsize;
-	F32 scaled_y = (gImportTracker.size.mV[VY] / 256) * mapsize;
+	//F32 scaled_y = (gImportTracker.size.mV[VY] / 256) * mapsize;
 	right = x + scaled_x;
 	left = x - scaled_x;
 	top = y + scaled_x;
