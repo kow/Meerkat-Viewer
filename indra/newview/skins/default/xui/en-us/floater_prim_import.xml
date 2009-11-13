@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater can_close="true" can_drag_on_left="false" can_minimize="true"
-     can_resize="false" width="340" height="250" name="Import" title="Import Objects">
+     can_resize="false" width="340" height="250" name="Import" title="Import Hierarchical Prim Archive">
 
   <!--
   -Patrick Sapinski (Wednesday, November 11, 2009)
@@ -100,7 +100,7 @@
 
   <button bottom="5" follows="right|bottom" font="SansSerif" halign="center" height="20"
      label="Import" label_selected="" right="-90"
-     mouse_opaque="true" name="export"
+     mouse_opaque="true" name="import"
      tool_tip="Import the current file" width="90" />
   <button bottom="5" follows="right|bottom" font="SansSerif" halign="center" height="20"
      label="Close" label_selected="" left_delta="95"

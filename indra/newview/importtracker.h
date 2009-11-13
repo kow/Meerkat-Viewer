@@ -25,6 +25,9 @@ public:
 
 	static void 	onCommitPosition(LLUICtrl* ctrl, void* userdata);
 
+	//Reset button
+	static void onClickReset(void* data);
+
 	//Import button
 	static void onClickImport(void* data);
 	

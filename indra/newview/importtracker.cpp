@@ -136,6 +136,8 @@ void ImportTrackerFloater::draw()
 	bottom = y - scaled_y;
 
 	gl_rect_2d(left,top,right,bottom, TRUE);
+	gGL.color4fv(LLColor4::black.mV);
+	gl_rect_2d(left,top,right,bottom, FALSE);
 
 	gGL.popMatrix();
 }
@@ -145,6 +147,7 @@ ImportTrackerFloater::ImportTrackerFloater()
 {
 	LLUICtrlFactory::getInstance()->buildFloater( this, "floater_prim_import.xml" );
 
+	childSetAction("reset", onClickReset, this);
 	childSetAction("import", onClickImport, this);
 	childSetAction("close", onClickClose, this);
 
@@ -229,7 +232,6 @@ void ImportTrackerFloater::show()
 		 
 	const std::string filename = file_picker.getFirstFile().c_str();
 	 gImportTracker.loadhpa(filename);
-	//gImportTracker.importer(filename, NULL);	
 
 	if(NULL==sInstance) 
 	{
@@ -247,8 +249,18 @@ void ImportTrackerFloater::onCommitPosition( LLUICtrl* ctrl, void* userdata )
 }
 
 // static
+void ImportTrackerFloater::onClickReset(void* data)
+{
+	gImportTracker.importoffset.clear();
+	sInstance->mCtrlPosX->set(gImportTracker.importposition.mV[VX]);
+	sInstance->mCtrlPosY->set(gImportTracker.importposition.mV[VY]);
+	sInstance->mCtrlPosZ->set(gImportTracker.importposition.mV[VZ]);
+}
+
+// static
 void ImportTrackerFloater::onClickImport(void* data)
 {
+	gImportTracker.importer("bean man", NULL);	
 	/*
 	FloaterExport* self = (FloaterExport*)data;
 
@@ -285,6 +297,8 @@ void ImportTracker::loadhpa(std::string file)
 	S32 total_linksets = 0;
 
 	std::string xml_filename = file;
+	
+	ImportTrackerFloater::sInstance->getChild<LLTextBox>("file label")->setValue("File: " + gDirUtilp->getBaseFileName(xml_filename, true));
 
 	LLXmlTree xml_tree;
 
@@ -779,6 +793,7 @@ void ImportTracker::loadhpa(std::string file)
 			ImportTrackerFloater::sInstance->mCtrlPosY->set(importposition.mV[VY]);
 			ImportTrackerFloater::sInstance->mCtrlPosZ->set(importposition.mV[VZ]);
 			size = (size - importposition) * 2;
+			importoffset.clear();
 			ImportTrackerFloater::sInstance->getChild<LLTextBox>("size label")->setValue("Size: " + llformat("%.3f,%.3f,%.3f", size.mV[VX], size.mV[VY], size.mV[VZ]));
 				
 		}
@@ -1486,7 +1501,7 @@ void ImportTracker::send_properties(LLSD& prim, int counter)
 
 void ImportTracker::send_vectors(LLSD& prim,int counter)
 {
-	LLVector3 position = (LLVector3)prim["position"];
+	LLVector3 position = (LLVector3)prim["position"] + importoffset;
 	LLSD rot = prim["rotation"];
 	LLQuaternion rotq;
 	rotq.mQ[VX] = (F32)(rot[0].asReal());
