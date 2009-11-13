@@ -73,6 +73,7 @@ set(viewer_SOURCE_FILES
 	hippoRestRequest.cpp
 	hippoUpdate.cpp
     importtracker.cpp
+    exporttracker.cpp
     llagent.cpp
     llagentdata.cpp
     llagentlanguage.cpp
@@ -493,6 +494,7 @@ set(viewer_HEADER_FILES
 	hippoRestRequest.h
 	hippoUpdate.h
     importtracker.h
+    exporttracker.h
     llagent.h
     llagentdata.h
     llagentlanguage.h
