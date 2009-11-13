@@ -213,6 +213,7 @@
 #include "lltexlayer.h"
 
 #include "floaterexport.h"
+#include "exporttracker.h"
 
 using namespace LLVOAvatarDefines;
 void init_client_menu(LLMenuGL* menu);
@@ -2359,7 +2360,7 @@ class LLObjectExport : public view_listener_t
 
 		if (!avatar)
 		{
-			FloaterExport::getInstance()->pre_export_object();
+			JCExportTracker::serializeSelection();			
 		}
 
 		return true;
