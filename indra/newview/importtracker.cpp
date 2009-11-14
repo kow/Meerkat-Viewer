@@ -296,17 +296,15 @@ BOOL ImportTrackerFloater::handleHover(S32 x, S32 y, MASK mask)
 	{
 		LLRect rec  = getChild<LLPanel>("sim_icon")->getRect();
 		rec.clampPointToRect(x, y);
-		if(1)
-		{t
-			S32 mapsize = rec.getWidth() / 2; //Radius of the map
-			llinfos << "imp offset = " << gImportTracker.importoffset.mV[VX] << " x = " << x << " imp pos = " << gImportTracker.importposition.mV[VX] << llendl;
-			F32 temp = ((F32)x - rec.getCenterX() + mapsize) / 200 * 256;
-			//((U32)(x - rec.getCenterX() + mapsize) / 200) * 256
-			gImportTracker.importoffset.mV[VX] = temp - gImportTracker.importposition.mV[VX];
-			gImportTracker.importoffset.mV[VY] = ((F32)y - rec.getCenterY() + mapsize) / 200 * 256 - gImportTracker.importposition.mV[VY];
-			sInstance->mCtrlPosX->set(gImportTracker.importposition.mV[VX] + gImportTracker.importoffset.mV[VX]);
-			sInstance->mCtrlPosY->set(gImportTracker.importposition.mV[VY] + gImportTracker.importoffset.mV[VY]);
-		}
+		S32 mapsize = rec.getWidth() / 2; //Radius of the map
+		llinfos << "imp offset = " << gImportTracker.importoffset.mV[VX] << " x = " << x << " imp pos = " << gImportTracker.importposition.mV[VX] << llendl;
+		F32 temp = ((F32)x - rec.getCenterX() + mapsize) / 200 * 256;
+		//((U32)(x - rec.getCenterX() + mapsize) / 200) * 256
+		gImportTracker.importoffset.mV[VX] = temp - gImportTracker.importposition.mV[VX];
+		gImportTracker.importoffset.mV[VY] = ((F32)y - rec.getCenterY() + mapsize) / 200 * 256 - gImportTracker.importposition.mV[VY];
+		sInstance->mCtrlPosX->set(gImportTracker.importposition.mV[VX] + gImportTracker.importoffset.mV[VX]);
+		sInstance->mCtrlPosY->set(gImportTracker.importposition.mV[VY] + gImportTracker.importoffset.mV[VY]);
+
 	}
 
 	return TRUE;
