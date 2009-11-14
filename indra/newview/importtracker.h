@@ -23,6 +23,10 @@ public:
 	ImportTrackerFloater();	
 	static ImportTrackerFloater* sInstance;
 
+	BOOL handleMouseDown(S32 x,S32 y,MASK mask);
+	BOOL handleMouseUp(S32 x,S32 y,MASK mask);
+	BOOL handleHover(S32 x,S32 y,MASK mask);
+
 	static void 	onCommitPosition(LLUICtrl* ctrl, void* userdata);
 
 	//Reset button
@@ -70,11 +74,15 @@ class ImportTracker
 		
 		const int getState() { return state; }
 
+		U32 total_linksets;
+		U32 objects;
+		U32 textures;
 		LLSD linksets;
 		U32 asset_insertions;
 		LLVector3 importposition;
 		LLVector3 size;
 		LLVector3 importoffset;
+		LLVector3 currentimportoffset;
 		
 	protected:		
 		void send_inventory(LLSD &prim);
@@ -91,13 +99,17 @@ class ImportTracker
 	
 	private:
 		int				numberExpected;
+	public:
 		int				state;
+	private:	
 		S32				last;
 		LLVector3			root;
 		LLQuaternion		rootrot;
 		std::list<S32>			localids;
+	public:
 		LLSD				linksetgroups;
 		int					groupcounter;
+	private:	
 		int					updated;
 		LLVector3			linksetoffset;
 		LLVector3			initialPos;

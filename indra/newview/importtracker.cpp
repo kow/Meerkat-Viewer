@@ -24,6 +24,7 @@
 #include "llagent.h"
 #include "llsurface.h"
 #include "llspinctrl.h"
+#include "llfocusmgr.h"
 
 #include "llfloaterperms.h"
 
@@ -66,7 +67,6 @@ ImportTrackerFloater* ImportTrackerFloater::sInstance = 0;
 
 void ImportTrackerFloater::draw()
 {
-	S32 mapsize = 100; //Radius of the map
 
 	//X,Y,Z label colors
 	const LLColor4	white(	1.0f,	1.0f,	1.0f,	1);
@@ -86,6 +86,8 @@ void ImportTrackerFloater::draw()
 	gGL.color4fv(LLColor4::white.mV);
 	gl_circle_2d(rec.getCenterX(),rec.getCenterY(),60.0f,(S32)30,false);	
 			
+	S32 mapsize = rec.getWidth() / 2; //Radius of the map
+
 	LLViewerRegion *regionp = gAgent.getRegion();
 	F32 right = rec.getCenterX() + mapsize;
 	F32 left = rec.getCenterX() - mapsize;
@@ -135,11 +137,32 @@ void ImportTrackerFloater::draw()
 	top = y + scaled_y;
 	bottom = y - scaled_y;
 
-	gl_rect_2d(left,top,right,bottom, TRUE);
+	gl_drop_shadow(left, top, right, bottom, LLColor4(0,0,0,0.5), 4);
+	//gGL.color4fv(LLColor4::white.mV);
+	gl_rect_2d(left,top,right,bottom, LLColor4(1,1,1,0.5) , TRUE);
 	gGL.color4fv(LLColor4::black.mV);
-	gl_rect_2d(left,top,right,bottom, FALSE);
+	gl_rect_2d(left,top + 1,right + 1,bottom, FALSE);
 
 	gGL.popMatrix();
+
+	std::string status_text;
+	if (gImportTracker.state == gImportTracker.IDLE)
+		status_text = "idle";
+	else if (gImportTracker.state == gImportTracker.BUILDING)
+		status_text = "building";
+	else if (gImportTracker.state == gImportTracker.LINKING)
+		status_text = "linking";
+	else if (gImportTracker.state == gImportTracker.POSITIONING)
+		status_text = "positioning";
+
+	//is this a bad place for this function? -Patrick Sapinski (Friday, November 13, 2009)
+	sInstance->getChild<LLTextBox>("status label")->setValue(
+		"Status: " + status_text
+		+  llformat("\nObjects: %u/%u",gImportTracker.objects,gImportTracker.objects)
+		+  llformat(" Linksets: %u/%u",gImportTracker.total_linksets,gImportTracker.total_linksets)
+		+  llformat("\nTextures: %u/%u",gImportTracker.textures,gImportTracker.textures)
+		+  llformat(" Contents: %u/%u",gImportTracker.asset_insertions,gImportTracker.asset_insertions)
+		);
 }
 
 ImportTrackerFloater::ImportTrackerFloater()
@@ -179,9 +202,9 @@ ImportTrackerFloater::ImportTrackerFloater()
 	ctrl->setValue(LLSD("Text")=sstr.str());
 	
 	// reposition floater from saved settings
-	LLRect rect = gSavedSettings.getRect( "FloaterPrimImport" );
-	reshape( rect.getWidth(), rect.getHeight(), FALSE );
-	setRect( rect );
+	//LLRect rect = gSavedSettings.getRect( "FloaterPrimImport" );
+	//reshape( rect.getWidth(), rect.getHeight(), FALSE );
+	//setRect( rect );
 
 //	running=false;
 	//textures.clear();
@@ -204,7 +227,7 @@ ImportTrackerFloater* ImportTrackerFloater::getInstance()
 ImportTrackerFloater::~ImportTrackerFloater()
 {
 	// save position of floater
-	gSavedSettings.setRect( "FloaterPrimImport", getRect() );
+	//gSavedSettings.setRect( "FloaterPrimImport", getRect() );
 
 	//which one?? -Patrick Sapinski (Wednesday, November 11, 2009)
 	ImportTrackerFloater::sInstance = NULL;
@@ -242,6 +265,53 @@ void ImportTrackerFloater::show()
 	sInstance->open();	/*Flawfinder: ignore*/
 }
 
+BOOL ImportTrackerFloater::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	llinfos << "we got clicked at (" << x << ", " << y << llendl;
+	LLRect rec  = getChild<LLPanel>("sim_icon")->getRect();
+
+	if(rec.pointInRect(x, y))
+	{
+		gFocusMgr.setMouseCapture(this);
+	}
+	
+	return LLFloater::handleMouseDown(x,y,mask);
+}
+
+//-----------------------------------------------------------------------------
+// handleMouseUp()
+//-----------------------------------------------------------------------------
+BOOL ImportTrackerFloater::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+	gFocusMgr.setMouseCapture(FALSE);
+	return LLFloater::handleMouseUp(x, y, mask);
+}
+
+//-----------------------------------------------------------------------------
+// handleHover()
+//-----------------------------------------------------------------------------
+BOOL ImportTrackerFloater::handleHover(S32 x, S32 y, MASK mask)
+{
+	if (hasMouseCapture())
+	{
+		LLRect rec  = getChild<LLPanel>("sim_icon")->getRect();
+		rec.clampPointToRect(x, y);
+		if(1)
+		{t
+			S32 mapsize = rec.getWidth() / 2; //Radius of the map
+			llinfos << "imp offset = " << gImportTracker.importoffset.mV[VX] << " x = " << x << " imp pos = " << gImportTracker.importposition.mV[VX] << llendl;
+			F32 temp = ((F32)x - rec.getCenterX() + mapsize) / 200 * 256;
+			//((U32)(x - rec.getCenterX() + mapsize) / 200) * 256
+			gImportTracker.importoffset.mV[VX] = temp - gImportTracker.importposition.mV[VX];
+			gImportTracker.importoffset.mV[VY] = ((F32)y - rec.getCenterY() + mapsize) / 200 * 256 - gImportTracker.importposition.mV[VY];
+			sInstance->mCtrlPosX->set(gImportTracker.importposition.mV[VX] + gImportTracker.importoffset.mV[VX]);
+			sInstance->mCtrlPosY->set(gImportTracker.importposition.mV[VY] + gImportTracker.importoffset.mV[VY]);
+		}
+	}
+
+	return TRUE;
+}
+
 // static
 void ImportTrackerFloater::onCommitPosition( LLUICtrl* ctrl, void* userdata )
 {
@@ -260,6 +330,7 @@ void ImportTrackerFloater::onClickReset(void* data)
 // static
 void ImportTrackerFloater::onClickImport(void* data)
 {
+	gImportTracker.currentimportoffset = gImportTracker.importoffset;
 	gImportTracker.importer("bean man", NULL);	
 	/*
 	FloaterExport* self = (FloaterExport*)data;
@@ -294,11 +365,14 @@ void ImportTrackerFloater::sendPosition()
 
 void ImportTracker::loadhpa(std::string file)
 {
+	linksets = 0;
+	textures = 0;
+	objects = 0;
 	S32 total_linksets = 0;
 
 	std::string xml_filename = file;
 	
-	ImportTrackerFloater::sInstance->getChild<LLTextBox>("file label")->setValue("File: " + gDirUtilp->getBaseFileName(xml_filename, true));
+	ImportTrackerFloater::sInstance->getChild<LLTextBox>("file label")->setValue("File: " + gDirUtilp->getBaseFileName(xml_filename, false));
 
 	LLXmlTree xml_tree;
 
@@ -354,6 +428,7 @@ void ImportTracker::loadhpa(std::string file)
 				}
 				else if (object->hasName("linkset"))
 				{
+					total_linksets++;
 					U32 totalprims = 0;
 					S32 object_index = 0;
 					LLXmlTreeNode* prim = object->getFirstChild();
@@ -1501,7 +1576,7 @@ void ImportTracker::send_properties(LLSD& prim, int counter)
 
 void ImportTracker::send_vectors(LLSD& prim,int counter)
 {
-	LLVector3 position = (LLVector3)prim["position"] + importoffset;
+	LLVector3 position = (LLVector3)prim["position"] + currentimportoffset;
 	LLSD rot = prim["rotation"];
 	LLQuaternion rotq;
 	rotq.mQ[VX] = (F32)(rot[0].asReal());
