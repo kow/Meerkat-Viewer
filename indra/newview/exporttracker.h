@@ -88,6 +88,9 @@ private:
 	static U32 totalprims;
 	static LLSD data;
 
+	static LLVector3 selection_center;
+	static LLVector3 selection_size;
+
 	static std::string destination;
 	static std::string asset_dir;
 	static std::set<LLUUID> requested_textures;

@@ -127,6 +127,15 @@ void ImportTrackerFloater::draw()
 
 	F32 scaled_x = (gImportTracker.size.mV[VX] / 256) * mapsize;
 	F32 scaled_y = (gImportTracker.size.mV[VY] / 256) * mapsize;
+
+	if (scaled_x < 3)
+		scaled_x = 3;
+	if (scaled_y < 3)
+		scaled_y = 3;
+
+	gl_line_2d ( left, y, right, y, red );
+	gl_line_2d ( x, top, x, bottom, green );
+
 	right = x + scaled_x;
 	left = x - scaled_x;
 	top = y + scaled_y;
