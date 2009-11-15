@@ -3520,7 +3520,39 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-
+    <key>EmeraldExportProperties</key>
+    <map>
+      <key>Comment</key>
+      <string>o.o</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EmeraldExportInventory</key>
+    <map>
+      <key>Comment</key>
+      <string>o.o</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EmeraldExportTextures</key>
+    <map>
+      <key>Comment</key>
+      <string>o.o</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>EnableRippleWater</key>
     <map>
       <key>Comment</key>

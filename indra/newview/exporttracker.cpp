@@ -151,6 +151,14 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 	
 	while ((object_index < export_objects.count()))
 	{
+
+//////////////////HPA/////////////////////
+
+
+
+
+////////////////////////////////////////////
+
 		object = export_objects.get(object_index++);
 		LLUUID id = object->getID();
 	

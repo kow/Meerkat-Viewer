@@ -64,6 +64,8 @@ endif (LINUX)
 
 
 set(viewer_SOURCE_FILES
+	importtracker.cpp
+	exporttracker.cpp
 	chatbar_as_cmdline.cpp
 	emerald.cpp
 	floaterexport.cpp
@@ -72,8 +74,6 @@ set(viewer_SOURCE_FILES
 	hippoLimits.cpp
 	hippoRestRequest.cpp
 	hippoUpdate.cpp
-    importtracker.cpp
-    exporttracker.cpp
     llagent.cpp
     llagentdata.cpp
     llagentlanguage.cpp
@@ -494,7 +494,7 @@ set(viewer_HEADER_FILES
 	hippoRestRequest.h
 	hippoUpdate.h
     importtracker.h
-    exporttracker.h
+	exporttracker.h
     llagent.h
     llagentdata.h
     llagentlanguage.h

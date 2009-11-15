@@ -67,7 +67,6 @@ ImportTrackerFloater* ImportTrackerFloater::sInstance = 0;
 
 void ImportTrackerFloater::draw()
 {
-
 	//X,Y,Z label colors
 	const LLColor4	white(	1.0f,	1.0f,	1.0f,	1);
 	const LLColor4	red(	1.0f,	0.25f,	0.f,	1);
@@ -79,12 +78,6 @@ void ImportTrackerFloater::draw()
 
 	LLFloater::draw();
 	LLRect rec  = getChild<LLPanel>("sim_icon")->getRect();
-	
-	gGL.pushMatrix();
-	//gGL.color4fv(LLColor4::black.mV);
-	//gl_circle_2d(rec.getCenterX(),rec.getCenterY(),30.0f,(S32)30,false);	
-	gGL.color4fv(LLColor4::white.mV);
-	gl_circle_2d(rec.getCenterX(),rec.getCenterY(),60.0f,(S32)30,false);	
 			
 	S32 mapsize = rec.getWidth() / 2; //Radius of the map
 
@@ -94,6 +87,8 @@ void ImportTrackerFloater::draw()
 	F32 top = rec.getCenterY() + mapsize;
 	F32 bottom = rec.getCenterY() - mapsize;
 
+	gGL.pushMatrix();
+	gGL.color4fv(LLColor4::white.mV);
 	// Draw using texture.
 	gGL.getTexUnit(0)->bind(regionp->getLand().getSTexture());
 	gGL.begin(LLRender::QUADS);
@@ -138,7 +133,6 @@ void ImportTrackerFloater::draw()
 	bottom = y - scaled_y;
 
 	gl_drop_shadow(left, top, right, bottom, LLColor4(0,0,0,0.5), 4);
-	//gGL.color4fv(LLColor4::white.mV);
 	gl_rect_2d(left,top,right,bottom, LLColor4(1,1,1,0.5) , TRUE);
 	gGL.color4fv(LLColor4::black.mV);
 	gl_rect_2d(left,top + 1,right + 1,bottom, FALSE);
@@ -184,8 +178,6 @@ ImportTrackerFloater::ImportTrackerFloater()
 
 	LLBBox bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
 	LLVector3 box_center_agent = bbox.getCenterAgent();
-	//LLVector3 box_corner_agent = bbox.localToAgent( unitVectorToLocalBBoxExtent( partToUnitVector( mManipPart ), bbox ) );
-	//mGridScale = mSavedSelectionBBox.getExtentLocal() * 0.5f;
 	
 	LLVector3 temp = bbox.getExtentLocal();
 
@@ -195,25 +187,8 @@ ImportTrackerFloater::ImportTrackerFloater()
 	sstr <<"X: "<<llformat("%.2f", temp.mV[VX]);
 	sstr <<", Y: "<<llformat("%.2f", temp.mV[VY]);
 	sstr <<", Z: "<<llformat("%.2f", temp.mV[VZ]);
-	//sstr << " \n ";
-	//		temp = bbox.getCenterAgent();
-	//sstr << "X: "<<temp.mV[VX]<<", Y: "<<temp.mV[VY]<<", Z: "<<temp.mV[VZ];
 
 	ctrl->setValue(LLSD("Text")=sstr.str());
-	
-	// reposition floater from saved settings
-	//LLRect rect = gSavedSettings.getRect( "FloaterPrimImport" );
-	//reshape( rect.getWidth(), rect.getHeight(), FALSE );
-	//setRect( rect );
-
-//	running=false;
-	//textures.clear();
-//	assetmap.clear();
-//	current_asset=LLUUID::null;
-//	m_retexture=false;
-
-
-
 }
 
 ImportTrackerFloater* ImportTrackerFloater::getInstance()
@@ -227,7 +202,7 @@ ImportTrackerFloater* ImportTrackerFloater::getInstance()
 ImportTrackerFloater::~ImportTrackerFloater()
 {
 	// save position of floater
-	//gSavedSettings.setRect( "FloaterPrimImport", getRect() );
+	gSavedSettings.setRect("FloaterPrimImport", getRect());
 
 	//which one?? -Patrick Sapinski (Wednesday, November 11, 2009)
 	ImportTrackerFloater::sInstance = NULL;
@@ -267,7 +242,6 @@ void ImportTrackerFloater::show()
 
 BOOL ImportTrackerFloater::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	llinfos << "we got clicked at (" << x << ", " << y << llendl;
 	LLRect rec  = getChild<LLPanel>("sim_icon")->getRect();
 
 	if(rec.pointInRect(x, y))
@@ -297,10 +271,7 @@ BOOL ImportTrackerFloater::handleHover(S32 x, S32 y, MASK mask)
 		LLRect rec  = getChild<LLPanel>("sim_icon")->getRect();
 		rec.clampPointToRect(x, y);
 		S32 mapsize = rec.getWidth() / 2; //Radius of the map
-		llinfos << "imp offset = " << gImportTracker.importoffset.mV[VX] << " x = " << x << " imp pos = " << gImportTracker.importposition.mV[VX] << llendl;
-		F32 temp = ((F32)x - rec.getCenterX() + mapsize) / 200 * 256;
-		//((U32)(x - rec.getCenterX() + mapsize) / 200) * 256
-		gImportTracker.importoffset.mV[VX] = temp - gImportTracker.importposition.mV[VX];
+		gImportTracker.importoffset.mV[VX] = ((F32)x - rec.getCenterX() + mapsize) / 200 * 256 - gImportTracker.importposition.mV[VX];
 		gImportTracker.importoffset.mV[VY] = ((F32)y - rec.getCenterY() + mapsize) / 200 * 256 - gImportTracker.importposition.mV[VY];
 		sInstance->mCtrlPosX->set(gImportTracker.importposition.mV[VX] + gImportTracker.importoffset.mV[VX]);
 		sInstance->mCtrlPosY->set(gImportTracker.importposition.mV[VY] + gImportTracker.importoffset.mV[VY]);
@@ -329,24 +300,7 @@ void ImportTrackerFloater::onClickReset(void* data)
 void ImportTrackerFloater::onClickImport(void* data)
 {
 	gImportTracker.currentimportoffset = gImportTracker.importoffset;
-	gImportTracker.importer("bean man", NULL);	
-	/*
-	FloaterExport* self = (FloaterExport*)data;
-
-	// Open the file save dialog
-	LLFilePicker& file_picker = LLFilePicker::instance();
-	if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_XML ) )
-	{
-		// User canceled save.
-		return;
-	}
-	 
-	self->file_name = file_picker.getCurFile();
-	self->folder = gDirUtilp->getDirName(self->file_name);
-
-	self->export_state=EXPORT_INIT;
-	gIdleCallbacks.addFunction(exportworker, NULL);
-	*/
+	gImportTracker.importer("bean man", NULL);
 }
 
 // static
@@ -376,10 +330,9 @@ void ImportTracker::loadhpa(std::string file)
 
 	if (!xml_tree.parseFile(xml_filename))
 	{
-		//cmdline_printchat("Problem reading HPA file: "+xml_filename);
+		llwarns << "Problem reading HPA file: " << xml_filename << llendl;
 		return;
 	}
-	//cmdline_printchat("loaded HPA: "+ xml_filename);
 	
 	LLXmlTreeNode* root = xml_tree.getRoot();
 
@@ -390,11 +343,9 @@ void ImportTracker::loadhpa(std::string file)
 
 		if (child->hasName("name"))
 			ImportTrackerFloater::sInstance->getChild<LLTextBox>("name label")->setValue("Name: " + child->getTextContents());
-			//cmdline_printchat("Name: "+child->getTextContents());
 		
 		if (child->hasName("date"))
 			ImportTrackerFloater::sInstance->getChild<LLTextBox>("date label")->setValue("Date: " + child->getTextContents());
-			//cmdline_printchat("Date: "+child->getTextContents());
 
 		//if (child->hasName("software"))
 			//cmdline_printchat("Software: "+child->getTextContents());
@@ -404,8 +355,6 @@ void ImportTracker::loadhpa(std::string file)
 
 		if (child->hasName("grid"))
 			ImportTrackerFloater::sInstance->getChild<LLTextBox>("grid label")->setValue("Grid: " + child->getTextContents());
-			//grid = child->getTextContents();
-			//cmdline_printchat("Grid: "+child->getTextContents());
 		
 		if (child->hasName("group"))
 		{
@@ -431,10 +380,8 @@ void ImportTracker::loadhpa(std::string file)
 					S32 object_index = 0;
 					LLXmlTreeNode* prim = object->getFirstChild();
 
-					//for (LLXmlTreeNode* prim = object->getFirstChild(); prim; prim = object->getNextChild())
 					while ((object_index < object->getChildCount()))
 					{
-						//cmdline_printchat("getting volume params for prim" + llformat("%u",object_index));
 						object_index++;
 
 						LLSD prim_llsd;
@@ -634,7 +581,7 @@ void ImportTracker::loadhpa(std::string file)
 									LLSD sd;
 									LLColor4 color;
 									/*
-
+TODO:
 	sd["bump"] = getBumpShiny();
 	sd["fullbright"] = getFullbright();
 	sd["media_flags"] = getMediaTexGen();
@@ -670,8 +617,6 @@ void ImportTracker::loadhpa(std::string file)
 										//<image_file><![CDATA[87008270-fe87-bf2a-57ea-20dc6ecc4e6a.tga]]></image_file>
 										else if (param->hasName("image_file"))
 										{
-											//param->getAttributeF32("x", scale_x);
-											//param->getAttributeF32("y", scale_y);
 										}
 										//<image_uuid>87008270-fe87-bf2a-57ea-20dc6ecc4e6a</image_uuid>
 										else if (param->hasName("image_uuid"))
@@ -747,14 +692,12 @@ void ImportTracker::loadhpa(std::string file)
 						if (cut_begin > cut_end - OBJECT_MIN_CUT_INC)
 						{
 							cut_begin = cut_end - OBJECT_MIN_CUT_INC;
-							//mSpinCutBegin->set(cut_begin);
 						}
 
 						// Make sure at least OBJECT_CUT_INC of the object survives
 						if (adv_cut_begin > adv_cut_end - OBJECT_MIN_CUT_INC)
 						{
 							adv_cut_begin = adv_cut_end - OBJECT_MIN_CUT_INC;
-							//mCtrlPathBegin->set(adv_cut_begin);
 						}
 
 						F32 begin_s, end_s;
