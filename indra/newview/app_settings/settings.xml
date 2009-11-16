@@ -12369,10 +12369,10 @@
     <string>Rect</string>
     <key>Value</key>
     <array>
-      <integer>20</integer>
-      <integer>220</integer>
-      <integer>360</integer>
-      <integer>70</integer>
+      <integer>11</integer>
+      <integer>215</integer>
+      <integer>351</integer>
+      <integer>65</integer>
     </array>
   </map>
   <key>FloaterPrimImport</key>

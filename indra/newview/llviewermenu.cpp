@@ -2338,7 +2338,8 @@ class LLObjectExport : public view_listener_t
 	//Chalice - Changed to support exporting linkset groups
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		JCExportTracker::serializeSelection();
+		ExportTrackerFloater::getInstance()->show();
+		//JCExportTracker::serializeSelection();
 		return true;
 	}
 };

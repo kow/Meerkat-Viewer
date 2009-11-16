@@ -63,7 +63,7 @@
        max_val="16384" min_val="0" mouse_opaque="true" name="Pos Z"
        text_enabled_color="0, 67, 132, 255" width="80" />
   
-  <check_box bottom_delta="-20" control_name="ImportTextures" follows="left|top"
+  <check_box bottom_delta="-25" control_name="ImportTextures" follows="left|top"
    font="SansSerifSmall" height="16" initial_value="true"
    label="Upload Images (L$0)" left_delta="0" name="import_textures_checkbox"
    width="200" />

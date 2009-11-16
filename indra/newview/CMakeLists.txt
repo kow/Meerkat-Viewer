@@ -1156,6 +1156,7 @@ set(viewer_XUI_FILES
     skins/default/xui/en-us/floater_preview_texture.xml
     skins/default/xui/en-us/floater_preview_url.xml
     skins/default/xui/en-us/floater_price_for_listing.xml
+	skins/default/xui/en-us/floater_prim_export.xml
 	skins/default/xui/en-us/floater_prim_import.xml
     skins/default/xui/en-us/floater_profile.xml
     skins/default/xui/en-us/floater_region_info.xml

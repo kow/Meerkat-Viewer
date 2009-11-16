@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater can_close="true" can_drag_on_left="false" can_minimize="true"
+<floater can_close="true" can_drag_on_left="false" can_minimize="true" rect_control="FloaterPrimExport"
      can_resize="false" width="340" height="150" name="Export" title="Backup Objects">
 
   <!--
@@ -33,27 +33,25 @@
      font="SansSerifSmall" height="16" initial_value="true"
      label="Export TGA textures" left_delta="0" name="export_tga_checkbox"
      width="200" />
-  <!-- uncomment this when we implement the feature! -Patrick Sapinski (Monday, September 28, 2009)
-  <check_box bottom_delta="-20" control_name="ExportContents" follows="left|top"
+  <check_box bottom_delta="-20" control_name="EmeraldExportInventory" follows="left|top"
      font="SansSerifSmall" height="16" initial_value="true"
      label="Export Contents" left_delta="0" name="export_contents_checkbox"
      width="200" />
-     -->
   <panel
-             name="a_box"
-             left_delta="5"
-             width="165"
-             height="35"
-             bottom_delta="-40"
-             border="true"
-             mouse_opaque="true"
-             bevel_style="in"
-             background_visible="true"
-             background_opaque="true"
-             follows="top|left"
-             bg_opaque_color="0,0,0,0.1"
-             bg_alpha_color="blue"
-             can_resize="false"
+     name="a_box"
+     left_delta="5"
+     width="165"
+     height="35"
+     bottom_delta="-40"
+     border="true"
+     mouse_opaque="true"
+     bevel_style="in"
+     background_visible="true"
+     background_opaque="true"
+     follows="top|left"
+     bg_opaque_color="0,0,0,0.1"
+     bg_alpha_color="blue"
+     can_resize="false"
 		>
   </panel>
 

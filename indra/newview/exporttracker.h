@@ -31,7 +31,43 @@
 
 
 #include "llagent.h"
+#include "llfloater.h"
 
+class ExportTrackerFloater : public LLFloater
+{
+public:
+	//void draw();
+	static ExportTrackerFloater* getInstance();
+	virtual ~ExportTrackerFloater();
+	//close me
+	static void close();
+	void show();
+	ExportTrackerFloater();	
+	static ExportTrackerFloater* sInstance;
+
+	//BOOL handleMouseDown(S32 x,S32 y,MASK mask);
+	//BOOL handleMouseUp(S32 x,S32 y,MASK mask);
+	//BOOL handleHover(S32 x,S32 y,MASK mask);
+
+	//static void 	onCommitPosition(LLUICtrl* ctrl, void* userdata);
+
+	//Reset button
+	//static void onClickReset(void* data);
+
+	//Import button
+	static void onClickExport(void* data);
+	
+	//Close button
+	static void onClickClose(void* data);
+
+	static LLDynamicArray<LLViewerObject*> objectselection;
+	//LLSpinCtrl*		mCtrlPosX;
+	//LLSpinCtrl*		mCtrlPosY;
+	//LLSpinCtrl*		mCtrlPosZ;
+
+//protected:
+	//void			sendPosition();
+};
 
 class JCExportTracker : public LLVOInventoryListener
 {
@@ -77,12 +113,14 @@ private:
 
 	//enum ExportLevel { DEFAULT, PROPERTIES, INVENTORY };
 
+public:
 	static BOOL export_properties;
 	static BOOL export_inventory;
 	static BOOL export_textures;
 
 	//static U32 level;
 
+private:
 	static U32 propertyqueries;
 	static U32 invqueries;
 	static U32 totalprims;

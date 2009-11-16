@@ -64,6 +64,14 @@ ImportTracker gImportTracker;
 extern LLAgent gAgent;
 
 ImportTrackerFloater* ImportTrackerFloater::sInstance = 0;
+int ImportTrackerFloater::total_objects = 0;
+int ImportTrackerFloater::objects_imported = 0;
+int ImportTrackerFloater::total_linksets = 0;
+int ImportTrackerFloater::linksets_imported = 0;
+int ImportTrackerFloater::textures_imported = 0;
+int ImportTrackerFloater::total_assets = 0;
+int ImportTrackerFloater::assets_imported = 0;
+int ImportTrackerFloater::assets_uploaded = 0;
 
 void ImportTrackerFloater::draw()
 {
@@ -161,10 +169,10 @@ void ImportTrackerFloater::draw()
 	//is this a bad place for this function? -Patrick Sapinski (Friday, November 13, 2009)
 	sInstance->getChild<LLTextBox>("status label")->setValue(
 		"Status: " + status_text
-		+  llformat("\nObjects: %u/%u",gImportTracker.objects,gImportTracker.objects)
-		+  llformat(" Linksets: %u/%u",gImportTracker.total_linksets,gImportTracker.total_linksets)
-		+  llformat("\nTextures: %u/%u",gImportTracker.textures,gImportTracker.textures)
-		+  llformat(" Contents: %u/%u",gImportTracker.asset_insertions,gImportTracker.asset_insertions)
+		+  llformat("\nObjects: %u/%u",objects_imported,total_objects)
+		+  llformat(" Linksets: %u/%u",linksets_imported,total_linksets)
+		+  llformat("\nTextures: %u/%u",textures_imported,gImportTracker.textures)
+		+  llformat(" Contents: %u/%u",assets_imported,gImportTracker.asset_insertions)
 		);
 }
 
@@ -808,7 +816,9 @@ TODO:
 					LLSD temp;
 					temp["Object"] = ls_llsd;
 					linksets[total_linksets] = temp;
-					total_linksets++;
+					total_linksets++; //we call total_linksets++ twice in this loop for some reason
+									  //and it won't work without both calls I wish I understood this! -Patrick Sapinski (Monday, November 16, 2009)
+
 					//we should have the proper LLSD structure by now
 
 				}
@@ -820,7 +830,8 @@ TODO:
 			size = (size - importposition) * 2;
 			importoffset.clear();
 			ImportTrackerFloater::sInstance->getChild<LLTextBox>("size label")->setValue("Size: " + llformat("%.3f,%.3f,%.3f", size.mV[VX], size.mV[VY], size.mV[VZ]));
-				
+			ImportTrackerFloater::total_linksets = total_linksets;
+			ImportTrackerFloater::linksets_imported = 0;
 		}
 	}
 }
@@ -857,7 +868,8 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 	LLSD ls_llsd;
 	ls_llsd=linksetgroups[groupcounter]["Object"];
 	linksetoffset=linksetgroups[groupcounter]["ObjectPos"];
-	initialPos=gAgent.getCameraPositionAgent();
+	initialPos=importposition + importoffset;
+	//initialPos=gAgent.getCameraPositionAgent();
 	import(ls_llsd);
 }
 
@@ -865,8 +877,10 @@ void ImportTracker::import(LLSD& ls_data)
 {
 	if(!(linkset.size()))
 		if(!(linksetgroups.size()))
-			initialPos=gAgent.getCameraPositionAgent();
+			initialPos=importposition + importoffset;
+			//initialPos=gAgent.getCameraPositionAgent();
 	linkset = ls_data;
+	ImportTrackerFloater::total_objects = linkset.size();
 	updated=0;
 	LLSD rot = linkset[0]["rotation"];
 	rootrot.mQ[VX] = (F32)(rot[0].asReal());
@@ -920,7 +934,8 @@ void ImportTracker::finish()
 				LLViewerObject* objectp = find(lastrootid);
 				mDownCallback(objectp);
 			}
-			cmdline_printchat("import completed");
+			//cmdline_printchat("import completed");
+			ImportTrackerFloater::linksets_imported++;
 		}
 	}
 }
@@ -1028,6 +1043,7 @@ void ImportTracker::get_update(S32 newid, BOOL justCreated, BOOL createSelected)
 				if (!(prim).has("Updated"))
 				{
 					++updated;
+					ImportTrackerFloater::objects_imported = updated;
 					send_shape(prim);
 					send_image(prim);
 					send_extras(prim);
@@ -1091,6 +1107,7 @@ void insert(LLViewerInventoryItem* item, LLViewerObject* objectp, InventoryImpor
 	}
 	delete data;
 	gImportTracker.asset_insertions -= 1;
+	//ImportTrackerFloater::assets_imported++;
 	if(gImportTracker.asset_insertions == 0)
 	{
 		gImportTracker.finish();
@@ -1165,6 +1182,7 @@ public:
 	}
 	virtual void uploadComplete(const LLSD& content)
 	{
+		//ImportTrackerFloater::assets_uploaded++;
 		cmdline_printchat("completed upload, inserting");
 		LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(item_id);
 		LLViewerObject* objectp = find(data->localid);
@@ -1452,6 +1470,7 @@ void ImportTracker::send_inventory(LLSD& prim)
 				asset_insertions += 1;
 			}
 		}
+	ImportTrackerFloater::total_assets = asset_insertions;
 	}
 }
 
@@ -1534,10 +1553,10 @@ void ImportTracker::send_vectors(LLSD& prim,int counter)
 	rotq.mQ[VZ] = (F32)(rot[2].asReal());
 	rotq.mQ[VW] = (F32)(rot[3].asReal());
 	LLVector3 rotation;
-	if(counter == 1)
+	//if(counter == 1)
 		rotation = rotq.packToVector3();
-	else
-		rotation = (rotq * rootrot).packToVector3();
+	//else
+		//rotation = (rotq * rootrot).packToVector3();
 	LLVector3 scale = prim["scale"];
 	U8 data[256];
 	

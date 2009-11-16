@@ -42,6 +42,15 @@ public:
 	LLSpinCtrl*		mCtrlPosY;
 	LLSpinCtrl*		mCtrlPosZ;
 
+	static int		total_objects;
+	static int		objects_imported;
+	static int		total_linksets;
+	static int		linksets_imported;
+	static int		textures_imported;
+	static int		total_assets;
+	static int		assets_imported;
+	static int		assets_uploaded;
+
 protected:
 	void			sendPosition();
 };
