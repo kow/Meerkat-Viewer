@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater can_close="true" can_drag_on_left="false" can_minimize="true" rect_control="FloaterPrimExport"
-     can_resize="false" width="340" height="150" name="Export" title="Backup Objects">
+     can_resize="false" width="340" height="185" name="Export" title="Backup Objects">
 
   <!--
   -Patrick Sapinski (Monday, September 28, 2009)
@@ -37,12 +37,18 @@
      font="SansSerifSmall" height="16" initial_value="true"
      label="Export Contents" left_delta="0" name="export_contents_checkbox"
      width="200" />
+  
+  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
+     bottom_delta="-18" drop_shadow_visible="true" follows="left|top"
+     font="SansSerifSmall" h_pad="0" halign="left" height="16" left_delta="3"
+     mouse_opaque="true" name="status" v_pad="0" width="166">Export Status:</text>
+
   <panel
      name="a_box"
-     left_delta="5"
+     left_delta="2"
      width="165"
-     height="35"
-     bottom_delta="-40"
+     height="58"
+     bottom_delta="-58"
      border="true"
      mouse_opaque="true"
      bevel_style="in"
@@ -55,7 +61,7 @@
 		>
   </panel>
 
-  <text height="15" left_delta="3" name="name_label" bottom_delta="17">Textures Saved: 0/0</text>
+  <text height="40" left_delta="2" name="status label" bottom_delta="16">Textures Saved: 0/0</text>
   <!--
     <line_editor border_drop_shadow_visible="false" border_visible="false" top_delta="-70"
 	     control_name="export_status" drop_shadow_visible="true" enabled="false"

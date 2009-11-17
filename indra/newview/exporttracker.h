@@ -36,7 +36,7 @@
 class ExportTrackerFloater : public LLFloater
 {
 public:
-	//void draw();
+	void draw();
 	static ExportTrackerFloater* getInstance();
 	virtual ~ExportTrackerFloater();
 	//close me
@@ -61,12 +61,17 @@ public:
 	static void onClickClose(void* data);
 
 	static LLDynamicArray<LLViewerObject*> objectselection;
-	//LLSpinCtrl*		mCtrlPosX;
-	//LLSpinCtrl*		mCtrlPosY;
-	//LLSpinCtrl*		mCtrlPosZ;
 
-//protected:
-	//void			sendPosition();
+	static int		objects_exported;
+	static int		linksets_exported;
+	static int		properties_exported;
+	static int		property_queries;
+	static int		assets_exported;
+	static int		textures_exported;
+	static int		total_objects;
+	static int		total_linksets;
+	static int		total_assets;
+	static int		total_textures;
 };
 
 class JCExportTracker : public LLVOInventoryListener
