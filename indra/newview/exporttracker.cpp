@@ -114,6 +114,8 @@ ExportTrackerFloater::ExportTrackerFloater()
 
 	//from serializeselection
 	//init();
+	total_linksets = 0;
+
 	LLDynamicArray<LLViewerObject*> catfayse;
 	for (LLObjectSelection::valid_root_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_root_begin();
 			 iter != LLSelectMgr::getInstance()->getSelection()->valid_root_end(); iter++)
@@ -121,7 +123,12 @@ ExportTrackerFloater::ExportTrackerFloater()
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* object = selectNode->getObject();
 		if(object)catfayse.put(object);
+		total_linksets++;
+		//cmdline_printchat(" adding " + llformat("%d",total_linksets));
 	}
+	//cmdline_printchat(llformat("%d",export_properties));
+	//cmdline_printchat("getrootobjectcount " + llformat("%d",LLSelectMgr::getInstance()->getSelection()->getRootObjectCount()));
+	//cmdline_printchat(" size " + llformat("%d",catfayse.size()));
 	
 	objectselection = catfayse;
 
@@ -460,7 +467,6 @@ void JCExportTracker::onFileLoadedForSave(BOOL success,
 
 bool JCExportTracker::serializeSelection()
 {
-	ExportTrackerFloater::total_linksets = 0;
 	//init();
 	LLDynamicArray<LLViewerObject*> catfayse;
 	for (LLObjectSelection::valid_root_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_root_begin();
@@ -468,11 +474,7 @@ bool JCExportTracker::serializeSelection()
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* object = selectNode->getObject();
-		if(object)
-		{
-			catfayse.put(object);
-			ExportTrackerFloater::total_linksets++;
-		}
+		if(object)catfayse.put(object);
 	}
 	return serialize(catfayse);
 }
@@ -514,35 +516,42 @@ bool JCExportTracker::serialize(LLDynamicArray<LLViewerObject*> objects)
 
 	bool success = true;
 
+	//cmdline_printchat("exporting " + llformat("%d",objects.size()) + " objects");
+
 	for(LLDynamicArray<LLViewerObject*>::iterator itr = objects.begin(); itr != objects.end(); ++itr)
 	{
 		LLViewerObject* object = *itr;
-		if(!(!object->isAvatar() && object->permYouOwner() && object->permModify() && object->permCopy() && object->permTransfer() && !gAgent.getGodLevel()))
+		if(!(!object->isAvatar() && object->permModify() && object->permCopy() && object->permTransfer() && !gAgent.getGodLevel()))
 		{
-			success = false;
-			break;
-		}
-		LLVector3 object_pos = object->getPosition();
-		LLSD origin;
-		if(count == 0)
-		{
-			first_pos = object_pos;
-			origin["ObjectPos"] = LLVector3(0.0f,0.0f,0.0f).getValue();
-			total["Origin"] = object_pos.getValue();//for use in region origin import?
+			LLVector3 temp = object->getPosition();
+			cmdline_printchat("failed to backup object at position " + llformat( "%f, %f, %f", temp.mV[VX], temp.mV[VY], temp.mV[VZ]));
+			//success = false;
+			//break;
 		}
 		else
 		{
-			origin["ObjectPos"] = (object_pos - first_pos).getValue();
-		}
-		if (object)//impossible condition, you check avatar above//&& !(object->isAvatar()))
-		{
-			LLSD linkset = subserialize(object);
+			LLVector3 object_pos = object->getPosition();
+			LLSD origin;
+			if(count == 0)
+			{
+				first_pos = object_pos;
+				origin["ObjectPos"] = LLVector3(0.0f,0.0f,0.0f).getValue();
+				total["Origin"] = object_pos.getValue();//for use in region origin import?
+			}
+			else
+			{
+				origin["ObjectPos"] = (object_pos - first_pos).getValue();
+			}
+			if (object)//impossible condition, you check avatar above//&& !(object->isAvatar()))
+			{
+				LLSD linkset = subserialize(object);
 
-			if(!linkset.isUndefined())origin["Object"] = linkset;
+				if(!linkset.isUndefined())origin["Object"] = linkset;
 
-			total[count] = origin;
+				total[count] = origin;
+			}
+			count += 1;
 		}
-		count += 1;
 	}
 
 	if(success && !total.isUndefined() && propertyqueries == 0 && invqueries == 0)
@@ -1333,17 +1342,15 @@ void JCExportTracker::inventoryChanged(LLViewerObject* obj,
 									LLInventoryObject* asset = (*it);
 									if(asset)
 									{
-										LLInventoryItem* temp = (LLInventoryItem*)((LLInventoryObject*)(*it));
-										if (!temp)
-											llwarns << "awww helll nawww" << llendl;
-											
-										LLInventoryItem* item = temp;
-										if( item )
+										LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
+										LLViewerInventoryItem* new_item = (LLViewerInventoryItem*)item;
+
+										if( new_item )
 										{
-											LLUUID asset_id = item->getAssetUUID();
+											llassert(LLUUID asset_id = item->getAssetUUID());
 										}
 
-										LLPermissions perm = temp->getPermissions();
+										LLPermissions perm(new_item->getPermissions());
 										if(couldDL(asset->getType())
 										&& perm.allowCopyBy(gAgent.getID())
 										&& perm.allowModifyBy(gAgent.getID())
