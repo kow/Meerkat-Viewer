@@ -193,6 +193,7 @@ ImportTrackerFloater::ImportTrackerFloater()
 	mCtrlPosZ = getChild<LLSpinCtrl>("Pos Z");
 	childSetCommitCallback("Pos Z",onCommitPosition,this);
 
+	/* I *think* this is unused... -Patrick Sapinski (Wednesday, November 18, 2009)
 	LLBBox bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
 	LLVector3 box_center_agent = bbox.getCenterAgent();
 	
@@ -206,6 +207,7 @@ ImportTrackerFloater::ImportTrackerFloater()
 	sstr <<", Z: "<<llformat("%.2f", temp.mV[VZ]);
 
 	ctrl->setValue(LLSD("Text")=sstr.str());
+	*/
 }
 
 ImportTrackerFloater* ImportTrackerFloater::getInstance()
@@ -1055,6 +1057,7 @@ void ImportTracker::get_update(S32 newid, BOOL justCreated, BOOL createSelected)
 				}
 				if ((int)localids.size() < linkset.size())
 				{
+					LLSelectMgr::getInstance()->deselectAll();
 					plywood_above_head();
 					return;
 				}

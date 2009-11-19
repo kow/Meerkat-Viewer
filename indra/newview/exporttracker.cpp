@@ -52,9 +52,11 @@
 #include "llviewertexteditor.h"
 #include "lllogchat.h" //for timestamp
 #include "lluictrlfactory.h"
+#include "llcallbacklist.h"
 
 JCExportTracker* JCExportTracker::sInstance;
 LLSD JCExportTracker::data;
+LLSD JCExportTracker::total;
 U32 JCExportTracker::totalprims;
 U32 JCExportTracker::propertyqueries;
 U32 JCExportTracker::invqueries;
@@ -88,17 +90,21 @@ void ExportTrackerFloater::draw()
 
 	std::string status_text;
 
-	status_text = "idle";
+	if (JCExportTracker::status == JCExportTracker::IDLE)
+		status_text = "idle";
+	else
+		status_text = "exporting";
 
 	//is this a bad place for this function? -Patrick Sapinski (Friday, November 13, 2009)
 	sInstance->getChild<LLTextBox>("status label")->setValue(
 		"Status: " + status_text
-		+  llformat("\nObjects: %u/%u",objects_exported,total_objects)
-		+  llformat(" Linksets: %u/%u",linksets_exported,total_linksets)
+		+  llformat("\nObjects: %u/%u",linksets_exported,total_linksets)
+		+  llformat("\nPrimitives: %u/%u",JCExportTracker::totalprims,total_objects)
 		+  llformat("\nProperties: %u/%u",properties_exported,total_objects)
-		+  llformat(" Queries: %u/%u",property_queries,total_objects)
-		+  llformat("\nAssets: %u/%u",assets_exported,total_assets)
-		+  llformat(" Textures: %u/%u",textures_exported,total_textures)
+		+  llformat("\n   Pending Queries: %u",JCExportTracker::propertyqueries)
+		+  llformat("\nInventory Items: %u/%u",assets_exported,total_assets)
+		+  llformat("\n   Pending Queries: %u",JCExportTracker::invqueries)
+		+  llformat("\nTextures: %u/%u",textures_exported,total_textures)
 		);
 }
 
@@ -114,7 +120,18 @@ ExportTrackerFloater::ExportTrackerFloater()
 
 	//from serializeselection
 	//init();
-	total_linksets = 0;
+	
+	objects_exported = 0;
+	properties_exported = 0;
+	property_queries = 0;
+	assets_exported = 0;
+	textures_exported = 0;
+	total_assets = 0;
+	linksets_exported = 0;
+
+	total_linksets = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
+	total_objects = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+	//total_textures = LLSelectMgr::getInstance()->getSelection()->getTECount(); is this unique textures?
 
 	LLDynamicArray<LLViewerObject*> catfayse;
 	for (LLObjectSelection::valid_root_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_root_begin();
@@ -122,8 +139,9 @@ ExportTrackerFloater::ExportTrackerFloater()
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* object = selectNode->getObject();
-		if(object)catfayse.put(object);
-		total_linksets++;
+		if(object)
+			if(!object->isAvatar() && object->permModify() && object->permCopy() && object->permTransfer() && !gAgent.getGodLevel())
+				catfayse.put(object);
 		//cmdline_printchat(" adding " + llformat("%d",total_linksets));
 	}
 	//cmdline_printchat(llformat("%d",export_properties));
@@ -157,6 +175,7 @@ ExportTrackerFloater* ExportTrackerFloater::getInstance()
 
 ExportTrackerFloater::~ExportTrackerFloater()
 {
+	JCExportTracker::sInstance = NULL;
 	//which one?? -Patrick Sapinski (Wednesday, November 11, 2009)
 	ExportTrackerFloater::sInstance = NULL;
 	sInstance = NULL;
@@ -213,9 +232,11 @@ void JCExportTracker::init()
 		sInstance = new JCExportTracker();
 	}
 	status = IDLE;
+	invqueries = 0;
 	propertyqueries = 0;
 	totalprims = 0;
 	data = LLSD();
+	total = LLSD();
 	destination = "";
 	asset_dir = "";
 	requested_textures.clear();
@@ -419,7 +440,6 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 				object->dirtyInventory();
 				object->requestInventory();
 				invqueries += 1;
-				ExportTrackerFloater::property_queries = invqueries;
 			}
 		}//else //cmdline_printchat(llformat("no %d",export_properties));
 		totalprims += 1;
@@ -427,7 +447,6 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 		// Changed to use link numbers zero-indexed.
 		llsd[object_index - 1] = prim_llsd;
 	}
-	ExportTrackerFloater::total_objects = totalprims;
 	return llsd;
 }
 
@@ -476,12 +495,12 @@ bool JCExportTracker::serializeSelection()
 		LLViewerObject* object = selectNode->getObject();
 		if(object)catfayse.put(object);
 	}
+	LLSelectMgr::getInstance()->deselectAll();
 	return serialize(catfayse);
 }
 
 bool JCExportTracker::serialize(LLDynamicArray<LLViewerObject*> objects)
 {
-
 	init();
 
 	status = EXPORTING;
@@ -510,21 +529,36 @@ bool JCExportTracker::serialize(LLDynamicArray<LLViewerObject*> objects)
 		}
 	}
 
-	LLSD total;
-	U32 count = 0;
+	total.clear();
 	LLVector3 first_pos;
 
 	bool success = true;
 
-	//cmdline_printchat("exporting " + llformat("%d",objects.size()) + " objects");
+	gIdleCallbacks.addFunction(exportworker, NULL);
 
-	for(LLDynamicArray<LLViewerObject*>::iterator itr = objects.begin(); itr != objects.end(); ++itr)
+	return success;
+
+}
+
+
+void JCExportTracker::exportworker(void *userdata)
+{
+	if (ExportTrackerFloater::linksets_exported >= ExportTrackerFloater::objectselection.count())
 	{
-		LLViewerObject* object = *itr;
+		//cmdline_printchat("reached end of list, removing idle callback");
+		gIdleCallbacks.deleteFunction(exportworker);
+		return;
+	}
+
+	if((propertyqueries + invqueries) <= 100) //this has the potential to screw up if a linkset contains enough 
+	{										  //inventory in the prims that we get booted for flooding the sim
+		//cmdline_printchat(llformat("backing up object %u",ExportTrackerFloater::linksets_exported));
+		LLViewerObject* object = ExportTrackerFloater::objectselection.get(ExportTrackerFloater::linksets_exported);
+
 		if(!(!object->isAvatar() && object->permModify() && object->permCopy() && object->permTransfer() && !gAgent.getGodLevel()))
 		{
 			LLVector3 temp = object->getPosition();
-			cmdline_printchat("failed to backup object at position " + llformat( "%f, %f, %f", temp.mV[VX], temp.mV[VY], temp.mV[VZ]));
+			//cmdline_printchat("failed to backup object at position " + llformat( "%f, %f, %f", temp.mV[VX], temp.mV[VY], temp.mV[VZ]));
 			//success = false;
 			//break;
 		}
@@ -532,37 +566,31 @@ bool JCExportTracker::serialize(LLDynamicArray<LLViewerObject*> objects)
 		{
 			LLVector3 object_pos = object->getPosition();
 			LLSD origin;
-			if(count == 0)
-			{
-				first_pos = object_pos;
-				origin["ObjectPos"] = LLVector3(0.0f,0.0f,0.0f).getValue();
-				total["Origin"] = object_pos.getValue();//for use in region origin import?
-			}
-			else
-			{
-				origin["ObjectPos"] = (object_pos - first_pos).getValue();
-			}
+
+			origin["ObjectPos"] = object_pos.getValue();
+
 			if (object)//impossible condition, you check avatar above//&& !(object->isAvatar()))
 			{
 				LLSD linkset = subserialize(object);
 
 				if(!linkset.isUndefined())origin["Object"] = linkset;
 
-				total[count] = origin;
+				total[ExportTrackerFloater::linksets_exported] = origin;
 			}
-			count += 1;
 		}
+		//cmdline_printchat("exporting " + llformat("%d",objects.size()) + " objects");
+		if(!total.isUndefined() && propertyqueries == 0 && invqueries == 0)
+		{
+			finalize(total);
+		}else
+		{
+			data = total;
+		}
+		ExportTrackerFloater::linksets_exported++;
 	}
+	//else
+		//cmdline_printchat("property queries remaining, waiting");
 
-	if(success && !total.isUndefined() && propertyqueries == 0 && invqueries == 0)
-	{
-		finalize(total);
-	}else
-	{
-		data = total;
-	}
-
-	return success;
 
 }
 
@@ -1118,7 +1146,7 @@ void JCExportTracker::finalize(LLSD data)
 
 void JCExportTracker::completechk()
 {
-	if(propertyqueries == 0 && invqueries == 0)
+	if(propertyqueries == 0 && invqueries == 0 && ExportTrackerFloater::linksets_exported >= ExportTrackerFloater::objectselection.count())
 	{
 		//cmdline_printchat("Full property export completed.");
 		cmdline_printchat("(Content downloads may require more time, but the tracker is free for another export.)");
@@ -1258,8 +1286,8 @@ void JCExportTracker::processObjectProperties(LLMessageSystem* msg, void** user_
 								(*link_itr)["touch_name"] = touch_name;
 								(*link_itr)["sit_name"] = sit_name;
 
-								propertyqueries -= 1;
-								ExportTrackerFloater::properties_exported++;
+								if (propertyqueries > 0)
+									propertyqueries -= 1;
 								//cmdline_printchat(llformat("%d server queries left",propertyqueries));
 							}
 						}
@@ -1344,13 +1372,9 @@ void JCExportTracker::inventoryChanged(LLViewerObject* obj,
 									{
 										LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
 										LLViewerInventoryItem* new_item = (LLViewerInventoryItem*)item;
-
-										if( new_item )
-										{
-											llassert(LLUUID asset_id = item->getAssetUUID());
-										}
-
-										LLPermissions perm(new_item->getPermissions());
+										new_item; //ugh
+										LLPermissions perm;
+										llassert(perm = new_item->getPermissions());
 										if(couldDL(asset->getType())
 										&& perm.allowCopyBy(gAgent.getID())
 										&& perm.allowModifyBy(gAgent.getID())
@@ -1370,9 +1394,9 @@ void JCExportTracker::inventoryChanged(LLViewerObject* obj,
 									}
 								}
 								(*link_itr)["inventory"] = inventory;
-
-								invqueries -= 1;
-								ExportTrackerFloater::properties_exported = invqueries;
+								if (invqueries > 0)
+									invqueries -= 1;
+								ExportTrackerFloater::properties_exported++;
 								//cmdline_printchat(llformat("%d inv queries left",invqueries));
 							}
 						}

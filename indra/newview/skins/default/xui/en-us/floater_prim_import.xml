@@ -10,13 +10,9 @@
      bottom="-18" drop_shadow_visible="true" follows="left|top"
      font="SansSerifSmall" h_pad="0" halign="left" height="16" left="9"
      mouse_opaque="true" name="file label" v_pad="0" width="166">File: </text>
-
+  
   <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
      bottom_delta="-23" drop_shadow_visible="true" follows="left|top"
-     font="SansSerifSmall" h_pad="0" halign="left" height="16" left_delta="0"
-     mouse_opaque="true" name="name label" v_pad="0" width="190">Name: </text>
-  <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
-     bottom_delta="-17" drop_shadow_visible="true" follows="left|top"
      font="SansSerifSmall" h_pad="0" halign="left" height="16" left_delta="0"
      mouse_opaque="true" name="date label" v_pad="0" width="166">Date: </text>
   <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
@@ -96,7 +92,7 @@
   <text bg_visible="false" border_drop_shadow_visible="false" border_visible="false"
      bottom_delta="37" drop_shadow_visible="true" follows="left|top"
      font="SansSerifSmall" h_pad="0" halign="left" height="16" left_delta="3"
-     mouse_opaque="true" name="status label" v_pad="0" width="166">Import Status</text>
+     mouse_opaque="true" name="status label" v_pad="0" width="195">Import Status</text>
 
   <button bottom="5" follows="right|bottom" font="SansSerif" halign="center" height="20"
      label="Import" label_selected="" right="-90"

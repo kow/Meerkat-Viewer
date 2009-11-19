@@ -4555,11 +4555,26 @@ void LLSelectMgr::processForceObjectSelect(LLMessageSystem* msg, void**)
 	LLSelectMgr::getInstance()->highlightObjectAndFamily(objects);
 }
 
+void LLSelectMgr::enableSilhouette(BOOL enable)
+{
+	if(gSavedSettings.getBOOL("EmeraldRenderHighlightSelections"))
+	{
+		mRenderSilhouettes = enable;
+	}
+	else
+	{
+		mRenderSilhouettes = false;
+	}
+}
 
 extern LLGLdouble	gGLModelView[16];
 
 void LLSelectMgr::updateSilhouettes()
 {
+	//LOOOOOTS of CPU time saved by this.
+	if(!mRenderSilhouettes)
+		return;
+
 	S32 num_sils_genned = 0;
 
 	LLVector3d	cameraPos = gAgent.getCameraPositionGlobal();

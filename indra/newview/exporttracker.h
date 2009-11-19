@@ -80,8 +80,8 @@ public:
 	JCExportTracker();
 	~JCExportTracker();
 
-private:
 	static JCExportTracker* sInstance;
+private:
 	static void init();
 	static LLSD* getprim(LLUUID id);
 	static void completechk();
@@ -104,6 +104,10 @@ public:
 	static JCExportTracker* getInstance(){ init(); return sInstance; }
 
 	static bool serialize(LLDynamicArray<LLViewerObject*> objects);
+
+	//Export idle callback
+	static void exportworker(void *userdata);
+
 	static bool serializeSelection();
 	static void finalize(LLSD data);
 
@@ -112,24 +116,25 @@ public:
 private:
 	static LLSD subserialize(LLViewerObject* linkset);
 
+public:
 	enum ExportState { IDLE, EXPORTING };
 
 	static U32 status;
 
 	//enum ExportLevel { DEFAULT, PROPERTIES, INVENTORY };
 
-public:
 	static BOOL export_properties;
 	static BOOL export_inventory;
 	static BOOL export_textures;
 
 	//static U32 level;
 
-private:
 	static U32 propertyqueries;
 	static U32 invqueries;
 	static U32 totalprims;
+private:
 	static LLSD data;
+	static LLSD total;
 
 	static LLVector3 selection_center;
 	static LLVector3 selection_size;
