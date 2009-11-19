@@ -1,4 +1,4 @@
-version 16
+version 20
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -326,20 +326,7 @@ list Intel_Springdale
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
 
-list ATI_Mobility_Radeon_9800
-RenderAvatarCloth			0	0
-VertexShaderEnable			0	0
-WindLightUseAtmosShaders	0	0
-
-list ATI_Mobility_Radeon_9700
-RenderAvatarCloth			0	0
-VertexShaderEnable			0	0
-WindLightUseAtmosShaders	0	0
-
 list ATI_Mobility_Radeon_9600
-RenderAvatarCloth			0	0
-VertexShaderEnable			0	0
-WindLightUseAtmosShaders	0	0
 Disregard96DefaultDrawDistance	1	0
 
 list NVIDIA_GeForce_8600
