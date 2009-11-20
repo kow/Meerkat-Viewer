@@ -149,6 +149,10 @@ LLPreviewTexture::~LLPreviewTexture()
 		getWindow()->decBusyCount();
 	}
 
+	if(mImage.notNull())
+	{
+		mImage->destroySavedRawImage() ;
+	}
 	mImage = NULL;
 }
 
@@ -223,6 +227,11 @@ void LLPreviewTexture::draw()
 			// Pump the texture priority
 			F32 pixel_area = mLoadingFullImage ? (F32)MAX_IMAGE_AREA  : (F32)(interior.getWidth() * interior.getHeight() );
 			mImage->addTextureStats( pixel_area );
+			if(pixel_area > 0.f)
+			{
+				//boost the previewed image priority to the highest to make it to get loaded first.
+				mImage->setAdditionalDecodePriority(1.0f) ;
+			}
 
 			// Don't bother decoding more than we can display, unless
 			// we're loading the full image.
@@ -482,6 +491,7 @@ void LLPreviewTexture::loadAsset()
 {
 	mImage = gImageList.getImage(mImageID, MIPMAP_TRUE, FALSE);
 	mImage->setBoostLevel(LLViewerImageBoostLevel::BOOST_PREVIEW);
+	mImage->forceToSaveRawImage(0) ;
 	mAssetStatus = PREVIEW_ASSET_LOADING;
 }
 

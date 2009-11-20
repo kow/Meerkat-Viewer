@@ -54,6 +54,12 @@
 #include "lluictrlfactory.h"
 #include "llcallbacklist.h"
 
+#ifdef LL_STANDALONE
+# include <zlib.h>
+#else
+# include "zlib/zlib.h"
+#endif
+
 JCExportTracker* JCExportTracker::sInstance;
 LLSD JCExportTracker::data;
 LLSD JCExportTracker::total;
@@ -241,7 +247,7 @@ void JCExportTracker::init()
 	asset_dir = "";
 	requested_textures.clear();
 	export_properties = gSavedSettings.getBOOL("EmeraldExportProperties");
-	//export_inventory = gSavedSettings.getBOOL("EmeraldExportInventory");
+	export_inventory = gSavedSettings.getBOOL("EmeraldExportInventory");
 	export_textures = gSavedSettings.getBOOL("EmeraldExportTextures");
 	////cmdline_printchat("init()");
 	////cmdline_printchat(llformat("%d",export_properties));
@@ -304,7 +310,9 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 			export_objects.put(child);
 		}
 	}
-		
+	//deselect everything because the render lag from a large selection really slows down the exporter.
+	LLSelectMgr::getInstance()->deselectAll();
+
 	S32 object_index = 0;
 	
 	while ((object_index < export_objects.count()))
@@ -379,8 +387,28 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 		}
 		if (object->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
 		{
+			LLFile::mkdir(asset_dir+"//sculptmaps//");
+
 			LLSculptParams* sculpt = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 			prim_llsd["sculpt"] = sculpt->asLLSD();
+
+			std::string path = asset_dir+"//sculptmaps//";
+			LLUUID asset_id = sculpt->getSculptTexture();
+			JCAssetInfo* info = new JCAssetInfo;
+			info->path = path + asset_id.asString();
+			info->name = "Sculpt Texture";
+			if(requested_textures.count(asset_id) == 0)
+			{
+				ExportTrackerFloater::total_textures++;
+				requested_textures.insert(asset_id);
+				LLViewerImage* img = gImageList.getImage(asset_id, MIPMAP_TRUE, FALSE);
+				img->setBoostLevel(LLViewerImageBoostLevel::BOOST_MAX_LEVEL);
+				img->forceToSaveRawImage(0); //this is required for us to receive the full res image.
+				//img->setAdditionalDecodePriority(1.0f) ;
+				img->setLoadedCallback( JCExportTracker::onFileLoadedForSave, 
+								0, TRUE, FALSE, info );
+				llinfos << "Requesting texture " << asset_id.asString() << llendl;
+			}
 		}
 
 		// Textures
@@ -394,12 +422,13 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 
 		if(export_textures)
 		{
-			std::string path = asset_dir + gDirUtilp->getDirDelimiter();
+			LLFile::mkdir(asset_dir+"//textures//");
+			std::string path = asset_dir+"//textures//";
 			for (U8 i = 0; i < te_count; i++)
 			{
 				LLUUID asset_id = object->getTE(i)->getID();
 				JCAssetInfo* info = new JCAssetInfo;
-				info->path = path + asset_id.asString() + ".j2c";
+				info->path = path + asset_id.asString();
 				info->name = "Prim Texture";
 				//gAssetStorage->getAssetData(asset_id, LLAssetType::AT_TEXTURE, JCAssetExportCallback, info,1);
 				if(requested_textures.count(asset_id) == 0)
@@ -408,6 +437,8 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 					requested_textures.insert(asset_id);
 					LLViewerImage* img = gImageList.getImage(asset_id, MIPMAP_TRUE, FALSE);
 					img->setBoostLevel(LLViewerImageBoostLevel::BOOST_MAX_LEVEL);
+					img->forceToSaveRawImage(0); //this is required for us to receive the full res image.
+					//img->setAdditionalDecodePriority(1.0f) ;
 					img->setLoadedCallback( JCExportTracker::onFileLoadedForSave, 
 									0, TRUE, FALSE, info );
 					llinfos << "Requesting texture " << asset_id.asString() << llendl;
@@ -462,7 +493,7 @@ void JCExportTracker::onFileLoadedForSave(BOOL success,
 	if(final)
 	{
 		if( success )
-		{
+		{ /*
 			LLPointer<LLImageJ2C> image_j2c = new LLImageJ2C();
 			if(!image_j2c->encode(src,0.0))
 			{
@@ -477,7 +508,40 @@ void JCExportTracker::onFileLoadedForSave(BOOL success,
 				ExportTrackerFloater::textures_exported++;
 				llinfos << "Saved texture " << info->path << llendl;
 				//success
+			} */
+
+			if(gSavedSettings.getBOOL("ExportTGATextures"))
+			{
+				LLPointer<LLImageTGA> image_tga = new LLImageTGA;
+
+				if( !image_tga->encode( src ) )
+				{
+					llinfos << "Failed to encode " << info->path << llendl;
+				}
+				else if( !image_tga->save( info->path + ".tga" ) )
+				{
+					llinfos << "Failed to write " << info->path << llendl;
+				}
 			}
+
+			if(gSavedSettings.getBOOL("ExportJ2CTextures"))
+			{
+				LLPointer<LLImageJ2C> image_j2c = new LLImageJ2C();
+				if(!image_j2c->encode(src,0.0))
+				{
+					//errorencode
+					llinfos << "Failed to encode " << info->path << llendl;
+				}else if(!image_j2c->save( info->path+".j2c" ))
+				{
+					llinfos << "Failed to write " << info->path << llendl;
+					//errorwrite
+				}else
+				{
+					llinfos << "Saved texture " << info->path << llendl;
+					//success
+				}
+			}
+			ExportTrackerFloater::textures_exported++;
 		}
 		delete info;
 	}
@@ -495,7 +559,6 @@ bool JCExportTracker::serializeSelection()
 		LLViewerObject* object = selectNode->getObject();
 		if(object)catfayse.put(object);
 	}
-	LLSelectMgr::getInstance()->deselectAll();
 	return serialize(catfayse);
 }
 
@@ -511,9 +574,10 @@ bool JCExportTracker::serialize(LLDynamicArray<LLViewerObject*> objects)
 		return false; // User canceled save.
 		
 	destination = file_picker.getFirstFile();
+	asset_dir = gDirUtilp->getDirName(destination);
 
 	//destination = destination.substr(0,destination.find_last_of("."));
-	if(export_inventory)
+/*	if(export_inventory)
 	{
 		asset_dir = destination.substr(0,destination.find_last_of(".")) + "_assets";//+gDirUtilp->getDirDelimiter();
 		if(!LLFile::isdir(asset_dir))
@@ -527,7 +591,7 @@ bool JCExportTracker::serialize(LLDynamicArray<LLViewerObject*> objects)
 				return false;
 			}
 		}
-	}
+	} */
 
 	total.clear();
 	LLVector3 first_pos;
@@ -602,6 +666,24 @@ void JCExportTracker::finalize(LLSD data)
 
 	LLXMLNode *group_xml;
 	group_xml = new LLXMLNode("group", FALSE);
+
+	LLVector3 max = selection_center + selection_size / 2;
+	LLVector3 min = selection_center - selection_size / 2;
+
+	LLXMLNodePtr max_xml = group_xml->createChild("max", FALSE);
+	max_xml->createChild("x", TRUE)->setValue(llformat("%.5f", max.mV[VX]));
+	max_xml->createChild("y", TRUE)->setValue(llformat("%.5f", max.mV[VY]));
+	max_xml->createChild("z", TRUE)->setValue(llformat("%.5f", max.mV[VZ]));
+
+	LLXMLNodePtr min_xml = group_xml->createChild("min", FALSE);
+	min_xml->createChild("x", TRUE)->setValue(llformat("%.5f", min.mV[VX]));
+	min_xml->createChild("y", TRUE)->setValue(llformat("%.5f", min.mV[VY]));
+	min_xml->createChild("z", TRUE)->setValue(llformat("%.5f", min.mV[VZ]));
+											
+	LLXMLNodePtr center_xml = group_xml->createChild("center", FALSE);
+	center_xml->createChild("x", TRUE)->setValue(llformat("%.5f", selection_center.mV[VX]));
+	center_xml->createChild("y", TRUE)->setValue(llformat("%.5f", selection_center.mV[VY]));
+	center_xml->createChild("z", TRUE)->setValue(llformat("%.5f", selection_center.mV[VZ]));
 
 	// for each linkset
 	for(LLSD::array_iterator array_itr = data.beginArray();
@@ -694,24 +776,16 @@ void JCExportTracker::finalize(LLSD data)
 						llinfos << "Unknown path " << (S32) path << " profile " << (S32) profile << " in getState" << llendl;
 						selected_item = "box";
 					}
-			/*		FIX ME
-					if (object->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
-					{
-						selected_item = "sculpt";
-					}
-			*/
+
 					// Create an LLSD object that represents this prim. It will be injected in to the overall LLSD
 					// tree structure
-					LLXMLNode *prim_xml = new LLXMLNode(selected_item.c_str(), FALSE);
+					LLXMLNode *prim_xml;
 
-					/* FIX ME
-					if (!object->isRoot())
-					{
-
-						// Parent id
-						snprintf(localid, sizeof(localid), "%u", object->getSubParent()->getLocalID());
- 						prim_xml->createChild("uuid", FALSE)->setValue(localid);
-					} */
+					// Sculpt
+					if (prim.has("sculpt"))
+						prim_xml = new LLXMLNode("sculpt", FALSE);
+					else
+						prim_xml = new LLXMLNode(selected_item.c_str(), FALSE);
 
 					if(prim.has("name"))
 						prim_xml->createChild("name", FALSE)->setValue("<![CDATA[" + std::string(prim["name"]) + "]]>");
@@ -931,27 +1005,10 @@ void JCExportTracker::finalize(LLSD data)
 						//<sculptmap_uuid>1e366544-c287-4fff-ba3e-5fafdba10272</sculptmap_uuid>
 						//<sculptmap_file>apple_map.tga</sculptmap_file>
 						//FIXME png/tga/j2c selection itt.
-						prim_xml->createChild("sculptmap_file", FALSE)->setValue(llformat("%s", "testing"));
-						prim_xml->createChild("sculptmap_uuid", FALSE)->setValue(llformat("%s", "testing"));
-
-						//prim_xml->createChild("sculptmap_file", FALSE)->setValue(llformat("%s", sculpt->getSculptTexture()));
-						//prim_xml->createChild("sculptmap_uuid", FALSE)->setValue(llformat("%s", sculpt->getSculptTexture()));
-
-						LLUUID sculpt_texture=sculpt.getSculptTexture();
-						bool alreadyseen=false;
-						/*
-						std::list<LLUUID>::iterator iter;
-						for(iter = textures.begin(); iter != textures.end() ; iter++) 
-						{
-							if( (*iter)==sculpt_texture)
-								alreadyseen=true;
-						}
-						*/
-						if(alreadyseen==false)
-						{
-							llinfos << "Found a sculpt texture, adding to list "<<sculpt_texture<<llendl;
-			//				textures.push_back(sculpt_texture);
-						}
+						std::string sculpttexture;
+						sculpt.getSculptTexture().toString(sculpttexture);
+						prim_xml->createChild("sculptmap_file", FALSE)->setValue(sculpttexture+".tga");
+						prim_xml->createChild("sculptmap_uuid", FALSE)->setValue(sculpttexture);
 					}
 
 					//<texture>
@@ -1059,7 +1116,7 @@ void JCExportTracker::finalize(LLSD data)
 						if (object.getTE(i)->getShiny())
 						{
 							LLXMLNodePtr shine_xml = face_xml->createChild("shine", FALSE);
-							shine_xml->createChild("val", TRUE)->setValue("1");
+							shine_xml->createChild("val", TRUE)->setValue(llformat("%u",object.getTE(i)->getShiny()));
 						}
 							
 						//<bump val="0" />
@@ -1098,32 +1155,30 @@ void JCExportTracker::finalize(LLSD data)
 		temp_xml->createChild("software", FALSE)->setValue(llformat("%s %d.%d.%d.%d",
 		LLAppViewer::instance()->getSecondLifeTitle().c_str(), LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VERSION_BUILD));
 		temp_xml->createChild("platform", FALSE)->setValue("Second Life");
-		temp_xml->createChild("grid", FALSE)->setValue("test");
-
-		LLVector3 max = selection_center + selection_size / 2;
-		LLVector3 min = selection_center - selection_size / 2;
-
-		LLXMLNodePtr max_xml = group_xml->createChild("max", FALSE);
-		max_xml->createChild("x", TRUE)->setValue(llformat("%.5f", max.mV[VX]));
-		max_xml->createChild("y", TRUE)->setValue(llformat("%.5f", max.mV[VY]));
-		max_xml->createChild("z", TRUE)->setValue(llformat("%.5f", max.mV[VZ]));
-
-		LLXMLNodePtr min_xml = group_xml->createChild("min", FALSE);
-		min_xml->createChild("x", TRUE)->setValue(llformat("%.5f", min.mV[VX]));
-		min_xml->createChild("y", TRUE)->setValue(llformat("%.5f", min.mV[VY]));
-		min_xml->createChild("z", TRUE)->setValue(llformat("%.5f", min.mV[VZ]));
-											
-		LLXMLNodePtr center_xml = group_xml->createChild("center", FALSE);
-		center_xml->createChild("x", TRUE)->setValue(llformat("%.5f", selection_center.mV[VX]));
-		center_xml->createChild("y", TRUE)->setValue(llformat("%.5f", selection_center.mV[VY]));
-		center_xml->createChild("z", TRUE)->setValue(llformat("%.5f", selection_center.mV[VZ]));
+		std::vector<std::string> uris;
+		LLViewerLogin* vl = LLViewerLogin::getInstance();
+		std::string grid_uri = vl->getGridLabel(); //RC FIXME
+		temp_xml->createChild("grid", FALSE)->setValue(grid_uri);
 
 		temp_xml->addChild(group_xml);
 
 		temp_xml->writeToOstream(out);
 		out.close();
+/* this code gzips the archive, we want to zip it though!
+		std::string gzip_filename(destination);
+		gzip_filename.append(".gz");
+		if(gzip_file(destination, gzip_filename))
+		{
+			lldebugs << "Successfully compressed " << destination << llendl;
+			//LLFile::remove(inventory_filename);
+		}
+		else
+		{
+			llwarns << "Unable to compress " << destination << llendl;
+		}
+		*/
 
-/*
+/*	we can still output an LLSD with this but it's no longer emerald compatible
 	LLSD file;
 	LLSD header;
 	header["Version"] = 2;
@@ -1386,7 +1441,8 @@ void JCExportTracker::inventoryChanged(LLViewerObject* obj,
 											//cmdline_printchat("requesting asset for "+asset->getName());
 											inv_item["desc"] = ((LLInventoryItem*)((LLInventoryObject*)(*it)))->getDescription();//god help us all
 											inv_item["item_id"] = asset->getUUID().asString();
-											JCExportTracker::mirror(asset, obj, asset_dir, asset->getUUID().asString());//loltest
+											LLFile::mkdir(asset_dir+"//inventory//");
+											JCExportTracker::mirror(asset, obj, asset_dir + "//inventory//", asset->getUUID().asString());//loltest
 											//unacceptable
 											inventory[num] = inv_item;
 											num += 1;
@@ -1530,4 +1586,38 @@ BOOL JCExportTracker::mirror(LLInventoryObject* item, LLViewerObject* container,
 		}
 	}
 	return FALSE;
+}
+
+BOOL zip_folder(const std::string& srcfile, const std::string& dstfile)
+{
+	const S32 COMPRESS_BUFFER_SIZE = 32768;
+	std::string tmpfile;
+	BOOL retval = FALSE;
+	U8 buffer[COMPRESS_BUFFER_SIZE];
+	gzFile dst = NULL;
+	LLFILE *src = NULL;
+	S32 bytes = 0;
+	tmpfile = dstfile + ".t";
+	dst = gzopen(tmpfile.c_str(), "wb");		/* Flawfinder: ignore */
+	if (! dst) goto err;
+	src = LLFile::fopen(srcfile, "rb");		/* Flawfinder: ignore */
+	if (! src) goto err;
+
+	do
+	{
+		bytes = (S32)fread(buffer, sizeof(U8), COMPRESS_BUFFER_SIZE,src);
+		gzwrite(dst, buffer, bytes);
+	} while(feof(src) == 0);
+	gzclose(dst);
+	dst = NULL;
+#if LL_WINDOWS
+	// Rename in windows needs the dstfile to not exist.
+	LLFile::remove(dstfile);
+#endif
+	if (LLFile::rename(tmpfile, dstfile) == -1) goto err;		/* Flawfinder: ignore */
+	retval = TRUE;
+ err:
+	if (src != NULL) fclose(src);
+	if (dst != NULL) gzclose(dst);
+	return retval;
 }

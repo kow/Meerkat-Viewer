@@ -336,6 +336,7 @@ void ImportTrackerFloater::sendPosition()
 
 void ImportTracker::loadhpa(std::string file)
 {
+	filepath = file;
 	linksets = 0;
 	textures = 0;
 	objects = 0;
@@ -602,9 +603,8 @@ void ImportTracker::loadhpa(std::string file)
 									/*
 TODO:
 	sd["bump"] = getBumpShiny();
-	sd["fullbright"] = getFullbright();
 	sd["media_flags"] = getMediaTexGen();
-	sd["glow"] = getGlow(); */
+ */
 									//<face id="0">
 									for (LLXmlTreeNode* param = face->getFirstChild(); param; param = face->getNextChild())
 									{
@@ -664,12 +664,20 @@ TODO:
 										//<fullbright val="true" />
 										else if (param->hasName("fullbright"))
 										{
-											BOOL temp = false;
+											int temp = 0;
 											std::string value;
 											param->getAttributeString("val", value);
 											if (value == "true")
-												temp = true;
+												temp = 1;
 											sd["fullbright"] = temp;
+										}
+										//<shiny val="true" />
+										else if (param->hasName("shine"))
+										{
+											U8 shiny;
+											param->getAttributeU8("val", shiny);
+											shiny =  shiny & TEM_SHINY_MASK;
+											sd["bump"] = shiny;
 										}
 									}
 									sd["colors"].append(color.mV[0]);
@@ -850,8 +858,8 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 	LLSD file_data = data["Objects"];
 	data = LLSD();
 
-	filepath = file;
-	asset_dir = filepath.substr(0,filepath.find_last_of(".")) + "_assets";
+	//filepath = file;
+	asset_dir = gDirUtilp->getDirName(filepath);
 
 	//HPA hackin
 	//linksetgroups=file_data;
@@ -859,7 +867,7 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 
 	//DEBUG CODE! At this point our HPA should be in Emerald LLSD format.
 	// Create a file stream and write to it
-	llofstream export_file(file + ".llsd");
+	llofstream export_file(filepath + ".llsd");
 	LLSDSerialize::toPrettyXML(linksetgroups, export_file);
 	// Open the file save dialog
 	export_file.close();

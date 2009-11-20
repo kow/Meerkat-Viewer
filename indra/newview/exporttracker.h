@@ -144,4 +144,5 @@ private:
 	static std::set<LLUUID> requested_textures;
 };
 
-
+// zip a folder. this doesn't work yet.
+BOOL zip_folder(const std::string& srcfile, const std::string& dstfile);
