@@ -973,9 +973,9 @@ void JCExportTracker::finalize(LLSD data)
 						//<color r="255" g="255" b="255" />
 						LLXMLNodePtr color_xml = light_xml->createChild("color", FALSE);
 						LLColor4 color = light.getColor();
-						color_xml->createChild("r", TRUE)->setValue(llformat("%u", color.mV[VRED]));
-						color_xml->createChild("g", TRUE)->setValue(llformat("%u", color.mV[VGREEN]));
-						color_xml->createChild("b", TRUE)->setValue(llformat("%u", color.mV[VBLUE]));
+						color_xml->createChild("r", TRUE)->setValue(llformat("%u", (U32)(color.mV[VRED] * 255)));
+						color_xml->createChild("g", TRUE)->setValue(llformat("%u", (U32)(color.mV[VGREEN] * 255)));
+						color_xml->createChild("b", TRUE)->setValue(llformat("%u", (U32)(color.mV[VBLUE] * 255)));
 
 						//<intensity val="1.0" />
 						LLXMLNodePtr intensity_xml = light_xml->createChild("intensity", FALSE);
@@ -988,8 +988,6 @@ void JCExportTracker::finalize(LLSD data)
 						//<falloff val="0.75" />
 						LLXMLNodePtr falloff_xml = light_xml->createChild("falloff", FALSE);
 						falloff_xml->createChild("val", TRUE)->setValue(llformat("%.5f", light.getFalloff()));
-
-						//return light->getCutoff(); wtf is this?
 					}
 
 					// Sculpt

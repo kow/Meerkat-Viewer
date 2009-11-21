@@ -395,7 +395,6 @@ void ImportTracker::loadhpa(std::string file)
 				}
 				else if (object->hasName("linkset"))
 				{
-					total_linksets++;
 					U32 totalprims = 0;
 					S32 object_index = 0;
 					LLXmlTreeNode* prim = object->getFirstChild();
@@ -599,6 +598,49 @@ void ImportTracker::loadhpa(std::string file)
 								sculpttexture = LLUUID(param->getTextContents());
 
 
+							//<light>
+							else if (param->hasName("light"))
+							{
+								F32 lightradius = 0,  lightfalloff = 0;
+								LLColor4 lightcolor;
+
+								for (LLXmlTreeNode* lightparam = param->getFirstChild(); lightparam; lightparam = param->getNextChild())
+								{
+									//<color b="0" g="0" r="0" />
+									if (lightparam->hasName("color"))
+									{
+										lightparam->getAttributeF32("r", lightcolor.mV[VRED]);
+										lightparam->getAttributeF32("g", lightcolor.mV[VGREEN]);
+										lightparam->getAttributeF32("b", lightcolor.mV[VBLUE]);
+										lightcolor.mV[VRED]/=256;
+										lightcolor.mV[VGREEN]/=256;
+										lightcolor.mV[VBLUE]/=256;
+									}
+									//<intensity val="0.80392" />
+									else if (lightparam->hasName("intensity"))
+									{
+											lightparam->getAttributeF32("val", lightcolor.mV[VALPHA]);
+									}
+									//<radius val="0.80392" />
+									else if (lightparam->hasName("radius"))
+									{
+											lightparam->getAttributeF32("val", lightradius);
+									}
+									//<falloff val="0.80392" />
+									else if (lightparam->hasName("falloff"))
+									{
+											lightparam->getAttributeF32("val", lightfalloff);
+									}
+								}
+
+								LLLightParams light;
+								light.setColor(lightcolor);
+								light.setRadius(lightradius);
+								light.setFalloff(lightfalloff);
+								//light.setCutoff(lightintensity);
+
+								prim_llsd["light"] = light.asLLSD();
+							}
 
 							//<texture>
 							else if (param->hasName("texture"))
