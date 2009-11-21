@@ -62,7 +62,6 @@ public:
 
 	static LLDynamicArray<LLViewerObject*> objectselection;
 
-	static int		objects_exported;
 	static int		linksets_exported;
 	static int		properties_exported;
 	static int		property_queries;
@@ -79,6 +78,7 @@ class JCExportTracker : public LLVOInventoryListener
 public:
 	JCExportTracker();
 	~JCExportTracker();
+	static void close();
 
 	static JCExportTracker* sInstance;
 private:
@@ -132,12 +132,11 @@ public:
 	static U32 propertyqueries;
 	static U32 invqueries;
 	static U32 totalprims;
+	static LLVector3 selection_center;
+	static LLVector3 selection_size;
 private:
 	static LLSD data;
 	static LLSD total;
-
-	static LLVector3 selection_center;
-	static LLVector3 selection_size;
 
 	static std::string destination;
 	static std::string asset_dir;

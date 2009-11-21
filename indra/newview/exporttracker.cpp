@@ -79,7 +79,6 @@ void cmdline_printchat(std::string chat);
 
 ExportTrackerFloater* ExportTrackerFloater::sInstance = 0;
 LLDynamicArray<LLViewerObject*> ExportTrackerFloater::objectselection;
-int ExportTrackerFloater::objects_exported = 0;
 int ExportTrackerFloater::properties_exported = 0;
 int ExportTrackerFloater::property_queries = 0;
 int ExportTrackerFloater::assets_exported = 0;
@@ -127,7 +126,6 @@ ExportTrackerFloater::ExportTrackerFloater()
 	//from serializeselection
 	//init();
 	
-	objects_exported = 0;
 	properties_exported = 0;
 	property_queries = 0;
 	assets_exported = 0;
@@ -169,6 +167,9 @@ ExportTrackerFloater::ExportTrackerFloater()
 	sstr <<", Z: "<<llformat("%.2f", temp.mV[VZ]);
 
 	ctrl->setValue(LLSD("Text")=sstr.str());
+	
+	JCExportTracker::selection_size = bbox.getExtentLocal();
+	JCExportTracker::selection_center = bbox.getCenterAgent();
 }
 
 ExportTrackerFloater* ExportTrackerFloater::getInstance()
@@ -181,7 +182,7 @@ ExportTrackerFloater* ExportTrackerFloater::getInstance()
 
 ExportTrackerFloater::~ExportTrackerFloater()
 {
-	JCExportTracker::sInstance = NULL;
+	JCExportTracker::sInstance->close();
 	//which one?? -Patrick Sapinski (Wednesday, November 11, 2009)
 	ExportTrackerFloater::sInstance = NULL;
 	sInstance = NULL;
@@ -198,6 +199,13 @@ void ExportTrackerFloater::close()
 
 void ExportTrackerFloater::show()
 {
+	if(sInstance)
+	{
+		JCExportTracker::sInstance->close();
+		delete sInstance;
+		sInstance = NULL;
+	}
+
 	if(NULL==sInstance) 
 	{
 		sInstance = new ExportTrackerFloater();
@@ -218,6 +226,7 @@ void ExportTrackerFloater::onClickExport(void* data)
 void ExportTrackerFloater::onClickClose(void* data)
 {
 	sInstance->close();
+	JCExportTracker::sInstance->close();
 }
 
 JCExportTracker::JCExportTracker()
@@ -231,6 +240,16 @@ JCExportTracker::~JCExportTracker()
 {
 	sInstance = NULL;
 }
+
+void JCExportTracker::close()
+{
+	if(sInstance)
+	{
+		delete sInstance;
+		sInstance = NULL;
+	}
+}
+
 void JCExportTracker::init()
 {
 	if(!sInstance)
@@ -273,12 +292,6 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 	//Chalice - Changed to support exporting linkset groups.
 	LLViewerObject* object = linkset;
 	//if(!linkset)return LLSD();
-	
-	LLBBox bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
-	LLVector3 box_center_agent = bbox.getCenterAgent();
-	
-	selection_size = bbox.getExtentLocal();
-	selection_center = object->getPosition();
 
 	// Create an LLSD object that will hold the entire tree structure that can be serialized to a file
 	LLSD llsd;
@@ -373,41 +386,54 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 		prim_llsd["shadows"] = object->flagCastShadows();
 		prim_llsd["phantom"] = object->flagPhantom();
 		prim_llsd["physical"] = (BOOL)(object->mFlags & FLAGS_USE_PHYSICS);
-		LLVolumeParams params = object->getVolume()->getParams();
-		prim_llsd["volume"] = params.asLLSD();
-		if (object->isFlexible())
-		{
-			LLFlexibleObjectData* flex = (LLFlexibleObjectData*)object->getParameterEntry(LLNetworkData::PARAMS_FLEXIBLE);
-			prim_llsd["flexible"] = flex->asLLSD();
-		}
-		if (object->getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT))
-		{
-			LLLightParams* light = (LLLightParams*)object->getParameterEntry(LLNetworkData::PARAMS_LIGHT);
-			prim_llsd["light"] = light->asLLSD();
-		}
-		if (object->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
-		{
-			LLFile::mkdir(asset_dir+"//sculptmaps//");
 
-			LLSculptParams* sculpt = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-			prim_llsd["sculpt"] = sculpt->asLLSD();
+		LLPCode pcode = object->getPCode();
 
-			std::string path = asset_dir+"//sculptmaps//";
-			LLUUID asset_id = sculpt->getSculptTexture();
-			JCAssetInfo* info = new JCAssetInfo;
-			info->path = path + asset_id.asString();
-			info->name = "Sculpt Texture";
-			if(requested_textures.count(asset_id) == 0)
+		if( (LL_PCODE_LEGACY_GRASS == pcode) 
+			|| (LL_PCODE_LEGACY_TREE == pcode) )
+		{
+			prim_llsd["tree"] = "a tree";
+		}
+		else
+		{
+			//TREES CRASH HERE.
+			LLVolumeParams params = object->getVolume()->getParams();
+			prim_llsd["volume"] = params.asLLSD();
+
+			if (object->isFlexible())
 			{
-				ExportTrackerFloater::total_textures++;
-				requested_textures.insert(asset_id);
-				LLViewerImage* img = gImageList.getImage(asset_id, MIPMAP_TRUE, FALSE);
-				img->setBoostLevel(LLViewerImageBoostLevel::BOOST_MAX_LEVEL);
-				img->forceToSaveRawImage(0); //this is required for us to receive the full res image.
-				//img->setAdditionalDecodePriority(1.0f) ;
-				img->setLoadedCallback( JCExportTracker::onFileLoadedForSave, 
-								0, TRUE, FALSE, info );
-				llinfos << "Requesting texture " << asset_id.asString() << llendl;
+				LLFlexibleObjectData* flex = (LLFlexibleObjectData*)object->getParameterEntry(LLNetworkData::PARAMS_FLEXIBLE);
+				prim_llsd["flexible"] = flex->asLLSD();
+			}
+			if (object->getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT))
+			{
+				LLLightParams* light = (LLLightParams*)object->getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+				prim_llsd["light"] = light->asLLSD();
+			}
+			if (object->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
+			{
+				LLFile::mkdir(asset_dir+"//sculptmaps//");
+
+				LLSculptParams* sculpt = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+				prim_llsd["sculpt"] = sculpt->asLLSD();
+
+				std::string path = asset_dir+"//sculptmaps//";
+				LLUUID asset_id = sculpt->getSculptTexture();
+				JCAssetInfo* info = new JCAssetInfo;
+				info->path = path + asset_id.asString();
+				info->name = "Sculpt Texture";
+				if(requested_textures.count(asset_id) == 0)
+				{
+					ExportTrackerFloater::total_textures++;
+					requested_textures.insert(asset_id);
+					LLViewerImage* img = gImageList.getImage(asset_id, MIPMAP_TRUE, FALSE);
+					img->setBoostLevel(LLViewerImageBoostLevel::BOOST_MAX_LEVEL);
+					img->forceToSaveRawImage(0); //this is required for us to receive the full res image.
+					//img->setAdditionalDecodePriority(1.0f) ;
+					img->setLoadedCallback( JCExportTracker::onFileLoadedForSave, 
+									0, TRUE, FALSE, info );
+					llinfos << "Requesting texture " << asset_id.asString() << llendl;
+				}
 			}
 		}
 
@@ -642,15 +668,16 @@ void JCExportTracker::exportworker(void *userdata)
 				total[ExportTrackerFloater::linksets_exported] = origin;
 			}
 		}
+		ExportTrackerFloater::linksets_exported++;
+
 		//cmdline_printchat("exporting " + llformat("%d",objects.size()) + " objects");
 		if(!total.isUndefined() && propertyqueries == 0 && invqueries == 0)
 		{
-			finalize(total);
+			completechk();
 		}else
 		{
 			data = total;
 		}
-		ExportTrackerFloater::linksets_exported++;
 	}
 	//else
 		//cmdline_printchat("property queries remaining, waiting");
@@ -660,9 +687,7 @@ void JCExportTracker::exportworker(void *userdata)
 
 void JCExportTracker::finalize(LLSD data)
 {
-	//lets stick HPA here. -Patrick Sapinski (Saturday, November 14, 2009)
-
-	//wtf is this for again? char localid[16];
+	//We convert our LLSD to HPA here.
 
 	LLXMLNode *group_xml;
 	group_xml = new LLXMLNode("group", FALSE);
@@ -1162,6 +1187,8 @@ void JCExportTracker::finalize(LLSD data)
 
 		temp_xml->writeToOstream(out);
 		out.close();
+		cmdline_printchat("File Saved.");
+
 /* this code gzips the archive, we want to zip it though!
 		std::string gzip_filename(destination);
 		gzip_filename.append(".gz");
@@ -1176,7 +1203,7 @@ void JCExportTracker::finalize(LLSD data)
 		}
 		*/
 
-/*	we can still output an LLSD with this but it's no longer emerald compatible
+/*	we can still output an LLSD with this but it's no longer emerald compatible. useful for testing.
 	LLSD file;
 	LLSD header;
 	header["Version"] = 2;
@@ -1194,7 +1221,9 @@ void JCExportTracker::finalize(LLSD data)
 	// Open the file save dialog
 	export_file.close();
 */
-	init();
+		
+	status = IDLE;
+	//init();
 }
 
 void JCExportTracker::completechk()
@@ -1202,7 +1231,7 @@ void JCExportTracker::completechk()
 	if(propertyqueries == 0 && invqueries == 0 && ExportTrackerFloater::linksets_exported >= ExportTrackerFloater::objectselection.count())
 	{
 		//cmdline_printchat("Full property export completed.");
-		cmdline_printchat("(Content downloads may require more time, but the tracker is free for another export.)");
+		//cmdline_printchat("(Content downloads may require more time, but the tracker is free for another export.)");
 		finalize(data);
 	}
 }

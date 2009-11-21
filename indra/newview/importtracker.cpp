@@ -572,6 +572,12 @@ void ImportTracker::loadhpa(std::string file)
 								param->getAttributeF32("x", scale_x);
 								param->getAttributeF32("y", scale_y);
 							}
+							//<profile_cut begin="0.22495" end="0.77499" />
+							else if (param->hasName("profile_cut"))
+							{
+								param->getAttributeF32("begin", adv_cut_begin);
+								param->getAttributeF32("end", adv_cut_end);
+							}
 							//<path_cut begin="0.00000" end="1.00000" />
 							else if (param->hasName("path_cut"))
 							{
