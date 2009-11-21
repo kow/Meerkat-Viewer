@@ -122,6 +122,7 @@ ExportTrackerFloater::ExportTrackerFloater()
 	//childSetAction("reset", onClickReset, this);
 	childSetAction("export", onClickExport, this);
 	childSetAction("close", onClickClose, this);
+	childSetEnabled("export",true);
 
 	//from serializeselection
 	//init();
@@ -144,7 +145,7 @@ ExportTrackerFloater::ExportTrackerFloater()
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* object = selectNode->getObject();
 		if(object)
-			if(!object->isAvatar() && object->permModify() && object->permCopy() && object->permTransfer() && !gAgent.getGodLevel())
+			//if(!object->isAvatar() && object->permModify() && object->permCopy() && object->permTransfer() && !gAgent.getGodLevel())
 				catfayse.put(object);
 		//cmdline_printchat(" adding " + llformat("%d",total_linksets));
 	}
@@ -181,7 +182,7 @@ ExportTrackerFloater* ExportTrackerFloater::getInstance()
 }
 
 ExportTrackerFloater::~ExportTrackerFloater()
-{
+{	
 	JCExportTracker::sInstance->close();
 	//which one?? -Patrick Sapinski (Wednesday, November 11, 2009)
 	ExportTrackerFloater::sInstance = NULL;
@@ -218,7 +219,12 @@ void ExportTrackerFloater::show()
 // static
 void ExportTrackerFloater::onClickExport(void* data)
 {
+	sInstance->childSetEnabled("export",false);
 	JCExportTracker::export_inventory = gSavedSettings.getBOOL("EmeraldExportInventory");
+
+	//If we are exporting either TGA or J2C then enable the texture exporter
+	JCExportTracker::export_textures = gSavedSettings.getBOOL("ExportTGATextures") | gSavedSettings.getBOOL("ExportJ2CTextures");
+
 	JCExportTracker::serialize(objectselection);
 }
 
@@ -266,8 +272,11 @@ void JCExportTracker::init()
 	asset_dir = "";
 	requested_textures.clear();
 	export_properties = gSavedSettings.getBOOL("EmeraldExportProperties");
-	export_inventory = gSavedSettings.getBOOL("EmeraldExportInventory");
-	export_textures = gSavedSettings.getBOOL("EmeraldExportTextures");
+
+//done in the onExport handler;	todo remove
+//	export_inventory = gSavedSettings.getBOOL("EmeraldExportInventory");
+//	export_textures = gSavedSettings.getBOOL("EmeraldExportTextures");
+
 	////cmdline_printchat("init()");
 	////cmdline_printchat(llformat("%d",export_properties));
 	////cmdline_printchat(llformat("%d",export_inventory));
@@ -1220,9 +1229,9 @@ void JCExportTracker::finalize(LLSD data)
 	// Open the file save dialog
 	export_file.close();
 */
-		
-	status = IDLE;
-	//init();
+	
+		ExportTrackerFloater::getInstance()->childSetEnabled("export",true);
+		status = IDLE;
 }
 
 void JCExportTracker::completechk()
