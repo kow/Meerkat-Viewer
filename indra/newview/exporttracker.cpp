@@ -387,16 +387,15 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 		prim_llsd["phantom"] = object->flagPhantom();
 		prim_llsd["physical"] = (BOOL)(object->mFlags & FLAGS_USE_PHYSICS);
 
+		// For saving tree and grass positions store the pcode so we 
+		// know what to restore and the state is the species
 		LLPCode pcode = object->getPCode();
+		prim_llsd["pcode"] = pcode;
+		prim_llsd["state"] = object->getState();
 
-		if( (LL_PCODE_LEGACY_GRASS == pcode) 
-			|| (LL_PCODE_LEGACY_TREE == pcode) )
+		// Only volumes have all the prim parameters
+		if(LL_PCODE_VOLUME == pcode) 
 		{
-			prim_llsd["tree"] = "a tree";
-		}
-		else
-		{
-			//TREES CRASH HERE.
 			LLVolumeParams params = object->getVolume()->getParams();
 			prim_llsd["volume"] = params.asLLSD();
 
