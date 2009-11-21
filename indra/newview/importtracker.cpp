@@ -420,6 +420,8 @@ void ImportTracker::loadhpa(std::string file)
 						F32 twist_begin = 0.f;
 						F32 twist = 0.f;
 						F32 scale_x=1.f, scale_y=1.f;
+						LLUUID sculpttexture;
+						U8 topology = 0;
 
 						if (prim->hasName("box"))
 							selected_type = MI_BOX;
@@ -584,11 +586,20 @@ void ImportTracker::loadhpa(std::string file)
 								param->getAttributeF32("end", twist);
 							}
 							//<hollow amount="40.99900" shape="4" />
-							if (param->hasName("hollow"))
+							else if (param->hasName("hollow"))
 							{
 								param->getAttributeF32("amount", hollow);
 								param->getAttributeS32("shape", selected_hole);
 							}
+							//<topology val="1" />
+							else if (param->hasName("topology"))
+								param->getAttributeU8("val", topology);
+							//<sculptmap_uuid>be293869-d0d9-0a69-5989-ad27f1946fd4</sculptmap_uuid>
+							else if (param->hasName("sculptmap_uuid"))
+								sculpttexture = LLUUID(param->getTextContents());
+
+
+
 							//<texture>
 							else if (param->hasName("texture"))
 							{
@@ -600,11 +611,8 @@ void ImportTracker::loadhpa(std::string file)
 								{
 									LLSD sd;
 									LLColor4 color;
-									/*
-TODO:
-	sd["bump"] = getBumpShiny();
-	sd["media_flags"] = getMediaTexGen();
- */
+									LLTextureEntry temp;
+
 									//<face id="0">
 									for (LLXmlTreeNode* param = face->getFirstChild(); param; param = face->getNextChild())
 									{
@@ -676,10 +684,10 @@ TODO:
 										{
 											U8 shiny;
 											param->getAttributeU8("val", shiny);
-											shiny =  shiny & TEM_SHINY_MASK;
-											sd["bump"] = shiny;
+											temp.setShiny(shiny);
 										}
 									}
+									sd["bump"] = temp.getBumpShinyFullbright();
 									sd["colors"].append(color.mV[0]);
 									sd["colors"].append(color.mV[1]);
 									sd["colors"].append(color.mV[2]);
@@ -788,7 +796,30 @@ TODO:
 						// Shear X,Y
 						volume_params.setShear( shearx, sheary );
 
+						if (selected_type == MI_SCULPT)
+						{
+							LLSculptParams sculpt;
 
+							sculpt.setSculptTexture(sculpttexture);
+
+							/* maybe we want the mirror/invert/etc data at some point?
+							U8 sculpt_type = 0;
+							
+							if (mCtrlSculptType)
+								sculpt_type |= mCtrlSculptType->getCurrentIndex();
+
+							if ((mCtrlSculptMirror) && (mCtrlSculptMirror->get()))
+								sculpt_type |= LL_SCULPT_FLAG_MIRROR;
+
+							if ((mCtrlSculptInvert) && (mCtrlSculptInvert->get()))
+								sculpt_type |= LL_SCULPT_FLAG_INVERT; */
+							
+							sculpt.setSculptType(topology);
+
+							prim_llsd["sculpt"] = sculpt.asLLSD();
+						}
+
+						//we should have all our params by now, pack the LLSD.
 						prim_llsd["position"] = prim_pos;
 						prim_llsd["rotation"] = prim_rot;
 
