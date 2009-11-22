@@ -133,6 +133,7 @@ ExportTrackerFloater::ExportTrackerFloater()
 	textures_exported = 0;
 	total_assets = 0;
 	linksets_exported = 0;
+	total_textures = 0;
 
 	total_linksets = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
 	total_objects = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
@@ -145,7 +146,7 @@ ExportTrackerFloater::ExportTrackerFloater()
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* object = selectNode->getObject();
 		if(object)
-			//if(!object->isAvatar() && object->permModify() && object->permCopy() && object->permTransfer() && !gAgent.getGodLevel())
+			if(!object->isAvatar() && object->permModify() && object->permCopy() && object->permTransfer() && !gAgent.getGodLevel())
 				catfayse.put(object);
 		//cmdline_printchat(" adding " + llformat("%d",total_linksets));
 	}
@@ -473,9 +474,21 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 					img->setBoostLevel(LLViewerImageBoostLevel::BOOST_MAX_LEVEL);
 					img->forceToSaveRawImage(0); //this is required for us to receive the full res image.
 					//img->setAdditionalDecodePriority(1.0f) ;
-					img->setLoadedCallback( JCExportTracker::onFileLoadedForSave, 
-									0, TRUE, FALSE, info );
-					llinfos << "Requesting texture " << asset_id.asString() << llendl;
+					
+					//RC
+					//if we already have this texture it will never fire a loaded callback
+					//so kick directly and generate a raw image ourselves from a GL readback
+					if(img->getDiscardLevel()==0)
+					{
+						llinfos << "Already have texture " << asset_id.asString() << " in memory, attemping GL readback" << llendl;
+						onFileLoadedForSave(true,img,img->getRawImage(),NULL,0,true,info);
+					}
+					else
+					{
+						img->setLoadedCallback( JCExportTracker::onFileLoadedForSave, 
+										0, TRUE, FALSE, info );
+						llinfos << "Requesting texture " << asset_id.asString() << llendl;
+					}
 				}
 			}
 		}
@@ -544,6 +557,23 @@ void JCExportTracker::onFileLoadedForSave(BOOL success,
 				//success
 			} */
 
+			//RC
+			//If we have a NULL raw image, then read one back from the GL buffer
+			bool we_created_raw=false;
+			if(src==NULL)
+			{
+				src = new LLImageRaw();
+				we_created_raw=true;
+
+				if(!src_vi->readBackRaw(0,src,false))
+				{
+					cmdline_printchat("Failed to readback texture");
+					src->deleteData(); //check me, is this valid?
+					delete info;
+					return;
+				}
+			}
+
 			if(gSavedSettings.getBOOL("ExportTGATextures"))
 			{
 				LLPointer<LLImageTGA> image_tga = new LLImageTGA;
@@ -576,6 +606,14 @@ void JCExportTracker::onFileLoadedForSave(BOOL success,
 				}
 			}
 			ExportTrackerFloater::textures_exported++;
+		
+			//RC
+			//meh if we did a GL readback we created the raw image
+			// so we better delete, but the destructor is private
+			// so this needs checking for a memory leak that this is correct
+			if(we_created_raw)
+				src->deleteData();
+
 		}
 		delete info;
 	}
