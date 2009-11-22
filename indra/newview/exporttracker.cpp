@@ -817,6 +817,21 @@ void JCExportTracker::finalize(LLSD data)
 					// Sculpt
 					if (prim.has("sculpt"))
 						prim_xml = new LLXMLNode("sculpt", FALSE);
+
+					LLPCode pcode = prim["pcode"].asInteger();
+
+					if (pcode == LL_PCODE_LEGACY_GRASS)
+					{
+						prim_xml = new LLXMLNode("grass", FALSE);
+						LLXMLNodePtr shadow_xml = prim_xml->createChild("type", FALSE);
+						shadow_xml->createChild("val", TRUE)->setValue(prim["state"]);
+					}
+					else if (pcode == LL_PCODE_LEGACY_TREE)
+					{
+						prim_xml = new LLXMLNode("tree", FALSE);
+						LLXMLNodePtr shadow_xml = prim_xml->createChild("type", FALSE);
+						shadow_xml->createChild("val", TRUE)->setValue(prim["state"]);
+					}
 					else
 						prim_xml = new LLXMLNode(selected_item.c_str(), FALSE);
 
@@ -1211,24 +1226,24 @@ void JCExportTracker::finalize(LLSD data)
 		}
 		*/
 
-/*	we can still output an LLSD with this but it's no longer emerald compatible. useful for testing.
+/*	we can still output an LLSD with this but it's no longer emerald compatible. useful for testing. */
 	LLSD file;
 	LLSD header;
 	header["Version"] = 2;
 	file["Header"] = header;
-	std::vector<std::string> uris;
-		LLViewerLogin* vl = LLViewerLogin::getInstance();
-		std::string grid_uri = vl->getGridLabel(); //RC FIXME
+	//std::vector<std::string> uris;
+	//	LLViewerLogin* vl = LLViewerLogin::getInstance();
+	//	std::string grid_uri = vl->getGridLabel(); //RC FIXME
 	//LLStringUtil::toLower(uris[0]);
 	file["Grid"] = grid_uri;
 	file["Objects"] = data;
 
 	// Create a file stream and write to it
-	llofstream export_file(destination);
+	llofstream export_file(destination + ".llsd");
 	LLSDSerialize::toPrettyXML(file, export_file);
 	// Open the file save dialog
 	export_file.close();
-*/
+//*/
 	
 		ExportTrackerFloater::getInstance()->childSetEnabled("export",true);
 		status = IDLE;

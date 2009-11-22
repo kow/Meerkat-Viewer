@@ -30,6 +30,7 @@
 
 
 #include "llviewertexteditor.h"
+#include "llsdutil.h"
 
 //
 // Constants
@@ -421,6 +422,8 @@ void ImportTracker::loadhpa(std::string file)
 						F32 scale_x=1.f, scale_y=1.f;
 						LLUUID sculpttexture;
 						U8 topology = 0;
+						U8 type = 0;
+						LLPCode pcode = 0;
 
 						if (prim->hasName("box"))
 							selected_type = MI_BOX;
@@ -438,6 +441,10 @@ void ImportTracker::loadhpa(std::string file)
 							selected_type = MI_RING;
 						else if (prim->hasName("sculpt"))
 							selected_type = MI_SCULPT;
+						else if (prim->hasName("tree"))
+							pcode = LL_PCODE_LEGACY_TREE;
+						else if (prim->hasName("grass"))
+							pcode = LL_PCODE_LEGACY_GRASS;
 
 						//COPY PASTE FROM LLPANELOBJECT
 						// Figure out what type of volume to make
@@ -602,7 +609,12 @@ void ImportTracker::loadhpa(std::string file)
 							//<sculptmap_uuid>be293869-d0d9-0a69-5989-ad27f1946fd4</sculptmap_uuid>
 							else if (param->hasName("sculptmap_uuid"))
 								sculpttexture = LLUUID(param->getTextContents());
-
+							
+							//<type val="3" />
+							else if (param->hasName("type"))
+							{
+								param->getAttributeU8("val", type);
+							}
 
 							//<light>
 							else if (param->hasName("light"))
@@ -877,8 +889,14 @@ void ImportTracker::loadhpa(std::string file)
 						//prim_llsd["phantom"] = object->flagPhantom();
 						//prim_llsd["physical"] = (BOOL)(object->mFlags & FLAGS_USE_PHYSICS);
 
-						// Volume params
-						prim_llsd["volume"] = volume_params.asLLSD();
+						if (pcode == LL_PCODE_LEGACY_GRASS || pcode == LL_PCODE_LEGACY_TREE)
+						{
+							prim_llsd["pcode"] = pcode;
+							prim_llsd["state"] = type;
+						}
+						else
+							// Volume params
+							prim_llsd["volume"] = volume_params.asLLSD();
 
 
 						
@@ -1133,13 +1151,75 @@ void ImportTracker::get_update(S32 newid, BOOL justCreated, BOOL createSelected)
 				{
 					++updated;
 					ImportTrackerFloater::objects_imported = updated;
-					send_shape(prim);
-					send_image(prim);
-					send_extras(prim);
-					send_namedesc(prim);
-					send_vectors(prim,updated);
-					send_properties(prim, updated);
-					send_inventory(prim);
+
+					// here be trees
+					LLPCode pcode = prim["pcode"].asInteger();
+					if (pcode == LL_PCODE_LEGACY_GRASS || pcode == LL_PCODE_LEGACY_TREE)
+					{
+						/* this doesnt work, I think we need to DeRez. This code was supposed to delete the extra 
+						object we end up with when importing trees.
+
+						LLMessageSystem* msg = gMessageSystem;
+						msg->newMessageFast(_PREHASH_ObjectDelete);
+						msg->nextBlockFast(_PREHASH_AgentData);
+						msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+						msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+						const U8 NO_FORCE = 0;
+						msg->addU8Fast(_PREHASH_Force, NO_FORCE);
+						msg->nextBlockFast(_PREHASH_ObjectData);
+						msg->addU32Fast(_PREHASH_ObjectLocalID, prim["LocalID"].asInteger());
+						msg->sendReliable(gAgent.getRegion()->getHost()); */
+
+						U8 type = prim["state"].asInteger();
+						LLVector3 scale = prim["scale"];
+						LLQuaternion rotation = ll_quaternion_from_sd(prim["rotation"]);
+						LLVector3 pos = prim["position"];
+
+						//ugly hack!
+						LLMessageSystem* msg = gMessageSystem;
+						msg->newMessageFast(_PREHASH_ObjectAdd);
+						msg->nextBlockFast(_PREHASH_AgentData);
+						msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+						msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+						msg->addUUIDFast(_PREHASH_GroupID, gAgent.getGroupID());
+						msg->nextBlockFast(_PREHASH_ObjectData);
+						msg->addU8Fast(_PREHASH_Material, 3);
+						msg->addU32Fast(_PREHASH_AddFlags, 0);
+						LLVolumeParams	volume_params;
+						volume_params.setType(0x01, 0x10);
+						volume_params.setBeginAndEndS(0.f, 1.f);
+						volume_params.setBeginAndEndT(0.f, 1.f);
+						volume_params.setRatio(1, 1);
+						volume_params.setShear(0, 0);
+						LLVolumeMessage::packVolumeParams(&volume_params, msg);
+						msg->addU8Fast(_PREHASH_PCode, pcode);
+						msg->addVector3Fast(_PREHASH_Scale, scale);
+						msg->addQuatFast(_PREHASH_Rotation, rotation);
+						LLViewerRegion *region = gAgent.getRegion();
+						
+						if (!localids.size())
+							root = (initialPos + linksetoffset);
+						
+						msg->addVector3Fast(_PREHASH_RayStart, pos + currentimportoffset);
+						msg->addVector3Fast(_PREHASH_RayEnd, pos + currentimportoffset);
+						msg->addU8Fast(_PREHASH_BypassRaycast, (U8)TRUE );
+						msg->addU8Fast(_PREHASH_RayEndIsIntersection, (U8)FALSE );
+						msg->addU8Fast(_PREHASH_State, type);
+						msg->addUUIDFast(_PREHASH_RayTargetID, LLUUID::null);
+						msg->sendReliable(region->getHost());
+
+
+					}
+					else
+					{
+						send_shape(prim);
+						send_image(prim);
+						send_extras(prim);
+						send_namedesc(prim);
+						send_vectors(prim,updated);
+						send_properties(prim, updated);
+						send_inventory(prim);
+					}
 					(prim)["Updated"] = true;
 				}
 				if ((int)localids.size() < linkset.size())
