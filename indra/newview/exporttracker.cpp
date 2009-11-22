@@ -52,6 +52,7 @@
 #include "llviewertexteditor.h"
 #include "lllogchat.h" //for timestamp
 #include "lluictrlfactory.h"
+#include "llcheckboxctrl.h"
 #include "llcallbacklist.h"
 
 #ifdef LL_STANDALONE
@@ -221,10 +222,10 @@ void ExportTrackerFloater::show()
 void ExportTrackerFloater::onClickExport(void* data)
 {
 	sInstance->childSetEnabled("export",false);
-	JCExportTracker::export_inventory = gSavedSettings.getBOOL("EmeraldExportInventory");
 
-	//If we are exporting either TGA or J2C then enable the texture exporter
-	JCExportTracker::export_textures = gSavedSettings.getBOOL("ExportTGATextures") | gSavedSettings.getBOOL("ExportJ2CTextures");
+	JCExportTracker::export_properties = sInstance->getChild<LLCheckBoxCtrl>("export_properties_checkbox")->get();
+	JCExportTracker::export_inventory = sInstance->getChild<LLCheckBoxCtrl>("export_contents_checkbox")->get();
+	JCExportTracker::export_textures = sInstance->getChild<LLCheckBoxCtrl>("export_j2c_checkbox")->get() | sInstance->getChild<LLCheckBoxCtrl>("export_tga_checkbox")->get();
 
 	JCExportTracker::serialize(objectselection);
 }
@@ -272,16 +273,6 @@ void JCExportTracker::init()
 	destination = "";
 	asset_dir = "";
 	requested_textures.clear();
-	export_properties = gSavedSettings.getBOOL("EmeraldExportProperties");
-
-//done in the onExport handler;	todo remove
-//	export_inventory = gSavedSettings.getBOOL("EmeraldExportInventory");
-//	export_textures = gSavedSettings.getBOOL("EmeraldExportTextures");
-
-	////cmdline_printchat("init()");
-	////cmdline_printchat(llformat("%d",export_properties));
-	////cmdline_printchat(llformat("%d",export_inventory));
-	////cmdline_printchat(llformat("%d",export_textures));
 }
 
 LLVOAvatar* find_avatar_from_object( LLViewerObject* object );
@@ -500,7 +491,7 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 		prim_llsd["id"] = object->getID().asString();
 		if(export_properties)
 		{
-			////cmdline_printchat(llformat("yes %d",export_properties));
+			cmdline_printchat(llformat("Requesting properties for %s",object->getID().asString()));
 			propertyqueries += 1;
 			gMessageSystem->newMessageFast(_PREHASH_ObjectSelect);
 			gMessageSystem->nextBlockFast(_PREHASH_AgentData);
@@ -1339,7 +1330,7 @@ void JCExportTracker::processObjectProperties(LLMessageSystem* msg, void** user_
 						{
 							if(!((*link_itr).has("properties")))
 							{
-								//cmdline_printchat("Recieved information for prim "+id.asString());
+								cmdline_printchat("Recieved information for prim "+id.asString());
 								LLUUID creator_id;
 								LLUUID owner_id;
 								LLUUID group_id;
