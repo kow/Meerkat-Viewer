@@ -149,7 +149,16 @@ ExportTrackerFloater::ExportTrackerFloater()
 		LLViewerObject* object = selectNode->getObject();
 		if(object)
 			if(!object->isAvatar() && object->permModify() && object->permCopy() && object->permTransfer() && !gAgent.getGodLevel())
+			{
 				catfayse.put(object);
+			}
+			else
+			{
+				total_linksets--;			
+				total_objects--;
+				total_objects-=object->getChildren().size();
+
+			}
 		//cmdline_printchat(" adding " + llformat("%d",total_linksets));
 	}
 	//cmdline_printchat(llformat("%d",export_properties));
@@ -723,6 +732,7 @@ void JCExportTracker::exportworker(void *userdata)
 			if(!(!object->isAvatar() && object->permModify() && object->permCopy() && object->permTransfer() && !gAgent.getGodLevel()))
 			{
 				LLVector3 temp = object->getPosition();
+				ExportTrackerFloater::total_linksets--;
 				//cmdline_printchat("failed to backup object at position " + llformat( "%f, %f, %f", temp.mV[VX], temp.mV[VY], temp.mV[VZ]));
 				//success = false;
 				//break;
