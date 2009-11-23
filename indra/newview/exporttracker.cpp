@@ -77,6 +77,7 @@ std::set<LLUUID> JCExportTracker::requested_textures;
 LLVector3 JCExportTracker::selection_center;
 LLVector3 JCExportTracker::selection_size;
 void cmdline_printchat(std::string chat);
+std::list<PropertiesRequest_t*> JCExportTracker::requested_properties;
 
 ExportTrackerFloater* ExportTrackerFloater::sInstance = 0;
 LLDynamicArray<LLViewerObject*> ExportTrackerFloater::objectselection;
@@ -499,15 +500,15 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 		{
 			cmdline_printchat(llformat("Requesting properties for %s",object->getID().asString()));
 			propertyqueries += 1;
-			gMessageSystem->newMessageFast(_PREHASH_ObjectSelect);
-			gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-			gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 
-			gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-            gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, object->getLocalID());
-            
-            gMessageSystem->sendReliable(gAgent.getRegionHost());
+			//save this request to the list
+			PropertiesRequest_t * req = new PropertiesRequest_t();
+			req->target_prim=object->getID();
+			req->request_time=time(NULL);
+			req->localID=object->getLocalID();
+			requested_properties.push_back(req);
+			
+			requestPrimProperties(object->getLocalID());
 
 			if(export_inventory)
 			{
@@ -523,6 +524,18 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 		llsd[object_index - 1] = prim_llsd;
 	}
 	return llsd;
+}
+
+void JCExportTracker::requestPrimProperties(U32 localID)
+{
+	gMessageSystem->newMessageFast(_PREHASH_ObjectSelect);
+	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
+    gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, localID);
+
+    gMessageSystem->sendReliable(gAgent.getRegionHost());
 }
 
 void JCExportTracker::onFileLoadedForSave(BOOL success, 
@@ -679,53 +692,69 @@ void JCExportTracker::exportworker(void *userdata)
 {
 	if (ExportTrackerFloater::linksets_exported >= ExportTrackerFloater::objectselection.count())
 	{
-		//cmdline_printchat("reached end of list, removing idle callback");
-		gIdleCallbacks.deleteFunction(exportworker);
-		return;
-	}
-
-	if((propertyqueries + invqueries) <= 100) //this has the potential to screw up if a linkset contains enough 
-	{										  //inventory in the prims that we get booted for flooding the sim
-		//cmdline_printchat(llformat("backing up object %u",ExportTrackerFloater::linksets_exported));
-		LLViewerObject* object = ExportTrackerFloater::objectselection.get(ExportTrackerFloater::linksets_exported);
-
-		if(!(!object->isAvatar() && object->permModify() && object->permCopy() && object->permTransfer() && !gAgent.getGodLevel()))
-		{
-			LLVector3 temp = object->getPosition();
-			//cmdline_printchat("failed to backup object at position " + llformat( "%f, %f, %f", temp.mV[VX], temp.mV[VY], temp.mV[VZ]));
-			//success = false;
-			//break;
-		}
+		if(requested_properties.size()==0)
+			gIdleCallbacks.deleteFunction(exportworker);
 		else
 		{
-			LLVector3 object_pos = object->getPosition();
-			LLSD origin;
-
-			origin["ObjectPos"] = object_pos.getValue();
-
-			if (object)//impossible condition, you check avatar above//&& !(object->isAvatar()))
+			int kick_count=0;				
+			std::list<PropertiesRequest_t*>::iterator iter;
+			time_t tnow=time(NULL);
+			for (iter=requested_properties.begin(); iter != requested_properties.end(); iter++)
 			{
-				LLSD linkset = subserialize(object);
-
-				if(!linkset.isUndefined())origin["Object"] = linkset;
-
-				total[ExportTrackerFloater::linksets_exported] = origin;
-			}
-		}
-		ExportTrackerFloater::linksets_exported++;
-
-		//cmdline_printchat("exporting " + llformat("%d",objects.size()) + " objects");
-		if(!total.isUndefined() && propertyqueries == 0 && invqueries == 0)
-		{
-			completechk();
-		}else
-		{
-			data = total;
+				PropertiesRequest_t * req;
+				req=(*iter);
+				if( (req->request_time+PROP_REQUEST_KICK)< tnow)
+				{
+					requestPrimProperties(req->localID);
+					kick_count++;
+				}
+				if(kick_count>=50)
+					break; // that will do for now
+			}			
 		}
 	}
-	//else
-		//cmdline_printchat("property queries remaining, waiting");
+	else
+	{
+		if((propertyqueries + invqueries) <= 100) //this has the potential to screw up if a linkset contains enough 
+		{										  //inventory in the prims that we get booted for flooding the sim
+			//cmdline_printchat(llformat("backing up object %u",ExportTrackerFloater::linksets_exported));
+			LLViewerObject* object = ExportTrackerFloater::objectselection.get(ExportTrackerFloater::linksets_exported);
 
+			if(!(!object->isAvatar() && object->permModify() && object->permCopy() && object->permTransfer() && !gAgent.getGodLevel()))
+			{
+				LLVector3 temp = object->getPosition();
+				//cmdline_printchat("failed to backup object at position " + llformat( "%f, %f, %f", temp.mV[VX], temp.mV[VY], temp.mV[VZ]));
+				//success = false;
+				//break;
+			}
+			else
+			{
+				LLVector3 object_pos = object->getPosition();
+				LLSD origin;
+
+				origin["ObjectPos"] = object_pos.getValue();
+
+				if (object)//impossible condition, you check avatar above//&& !(object->isAvatar()))
+				{
+					LLSD linkset = subserialize(object);
+
+					if(!linkset.isUndefined())origin["Object"] = linkset;
+
+					total[ExportTrackerFloater::linksets_exported] = origin;
+				}
+			}
+			ExportTrackerFloater::linksets_exported++;
+
+			//cmdline_printchat("exporting " + llformat("%d",objects.size()) + " objects");
+			if(!total.isUndefined() && propertyqueries == 0 && invqueries == 0)
+			{
+				completechk();
+			}else
+			{
+				data = total;
+			}
+		}
+	}
 
 }
 
@@ -1317,6 +1346,20 @@ void JCExportTracker::processObjectProperties(LLMessageSystem* msg, void** user_
 	{
 		LLUUID id;
 		msg->getUUIDFast(_PREHASH_ObjectData, _PREHASH_ObjectID, id, i);
+
+		//Remove this request from the list of requests
+		std::list<PropertiesRequest_t*>::iterator iter;
+		for (iter=requested_properties.begin(); iter != requested_properties.end(); iter++)
+		{
+			PropertiesRequest_t * req;
+			req=(*iter);
+			if(id==req->target_prim)
+			{
+				free(req);
+				requested_properties.erase(iter);
+				break;
+			}
+		}
 
 		for(LLSD::array_iterator array_itr = data.beginArray();
 			array_itr != data.endArray();

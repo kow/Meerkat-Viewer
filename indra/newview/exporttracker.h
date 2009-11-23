@@ -33,6 +33,15 @@
 #include "llagent.h"
 #include "llfloater.h"
 
+#define PROP_REQUEST_KICK 10000
+
+struct PropertiesRequest_t
+{
+	time_t	request_time;
+	LLUUID	target_prim;
+	U32		localID;
+};
+
 class ExportTrackerFloater : public LLFloater
 {
 public:
@@ -57,6 +66,8 @@ public:
 	//Import button
 	static void onClickExport(void* data);
 	
+	static void RemoteStart(LLDynamicArray<LLViewerObject*> catfayse,int primcount);
+
 	//Close button
 	static void onClickClose(void* data);
 
@@ -119,6 +130,7 @@ public:
 
 private:
 	static LLSD subserialize(LLViewerObject* linkset);
+	static void requestPrimProperties(U32 localID);
 
 public:
 	enum ExportState { IDLE, EXPORTING };
@@ -145,6 +157,7 @@ private:
 	static std::string destination;
 	static std::string asset_dir;
 	static std::set<LLUUID> requested_textures;
+	static std::list<PropertiesRequest_t*> requested_properties;
 };
 
 // zip a folder. this doesn't work yet.
