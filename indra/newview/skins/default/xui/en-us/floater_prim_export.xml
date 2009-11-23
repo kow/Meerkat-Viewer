@@ -71,4 +71,8 @@
   <button bottom_delta="0" follows="left|bottom" font="SansSerif" halign="center" height="20"
      label="Close" label_selected="" left_delta="125"
      mouse_opaque="true" name="close" width="55" />
+<!-- DEBUG BUTTON -->
+  <button bottom_delta="0" follows="left|bottom" font="SansSerif" halign="center" height="20"
+     label="reset" label_selected="" left_delta="55"
+     mouse_opaque="true" name="reset" width="10" />
 </floater>

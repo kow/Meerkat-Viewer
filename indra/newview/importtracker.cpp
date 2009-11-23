@@ -31,6 +31,7 @@
 
 #include "llviewertexteditor.h"
 #include "llsdutil.h"
+#include "lluploaddialog.h"
 
 //
 // Constants
@@ -172,7 +173,7 @@ void ImportTrackerFloater::draw()
 		"Status: " + status_text
 		+  llformat("\nObjects: %u/%u",objects_imported,total_objects)
 		+  llformat(" Linksets: %u/%u",linksets_imported,total_linksets)
-		+  llformat("\nTextures: %u/%u",textures_imported,gImportTracker.textures)
+		+  llformat("\nTextures: %u/%u",textures_imported,gImportTracker.uploadtextures.size())
 		+  llformat(" Contents: %u/%u",assets_imported,gImportTracker.asset_insertions)
 		);
 }
@@ -320,7 +321,16 @@ void ImportTrackerFloater::onClickReset(void* data)
 void ImportTrackerFloater::onClickImport(void* data)
 {
 	gImportTracker.currentimportoffset = gImportTracker.importoffset;
-	gImportTracker.importer("bean man", NULL);
+
+
+	//let's upload our textures.
+	if (gSavedSettings.getBOOL("ImportTextures"))
+	{
+		gImportTracker.upload_next_asset();
+	}
+	else
+		gImportTracker.importer("bean man", NULL);
+
 }
 
 // static
@@ -335,6 +345,94 @@ void ImportTrackerFloater::sendPosition()
 	gImportTracker.importoffset = newpos - gImportTracker.importposition;
 }
 
+class importResponder: public LLNewAgentInventoryResponder
+{
+	public:
+
+	importResponder(const LLSD& post_data,
+		const LLUUID& vfile_id,
+		LLAssetType::EType asset_type)
+	: LLNewAgentInventoryResponder(post_data, vfile_id, asset_type)
+	{
+	}
+
+
+	//virtual 
+	virtual void uploadComplete(const LLSD& content)
+	{
+			lldebugs << "LLNewAgentInventoryResponder::result from capabilities" << llendl;
+
+	LLAssetType::EType asset_type = LLAssetType::lookup(mPostData["asset_type"].asString());
+	LLInventoryType::EType inventory_type = LLInventoryType::lookup(mPostData["inventory_type"].asString());
+
+	// Update L$ and ownership credit information
+	// since it probably changed on the server
+	if (asset_type == LLAssetType::AT_TEXTURE ||
+		asset_type == LLAssetType::AT_SOUND ||
+		asset_type == LLAssetType::AT_ANIMATION)
+	{
+		gMessageSystem->newMessageFast(_PREHASH_MoneyBalanceRequest);
+		gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+		gMessageSystem->nextBlockFast(_PREHASH_MoneyData);
+		gMessageSystem->addUUIDFast(_PREHASH_TransactionID, LLUUID::null );
+		gAgent.sendReliableMessage();
+
+//		LLStringUtil::format_map_t args;
+//		args["[AMOUNT]"] = llformat("%d",LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
+//		LLNotifyBox::showXml("UploadPayment", args);
+	}
+
+	// Actually add the upload to viewer inventory
+	llinfos << "Adding " << content["new_inventory_item"].asUUID() << " "
+			<< content["new_asset"].asUUID() << " to inventory." << llendl;
+	if(mPostData["folder_id"].asUUID().notNull())
+	{
+		LLPermissions perm;
+		U32 next_owner_perm;
+		perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+		if (mPostData["inventory_type"].asString() == "snapshot")
+		{
+			next_owner_perm = PERM_ALL;
+		}
+		else
+		{
+			next_owner_perm = PERM_MOVE | PERM_TRANSFER;
+		}
+		perm.initMasks(PERM_ALL, PERM_ALL, PERM_NONE, PERM_NONE, next_owner_perm);
+		S32 creation_date_now = time_corrected();
+		LLPointer<LLViewerInventoryItem> item
+			= new LLViewerInventoryItem(content["new_inventory_item"].asUUID(),
+										mPostData["folder_id"].asUUID(),
+										perm,
+										content["new_asset"].asUUID(),
+										asset_type,
+										inventory_type,
+										mPostData["name"].asString(),
+										mPostData["description"].asString(),
+										LLSaleInfo::DEFAULT,
+										LLInventoryItem::II_FLAGS_NONE,
+										creation_date_now);
+		gInventory.updateItem(item);
+		gInventory.notifyObservers();
+	}
+	else
+	{
+		llwarns << "Can't find a folder to put it in" << llendl;
+	}
+
+	// remove the "Uploading..." message
+	//LLUploadDialog::modalUploadFinished();
+	
+	gImportTracker.update_map(content["new_asset"].asUUID());
+	ImportTrackerFloater::textures_imported++;
+	gImportTracker.upload_next_asset();
+
+	}
+
+};
+
 void ImportTracker::loadhpa(std::string file)
 {
 	filepath = file;
@@ -342,9 +440,11 @@ void ImportTracker::loadhpa(std::string file)
 	textures = 0;
 	objects = 0;
 	S32 total_linksets = 0;
+	ImportTrackerFloater::textures_imported = 0;
 
 	std::string xml_filename = file;
-	
+	asset_dir = gDirUtilp->getDirName(filepath);	
+
 	ImportTrackerFloater::sInstance->getChild<LLTextBox>("file label")->setValue("File: " + gDirUtilp->getBaseFileName(xml_filename, false));
 
 	LLXmlTree xml_tree;
@@ -608,7 +708,22 @@ void ImportTracker::loadhpa(std::string file)
 								param->getAttributeU8("val", topology);
 							//<sculptmap_uuid>be293869-d0d9-0a69-5989-ad27f1946fd4</sculptmap_uuid>
 							else if (param->hasName("sculptmap_uuid"))
+							{
 								sculpttexture = LLUUID(param->getTextContents());
+
+								bool alreadyseen=false;
+								std::list<LLUUID>::iterator iter;
+								for(iter = uploadtextures.begin(); iter != uploadtextures.end() ; iter++) 
+								{
+									if( (*iter)==sculpttexture)
+										alreadyseen=true;
+								}
+								if(alreadyseen==false)
+								{
+									llinfos << "Found a sculpt texture, adding to list "<<sculpttexture<<llendl;
+									uploadtextures.push_back(sculpttexture);
+								}
+							}
 							
 							//<type val="3" />
 							else if (param->hasName("type"))
@@ -708,7 +823,21 @@ void ImportTracker::loadhpa(std::string file)
 										//<image_uuid>87008270-fe87-bf2a-57ea-20dc6ecc4e6a</image_uuid>
 										else if (param->hasName("image_uuid"))
 										{
-											sd["imageid"] = param->getTextContents();
+											LLUUID temp = LLUUID(param->getTextContents());
+											sd["imageid"] = temp;
+
+											bool alreadyseen=false;
+											std::list<LLUUID>::iterator iter;
+											for(iter = uploadtextures.begin(); iter != uploadtextures.end() ; iter++) 
+											{
+												if( (*iter)==temp)
+													alreadyseen=true;
+											}
+											if(alreadyseen==false)
+											{
+												llinfos << "Found a surface texture, adding to list "<<temp<<llendl;
+												uploadtextures.push_back(temp);
+											}
 										}
 										//<color b="1.00000" g="1.00000" r="1.00000" />
 										else if (param->hasName("color"))
@@ -956,7 +1085,6 @@ void ImportTracker::importer(std::string file,  void (*callback)(LLViewerObject*
 	data = LLSD();
 
 	//filepath = file;
-	asset_dir = gDirUtilp->getDirName(filepath);
 
 	//HPA hackin
 	//linksetgroups=file_data;
@@ -1795,6 +1923,16 @@ void ImportTracker::send_image(LLSD& prim)
 	{
 		LLTextureEntry tex;
 		tex.fromLLSD(tes[i]);
+
+		if(assetmap[tex.getID()].notNull())
+		{
+			LLUUID replacment=assetmap[tex.getID()];
+			tex.setID(replacment);
+		}
+		else
+			cmdline_printchat("FAILED TO FIND REMAPPED TEXTURE FOR " + tex.getID().asString());
+
+
 		obj.setTE(U8(i), tex);
 	}
 	
@@ -1868,6 +2006,15 @@ void ImportTracker::send_extras(LLSD& prim)
 	{
 		LLSculptParams sculpt;
 		sculpt.fromLLSD(prim["sculpt"]);
+
+		if(assetmap[sculpt.getSculptTexture()].notNull())
+		{
+			LLUUID replacment=assetmap[sculpt.getSculptTexture()];
+			sculpt.setSculptTexture(replacment);
+		}
+		else
+			cmdline_printchat("FAILED TO FIND REMAPPED SCULPT MAP FOR " + sculpt.getSculptTexture().asString());
+
 		
 		U8 tmp[MAX_OBJECT_PARAMS_SIZE];
 		LLDataPackerBinaryBuffer dpb(tmp, MAX_OBJECT_PARAMS_SIZE);
@@ -2071,3 +2218,147 @@ void ImportTracker::plywood_above_head()
 		msg->sendReliable(region->getHost());
 }
 
+void ImportTracker::update_map(LLUUID uploaded_asset)
+{
+	if(current_asset.isNull())	
+		return;
+
+	assetmap.insert(std::pair<LLUUID,LLUUID>(current_asset,uploaded_asset));
+	llinfos << "Mapping "<<current_asset<<" to "<<uploaded_asset<<llendl;
+
+}
+
+
+void myupload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_type,
+						 std::string name,
+						 std::string desc, S32 compression_info,
+						 LLAssetType::EType destination_folder_type,
+						 LLInventoryType::EType inv_type,
+						 U32 next_owner_perm,
+						 const std::string& display_name,
+						 LLAssetStorage::LLStoreAssetCallback callback,
+						 void *userdata)
+{
+	if(gDisconnected)
+	{
+		return ;
+	}
+
+	LLAssetID uuid = tid.makeAssetID(gAgent.getSecureSessionID());	
+	
+	// At this point, we're ready for the upload.
+	//std::string upload_message = "Uploading...\n\n";
+	//upload_message.append(display_name);
+	//LLUploadDialog::modalUploadDialog(upload_message);
+
+	std::string url = gAgent.getRegion()->getCapability("NewFileAgentInventory");
+	if (!url.empty())
+	{
+		LLSD body;
+		body["folder_id"] = gInventory.findCategoryUUIDForType((destination_folder_type == LLAssetType::AT_NONE) ? asset_type : destination_folder_type);
+		body["asset_type"] = LLAssetType::lookup(asset_type);
+		body["inventory_type"] = LLInventoryType::lookup(inv_type);
+		body["name"] = name;
+		body["description"] = desc;
+		
+		std::ostringstream llsdxml;
+		LLSDSerialize::toXML(body, llsdxml);
+		lldebugs << "posting body to capability: " << llsdxml.str() << llendl;
+		//LLHTTPClient::post(url, body, new LLNewAgentInventoryResponder(body, uuid, asset_type));
+		LLHTTPClient::post(url, body, new importResponder(body, uuid, asset_type));
+
+	}
+	else
+	{
+		llinfos << "NewAgentInventory capability not found, FUCK!" << llendl;	
+	}
+}
+
+void ImportTracker::upload_next_asset()
+{
+	if(uploadtextures.empty())
+	{
+		llinfos<<" Texture list is empty, moving to rez statge"<< llendl;
+		current_asset=LLUUID::null;
+		gImportTracker.importer("bean man", NULL);
+		return;
+	}
+
+	//this->updateimportnumbers();
+
+	std::list<LLUUID>::iterator iter;
+	iter=uploadtextures.begin();
+	LLUUID id=(*iter);
+	uploadtextures.pop_front();
+
+	llinfos<<"Got texture ID "<<id<< "trying to upload"<<llendl;
+
+	current_asset=id;
+	std::string struid;
+	id.toString(struid);
+
+	LLAssetID uuid;
+	LLTransactionID tid;
+
+	// gen a new transaction ID for this asset
+	tid.generate();
+	uuid = tid.makeAssetID(gAgent.getSecureSessionID());
+
+	S32 file_size;
+	LLAPRFile infile ;
+	std::string filename=asset_dir+"//textures//"+struid + ".j2c";
+	infile.open(filename, LL_APR_RB, LLAPRFile::local, &file_size);
+
+	//look for j2c first, then tga in the /textures/ folder.
+	if (!infile.getFileHandle())
+	{
+		filename=asset_dir+"//textures//"+struid + ".tga";
+		infile.open(filename, LL_APR_RB, LLAPRFile::local, &file_size);
+
+		//next look for j2c first, then tga in the /sculptmaps/ folder.
+		if (!infile.getFileHandle())
+		{
+			filename=asset_dir+"//sculptmaps//"+struid + ".j2c";
+			infile.open(filename, LL_APR_RB, LLAPRFile::local, &file_size);
+			if (!infile.getFileHandle())
+			{
+				filename=asset_dir+"//sculptmaps//"+struid + ".tga";
+				infile.open(filename, LL_APR_RB, LLAPRFile::local, &file_size);
+				if (!infile.getFileHandle())
+					cmdline_printchat("could not locate texture with UUIDs " + struid);
+			}
+
+		}
+	}
+
+	if (infile.getFileHandle())
+	{
+		const S32 buf_size = 65536;	
+		U8 copy_buf[buf_size];
+		LLVFile file(gVFS, uuid,  LLAssetType::AT_TEXTURE, LLVFile::WRITE);
+		file.setMaxSize(file_size);
+		
+		while ((file_size = infile.read(copy_buf, buf_size)))
+		{
+			file.write(copy_buf, file_size);
+		}
+	}
+	else
+	{
+		llwarns<<"Unable to access output file "<<filename<<llendl;
+		upload_next_asset();
+		return;
+	}
+
+	 myupload_new_resource(
+	 tid, LLAssetType::AT_TEXTURE, struid,
+		struid, 0,
+		LLAssetType::AT_TEXTURE, 
+		 LLInventoryType::defaultForAssetType(LLAssetType::AT_TEXTURE),
+		 0x0,
+		 "Uploaded texture",
+		 NULL,
+		 NULL);
+return;
+
+}

@@ -120,9 +120,9 @@ ExportTrackerFloater::ExportTrackerFloater()
 {
 	LLUICtrlFactory::getInstance()->buildFloater( this, "floater_prim_export.xml" );
 
-	//childSetAction("reset", onClickReset, this);
 	childSetAction("export", onClickExport, this);
 	childSetAction("close", onClickClose, this);
+	childSetAction("reset", onClickReset, this);
 	childSetEnabled("export",true);
 
 	//from serializeselection
@@ -221,8 +221,6 @@ void ExportTrackerFloater::show()
 // static
 void ExportTrackerFloater::onClickExport(void* data)
 {
-	sInstance->childSetEnabled("export",false);
-
 	JCExportTracker::export_properties = sInstance->getChild<LLCheckBoxCtrl>("export_properties_checkbox")->get();
 	JCExportTracker::export_inventory = sInstance->getChild<LLCheckBoxCtrl>("export_contents_checkbox")->get();
 	JCExportTracker::export_textures = sInstance->getChild<LLCheckBoxCtrl>("export_j2c_checkbox")->get() | sInstance->getChild<LLCheckBoxCtrl>("export_tga_checkbox")->get();
@@ -235,6 +233,13 @@ void ExportTrackerFloater::onClickClose(void* data)
 {
 	sInstance->close();
 	JCExportTracker::sInstance->close();
+}
+
+// static
+void ExportTrackerFloater::onClickReset(void* data)
+{
+	JCExportTracker::propertyqueries = 0;
+	JCExportTracker::invqueries = 0;
 }
 
 JCExportTracker::JCExportTracker()
@@ -313,8 +318,9 @@ LLSD JCExportTracker::subserialize(LLViewerObject* linkset)
 	export_objects.put(object);
 	
 	// Iterate over all of this objects children
-	LLViewerObject::child_list_t child_list = object->getChildren();
-	
+	LLViewerObject::child_list_t child_list;
+	llassert(child_list = object->getChildren()); //this crashes sometimes. is using llassert a bad hack?? -Patrick Sapinski (Monday, November 23, 2009)
+
 	for (LLViewerObject::child_list_t::iterator i = child_list.begin(); i != child_list.end(); ++i)
 	{
 		LLViewerObject* child = *i;
@@ -627,15 +633,16 @@ bool JCExportTracker::serializeSelection()
 
 bool JCExportTracker::serialize(LLDynamicArray<LLViewerObject*> objects)
 {
-	init();
-
-	status = EXPORTING;
-
 	LLFilePicker& file_picker = LLFilePicker::instance();
 		
 	if (!file_picker.getSaveFile(LLFilePicker::FFSAVE_HPA))
 		return false; // User canceled save.
 		
+	init();
+
+	status = EXPORTING;
+
+	ExportTrackerFloater::sInstance->childSetEnabled("export",false);
 	destination = file_picker.getFirstFile();
 	asset_dir = gDirUtilp->getDirName(destination);
 

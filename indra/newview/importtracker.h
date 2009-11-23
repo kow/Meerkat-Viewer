@@ -92,6 +92,21 @@ class ImportTracker
 		LLVector3 size;
 		LLVector3 importoffset;
 		LLVector3 currentimportoffset;
+
+		//Working LLSD holders
+		LLUUID current_asset;
+		
+		// Rebase map
+		std::map<LLUUID,LLUUID> assetmap;
+		
+		//Export texture list
+		std::list<LLUUID> uploadtextures;
+
+		//Update map from texture worker
+		void update_map(LLUUID uploaded_asset);
+
+		//Move to next texture upload
+		void upload_next_asset();
 		
 	protected:		
 		void send_inventory(LLSD &prim);

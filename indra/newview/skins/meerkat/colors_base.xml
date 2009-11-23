@@ -102,10 +102,10 @@
 <GroupNotifyTextColor value="0, 30, 60, 255" />
 
 <!-- CHAT AND IM HISTORY TEXTBOX COLORS -->
-<ChatHistoryBgColor value="0, 0, 0, 100" />
-<ChatHistoryTextColor value="0, 0, 0, 255" />
-<IMHistoryBgColor value="255, 255, 255, 100" />
-<IMHistoryTextColor value="0, 0, 0, 255" />
+<ChatHistoryBgColor value="0, 0, 0, 255" />
+<ChatHistoryTextColor value="255, 255, 255, 255" />
+<IMHistoryBgColor value="0, 0, 0, 255" />
+<IMHistoryTextColor value="255, 255, 255, 255" />
 
 <!-- IN-WORLD SELECTION -->
 <SilhouetteParentColor value="255, 255, 0, 255" />

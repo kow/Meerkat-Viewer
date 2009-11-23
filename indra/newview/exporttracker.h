@@ -60,6 +60,10 @@ public:
 	//Close button
 	static void onClickClose(void* data);
 
+	//Reset button
+	static void onClickReset(void* data);
+
+
 	static LLDynamicArray<LLViewerObject*> objectselection;
 
 	static int		linksets_exported;
@@ -134,8 +138,8 @@ public:
 	static U32 totalprims;
 	static LLVector3 selection_center;
 	static LLVector3 selection_size;
-private:
 	static LLSD data;
+private:
 	static LLSD total;
 
 	static std::string destination;
