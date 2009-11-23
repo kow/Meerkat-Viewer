@@ -825,7 +825,8 @@ void LLSelectMgr::highlightObjectOnly(LLViewerObject* objectp)
 	}
 	
 	if ((gSavedSettings.getBOOL("SelectOwnedOnly") && !objectp->permYouOwner()) ||
-		(gSavedSettings.getBOOL("SelectMovableOnly") && !objectp->permMove()))
+		(gSavedSettings.getBOOL("SelectMovableOnly") && !objectp->permMove()) ||
+		(gSavedSettings.getBOOL("SelectThisRegionOnly") && !(objectp->getRegion() == gAgent.getRegion())))
 	{
 		// only select my own objects
 		return;

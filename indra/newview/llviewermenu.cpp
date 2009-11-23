@@ -7358,6 +7358,18 @@ class LLToolsSelectOnlyMyObjects : public view_listener_t
 	}
 };
 
+class LLToolsSelectOnlyThisRegionObjects : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		BOOL cur_val = gSavedSettings.getBOOL("SelectThisRegionOnly");
+
+		gSavedSettings.setBOOL("SelectThisRegionOnly", ! cur_val );
+
+		return true;
+	}
+};
+
 class LLToolsSelectOnlyMovableObjects : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -8488,6 +8500,7 @@ void initialize_menus()
 	// Tools menu
 	addMenu(new LLToolsSelectTool(), "Tools.SelectTool");
 	addMenu(new LLToolsSelectOnlyMyObjects(), "Tools.SelectOnlyMyObjects");
+	addMenu(new LLToolsSelectOnlyThisRegionObjects(), "Tools.SelectOnlyThisRegionObjects");
 	addMenu(new LLToolsSelectOnlyMovableObjects(), "Tools.SelectOnlyMovableObjects");
 	addMenu(new LLToolsSelectBySurrounding(), "Tools.SelectBySurrounding");
 	addMenu(new LLToolsShowHiddenSelection(), "Tools.ShowHiddenSelection");

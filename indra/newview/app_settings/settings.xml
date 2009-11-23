@@ -8425,6 +8425,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SelectThisRegionOnly</key>
+    <map>
+      <key>Comment</key>
+      <string>Select only objects in current region</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>SelectionHighlightAlpha</key>
     <map>
       <key>Comment</key>
@@ -12370,6 +12381,17 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+    <key>ImportTextures</key>
+    <map>
+      <key>Comment</key>
+      <string>Upload textures during prim import</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>FloaterPrimExport</key>
   <map>
     <key>Comment</key>

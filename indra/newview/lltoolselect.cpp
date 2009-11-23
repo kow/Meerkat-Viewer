@@ -133,12 +133,14 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
 
 	BOOL select_owned = gSavedSettings.getBOOL("SelectOwnedOnly");
 	BOOL select_movable = gSavedSettings.getBOOL("SelectMovableOnly");
+	BOOL select_region = gSavedSettings.getBOOL("SelectThisRegionOnly");
 	
 	// *NOTE: These settings must be cleaned up at bottom of function.
 	if (temp_select || gAllowSelectAvatar)
 	{
 		gSavedSettings.setBOOL("SelectOwnedOnly", FALSE);
 		gSavedSettings.setBOOL("SelectMovableOnly", FALSE);
+		gSavedSettings.setBOOL("SelectThisRegionOnly", TRUE);
 		LLSelectMgr::getInstance()->setForceSelection(TRUE);
 	}
 
@@ -269,6 +271,7 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
 	{
 		gSavedSettings.setBOOL("SelectOwnedOnly", select_owned);
 		gSavedSettings.setBOOL("SelectMovableOnly", select_movable);
+		gSavedSettings.setBOOL("SelectThisRegionOnly", select_region);
 		LLSelectMgr::getInstance()->setForceSelection(FALSE);
 	}
 

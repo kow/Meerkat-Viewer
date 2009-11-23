@@ -635,6 +635,11 @@
 			<on_click function="Tools.SelectOnlyMyObjects" userdata="agents" />
 			<on_check control="SelectOwnedOnly" />
 		</menu_item_check>
+    <menu_item_check bottom="-75" enabled="true" height="19" label="Select Only Current Regions Objects"
+		     left="0" mouse_opaque="true" name="Select Only Current Regions Objects" width="250">
+      <on_click function="Tools.SelectOnlyThisRegionObjects" userdata="region" />
+      <on_check control="SelectThisRegionOnly" />
+    </menu_item_check>
 		<menu_item_check bottom="-75" enabled="true" height="19" label="Select Only Movable Objects"
 		     left="0" mouse_opaque="true" name="Select Only Movable Objects" width="250">
 			<on_click function="Tools.SelectOnlyMovableObjects" userdata="movable" />
